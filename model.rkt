@@ -12,7 +12,7 @@
 (define-language esterel
   ((p q)
    nothing
-   (signal S p)
+   (signal Sdat p)
    (present Sdat p q)
    (emit Sdat)
    (par p q)
@@ -25,7 +25,10 @@
    (exit n))
   (Sdat ::= S)
   (S ::= variable-not-otherwise-mentioned)
-  (n ::= natural))
+  (n ::= natural)
+  ;#:binding-forms
+  ;(signal S p #:refers-to S)
+  )
 
 (define-extended-language esterel-eval esterel
   ;; there is no "unknown" status. In case of
@@ -33,27 +36,25 @@
   (status ::= present absent unknown)
   (dat ::= (S present) (S absent))
   (Sdat ::= .... dat)
-  ;; Signal environment
-  (E ::= ((S status) ...))
-  ;; a machine state
   ;; list of evaluated exprers, lists of paused exprs, environment, emitted signals
-  (m ::= (state p E (S ...)))
 
   ;; "values"
   (v ::= vp v*)
   (vp ::= nothing (exit n))
   (v* ::=
-      pause
-      (seq v* q)
-      (par v* v*)
-      (suspend p (S present))
-      (suspend v* dat)
-      (trap v*))
+      (in-hole A pause)
+      (in-hole A (seq v* q))
+      (in-hole A (par v* v*))
+      (in-hole A (suspend p (S present)))
+      (in-hole A (suspend v* dat))
+      (in-hole A (trap v*)))
 
+  (A ::=
+     hole
+     (signal Sdat A))
+  (P* Q* ::= (in-hole A P))
+  (P^* Q^* ::= (in-hole A P^))
   ;; evaluation contexts
-  (M ::= (state P E (S ...)))
-  (M^ ::= (state P^ E (S ...)))
-
   (P Q ::=
      hole
      (seq P q)
@@ -67,7 +68,7 @@
       (par P^ q)
       (par p Q^)
       (trap P^)
-      (suspend P^ (S absent))))
+      (signal S P^)))
 
 (define-metafunction esterel-eval
   substitute : any S Sdat -> any
@@ -85,68 +86,58 @@
   ;; program is loop safe
   ;; no nested signal/traps have overlapping names
   (reduction-relation
-   esterel-eval #:domain m
-   (--> (in-hole M (par vp v)) (in-hole M (value-max vp v))
+   esterel-eval #:domain p
+   (--> (in-hole P* (par vp v)) (in-hole P* (value-max vp v))
         par-done-right)
-   (--> (in-hole M (par v vp)) (in-hole M (value-max v vp))
+   (--> (in-hole P* (par v vp)) (in-hole P* (value-max v vp))
         par-done-left)
-   (-->
-    (state (in-hole P (signal S p)) E (S_S ...))
-    (state (in-hole P p) (insert-env (S unknown) E) (S_S ...))
-    signal)
-   (--> (in-hole M (present (S present) p q)) (in-hole M p)
+   (--> (in-hole P* (present (S present) p q)) (in-hole P* p)
     is-present)
-   (--> (in-hole M (present (S absent) p q)) (in-hole M q)
+   (--> (in-hole P* (present (S absent) p q)) (in-hole P* q)
     is-absent)
-
    (-->
-    (state (in-hole P (emit S)) E (S_S ...))
-    (pick (state (in-hole P nothing) E (insert-signal S (S_S ...))) S present)
+    (in-hole A (signal S (in-hole P* (emit S))))
+    (in-hole A
+             (signal (S present)
+                     (substitute (in-hole P* nothing) S (S present))))
     emit-unknown)
    (-->
-    (state (in-hole P (emit (S present))) E (S_S ...))
-    (state (in-hole P nothing) E (insert-signal S (S_S ...)))
+    (in-hole A (signal (S present) (in-hole P* (emit (S present)))))
+    (in-hole A (signal (S present) (in-hole P* nothing)))
     emit-present)
 
    (-->
-    (state (in-hole P (present S p q)) E (S_S ...))
-    (pick (state (in-hole P (present S p q)) E (S_S ...)) S present)
-    (judgment-holds (stuck? (in-hole P (present S p q)) E))
-    guess-present)
-   (-->
-    (state (in-hole P (present S p q)) E (S_S ...))
-    (pick (state (in-hole P (present S p q)) E (S_S ...)) S absent)
-    (judgment-holds (stuck? (in-hole P (present S p q)) E))
-    guess-absent)
-   (-->
-    (state (in-hole P (suspend p S)) E (S_S ...))
-    (pick (state (in-hole P (suspend p S)) E (S_S ...)) S absent)
-    (judgment-holds (stuck? (in-hole P (suspend p S)) E))
-    guess-suspend-absent)
+    (in-hole A (signal S p))
+    (in-hole A (signal (S absent) (substitute p S (S absent))))
+    (where #t (∉ S (Can_S p)))
+    (judgment-holds (stuck? p))
+    absence)
 
-   (--> (in-hole M (loop p)) (in-hole M (seq p (loop p)))
+   (--> (in-hole P* (loop p)) (in-hole P* (seq p (loop p)))
     loop)
-   (--> (in-hole M^ pause^) (in-hole M^ nothing)
+   (--> (in-hole P^* pause^) (in-hole P^* nothing)
         hatted-pause)
-   (--> (in-hole M (seq nothing q)) (in-hole M q)
+   (--> (in-hole P* (seq nothing q)) (in-hole P* q)
     seq-done)
-   (--> (in-hole M (seq (exit n) q)) (in-hole M (exit n))
+   (--> (in-hole P* (seq (exit n) q)) (in-hole P* (exit n))
     seq-exit)
-   (--> (in-hole M (suspend vp dat)) (in-hole M vp)
+   (--> (in-hole P* (suspend vp dat)) (in-hole P* vp)
     suspend-value)
    ;; traps
-   (--> (in-hole M (trap nothing)) (in-hole M nothing)
-        trap-nothing)
-   (--> (in-hole M (trap (exit 0))) (in-hole M nothing)
+   (--> (in-hole P* (trap vp)) (in-hole P* (harp vp))
         trap-done)
-   (--> (in-hole M (trap (exit n))) (in-hole M (exit ,(sub1 `n)))
-        (side-condition (not (zero? `n)))
-        trap-sub)))
+   ;; lifting signals
+   (--> (in-hole A (in-hole P (signal S p)))
+        ;; TODO alpha-rename
+        ;; TODO self loop
+        (in-hole A (signal S (in-hole P p)))
+        raise-signal)))
 
 (define-metafunction esterel-eval
-  pick : m S status -> m
-  [(pick (state p ((S_1 status_1) ... (S unknown) (S_2 status_2) ...) (S_o ...)) S status)
-   (state (substitute p S (S status)) ((S_1 status_1) ... (S status) (S_2 status_2) ...) (S_o ...))])
+  harp : vp -> vp
+  [(harp nothing) nothing]
+  [(harp (exit 0)) nothing]
+  [(harp (exit n)) (exit ,(sub1 `n))])
 
 (define-metafunction esterel-eval
   value-max : v v -> v
@@ -157,128 +148,67 @@
   [(value-max v* (exit n)) (exit n)])
 
 (define-judgment-form esterel-eval
-  #:mode (stuck? I I)
-  #:contract (stuck? p E)
+  #:mode (stuck? I)
+  #:contract (stuck? p)
   [------------
-   (stuck? v E)]
-
-  [(where ((S_1 status_1) ... (S unknown) (S_2 status_2) ...) E)
-   -----------
-   (stuck? (present S p q) E)]
-
-  [(stuck? p E)
-   -----------
-   (stuck? (seq p q) E)]
-
-  [(stuck? p E)
-   (stuck? q E)
-   -----------
-   (stuck? (par p q) E)]
-
-  [(stuck? p E)
-   ----------
-   (stuck? (suspend p Sdat) E)]
-
-  [(stuck? p E)
-   ----------
-   (stuck? (trap p) E)]
+   (stuck? v)]
 
   [-----------
-   (stuck? (suspend (in-hole P pause^) S) E)]
+   (stuck? (present S p q))]
 
-  [(where ((S_1 status_1) ... (S present) (S_2 status_2) ...) E)
+  [(stuck? p)
    -----------
-   (stuck? (suspend (in-hole P pause^) (S present)) E)])
+   (stuck? (seq p q))]
+
+  [(stuck? p)
+   (stuck? q)
+   -----------
+   (stuck? (par p q))]
+
+  [(stuck? p)
+   ----------
+   (stuck? (suspend p Sdat))]
+
+  [(stuck? p)
+   ----------
+   (stuck? (trap p))]
+
+  [(stuck? p)
+   ----------
+   (stuck? (signal Sdat p))]
+
+  [-----------
+   (stuck? (suspend (in-hole P pause^) S))]
+
+  [-----------
+   (stuck? (suspend (in-hole P pause^) (S present)))])
 
 (define-metafunction esterel-eval
-  insert-signal : S (S ...) -> (S ...)
-  [(insert-signal S (S_S ...))
-   ,(remove-duplicates
-     (sort (cons `S `(S_S ...))
-           symbol<?))])
-
-(define-metafunction esterel-eval
-  insert-env : (S status) E -> E
-  [(insert-env (S status) ((S_1 status_1) ... (S status_r) (S_2 status_2) ...))
-   ((S_1 status_1) ... (S status) (S_2 status_2) ...)]
-  [(insert-env (S status) E)
-   ,(sort (cons `(S status) `E)
-          symbol<?
-          #:key first)])
-
-(define-metafunction esterel-eval
-  instant : p (S ...) -> (p E (S ...))
+  instant : p (S ...) -> (p (S ...))
   [(instant p (S ...))
-   ((add-hats (clear-up-signals v)) (unknownify E_p) (S_p ...))
-   (where (m ...) ,(apply-reduction-relation* R `(state p ((S present) ...) (S ...))))
-   (where ((state v E_p (S_p ...))) (uncontradicted (m ...)))]
+   ((add-hats (clear-up-signals v))
+    (get-signals v))
+   (where (v) ,(apply-reduction-relation* R `(setup p (S ...))))]
   [(instant p (S ...))
-   ,(error 'instant "got ~a\n from ~a" `(m_p ...) `(m ...))
-   (where (m ...) ,(apply-reduction-relation* R `(state p ((S present) ...) (S ...))))
-   (where (m_p ...) (uncontradicted (m ...)))])
+   ,(error 'instant "got ~a\n from ~a" `(p_* ...) `(setup p (S ...)))
+   (where (p_* ...) ,(apply-reduction-relation* R `(setup p (S ...))))])
 
 (define-metafunction esterel-eval
-  instant* : p E (S ...) -> (p E (S ...))
-  [(instant* p_o E (S_o ...))
-   ((add-hats (clear-up-signals v)) (unknownify E_p) (S_p ...))
-   (where (S ...)
-          ,(for/fold ([i `()])
-                     ([S (in-list `(S_o ...))])
-             `(insert-signal ,S ,i)))
-   (where (p E_i) (setup p_o (S ...) E))
-   (where (m ...) ,(apply-reduction-relation* R `(state p E_i (S ...))))
-   (where ((state v E_p (S_p ...))) (uncontradicted (m ...)))]
-  [(instant* p_o E (S_o ...))
-   ,(error 'instant* "got ~a\n from ~a" `(m_p ...) `((m ...) E))
-   (where (S ...)
-          ,(for/fold ([i `()])
-                     ([S (in-list `(S_o ...))])
-             `(insert-signal ,S ,i)))
-   (where (p E_i) (setup p_o (S ...) E))
-   (where (m ...) ,(apply-reduction-relation* R `(state p E_i (S ...))))
-   (where (m_p ...) (uncontradicted (m ...)))])
-
-(define-metafunction esterel-eval
-  setup : p (S ...) E -> (p E)
+  setup : p (S ...) -> p
   [(setup p
-          (S S_2 ...)
-          ((S_3 status_3) ... (S unknown) (S_4 status_4) ...))
+          (S S_2 ...))
    (setup (substitute p S (S present))
-          (S_2 ...)
-          ,`((S_3 status_3) ... (S present) (S_4 status_4) ...))]
-  [(setup p () E) (p E)])
+          (S_2 ...))]
+  [(setup p ()) p])
 
 (define-metafunction esterel-eval
-  uncontradicted : (m ...) -> (m ...)
-  [(uncontradicted ()) ()]
-  [(uncontradicted (m_1 m_2 ...))
-   (m_1 m_o ...)
-   (where (m_o ...) (uncontradicted (m_2 ...)))
-   (where #f ,(judgment-holds (contradiction? m_1)))]
-  [(uncontradicted (m_1 m_2 ...))
-   (uncontradicted (m_2 ...))
-   (where #t ,(judgment-holds (contradiction? m_1)))])
-
-(define-judgment-form esterel-eval
-  #:mode     (contradiction? I)
-  #:contract (contradiction? m)
-  [(where (any_!_1 any_!_1) ((present-in E) (S ...)))
-   ------------ "unemitted present"
-   (contradiction? (state p E (S ...)))]
-  [(where (in-hole P (emit (S_e absent))) p)
-   ------------ "emitted absent"
-   (contradiction? (state p
-                          E
-                          (S ...)))])
-
-(define-metafunction esterel-eval
-  present-in : E -> (S ...)
-  [(present-in ()) ()]
-  [(present-in ((S present) (S_r status) ...))
-   (S S_o ...)
-   (where (S_o ...) (present-in ((S_r status) ...)))]
-  [(present-in ((S status_other) (S_r status) ...))
-   (present-in ((S_r status) ...))])
+  get-signals : p -> (S ...)
+  [(get-signals (signal (S present) p))
+   (S S_1 ...)
+   (where (S_1 ...) (get-signals p))]
+  [(get-signals (signal (S absent) p))
+   (get-signals p)]
+  [(get-signals p) ()])
 
 (define-metafunction esterel
   add-hats : p -> p
@@ -297,6 +227,8 @@
   [(clear-up-signals pause) pause]
   [(clear-up-signals pause^) pause^]
   [(clear-up-signals (signal S p))
+   (signal S (clear-up-signals p))]
+  [(clear-up-signals (signal (S status) p))
    (signal S (clear-up-signals p))]
   [(clear-up-signals (present (S status) p q))
    (present S (clear-up-signals p) (clear-up-signals q))]
@@ -320,11 +252,6 @@
    (trap (clear-up-signals p))]
   [(clear-up-signals (exit n)) (exit n)])
 
-(define-metafunction esterel-eval
-  unknownify : E -> E
-  [(unknownify ((S status) ...))
-   ((S unknown) ...)])
-
 
 (module+ traces
   (require redex)
@@ -336,6 +263,7 @@
     (cond [(cons? (term-node-children term-node))
            "white"
            (term-node-set-color! term-node "white")]
+          #;
           [(not (judgment-holds (contradiction? ,sexp)))
            "blue"
            #;
@@ -359,9 +287,10 @@
                   O))))))
 
   #;
-  (traces R `(state ,p () ()) #:pred highlight-done!)
+  (traces R p; #:pred highlight-done!
+          )
   (define pp `(instant ,p ()))
-  (traces R `(state ,(first pp) ,(second pp) ()) #:pred highlight-done!))
+  (traces R (first pp) #:pred highlight-done!))
 
 (module+ random-test
 
@@ -402,38 +331,37 @@
     (for/fold ([p pp]
                [q qp])
               ([i (in-list ins)]
-               #:break (and
-                        (redex-match cos:esterel-eval p (first p))
-                        (redex-match esterel-eval nothing (first q))))
-      (match-define `((,p2 ,data ,pouts))
-        (let ()
-          (define v
-            (judgment-holds
-             (eval->> (machine (· ,(first p)) ,(second p))
-                    ,(setup-*-env i in)
-                    (machine pbar data_*) (S ...))
-
-             (pbar data_* (S ...))))
-          (unless (= (length v) 1)
-            (error 'cc->>
-                   "got bad reduction, given ~a ~a\n got ~a\nThe origional call was ~a"
-                   `(machine ,(first p) ,(second p))
-                   (setup-*-env i in)
-                   v
-                   (list 'relate pp qp ins in out)))
-          v))
-      (match-define (list q2 E qouts) `(instant* ,(first q) ,(second q) ,i))
-      (unless (equal? (list->set (remove-not-outs pouts))
-                      (list->set (remove-not-outs qouts)))
-        (error 'test
-               "programs were ~a -> ~a\n ~a -> ~a\n under ~a\nThe origional call was ~a"
-               p
-               (list->set (remove-not-outs pouts))
-               q
-               (list->set (remove-not-outs qouts))
-               i
-               (list 'relate pp qp ins in out)))
-      (values (list p2 data) (list q2 E)))
+               #:break (or
+                        (not p)
+                        (not p)
+                        (and
+                         (redex-match cos:esterel-eval p (first p))
+                         (redex-match esterel-eval nothing (first q)))))
+      
+      (define constructive-reduction
+        (judgment-holds
+         (c->> (machine (· ,(first p)) ,(second p))
+               ,(setup-*-env i in)
+               (machine pbar data_*) (S ...) k)
+         (pbar data_* (S ...))))
+      (match constructive-reduction
+        [`((,p2 ,data ,pouts))
+         (match-define (list q2 qouts) `(instant* ,q ,i))
+         (unless (equal? (list->set (remove-not-outs pouts))
+                         (list->set (remove-not-outs qouts)))
+           (error 'test
+                  "programs were ~a -> ~a\n ~a -> ~a\n under ~a\nThe origional call was ~a"
+                  p
+                  (list->set (remove-not-outs pouts))
+                  q
+                  (list->set (remove-not-outs qouts))
+                  i
+                  (list 'relate pp qp ins in out)))
+         (values (list p2 data) q2)]
+        [v
+         ;; non-constructive program
+         (raise v)
+         (values #f #f)]))
     #t)
 
   (define (setup-*-env ins in)
@@ -568,6 +496,7 @@
      (render-reduction-relation R))))
 
 
+#;
 (define-judgment-form
   esterel
   #:mode     (constructive I I O)
@@ -600,3 +529,125 @@
    --------------
    (constructive (present S_p p q) (S ...) (U (S_r ...) (S_l ...)))]
   )
+
+
+(define-metafunction esterel-eval
+  Can : p -> ((S ...) (n ...))
+
+
+  [(Can nothing) (() (0))]
+
+  [(Can pause) (() (1))]
+
+  [(Can (exit n)) (() (,(+ 2 `n)))]
+
+  [(Can (emit S)) ((S) (0))]
+  [(Can (emit (S present))) ((S) (0))]
+  [(Can (emit (S absent))) (() ())]
+
+  [(Can (present (S present) p q))
+   (Can p)]
+
+  [(Can (present (S absent) p q))
+   (Can q)]
+
+  [(Can (present S p q))
+   ((U (Can_S p) (Can_S q))
+    (U (Can_K p) (Can_K q)))]
+
+  [(Can (suspend (in-hole P p) Sdat))
+   (Can (in-hole P p))
+   (where #f ,(equal? `p `pause^))]
+
+  [(Can (seq p q))
+   (Can p)
+   (side-condition `(∉ 0 (Can_K p)))]
+
+  [(Can (seq p q))
+   ( (U (Can_S p) (Can_S q))
+     (U (without (Can_K p) 0)
+        (Can_K q))
+      )]
+
+  [(Can (loop p))
+   (Can p)]
+
+  [(Can (par p q))
+   ( (U (Can_S p) (Can_S q))
+     (,(apply max (append `(Can_K p) `(Can_K q))))
+     )]
+
+  [(Can (trap p))
+   ( (Can_S p)
+     (harp... (Can_K p))
+      )]
+
+  [(Can (signal dat p))
+   (Can p)]
+
+  [(Can (signal S p))
+   ((without (S_* ...) S) (n ...))
+   (where ((S_* ...) (n ...)) (Can (substitute p S (S absent))))
+   (side-condition `(∉ S (Can_S p)))]
+
+  [(Can (signal S p))
+   ((without (S_* ...) S) (n ...))
+   (where ((S_* ...) (n ...)) (Can p))]
+
+  [(Can pause^)
+   ( () (0) () )]
+
+  [(Can (suspend (in-hole P pause^) (S absent)))
+   (Can (in-hole P pause^))]
+
+  [(Can (suspend (in-hole P pause^) S))
+   ((S_o ...) (1 n ...))
+   (where ((S_o ...) (n ...)) (Can (in-hole P pause^)))])
+
+(define-metafunction esterel-eval
+  harp... : (n ...) -> (n ...)
+  [(harp... (n ...))
+   ((harp* n) ...)])
+
+(define-metafunction esterel-eval
+  harp* : n -> n
+  [(harp* 0) 0]
+  [(harp* 1) 1]
+  [(harp* n) ,(sub1 `n)])
+
+(define-metafunction esterel-eval
+  Can_S : p -> (S ...)
+  [(Can_S p)
+   (S ...)
+   (where ((S ...) _) (Can p))])
+
+(define-metafunction esterel-eval
+  Can_K : p -> (n ...)
+  [(Can_K p)
+   (n ...)
+   (where (_ (n ...)) (Can p))])
+
+
+(define-metafunction esterel-eval
+  ∉ : any (any ...) -> boolean
+  [(∉ any_1 (any_2 ...))
+   ,(not `(∈ any_1 (any_2 ...)))])
+(define-metafunction esterel-eval
+  ∈ : any (any ...) -> boolean
+  [(∈ any_1 (any_2 ... any_1 any_3 ...))
+   #t]
+  [(∈ any_1 (any_2 ...))
+   #f])
+
+;; needs U and without
+
+(define-metafunction esterel-eval
+  U : (any ...) (any ...) -> (any ...)
+  [(U (any_1 ...) (any_2 ...))
+   (any_1 ... any_2 ...)])
+
+(define-metafunction esterel-eval
+  without : (any ...) any -> (any ...)
+  [(without (any_1 ... any_2 any_3 ...) any_2)
+   (without (any_1 ... any_3 ...) any_2)]
+  [(without (any_1 ...) any_2) (any_1 ...)])
