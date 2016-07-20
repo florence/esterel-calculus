@@ -387,12 +387,14 @@
      (par p-check-pause p-check)
      (par p-check p-check-pause)
      (par p-check-pause p-check-pause)
-     (trap p-check-pause)
+     (seq (trap p-check-pause) pause)
+     (seq pause (trap p-check-pause))
+     (par pause (trap p-check-pause))
+     (par (trap p-check-pause) pause)
      (signal S p-check-pause)
      (suspend p-check-pause S)
      (present S p-check-pause p-check-pause)
      (loop p-check-pause)))
-
 
   (define (relate pp qp ins in out)
     (define (remove-not-outs l)
@@ -407,9 +409,9 @@
         (let ()
           (define v
             (judgment-holds
-             (cc->> (machine ,(first p) ,(second p))
+             (eval->> (machine (· ,(first p)) ,(second p))
                     ,(setup-*-env i in)
-                    (machine pbar data_*) (S ...) k)
+                    (machine pbar data_*) (S ...))
 
              (pbar data_* (S ...))))
           (unless (= (length v) 1)
@@ -474,7 +476,11 @@
      (emit ,(random-ref `(S_o ... S_b ...)))]
     [(fix (signal S_d p) (S_i ...) (S_o ...) (S_b ...) n_max)
      (signal S (fix p (S_i ...) (S_o ...) (S S_b ...) n_max))
-     (where S ,(gensym))]
+     (where S ,(gensym))
+     (where #t ,(<= (length `(S_b ...)) 3))]
+    [(fix (signal S_d p) (S_i ...) (S_o ...) (S_b ...) n_max)
+     (fix p (S_i ...) (S_o ...) (S_b ...) n_max)
+     (where #t ,(> (length `(S_b ...)) 3))]
     [(fix (present S p q) (S_i ...) (S_o ...) (S_b ...) n_max)
      (present ,(random-ref `(S_i ... S_b ...))
               (fix p (S_i ...) (S_o ...) (S_b ...) n_max)
@@ -537,15 +543,18 @@
       esterel-eval
       ([(S_i ...) `i]
        [(S_o ...) `o])
-      (relate `((convert p-check) ())
-              `(p-check ,(for/fold ([E `()])
-                                   ([S (in-list `(S_i ... S_o ...))])
-                           `(insert-env (,S unknown),E)))
-              `((S ...) ...)
-              `(S_i ...)
-              `(S_o ...)))
+      (begin
+        (when print
+          (displayln `(p-check i o))))
+        (relate `((convert p-check) ())
+                `(p-check ,(for/fold ([E `()])
+                                     ([S (in-list `(S_i ... S_o ...))])
+                             `(insert-env (,S unknown),E)))
+                `((S ...) ...)
+                `(S_i ...)
+                `(S_o ...)))
      #:prepare fixup
-     #:print? print)))
+     #:attempts 10000)))
 
 (module+ test
   (require (submod ".." random-test))
@@ -557,3 +566,37 @@
      (render-language esterel)
      (render-language esterel-eval)
      (render-reduction-relation R))))
+
+
+(define-judgment-form
+  esterel
+  #:mode     (constructive I I O)
+  #:contract (constructive p (S ...))
+  [--------------
+   (constructive nothing (S ...) (S ...))]
+  [--------------
+   (constructive pause (S ...) (S ...))]
+  [--------------
+   (constructive pause^ (S ...) (S ...))]
+  [--------------
+   (constructive (emit S_n) (S ...) (S_n S ...))]
+  [(constructive p (S ...) (S_r ...))
+   --------------
+   (constructive (signal S p) (S ...) (S_r ...))]
+  [(where (S_1 ... S_p S_2 ...) (S ...))
+   (constructive p (S ...) (S_r ...))
+   (constructive q (S ...) (S_l ...))
+   --------------
+   (constructive (present S_p p q) (S ...) (U (S_r ...) (S_l ...)))]
+  [???
+   --------------
+   (constructive (par p q) (S ...) (U (S_r ...) (S_l ...)))]
+  [(constructive p (S ...) (S_r ...))
+   --------------
+   (constructive (loop p) (S ...) (S_r ...))]
+  [(where (S_1 ... S_p S_2 ...) (S ...))
+   (constructive p (S ...) (S_r ...))
+   (constructive q (S ...) (S_l ...))
+   --------------
+   (constructive (present S_p p q) (S ...) (U (S_r ...) (S_l ...)))]
+  )
