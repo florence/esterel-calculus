@@ -68,7 +68,7 @@
       (par P^ q)
       (par p Q^)
       (trap P^)
-      (signal S P^)))
+      (suspend P^ (S absent))))
 
 (define-metafunction esterel-eval
   substitute : any S Sdat -> any
@@ -129,7 +129,7 @@
    ;; lifting signals
    (--> (in-hole A (in-hole P (signal S p)))
         ;; TODO alpha-rename
-        ;; TODO self loop
+        ;; TODO can reduce to self
         (in-hole A (signal S (in-hole P p)))
         raise-signal)))
 
@@ -287,8 +287,7 @@
                   O))))))
 
   #;
-  (traces R p; #:pred highlight-done!
-          )
+  (traces R p #:pred highlight-done!)
   (define pp `(instant ,p ()))
   (traces R (first pp) #:pred highlight-done!))
 
@@ -595,7 +594,7 @@
    (where ((S_* ...) (n ...)) (Can p))]
 
   [(Can pause^)
-   ( () (0) () )]
+   (() (0))]
 
   [(Can (suspend (in-hole P pause^) (S absent)))
    (Can (in-hole P pause^))]
