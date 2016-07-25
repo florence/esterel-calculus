@@ -2,7 +2,9 @@
 (require redex)
 (require esterel/cos-model
          racket/random
+         (prefix-in r: racket)
          rackunit
+         racket/sandbox
          (only-in (submod esterel/cos-model test) cc->>)
          (prefix-in cos: esterel/cos-model))
 
@@ -25,14 +27,9 @@
    (exit n))
   (Sdat ::= S)
   (S ::= variable-not-otherwise-mentioned)
-  (n ::= natural)
-  ;#:binding-forms
-  ;(signal S p #:refers-to S)
-  )
+  (n ::= natural))
 
 (define-extended-language esterel-eval esterel
-  ;; there is no "unknown" status. In case of
-  ;; unknowns we make assumptions
   (p q ::= .... (signal (Sdat ...) p))
   (status ::= present absent unknown)
   (dat ::= (S present) (S absent))
@@ -389,40 +386,45 @@
                         (and
                          (redex-match cos:esterel-eval p (first p))
                          (redex-match esterel-eval (in-hole A nothing) q))))
-      (define constructive-reduction
-        (judgment-holds
-         (c->> (machine ,(first p) ,(second p))
-               ,(setup-*-env i in)
-               (machine pbar data_*) (S ...) k)
-         (pbar data_* (S ...))))
-      (match constructive-reduction
-        [`((,p2 ,data ,(and pouts (list-no-order a ...)))
-           (,_ ,_ ,(list-no-order a ...)) ...)
-         (match-define (list q2 qouts) `(instant ,q ,i))
-         (unless (equal? (list->set (remove-not-outs pouts))
-                         (list->set (remove-not-outs qouts)))
-           (error 'test
-                  "programs were ~a -> ~a\n ~a -> ~a\n under ~a\nThe origional call was ~a"
-                  p
-                  (list->set (remove-not-outs pouts))
-                  q
-                  (list->set (remove-not-outs qouts))
-                  i
-                  (list 'relate pp qp ins in out)))
-         (values (list p2 data) q2)]
-        [v
-         (match `(instant ,q ,i)
-           ;; both stuck, is fine
-           [#f (values #f #f)]
-           [v*
-            (error 'test
-                   "inconsitent output states:\n programs were ~a -> ~a\n ~a -> ~a\n under ~a\nThe origional call was ~a"
-                   p
-                   v
-                   q
-                   v*
-                   i
-                   (list 'relate pp qp ins in out))])]))
+      (with-handlers ([(lambda (x) (and (exn:fail:resource? x)
+                                        (eq? 'time (exn:fail:resource-resource x))))
+                       (lambda (_) (values #f #f))])
+        (with-limits (r:* 10 60) #f
+          (define new-reduction `(instant ,q ,i))
+          (define constructive-reduction
+            (judgment-holds
+             (c->> (machine ,(first p) ,(second p))
+                   ,(setup-*-env i in)
+                   (machine pbar data_*) (S ...) k)
+             (pbar data_* (S ...))))
+          (match constructive-reduction
+            [`((,p2 ,data ,(and pouts (list-no-order a ...)))
+               (,_ ,_ ,(list-no-order a ...)) ...)
+             (match-define (list q2 qouts) new-reduction)
+             (unless (equal? (list->set (remove-not-outs pouts))
+                             (list->set (remove-not-outs qouts)))
+               (error 'test
+                      "programs were ~a -> ~a\n ~a -> ~a\n under ~a\nThe origional call was ~a"
+                      p
+                      (list->set (remove-not-outs pouts))
+                      q
+                      (list->set (remove-not-outs qouts))
+                      i
+                      (list 'relate pp qp ins in out)))
+             (values (list p2 data) q2)]
+            [v
+             (match new-reduction
+               ;; both stuck, is fine
+               [#f (values #f #f)]
+               [v*
+                (error 'test
+                       "inconsitent output states:\n programs were ~a -> ~a\n ~a -> ~a\n under ~a\nThe origional call was ~a"
+                       p
+                       v
+                       q
+                       v*
+                       i
+                       (list 'relate pp qp ins in out))])]))))
     #t)
 
   (define (setup-*-env ins in)
@@ -550,7 +552,10 @@
 
 (module+ test
   (require (submod ".." random-test))
-  (do-test #t))
+  (test-case "unit"
+    )
+  (test-case "random"
+    (do-test #t)))
 
 (define (render)
   (parameterize ([rule-pict-style 'horizontal])
@@ -558,42 +563,6 @@
      (render-language esterel)
      (render-language esterel-eval)
      (render-reduction-relation R))))
-
-
-#;
-(define-judgment-form
-  esterel
-  #:mode     (constructive I I O)
-  #:contract (constructive p (S ...))
-  [--------------
-   (constructive nothing (S ...) (S ...))]
-  [--------------
-   (constructive pause (S ...) (S ...))]
-  [--------------
-   (constructive pause^ (S ...) (S ...))]
-  [--------------
-   (constructive (emit S_n) (S ...) (S_n S ...))]
-  [(constructive p (S ...) (S_r ...))
-   --------------
-   (constructive (signal S p) (S ...) (S_r ...))]
-  [(where (S_1 ... S_p S_2 ...) (S ...))
-   (constructive p (S ...) (S_r ...))
-   (constructive q (S ...) (S_l ...))
-   --------------
-   (constructive (present S_p p q) (S ...) (U (S_r ...) (S_l ...)))]
-  [???
-   --------------
-   (constructive (par p q) (S ...) (U (S_r ...) (S_l ...)))]
-  [(constructive p (S ...) (S_r ...))
-   --------------
-   (constructive (loop p) (S ...) (S_r ...))]
-  [(where (S_1 ... S_p S_2 ...) (S ...))
-   (constructive p (S ...) (S_r ...))
-   (constructive q (S ...) (S_l ...))
-   --------------
-   (constructive (present S_p p q) (S ...) (U (S_r ...) (S_l ...)))]
-  )
-
 
 (define-metafunction esterel-eval
   Can : p -> ((S ...) (n ...))
