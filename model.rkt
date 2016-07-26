@@ -374,7 +374,7 @@
      (present S p-check-pause p-check-pause)
      (loop p-check-pause)))
 
-  (define (relate pp qp ins in out)
+  (define (relate pp qp ins in out #:limits? [limits? #f])
     (define (remove-not-outs l)
       (filter (lambda (x) (member x out)) l))
     (for/fold ([p pp]
@@ -389,7 +389,7 @@
       (with-handlers ([(lambda (x) (and (exn:fail:resource? x)
                                         (eq? 'time (exn:fail:resource-resource x))))
                        (lambda (_) (values #f #f))])
-        (with-limits (r:* 10 60) #f
+        (with-limits (and limits? (r:* 10 60)) #f
           (define new-reduction `(instant ,q ,i))
           (define constructive-reduction
             (judgment-holds
@@ -530,7 +530,7 @@
     [(add-extra-syms p (S ...)) (signal (S ...) p)])
 
   (provide do-test)
-  (define (do-test [print #f])
+  (define (do-test [print #f] #:limits? [limits? #f])
     (redex-check
      esterel-check
      (p-check (name i (S_!_g S_!_g ...)) (name o (S_!_g S_!_g ...)) ((S ...) ...))
@@ -546,7 +546,8 @@
                 `(add-extra-syms p-check ,(append `i `o))
                 `((S ...) ...)
                 `(S_i ...)
-                `(S_o ...)))
+                `(S_o ...)
+                #:limits? limits?))
      #:prepare fixup
      #:attempts 10000)))
 
