@@ -324,20 +324,23 @@
            (term-node-set-color! term-node "pink")]))
   (define p
     `(signal
-      K
+      ()
       (signal
-       O
+       K
        (signal
-        S
-        (par
+        O
+        (signal
+         S
          (par
-          (present K (seq pause (emit S)) (emit O))
-          (trap (seq (exit 0) (emit S))))
-         (suspend (present S nothing (loop (seq (emit K) pause)))
-                  O))))))
+          (par
+           (present K (seq pause (emit S)) (emit O))
+           (trap (seq (exit 0) (emit S))))
+          (suspend (present S nothing (loop (seq (emit K) pause)))
+                   O)))))))
 
-  #;
   (traces R p #:pred highlight-done!)
+  #;
+  #;
   (define pp `(instant ,p ()))
   (traces R (first pp) #:pred highlight-done!))
 
