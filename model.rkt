@@ -20,11 +20,11 @@
    (par p q)
    (loop p)
    pause
-   pause^
    (seq p q)
    (suspend p Sdat)
    (trap p)
-   (exit n))
+   (exit n)
+   (suspend^ p Sdat))
   (Sdat ::= S)
   (S ::= variable-not-otherwise-mentioned)
   (n ::= natural))
@@ -46,7 +46,8 @@
       pause
       (seq v* q)
       (par v* v*)
-      (suspend (in-hole P pause^) (S present))
+      (suspend^ p (S present))
+      (suspend^ v* Sdat)
       (suspend v* Sdat)
       (trap v*))
 
@@ -61,14 +62,8 @@
      (par P q)
      (par p Q)
      (suspend P Sdat)
-     (trap P))
-  (P^ Q^ ::=
-      hole
-      (seq P^ q)
-      (par P^ q)
-      (par p Q^)
-      (trap P^)
-      (suspend P^ (S absent))))
+     (suspend^ P (S absent))
+     (trap P)))
 
 (define-metafunction esterel-eval
   substitute* : any S Sdat -> any
@@ -96,7 +91,6 @@
 
 (define-extended-language wrn* wrn
   #:binding-forms
-  (S status) #:exports S
   (signal (Sdat ...) p #:refers-to (shadow Sdat ...)))
 
 
@@ -133,14 +127,14 @@
 
    (--> (in-hole P* (loop p)) (in-hole P* (seq p (loop p)))
     loop)
-   (--> (in-hole P^* pause^) (in-hole P^* nothing)
-        hatted-pause)
    (--> (in-hole P* (seq nothing q)) (in-hole P* q)
     seq-done)
    (--> (in-hole P* (seq (exit n) q)) (in-hole P* (exit n))
     seq-exit)
    (--> (in-hole P* (suspend vp Sdat)) (in-hole P* vp)
     suspend-value)
+   (--> (in-hole P* (suspend^ vp (S absent))) (in-hole P* vp)
+    suspend^-value)
    ;; traps
    (--> (in-hole P* (trap vp)) (in-hole P* (harp vp))
         trap-done)
@@ -226,19 +220,24 @@
    ----------
    (stuck? (signal (Sdat ...) p) (S ...))]
 
+  [(stuck? p (S_r ...))
+   -----------
+   (stuck? (suspend^ p (S absent)) (S_r ...))]
   [-----------
-   (stuck? (suspend (in-hole P pause^) S) (S))])
+   (stuck? (suspend^ p S) (S))])
 
 (define-metafunction esterel-eval
   instant : p (S ...) -> (p (S ...)) or #f
   [(instant p (S ...))
-   ((add-hats (clear-up-signals a))
+   (p_*
     (get-signals a))
    (where (a a_r ...) ,(apply-reduction-relation* R `(setup p (S ...))))
-   (where (#t ...) ,(map (lambda (x) (alpha-equivalent? wrn* `a x)) `(a_r ...)))]
+   (where (p_* p_r ...) ((add-hats (clear-up-signals a)) (add-hats (clear-up-signals a_r)) ...))
+   (where (#t ...) ,(map (lambda (x) (alpha-equivalent? wrn* `p_* x)) `(p_r ...)))]
   [(instant p (S ...))
    #f
-   (where (p_* ...) ,(apply-reduction-relation* R `(setup p (S ...))))])
+   (where (p_* ...) ,(apply-reduction-relation* R `(setup p (S ...))))
+   (side-condition (pretty-print `(p_* ...)))])
 
 (define-metafunction esterel-eval
   setup : p (S ...) -> p
@@ -260,13 +259,13 @@
 
 (define-metafunction esterel-eval
   add-hats : p -> p
-  [(add-hats pause) pause^]
-  [(add-hats pause^) pause^]
+  [(add-hats pause) nothing]
   [(add-hats nothing) nothing]
   [(add-hats (signal (S ...) p)) (signal (S ...) (add-hats p))]
   [(add-hats (seq p q)) (seq (add-hats p) q)]
   [(add-hats (par p q)) (par (add-hats p) (add-hats q))]
-  [(add-hats (suspend p S)) (suspend (add-hats p) S)]
+  [(add-hats (suspend p S)) (suspend^ (add-hats p) S)]
+  [(add-hats (suspend^ p S)) (suspend^ (add-hats p) S)]
   [(add-hats (trap p)) (trap (add-hats p))])
 
 (define-metafunction esterel-eval
@@ -277,7 +276,6 @@
           ,(map (lambda (x) (if (list? x) (first x) x)) `(Sdat ...)))]
   [(clear-up-signals nothing) nothing]
   [(clear-up-signals pause) pause]
-  [(clear-up-signals pause^) pause^]
   [(clear-up-signals (signal S p))
    (signal S (clear-up-signals p))]
   [(clear-up-signals (present (S status) p q))
@@ -296,6 +294,10 @@
    (loop (clear-up-signals p))]
   [(clear-up-signals (suspend p (S status)))
    (suspend (clear-up-signals p) S)]
+  [(clear-up-signals (suspend^ p (S status)))
+   (suspend^ (clear-up-signals p) S)]
+  [(clear-up-signals (suspend^ p S))
+   (suspend^ (clear-up-signals p) S)]
   [(clear-up-signals (suspend p S))
    (suspend (clear-up-signals p) S)]
   [(clear-up-signals (trap p))
@@ -544,7 +546,7 @@
        [(S_o ...) `o])
       (begin
         (when print
-          (displayln `(p-check i o))))
+          (displayln `(p-check in: i out: o instants: ((S ...) ...)))))
         (relate `((convert p-check) ())
                 `(add-extra-syms p-check ,(append `i `o))
                 `((S ...) ...)
@@ -552,7 +554,21 @@
                 `(S_o ...)
                 #:limits? limits?))
      #:prepare fixup
-     #:attempts 10000)))
+     #:attempts 10000))
+
+  (define (generate-all-instants prog signals)
+    (define progs
+      (reverse
+       (for/fold ([prog (list prog)])
+                 ([s signals]
+                  #:break (not (first prog)))
+         (define x `(instant ,(first prog) ,s))
+         (cons
+          (and x (first x))
+          prog))))
+    (for/list ([p progs]
+               [s signals])
+      (list p s))))
 
 (module+ test
   (require (submod ".." random-test))
@@ -592,9 +608,8 @@
    ((U (Can_S p) (Can_S q))
     (U (Can_K p) (Can_K q)))]
 
-  [(Can (suspend (in-hole P p) Sdat))
-   (Can (in-hole P p))
-   (where #f ,(equal? `p `pause^))]
+  [(Can (suspend p Sdat))
+   (Can p)]
 
   [(Can (seq p q))
    (Can p)
@@ -631,18 +646,15 @@
    ((without (S_* ...) S) (n ...))
    (where ((S_* ...) (n ...)) (Can p))]
 
-  [(Can pause^)
-   (() (0))]
+  [(Can (suspend^ p (S absent)))
+   (Can p)]
 
-  [(Can (suspend (in-hole P pause^) (S absent)))
-   (Can (in-hole P pause^))]
-
-  [(Can (suspend (in-hole P pause^) (S present)))
+  [(Can (suspend^ p (S present)))
    (() (1))]
 
-  [(Can (suspend (in-hole P pause^) S))
+  [(Can (suspend^ p S))
    ((S_o ...) (1 n ...))
-   (where ((S_o ...) (n ...)) (Can (in-hole P pause^)))])
+   (where ((S_o ...) (n ...)) (Can p))])
 
 (define-metafunction esterel-eval
   harp... : (n ...) -> (n ...)
@@ -700,3 +712,31 @@
    ()]
   [(meta-max (n_1 ...) (n_2 ...))
    (,(apply max `(n_1 ... n_2 ...)))])
+
+#|
+((signal g38092 (suspend (present g38092 (signal g38093 (emit g38092)) (emit lc)) x)) (x v fS qx A HP Y c Px D T k R O E w n) (lc))
+'((signal
+   (A
+    (D present)
+    E
+    (HP present)
+    (O present)
+    (Px present)
+    (R present)
+    (T present)
+    (Y present)
+    (c present)
+    (fS present)
+    g38092«715»
+    (k present)
+    lc
+    (n present)
+    (qx present)
+    (v present)
+    (w present)
+    (x present))
+   (suspend
+    (present g38092«715» (signal g38093«716» (emit g38092«715»)) (emit lc))
+    (x present))))
+
+|#
