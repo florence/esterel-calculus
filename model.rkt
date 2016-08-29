@@ -14,7 +14,7 @@
 (define-language esterel
   ((p q)
    nothing
-   (signal Sdat p)
+   (signal S p)
    (present Sdat p q)
    (emit Sdat)
    (par p q)
@@ -24,36 +24,60 @@
    (suspend p Sdat)
    (trap p)
    (exit n)
-   (suspend^ p Sdat))
+   (suspend^ p Sdat)
+   ;; state
+   (shared s := e p)
+   (<= s e)
+   (var x := e p)
+   (:= x e)
+   (if e p q))
+
   (Sdat ::= S)
-  (S ::= variable-not-otherwise-mentioned)
-  (n ::= natural))
+  (S s x ::= variable-not-otherwise-mentioned)
+  (n ::= natural)
+
+  (e ::=
+     shareddat
+     vardat
+     (f e ...)
+     n)
+  (f ::= +)
+  (shareddat ::= s)
+  (vardat ::= x))
 
 (define-extended-language esterel-eval esterel
-  (p q ::= .... (signal (Sdat ...) p))
-  (status ::= present absent)
-  (dat ::= (S status))
+  (p q ::= ....
+     (env (env-v ...) p))
+  (env-v ::= Sdat shareddat vardat)
+  (status ::= present absent unknown)
+  (dat ::= (sig S status))
   (Sdat ::= .... dat)
+
+  ;; state
+  (shared-status ::= ready old new)
+  (shareddat ::= .... (shar s ev shared-status))
+  (vardat ::= .... (var· x ev))
+  (ev ::= n)
 
   ;; values and answers
   (a ::= ap a*)
-  (ap ::= (signal (Sdat ...) vp))
-  (a* ::= (signal (Sdat ...) v*))
+  (ap ::= (in-hole A vp))
+  (a* ::= (in-hole A v*))
   (v ::= vp v*)
   (vp ::= nothing (exit n))
   (v* ::=
       pause
       (seq v* q)
       (par v* v*)
-      (suspend^ p (S present))
+      (suspend^ p (sig S present))
       (suspend^ v* Sdat)
       (suspend v* Sdat)
       (trap v*))
 
-  (A ::=
-     (signal (Sdat ...) hole))
+  (A ::= (env (env-v ...) hole))
   (P* Q* ::= (in-hole A P))
-  (P^* Q^* ::= (in-hole A P^))
+  (E* ::= (in-hole A (in-hole P E)))
+
   ;; evaluation contexts
   (P Q ::=
      hole
@@ -61,38 +85,80 @@
      (par P q)
      (par p Q)
      (suspend P Sdat)
-     (suspend^ P (S absent))
-     (trap P)))
+     (suspend^ P (sig S absent))
+     (trap P))
+
+  ;; state evaluation context
+  (E ::= hole
+     (shared s := E p)
+     (var x := E p)
+     (<= s E)
+     (:= x E)
+     (if E p q)
+     (f ev ... E e ...))
+
+
+  (p-not-v q-not-v ::=
+           (signal S p)
+           (present Sdat p q)
+           (emit Sdat)
+           (shared s := e p)
+           (<= s e)
+           (var x := e p)
+           (:= x e)
+           (loop p)
+           (if e p q)
+
+           (par p-not-v q)
+           (par p q-not-v)
+           (seq p-not-v q)
+           (suspend p-not-v Sdat)
+           (suspend^ p-not-v (sig S absent))
+           (trap p-not-v)
+
+           (suspend^ p (sig S unknown))
+
+           (par vp v)
+           (par v vp)
+           (seq vp q)
+           (trap vp)
+           (suspend vp Sdat)
+           (suspend^ vp (sig S absent))))
 
 (define-union-language esterel-eval* esterel-eval (cos: cos:esterel-eval))
 
 (define-metafunction esterel-eval
-  substitute* : any S Sdat -> any
+  substitute* : any_1 any_2 any_3 -> any
+  [(substitute* any any any_3) any_3]
   [(substitute* (signal S p) S Sdat)
    (signal S p)]
-  [(substitute* (any ...) S Sdat)
-   ((substitute* any S Sdat) ...)]
-  [(substitute* S S Sdat) Sdat]
-  [(substitute* any S Sdat) any])
-
-(define-metafunction esterel-eval
-  set : any S Sdat -> any
-  [(set (any ...) S Sdat)
-   ((set any S Sdat) ...)]
-  [(set S S Sdat) Sdat]
-  [(set any S Sdat) any])
+  [(substitute* (signal S p) (sig S status) Sdat)
+   (signal S p)]
+  [(substitute* (shared s := e p) s shareddat)
+   (shared s := (substitute* e s shareddat) p)]
+  [(substitute* (shared s := e p) (shar s ev shared-status) shareddat)
+   (shared s := (substitute* e (shar s ev shared-status) shareddat)  p)]
+  [(substitute* (var x := e p) x vardat)
+   (shared x := (substitute* e x vardat) p)]
+  [(substitute* (var x := e p) (var· x ev) vardat)
+   (var x := (substitute* e (var· x ev) vardat)  p)]
+  [(substitute* (<= s e) any_2 any_3)
+   (<= s (substitute* e any_2 any_3))]
+  [(substitute* (:= x e) any_2 any_3)
+   (:= x (substitute* e any_2 any_3))]
+  [(substitute* (any_1 ...) any_2 any_3)
+   ((substitute* any_1 any_2 any_3) ...)]
+  [(substitute* any_1 any_2 any_3 ) any_1])
 
 (define-extended-language wrn esterel-eval
   #:binding-forms
-  (signal S p #:refers-to S))
-(define-metafunction wrn
-  freshen-up : p -> p
-  [(freshen-up p)
-   (substitute p ,(gensym) ,(gensym))])
+  (signal S p #:refers-to S)
+  (shared s := e p #:refers-to s))
 
 (define-extended-language wrn* wrn
   #:binding-forms
-  (signal (Sdat ...) p #:refers-to (shadow Sdat ...)))
+  (signal (Sdat ...) p #:refers-to (shadow Sdat ...))
+  (shared (shareddat ...) p #:refers-to (shadow shareddat ...)))
 
 
 (define R
@@ -104,27 +170,24 @@
         par-done-right)
    (--> (in-hole P* (par v vp)) (in-hole P* (value-max v vp))
         par-done-left)
-   (--> (in-hole P* (present (S present) p q)) (in-hole P* p)
+   (--> (in-hole P* (present (sig S present) p q)) (in-hole P* p)
     is-present)
-   (--> (in-hole P* (present (S absent) p q)) (in-hole P* q)
+   (--> (in-hole P* (present (sig S absent) p q)) (in-hole P* q)
     is-absent)
    (-->
-    (signal (Sdat_1 ... S Sdat_2 ...) (in-hole P (emit S)))
-    (signal (Sdat_1 ... (S present) Sdat_2 ...)
-            (substitute* (in-hole P nothing) S (S present)))
+    (in-hole P* (emit (sig S unknown)))
+    (substitute* (in-hole P* nothing) (sig S unknown) (sig S present))
     emit-unknown)
+   (--> (in-hole P* (emit (sig S present))) (in-hole P* nothing)
+        emit-present)
    (-->
-    (signal (Sdat_1 ... (S present) Sdat_2 ...) (in-hole P (emit (S present))))
-    (signal (Sdat_1 ... (S present) Sdat_2 ...) (in-hole P nothing))
-    emit-present)
-   (-->
-    (signal (Sdat_1 ... S Sdat_2 ...) p)
-    (signal (Sdat_1 ... (S absent) Sdat_2 ...) (substitute* p S (S absent)))
+    (env (env-v_1 ... (sig S unknown) env-v_2 ...) p)
+    (substitute* (env (env-v_1 ... (sig S unknown) env-v_2 ...) p) (sig S unknown) (sig S absent))
     (where (S_not ...) (Cannot p (S)))
     (where #t (∈ S (S_not ...)))
     ;; these are only here to make things run with decent speed
-    (judgment-holds (stuck? p any))
-    (where #t (unprogressable (Sdat_1 ...) p))
+    (judgment-holds (stuck? p))
+    (where #t (unprogressable (env-v_1 ...) p))
     absence)
 
    (--> (in-hole P* (loop p)) (in-hole P* (seq p (loop p)))
@@ -135,27 +198,95 @@
     seq-exit)
    (--> (in-hole P* (suspend vp Sdat)) (in-hole P* vp)
     suspend-value)
-   (--> (in-hole P* (suspend^ vp (S absent))) (in-hole P* vp)
+   (--> (in-hole P* (suspend^ vp (sig S absent))) (in-hole P* vp)
     suspend^-value)
    ;; traps
    (--> (in-hole P* (trap vp)) (in-hole P* (harp vp))
         trap-done)
    ;; lifting signals
-   (--> (signal (Sdat ...) (in-hole P (signal S p)))
-        (signal (insert-signal S_* (Sdat ...)) (in-hole P_* p_*))
-        (where (in-hole P_* (signal S_* p_*)) (freshen-up (in-hole P (signal S p))))
-        raise-signal)))
+   (--> (in-hole P* (signal S p))
+        (add-new-signal S (in-hole P* p))
+        raise-signal)
+
+   ;; shared state
+   (-->
+    (in-hole P* (shared s := ev p))
+    (add-new-shared s ev (in-hole P* p))
+    raise-shared)
+  (-->
+    (env (env-v_1 ... (shar s any old)  env-v_2 ...) (in-hole P (<= s ev)))
+    (substitute* (env (env-v_1 ... (shar s any old) env-v_2 ...) (in-hole P nothing))
+                 (shar s any old) (shar s ev new))
+   set-shared-value-old)
+
+  (-->
+   (env (env-v_1 ... (shar s ev_o new) env-v_2 ...) (in-hole P (<= s ev_n)))
+   (substitute* (env (env-v_1 ... (shar s ev_o new) env-v_2 ...) (in-hole P nothing))
+                (shar s ev_o new) (shar s (δ + ev_o ev_n) new))
+   set-value-new)
+
+  (-->
+   (env (env-v_1 ... (shar s ev shared-status) env-v_2 ...) p)
+   (substitute* (env (env-v_1 ... (shar s ev shared-status) env-v_2 ...) p)
+                (shar s ev shared-status) (shar s ev ready))
+   (where (s_not ...) (Cannot_shared p (s)))
+   (where #t (∈ s (s_not ...)))
+   (where #t (∈ shared-status (old new)))
+   ;; for speed
+   (judgment-holds (stuck? p))
+   (where #t (unprogressable (env-v_1 ...) p))
+   readyness)
+
+  ;; unshared state
+  (-->
+   (in-hole P* (var x := ev p))
+   (add-new-var x ev (in-hole P* p))
+   raise-var)
+  (-->
+   (env (env-v_1 ... (var· x ev_old) env-v_2 ...) (in-hole P (:= x ev_new)))
+   (substitute* (env (env-v_1 ... (var· x ev_old) env-v_2 ...) (in-hole P nothing))
+                (var· x ev_old) (var· x ev_new)))
+  ;; if
+  (--> (in-hole P* (if ev p q))
+       (in-hole P* q)
+       (side-condition `(∈ ev (#f 0)))
+       if-false)
+  (--> (in-hole P* (if ev p q))
+       (in-hole P* p)
+       (side-condition `(∉ ev (#f 0)))
+       if-true)
+  ;; evaling code
+  (--> (in-hole E* (shar s ev ready)) (in-hole E* ev)
+       eval-shared)
+  (--> (in-hole E* (var· x ev)) (in-hole E* ev)
+       eval-var)
+  (--> (in-hole E* (f ev ...)) (in-hole E* (δ f ev ...))
+       eval-δ)
+  ))
 
 (define-metafunction esterel-eval
-  unprogressable : (Sdat ...) p -> boolean
+  unprogressable : (env-v ...) p -> boolean
   [(unprogressable () p) #t]
-  [(unprogressable (dat Sdat ...) p)
-   (unprogressable (Sdat ...) p)]
-  [(unprogressable (S Sdat ...) p)
+  [(unprogressable ((var· x ev) env-v ...) p)
+   (unprogressable (env-v ...) p)]
+  [(unprogressable ((sig S status) env-v ...) p)
+   (unprogressable (env-v ...) p)
+   (where #t (∈ status (present absent)))]
+  [(unprogressable ((sig S unknown) env-v ...) p)
    #t
    (where ⊥ (Cannot p (S)))
-   (where #t (unprogressable (Sdat ...) p))]
-  [(unprogressable (Sdat ...) p) #f])
+   (where #t (unprogressable (env-v ...) p))]
+  [(unprogressable ((shar s ev ready) env-v ...) p)
+   (unprogressable (env-v ...) p)]
+  [(unprogressable ((shar s ev shared-status) env-v ...) p)
+   #t
+   (where ⊥ (Cannot_shared p (s)))
+   (where #t (unprogressable (env-v ...) p))]
+  [(unprogressable (env-v ...) p) #f])
+
+(define-metafunction esterel-eval
+  δ : f ev ... -> ev
+  [(δ + ev ...) ,(apply + `(ev ...))])
 
 (define-metafunction esterel-eval
   harp : vp -> vp
@@ -164,12 +295,42 @@
   [(harp (exit n)) (exit ,(sub1 `n))])
 
 (define-metafunction esterel-eval
-  insert-signal : S (Sdat ...) -> (Sdat ...)
-  [(insert-signal S (Sdat ...))
+  add-new-signal : S p -> p
+  [(add-new-signal S (env (env-v_1 ... (sig S status) env-v_2 ...) p))
+   (env (env-v_1 ... (sig S unknown) env-v_2 ...)
+        (substitute* (substitute* p (sig S status) (sig S unknown))
+                     S (sig S unknown)))]
+  [(add-new-signal S (env (env-v ...) p))
+   (env (insert-into-env (sig S unknown) (env-v ...))
+        (substitute* p S (sig S unknown)))])
+
+(define-metafunction esterel-eval
+  add-new-shared : s ev p -> p
+  [(add-new-shared s ev (env (env-v_1 ... (shar s ev_old shared-status) env-v_2 ...) p))
+   (env (env-v_1 ... (shar s ev new) env-v_2 ...)
+        (substitute* (substitute* p (shar s ev_old shared-status) (shar s ev new))
+                     s (shar s ev new)))]
+  [(add-new-shared s ev (env (env-v ...) p))
+   (env (insert-into-env (shar s ev new) (env-v ...))
+        (substitute* p s (shar s ev new)))])
+
+(define-metafunction esterel-eval
+  add-new-var : x ev p -> p
+  [(add-new-var x ev (env (env-v_1 ... (var· x ev_old) env-v_2 ...) p))
+   (env (env-v_1 ... (var· x ev_old) env-v_2 ...)
+        (substitute* (substitute* p (var· x ev_old) (var· x ev))
+                     x (var· x ev)))]
+  [(add-new-var x ev (env (env-v ...) p))
+   (env (insert-into-env (var· x ev) (env-v ...))
+        (substitute* p x (var· x ev)))])
+
+(define-metafunction esterel-eval
+  insert-into-env : env-v (env-v ...) -> (env-v ...)
+  [(insert-into-env env-v (env-v_o ...))
    ,(sort
-     `(S Sdat ...)
+     `(env-v env-v_o ...)
      symbol<?
-     #:key (lambda (x) (if (cons? x) (first x) x)))])
+     #:key second)])
 
 (define-metafunction esterel-eval
   value-max : v v -> v
@@ -180,226 +341,234 @@
   [(value-max v* (exit n)) (exit n)])
 
 (define-judgment-form esterel-eval
-  #:mode (stuck? I O)
-  #:contract (stuck? p (S ...))
+  #:mode (stuck? I)
+  #:contract (stuck? p)
+  [----------- "v"
+   (stuck? v)]
 
+  [----------- "pu"
+   (stuck? (present (sig S unknown) p q))]
+
+  [(stuck? p)
+   ----------- "seq"
+   (stuck? (seq p q))]
+
+  [(stuck? p-not-v)
+   ----------- "parl"
+   (stuck? (par p-not-v v))]
+  [(stuck? q-not-v)
+   ----------- "parr"
+   (stuck? (par v q-not-v))]
+  [(stuck? p-not-v)
+   (stuck? q-not-v)
+   ----------- "para"
+   (stuck? (par p-not-v q-not-v))]
+
+  [(stuck? p)
+   ----------
+   (stuck? (suspend p Sdat))]
+
+  [(stuck? p)
+   ----------
+   (stuck? (trap p))]
+
+  [(stuck? p)
+   ----------
+   (stuck? (signal (Sdat ...) p))]
+
+  [(stuck? p)
+   -----------
+   (stuck? (suspend^ p (sig S absent)))]
   [-----------
-   (stuck? (present S p q) (S))]
-
-  [(stuck? p (S ...))
-   -----------
-   (stuck? (seq p q) (S ...))]
-
-  [(stuck? p (S_1 ...))
-   (stuck? q (S_2 ...))
-   -----------
-   (stuck? (par p q) (S_1 ... S_2 ...))]
-
-  [(stuck? q (S ...))
-   -----------
-   (stuck? (par v q) (S ...))]
-  [(stuck? p (S ...))
-   -----------
-   (stuck? (par p v) (S ...))]
-
-  [(stuck? p (S_1 ...))
-   (stuck? q (S_2 ...))
-   -----------
-   (stuck? (par p q) (S_1 ... S_2 ...))]
-  [(stuck? p (S ...))
-   ----------
-   (stuck? (suspend p Sdat) (S ...))]
-
-  [(stuck? p (S ...))
-   ----------
-   (stuck? (trap p) (S ...))]
-
-  [(stuck? p (S ...))
-   ----------
-   (stuck? (signal (Sdat ...) p) (S ...))]
-
-  [(stuck? p (S_r ...))
-   -----------
-   (stuck? (suspend^ p (S absent)) (S_r ...))]
+   (stuck? (suspend^ p (sig S unknown)))]
   [-----------
-   (stuck? (suspend^ p S) (S))])
+   (stuck? (suspend^ p (sig S present)))]
+
+  [(stuck-e? e)
+   ----------
+   (stuck? (shared s := e p))]
+
+  [(stuck-e? e)
+   ----------
+   (stuck? (<= s e))]
+
+  [(stuck-e? e)
+   ----------
+   (stuck? (var x := e p))]
+
+  [(stuck-e? e)
+   ----------
+   (stuck? (:= x e))]
+
+  [(stuck-e? e)
+   ----------
+   (stuck? (if e p q))])
+
+(define-judgment-form esterel-eval
+  #:mode     (stuck-e? I)
+  #:contract (stuck-e? e)
+  [-----------
+   (stuck-e? (shar s ev old))]
+  [-----------
+   (stuck-e? (shar s ev new))]
+  [(stuck-e? e)
+   ----------
+   (stuck-e? (f ev ... e e_r ...))])
 
 (define-metafunction esterel-eval
   instant : p ((S status) ...) -> (p (S ...)) or #f
   [(instant p ((S status) ...))
    (p_*
     (get-signals a))
-   (where (a a_r ...) ,(apply-reduction-relation* R `(setup p ((S status) ...))))
-   (where (p_* p_r ...) ((add-hats (clear-up-signals a)) (add-hats (clear-up-signals a_r)) ...))
-   (where (#t ...) ,(map (lambda (x) (alpha-equivalent? wrn* `p_* x)) `(p_r ...)))]
+   (where (a) ,(apply-reduction-relation* R `(setup p ((sig S status) ...))))
+   (where p_* (add-hats (clear-up-values a)))]
   [(instant p ((S status) ...))
    #f
-   (where (p_* ...) ,(apply-reduction-relation* R `(setup p ((S status) ...))))
+   (where (p_* ...) ,(apply-reduction-relation* R `(setup p ((sig S status) ...))))
    (side-condition (pretty-print `(p_* ...)))])
 
 (define-metafunction esterel-eval
   instant* : p ((S status) ...) -> p or #f
   [(instant* p ((S status) ...))
    a
-   (where (a a_r ...) ,(apply-reduction-relation* R `(setup p ((S status) ...))))
-   (where (p_* p_r ...) ((add-hats (clear-up-signals a)) (add-hats (clear-up-signals a_r)) ...))
+   (where (a a_r ...) ,(apply-reduction-relation* R `(setup p ((sig S status) ...))))
+   (where (p_* p_r ...) ((add-hats (clear-up-values a)) (add-hats (clear-up-values a_r)) ...))
    (where (#t ...) ,(map (lambda (x) (alpha-equivalent? wrn* `p_* x)) `(p_r ...)))]
   [(instant* p ((S status) ...))
    #f
-   (where (p_* ...) ,(apply-reduction-relation* R `(setup p ((S status) ...))))
+   (where (p_* ...) ,(apply-reduction-relation* R `(setup p ((sig S status) ...))))
    (side-condition (pretty-print `(p_* ...)))])
 
 (define-metafunction esterel-eval
   setup : p (dat ...) -> p
   [(setup p
-          ((S status) dat ...))
-   (setup (set p S (S status))
+          ((sig S status) dat ...))
+   (setup (substitute* p (sig S unknown) (sig S status))
           (dat ...))]
   [(setup p ()) p])
 
 (define-metafunction esterel-eval
   get-signals : p -> (S ...)
-  [(get-signals (signal ((S present) Sdat ...) p))
+  [(get-signals (env ((sig S present) env-v ...) p))
    (S S_r ...)
-   (where (S_r ...) (get-signals (signal (Sdat ...) p)))]
-  [(get-signals (signal (Sdat Sdat_r ...) p))
-   (get-signals (signal (Sdat_r ...) p))]
-  [(get-signals (signal () p))
-   ()])
+   (where (S_r ...) (get-signals (env (env-v ...) p)))]
+  [(get-signals (env (env-v env-v_r ...) p))
+   (get-signals (env (env-v_r ...) p))]
+  [(get-signals (env () p)) ()])
 
 (define-metafunction esterel-eval
   add-hats : p -> p
   [(add-hats pause) nothing]
   [(add-hats nothing) nothing]
-  [(add-hats (signal (S ...) p)) (signal (S ...) (add-hats p))]
+  [(add-hats (env (env-v ...) p)) (env (env-v ...) (add-hats p))]
   [(add-hats (seq p q)) (seq (add-hats p) q)]
   [(add-hats (par p q)) (par (add-hats p) (add-hats q))]
-  [(add-hats (suspend p S)) (suspend^ (add-hats p) S)]
-  [(add-hats (suspend^ p S)) (suspend^ (add-hats p) S)]
-  [(add-hats (trap p)) (trap (add-hats p))])
+  [(add-hats (suspend p Sdat)) (suspend^ (add-hats p) Sdat)]
+  [(add-hats (suspend^ p Sdat)) (suspend^ (add-hats p) Sdat)]
+  [(add-hats (trap p)) (trap (add-hats p))]
+  [(add-hats (exit n)) (exit n)])
 
 (define-metafunction esterel-eval
-  clear-up-signals : p -> p
-  [(clear-up-signals (signal (Sdat ...) p))
-   (signal (S ...) (clear-up-signals p))
-   (where (S ...)
-          ,(map (lambda (x) (if (list? x) (first x) x)) `(Sdat ...)))]
-  [(clear-up-signals nothing) nothing]
-  [(clear-up-signals pause) pause]
-  [(clear-up-signals (signal S p))
-   (signal S (clear-up-signals p))]
-  [(clear-up-signals (present (S status) p q))
-   (present S (clear-up-signals p) (clear-up-signals q))]
-  [(clear-up-signals (present S p q))
-   (present S (clear-up-signals p) (clear-up-signals q))]
-  [(clear-up-signals (emit (S status)))
-   (emit S)]
-  [(clear-up-signals (emit S))
-   (emit S)]
-  [(clear-up-signals (par p q))
-   (par (clear-up-signals p) (clear-up-signals q))]
-  [(clear-up-signals (seq p q))
-   (seq (clear-up-signals p) (clear-up-signals q))]
-  [(clear-up-signals (loop p))
-   (loop (clear-up-signals p))]
-  [(clear-up-signals (suspend p (S status)))
-   (suspend (clear-up-signals p) S)]
-  [(clear-up-signals (suspend^ p (S status)))
-   (suspend^ (clear-up-signals p) S)]
-  [(clear-up-signals (suspend^ p S))
-   (suspend^ (clear-up-signals p) S)]
-  [(clear-up-signals (suspend p S))
-   (suspend (clear-up-signals p) S)]
-  [(clear-up-signals (trap p))
-   (trap (clear-up-signals p))]
-  [(clear-up-signals (exit n)) (exit n)])
+  clear-up-values : p -> p
+  [(clear-up-values (env (env-v ...) p))
+   (env ((clear-up-env env-v) ...)
+     (clear-up-values p))]
+  [(clear-up-values nothing) nothing]
+  [(clear-up-values pause) pause]
+  [(clear-up-values (signal S p))
+   (signal S (clear-up-values p))]
+  [(clear-up-values (present Sdat p q))
+   (present (clear-up-env Sdat) (clear-up-values p) (clear-up-values q))]
+  [(clear-up-values (emit Sdat))
+   (emit (clear-up-env Sdat))]
+  [(clear-up-values (par p q))
+   (par (clear-up-values p) (clear-up-values q))]
+  [(clear-up-values (seq p q))
+   (seq (clear-up-values p) (clear-up-values q))]
+  [(clear-up-values (loop p))
+   (loop (clear-up-values p))]
+  [(clear-up-values (suspend p Sdat))
+   (suspend (clear-up-values p) (clear-up-env Sdat))]
+  [(clear-up-values (suspend^ p Sdat))
+   (suspend^ (clear-up-values p) (clear-up-env Sdat))]
+  [(clear-up-values (trap p))
+   (trap (clear-up-values p))]
+  [(clear-up-values (exit n)) (exit n)]
+  [(clear-up-values (shared s := e p))
+   (shared s := (clear-up-data e) (clear-up-values p))]
+  [(clear-up-values (<= s e)) (<= s (clear-up-data e))]
+  [(clear-up-values (var x := e p))
+   (var x := (clear-up-data e) (clear-up-values p))]
+  [(clear-up-values (:= x e)) (:= x (clear-up-data e))]
+  [(clear-up-values (if e p q))
+   (if (clear-up-data e)
+       (clear-up-values p)
+       (clear-up-values q))])
+
+(define-metafunction esterel-eval
+  clear-up-data : e -> e
+  [(clear-up-data s) s]
+  [(clear-up-data env-v)
+   (clear-up-env env-v)]
+  [(clear-up-data (f e ...))
+   (f (clear-up-data e) ...)]
+  [(clear-up-data x) x]
+  [(clear-up-data natural) natural])
+
+(define-metafunction esterel-eval
+  ;clear-up-env : env-v -> env-v
+  ;clear-up-env : S -> S
+  [(clear-up-env S) S]
+  [(clear-up-env (sig S status)) (sig S unknown)]
+  [(clear-up-env (shar s ev shared-status)) (shar s ev old)]
+  [(clear-up-env (var· x ev)) (var· x ev)])
 
 
-(module+ traces
-  (require redex)
-  (define (highlight-done! sexp term-node [rec #t])
-    #;
-    (when rec
-      (for ([t (term-node-parents term-node)])
-        (highlight-done! (term-node-expr t) t #f)))
-    (cond [(cons? (term-node-children term-node))
-           "white"
-           (term-node-set-color! term-node "white")]
-          #;
-          [(not (judgment-holds (contradiction? ,sexp)))
-           "blue"
-           #;
-           (term-node-set-color! term-node "blue")]
-          [else
-           "pink"
-           #;
-           (term-node-set-color! term-node "pink")]))
-  (define p
-    `(signal
-      ()
-      (signal
-       K
-       (signal
-        O
-        (signal
-         S
-         (par
-          (par
-           (present K (seq pause (emit S)) (emit O))
-           (trap (seq (exit 0) (emit S))))
-          (suspend (present S nothing (loop (seq (emit K) pause)))
-                   O)))))))
-
-  (traces R p #:pred highlight-done!)
-  #;
-  #;
-  (define pp `(instant ,p ()))
-  (traces R (first pp) #:pred highlight-done!))
-
-
-
-
-
-(define (render)
-  (parameterize ([rule-pict-style 'horizontal])
-    (values
-     (render-language esterel)
-     (render-language esterel-eval)
-     (render-reduction-relation R))))
 
 (define-metafunction esterel-eval
   Cannot : p (S ...) -> (S ...) or ⊥
   [(Cannot p (S_o ...))
    (S_1 S_r ...)
-   (where ((S ...) (n ...))
+   (where ((S ...) (n ...) (s ...))
           (Can p))
    (where (S_1 S_r ...)
           ,(filter (lambda (s) (not (member s `(S ...)))) `(S_o ...)))]
   [(Cannot p (S ...)) ⊥])
 
 (define-metafunction esterel-eval
-  Can : p -> ((S ...) (n ...))
+  Cannot_shared : p (s ...) -> (S ...) or ⊥
+  [(Cannot_shared p (s_o ...))
+   (s_1 s_r ...)
+   (where ((S ...) (n ...) (s ...))
+          (Can p))
+   (where (s_1 s_r ...)
+          ,(filter (lambda (x) (not (member x `(s ...)))) `(s_o ...)))]
+  [(Cannot_shared p (s ...)) ⊥])
 
+(define-metafunction esterel-eval
+  Can : p -> ((S ...) (n ...) (s ...))
 
-  [(Can nothing) (() (0))]
+  [(Can nothing) (() (0) ())]
 
-  [(Can pause) (() (1))]
+  [(Can pause) (() (1) ())]
 
-  [(Can (exit n)) (() (,(+ 2 `n)))]
+  [(Can (exit n)) (() (,(+ 2 `n)) ())]
 
-  [(Can (emit S)) ((S) (0))]
-  [(Can (emit (S present))) ((S) (0))]
-  [(Can (emit (S absent))) (() ())]
+  [(Can (emit (sig S present))) ((S) (0) ())]
+  [(Can (emit (sig S absent))) (() () ())]
+  [(Can (emit (sig S unknown))) ((S) (0) ())]
+  [(Can (emit S)) ((S) (0) ())]
 
-  [(Can (present (S present) p q))
+  [(Can (present (sig S present) p q))
    (Can p)]
 
-  [(Can (present (S absent) p q))
+  [(Can (present (sig S absent) p q))
    (Can q)]
 
-  [(Can (present S p q))
+  [(Can (present Sdat p q))
    ((U (Can_S p) (Can_S q))
-    (U (Can_K p) (Can_K q)))]
+    (U (Can_K p) (Can_K q))
+    (U (Can_shared p) (Can_shared q)))]
 
   [(Can (suspend p Sdat))
    (Can p)]
@@ -412,7 +581,7 @@
    ( (U (Can_S p) (Can_S q))
      (U (without (Can_K p) 0)
         (Can_K q))
-      )]
+      (U (Can_shared p) (Can_shared q)))]
 
   [(Can (loop p))
    (Can p)]
@@ -420,36 +589,42 @@
   [(Can (par p q))
    ( (U (Can_S p) (Can_S q))
      (,(apply max (append `(Can_K p) `(Can_K q))))
-     )]
+     (U (Can_shared p) (Can_shared q)))]
 
   [(Can (trap p))
    ( (Can_S p)
      (harp... (Can_K p))
-      )]
-
-  [(Can (signal dat p))
-   (Can p)]
-
-  #|
-  [(Can (signal S p))
-   ((without (S_* ...) S) (n ...))
-   (side-condition `(∉ S (Can_S p)))
-   (where ((S_* ...) (n ...)) (Can (substitute* p S (S absent))))]
-  |#
+      (Can_shared p))]
 
   [(Can (signal S p))
-   ((without (S_* ...) S) (n ...))
-   (where ((S_* ...) (n ...)) (Can p))]
+   ((without (S_* ...) S) (n ...) (s ...))
+   (where ((S_* ...) (n ...) (s ...)) (Can p))]
 
   [(Can (suspend^ p (S absent)))
    (Can p)]
 
   [(Can (suspend^ p (S present)))
-   (() (1))]
+   (() (1) ())]
 
-  [(Can (suspend^ p S))
-   ((S_o ...) (1 n ...))
-   (where ((S_o ...) (n ...)) (Can p))])
+  [(Can (suspend^ p Sdat))
+   ((S_o ...) (1 n ...) (s ...))
+   (where ((S_o ...) (n ...) (s ...)) (Can p))]
+
+  [(Can (shared s := e p))
+   ((Can_S p)
+    (Can_K p)
+    (without (Can_shared p) s))]
+  [(Can (<= s e))
+   (() (0) (s))]
+
+  [(Can (var x := e p))
+   (Can p)]
+  [(Can (:= x e))
+   (() (0) ())]
+  [(Can (if e p q))
+   ((U (Can_S p) (Can_S q))
+    (U (Can_K p) (Can_K q))
+    (U (Can_shared p) (Can_shared q)))])
 
 (define-metafunction esterel-eval
   harp... : (n ...) -> (n ...)
@@ -460,20 +635,26 @@
   harp* : n -> n
   [(harp* 0) 0]
   [(harp* 1) 1]
+  [(harp* 2) 0]
   [(harp* n) ,(sub1 `n)])
 
 (define-metafunction esterel-eval
   Can_S : p -> (S ...)
   [(Can_S p)
    (S ...)
-   (where ((S ...) _) (Can p))])
+   (where ((S ...) any_1 any_2) (Can p))])
 
 (define-metafunction esterel-eval
   Can_K : p -> (n ...)
   [(Can_K p)
    (n ...)
-   (where (_ (n ...)) (Can p))])
+   (where (any_1 (n ...) any_2) (Can p))])
 
+(define-metafunction esterel-eval
+  Can_shared : p -> (s ...)
+  [(Can_shared p)
+   (s ...)
+   (where (any_1 any_2 (s ...)) (Can p))])
 
 (define-metafunction esterel-eval
   ∉ : any (any ...) -> boolean
@@ -485,8 +666,6 @@
    #t]
   [(∈ any_1 (any_2 ...))
    #f])
-
-;; needs U and without
 
 (define-metafunction esterel-eval
   U : (any ...) (any ...) -> (any ...)
@@ -506,154 +685,10 @@
   [(meta-max (n_1 ...) ())
    ()]
   [(meta-max (n_1 ...) (n_2 ...))
-   (,(apply max `(n_1 ... n_2 ...)))])
-
-#|
-
-;; Seems to run forever?
-((signal random-signal1238 (signal random-signal1239 (trap nothing))) in: (I tR T X Zi g M Y P Pb Yeq) out: (H V Z C F) instants: (() () () () () () () () () () () () ()))
-
-|#
-
-#|
-(define-judgment-form esterel-eval*
-  #:mode    (~ I                I I)
-  #:contract (~ (cos:pbar (cos:S ...)) p (S ...))
-  [(~_S (cos:S ...) (Sdat ...) (S_o ...))
-   -----------
-   (~ (cos:p (cos:S ...)) (signal (Sdat ...) nothing) (S_o ...))]
-  [(~_p cos:pbar p)
-   (~_S (cos:S ...) (Sdat ...) (S_o ...))
-   -----------
-   (~ (cos:pbar (cos:S ...)) (signal (Sdat ...) p) (S_o ...))])
-
-(define-judgment-form esterel-eval*
-  #:mode     (~_S I           I          I)
-  #:contract (~_S (cos:S ...) (Sdat ...) (S ...))
-  [(where (cos:S_o ...)
-          (members/cos:S (cos:S ...) (S_o ...)))
-   (where (S ...)
-          (members/Sdat (Sdat ...) (S_o ...)))
-   (subset (S ...) (cos:S_o ...))
-   (subset (cos:S_o ...) (S ...))
-   -----------
-   (~_S (cos:S ...) (Sdat ...) (S_o ...))])
-
-(define-metafunction esterel-eval*
-  members/cos:S : (cos:S ...) (S ...) -> (cos:S ...)
-  [(members/cos:S () (S ...)) ()]
-
-  [(members/cos:S (cos:S cos:S_r ...) (S_1 ... S S_2 ...))
-   (S S_o ...)
-   (where cos:S S)
-   (where (S_o ...)
-          (members/cos:S (cos:S_r ...) (S_1 ... S S_2 ...)))]
-
-  [(members/cos:S (cos:S cos:S_r ...) (S ...))
-   (members/cos:S (cos:S_r ...) (S ...))])
-
-(define-metafunction esterel-eval*
-  members/Sdat : (Sdat ...) (S ...) -> (S ...)
-  [(members/Sdat () (S ...)) ()]
-
-  [(members/Sdat ((S present) Sdat ...) (S_1 ... S S_2 ...))
-   (S S_o ...)
-   (where (S_o ...)
-          (members/Sdat (Sdat ...) (S_1 ... S S_2 ...)))]
-
-  [(members/Sdat (Sdat Sdat_r ...) (S ...))
-   (members/Sdat (Sdat_r ...) (S ...))])
-
-(define-judgment-form esterel-eval*
-  #:mode     (subset I       I)
-  #:contract (subset (S ...) (S ...))
-  [--------
-   (subset () (S ...))]
-  [(subset (S_1 ... S_2 ...)
-           (S_3 ... S S_4 ...))
-   -------
-   (subset (S_1 ... S S_2 ...)
-           (S_3 ... S S_4 ...))])
-
-(define-judgment-form esterel-eval*
-  #:mode     (~_p I        I)
-  #:contract (~_p cos:pbar p)
-  [---------
-   (~_p (hat pause) pause)]
-
-  [(~_p cos:phat p)
-   ----------
-   (~_p (present cos:S cos:phat cos:q) p)]
-
-  [(~_p cos:qhat p)
-   ----------
-   (~_p (present cos:S cos:p cos:qhat) p)]
-
-  [(~_p cos:phat p)
-   ----------
-   (~_p (seq cos:phat cos:q) p)]
-
-  [(~_p cos:qhat p)
-   ----------
-   (~_p (seq cos:p cos:qhat) p)]
-
-  [(~_p cos:phat p)
-   (~_p cos:qhat q)
-   ----------
-   (~_p (par cos:phat cos:qhat) (par p q))]
-
-  [(~_p cos:phat p)
-   ----------
-   (~_p (par cos:phat cos:q) p)]
-
-  [(~_p cos:qhat q)
-   ----------
-   (~_p (par cos:p cos:qhat) q)]
-
-  [(where S cos:S)
-   (~_p cos:phat p)
-   ----------
-   (~_p (suspend cos:phat cos:S)
-        (suspend p S))]
-
-  [(where S cos:S)
-   (~_p cos:phat p)
-   ----------
-   (~_p (suspend cos:phat cos:S)
-        (suspend p (S status)))]
-
-  [(where S cos:S)
-   (~_p cos:phat p)
-   ----------
-   (~_p (suspend cos:phat cos:S)
-        (suspend^ p S))]
-
-  [(where S cos:S)
-   (~_p cos:phat p)
-   ----------
-   (~_p (suspend cos:phat cos:S)
-        (suspend^ p (S staus)))]
-
-  [(~_p cos:phat p)
-   ;; TODO equality with exits?
-   (where (loop cos:p_*) (remove-selected (loop cos:phat)))
-   (where (loop cos:p_*) (convert (loop p_*)))
-   ----------
-   (~_p (loop cos:phat) (seq p (loop p_*)))]
-
-  [(~_p cos:phat p)
-   ---------
-   (~_p (trap cos:phat) (trap p))]
-
-  [(~_p cos:phat p)
-   ---------
-   (~_p (signal cos:S cos:phat) p)]
-
-  [;; TODO equality with exits
-   (where cos:p (convert p))
-   ---------
-   (~_p cos:p p)])
-|#
+   ,(set->list
+     (for*/set ([n1 (in-list `(n_1 ...))]
+                [n2 (in-list `(n_2 ...))])
+       (max n1 n2)))])
 
 (define-metafunction esterel-eval*
     convert : p -> cos:p
@@ -675,7 +710,15 @@
     [(convert (trap p))
      (trap (convert p))]
     [(convert (exit n))
-     (exit (to-nat ,(+ 2 `n)))])
+     (exit (to-nat ,(+ 2 `n)))]
+    [(convert (shared s := e p))
+     (shared s := e (convert p))]
+    [(convert (<= s e)) (<= s e)]
+    [(convert (var x := e p))
+     (var x := e (convert p))]
+    [(convert (:= x e)) (:= x e)]
+    [(convert (if e p q))
+     (if e (convert p) (convert q))])
 (module+ random-test
 
   (define-extended-language esterel-check esterel-eval*
@@ -690,7 +733,12 @@
      (suspend p-check S)
      (present S p-check p-check)
      (emit S)
-     (loop p-check-pause))
+     (loop p-check-pause)
+     (shared s := e-check p-check)
+     (<= s e-check)
+     (var x := e-check p-check)
+     (:= x e-check)
+     (if x p-check p-check))
     (p-check-pause
      pause
      (seq p-check-pause p-check)
@@ -706,7 +754,13 @@
      (signal S p-check-pause)
      (suspend p-check-pause S)
      (present S p-check-pause p-check-pause)
-     (loop p-check-pause)))
+     (loop p-check-pause)
+     (shared s := e-check p-check-pause)
+     (var x := e-check p-check-pause)
+     (if x p-check-pause p-check-pause))
+
+
+    (e-check ::= s x (+ e-check ...) n))
 
   (define (relate pp qp ins in out #:limits? [limits? #f] #:debug? [debug? #f])
     (define (remove-not-outs l)
@@ -796,110 +850,167 @@
      (let ()
        (define low-signals? (< (random) 1/8))
        (define signals (build-list (add1 (random 2)) (lambda (_) (gensym 'random-signal))))
+       (define shareds (build-list (add1 (random 2)) (lambda (_) (gensym 'random-shared))))
        (define SI (remove-duplicates `(S_i ...)))
        (define SO (remove-duplicates `(S_o ...)))
-       (define (wrap p signals)
-         (match signals
-           [(cons s r)
-            `(signal ,s ,(wrap p r))]
-           [else p]))
+       (define (wrap p signals shareds)
+         (match* (signals shareds)
+           [((cons s r) _)
+            `(signal ,s ,(wrap p r shareds))]
+           [(n (cons s r))
+            `(shared ,s := 0 ,(wrap p n r))]
+           [(_ _) p]))
        (if low-signals?
            (list
             (wrap
              `(fix/low-signals p
                                ,signals
+                               ,shareds
+                               ()
                                0)
-             signals)
+             signals
+             shareds)
             SI
             SO
             `(generate-inputs ()))
            (list
-            `(fix p ,SI ,SO)
+            `(fix p ,SI ,SO () () () 0)
             SI
             SO
             `(generate-inputs ,SI))))))
 
   (define-metafunction esterel-eval
-    fix/low-signals : p (S ...) n -> p
-    [(fix/low-signals nothing (S ...) n)
+    fix/low-signals : p (S ...) (s ...) (x ...) n -> p
+    [(fix/low-signals nothing (S ...) (s ...) (x ...) n)
      nothing]
-    [(fix/low-signals pause (S ...) n)
+    [(fix/low-signals pause (S ...) (s ...) (x ...) n)
      pause]
-    [(fix/low-signals (exit n) (S ...) n_max)
+    [(fix/low-signals (exit n) (S ...) (s ...) (x ...) n_max)
      ,(if (zero? `n_max)
           `nothing
           `(exit ,(random `n_max)))]
-    [(fix/low-signals (emit any) (S ...) n_max)
+    [(fix/low-signals (emit any) (S ...) (s ...) (x ...) n_max)
      (emit ,(random-ref `(S ...)))]
-    [(fix/low-signals (signal any p) (S ...) n_max)
-     (fix/low-signals p (S ...) n_max)]
-    [(fix/low-signals (present any p q) (S ...) n_max)
+    [(fix/low-signals (signal any p) (S ...) (s ...) (x ...) n_max)
+     (fix/low-signals p (S ...) (s ...) (x ...) n_max)]
+    [(fix/low-signals (present any p q) (S ...) (s ...) (x ...) n_max)
      (present ,(random-ref `(S ...))
-              (fix/low-signals p (S ...) n_max)
-              (fix/low-signals q (S ...) n_max))]
-    [(fix/low-signals (par p q) (S ...) n_max)
+              (fix/low-signals p (S ...) (s ...) (x ...) n_max)
+              (fix/low-signals q (S ...) (s ...) (x ...) n_max))]
+    [(fix/low-signals (par p q) (S ...) (s ...) (x ...) n_max)
      (par
-      (fix/low-signals p (S ...) n_max)
-      (fix/low-signals q (S ...) n_max))]
-    [(fix/low-signals (seq p q) (S ...) n_max)
+      (fix/low-signals p (S ...) (s ...) (x ...) n_max)
+      (fix/low-signals q (S ...) (s ...) (x ...) n_max))]
+    [(fix/low-signals (seq p q) (S ...) (s ...) (x ...) n_max)
      (seq
-      (fix/low-signals p (S ...) n_max)
-      (fix/low-signals q (S ...) n_max))]
-    [(fix/low-signals (loop p) (S ...) n_max)
+      (fix/low-signals p (S ...) (s ...) (x ...) n_max)
+      (fix/low-signals q (S ...) (s ...) (x ...) n_max))]
+    [(fix/low-signals (loop p) (S ...) (s ...) (x ...) n_max)
      (loop
-      (fix/low-signals p (S ...) n_max))]
-    [(fix/low-signals (suspend p any) (S ...) n_max)
+      (fix/low-signals p (S ...) (s ...) (x ...) n_max))]
+    [(fix/low-signals (suspend p any) (S ...) (s ...) (x ...) n_max)
      (suspend
-      (fix/low-signals p (S ...) n_max)
+      (fix/low-signals p (S ...) (s ...) (x ...) n_max)
       ,(random-ref `(S ...)))]
-    [(fix/low-signals (trap p) (S ...) n_max)
+    [(fix/low-signals (trap p) (S ...) (s ...) (x ...) n_max)
      (trap
-      (fix/low-signals p (S ...) ,(add1 `n_max)))])
+      (fix/low-signals p (S ...) (s ...) (x ...) ,(add1 `n_max)))]
+    [(fix/low-signals (shared s_d := e p) (S ...) (s ...) (x ...) n_max)
+     (fix/low-signals p (S ...) (s ...) (x ...) n_max)]
+    [(fix/low-signals (<= s_d e) (S ...) (s ...) (x ...) n_max)
+     (<= ,(random-ref `(s ...)) (fix/e e (s ... x ...)))]
+    [(fix/low-signals (var x_d := e p) (S ...) (s ...) (x ...) n_max)
+     (var x_n := (fix/e e (s ... x ...))
+          (fix/low-signals p (S ...) (s ...) (x_n x ...) n_max))
+     (where x_n ,(gensym 'random-var))]
+    [(fix/low-signals (:= x_d e) (S ...) (s ...) (x ...) n_max)
+     ,(if (null? `(x ...))
+          `nothing
+          `(:= ,(random-ref `(x ...))
+               (fix/e e (s ... x ...))))]
+    [(fix/low-signals (if e p q) (S ...) (s ...) (x ...) n_max)
+     ,(if (null? `(x ...))
+          `(fix/low-signals p (S ...) (s ...) (x ...) n_max)
+          `(if
+            (fix/e e (x ...))
+            (fix/low-signals p (S ...) (s ...) (x ...) n_max)
+            (fix/low-signals q (S ...) (s ...) (x ...) n_max)))])
 
   (define-metafunction esterel-eval
-    ;fix : p (S ...) (S ...) [trap-depth 0] -> p
-    [(fix p (S_i ...) (S_o ...))
-     (fix p (S_i ...) (S_o ...) () 0)]
-
-    [(fix nothing (S_i ...) (S_o ...) (S_b ...) n_max)
+    fix : p (S ...) (S ...) (S ...) (s ...) (x ...) n -> p
+    [(fix nothing (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
      nothing]
-    [(fix pause (S_i ...) (S_o ...) (S_b ...) n_max)
+    [(fix pause (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
      pause]
-    [(fix (exit n) (S_i ...) (S_o ...) (S_b ...) n_max)
+    [(fix (exit n) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
      ,(if (zero? `n_max)
           `nothing
           `(exit ,(random `n_max)))]
-    [(fix (emit S) (S_i ...) (S_o ...) (S_b ...) n_max)
+    [(fix (emit S) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
      (emit ,(random-ref `(S_o ... S_b ...)))]
-    [(fix (signal S_d p) (S_i ...) (S_o ...) (S_b ...) n_max)
-     (signal S (fix p (S_i ...) (S_o ...) (S S_b ...) n_max))
+    [(fix (signal S_d p) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+     (signal S (fix p (S_i ...) (S_o ...) (S S_b ...) (s ...) (x ...) n_max))
      (where S ,(gensym))
      (where #t ,(<= (length `(S_b ...)) 3))]
-    [(fix (signal S_d p) (S_i ...) (S_o ...) (S_b ...) n_max)
-     (fix p (S_i ...) (S_o ...) (S_b ...) n_max)
+    [(fix (signal S_d p) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+     (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
      (where #t ,(> (length `(S_b ...)) 3))]
-    [(fix (present S p q) (S_i ...) (S_o ...) (S_b ...) n_max)
+    [(fix (present S p q) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
      (present ,(random-ref `(S_i ... S_b ...))
-              (fix p (S_i ...) (S_o ...) (S_b ...) n_max)
-              (fix q (S_i ...) (S_o ...) (S_b ...) n_max))]
-    [(fix (par p q) (S_i ...) (S_o ...) (S_b ...) n_max)
+              (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+              (fix q (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max))]
+    [(fix (par p q) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
      (par
-      (fix p (S_i ...) (S_o ...) (S_b ...) n_max)
-      (fix q (S_i ...) (S_o ...) (S_b ...) n_max))]
-    [(fix (seq p q) (S_i ...) (S_o ...) (S_b ...) n_max)
+      (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+      (fix q (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max))]
+    [(fix (seq p q) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
      (seq
-      (fix p (S_i ...) (S_o ...) (S_b ...) n_max)
-      (fix q (S_i ...) (S_o ...) (S_b ...) n_max))]
-    [(fix (loop p) (S_i ...) (S_o ...) (S_b ...) n_max)
+      (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+      (fix q (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max))]
+    [(fix (loop p) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
      (loop
-      (fix p (S_i ...) (S_o ...) (S_b ...) n_max))]
-    [(fix (suspend p S) (S_i ...) (S_o ...) (S_b ...) n_max)
+      (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max))]
+    [(fix (suspend p S) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
      (suspend
-      (fix p (S_i ...) (S_o ...) (S_b ...) n_max)
+      (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
       ,(random-ref `(S_i ... S_b ...)))]
-    [(fix (trap p) (S_i ...) (S_o ...) (S_b ...) n_max)
+    [(fix (trap p) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
      (trap
-      (fix p (S_i ...) (S_o ...) (S_b ...) ,(add1 `n_max)))])
+      (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) ,(add1 `n_max)))]
+    [(fix (shared s_d := e p) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+     (shared s_n := (fix/e e (s ... x ...))
+       (fix p (S_i ...) (S_o ...) (S_b ...) (s_n s ...) (x ...) n_max))
+     (where s_n ,(gensym))]
+    [(fix (<= s_d e) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+     ,(if (null? `(s ...))
+          `nothing
+          `(<= ,(random-ref `(s ...))
+               (fix/e e (s ... x ...))))]
+
+    [(fix (var x_d := e p) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+     (var x_n := (fix/e e (s ... x ...))
+       (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x_n x ...) n_max))
+     (where x_n ,(gensym))]
+    [(fix (:= x_d e) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+     ,(if (null? `(x ...))
+          `nothing
+          `(:= ,(random-ref `(x ...))
+               (fix/e e (s ... x ...))))]
+    [(fix (if e p q) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+     ,(if (null? `(x ...))
+          `(fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+          `(if
+            (fix/e e (x ...))
+            (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+            (fix q (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)))])
+
+  (define-metafunction esterel-eval
+    fix/e : e (s ...) -> e
+    [(fix/e n (s ...)) n]
+    [(fix/e s ()) 0]
+    [(fix/e s (s_s ...)) ,(random-ref `(s_s ...))]
+    [(fix/e (f e ...) (s ...))
+     (f (fix/e e (s ...)) ...)])
 
   (define-metafunction esterel-eval
     generate-inputs : (S ...) -> ((S ...) ...)
@@ -911,7 +1022,11 @@
 
   (define-metafunction esterel-eval
     add-extra-syms : p (S ...) -> p
-    [(add-extra-syms p (S ...)) (signal (S ...) p)])
+    [(add-extra-syms p (S ...))
+     (env ((sig S unknown) ...)
+          ,(for/fold ([p `p])
+                     ([S (in-list `(S ...))])
+             `(substitute* ,p ,S (sig ,S unknown))))])
 
   (provide do-test)
   (define (do-test [print #f] #:limits? [limits? #f])
@@ -925,7 +1040,7 @@
        [(S_o ...) `o])
       (begin
         (when print
-          (displayln (list `~f `p-check `i `o `((S ...) ...) '#:limits? limits?))
+          (displayln (list `~f ``p-check ``i ``o ``((S ...) ...) '#:limits? limits?))
           #;
           (displayln `(p-check in: i out: o instants: ((S ...) ...)))))
       (~f `p-check `i `o `((S ...) ...) #:limits? limits?)
@@ -939,6 +1054,7 @@
      #:prepare fixup
      #:attempts 10000))
 
+  (provide ~f)
   (define (~f p-check i o s #:limits? limits? #:debug? [debug? #f])
     (relate `((convert ,p-check) ())
             `(add-extra-syms ,p-check ,(append i o))
@@ -963,108 +1079,169 @@
       (list p s))))
 
 (module+ test
-  #|
-  (test-case "unit"
-  (check-true
-  (judgment-holds (~ ((signal random-signal870 (hat pause)) ())
-  (signal ((B absent) M random-signal870«0») pause)
-  (M))))
-  (check-true
-  (judgment-holds (~_p (loop pause)
-  (loop pause))))
-  (check-true
-  (judgment-holds (~ ((loop pause) ())
-  (signal () (loop pause))
-  ())))
-  (check-true
-  (judgment-holds (~ ((loop (hat pause)) ())
-  (signal () (seq pause (loop pause)))
-  ())))
-  (check-true
-  (judgment-holds (~ ((signal random-signal912 (signal random-signal913 (loop (hat pause)))) ())
-  (signal ((a absent) fL random-signal912«0» random-signal913«2») (seq pause (loop pause)))
-  (FL))))
-  (check-true
-  (judgment-holds
-  (~ ((seq (suspend pause a) (loop pause)) ())
-  (signal (a zI i) (seq (suspend pause a) (loop pause)))
-  (zI i))))
-  (check-true
-  (judgment-holds
-  (~_p (suspend (hat pause) a)
-  (suspend pause (a present)))))
-  (check-true
-  (judgment-holds
-  (~ ((suspend (hat pause) a)  ())
-  (signal ((a present)) (suspend pause (a present)))
-  (zI i))))
-  (check-true
-  (judgment-holds (~_S () ((a present) zI i) (zI i))))
-  (check-true
-  (judgment-holds
-  (~_p (seq (hat pause) (loop pause))
-  (seq pause (loop pause)))))
-  (check-true
-  (judgment-holds
-  (~_p (seq (suspend (hat pause) a) (loop pause))
-  (seq (suspend pause (a present)) (loop pause)))))
-  (check-true
-  (judgment-holds
-  (~ ((seq (suspend (hat pause) a) (loop pause)) ())
-  (signal ((a present) zI i) (seq (suspend pause (a present)) (loop pause)))
-  (zI i)))))
-
-  (check-true
-  (judgment-holds
-  (~ ((signal random-signal912 (signal random-signal913 (loop (hat pause)))) ())
-  (signal ((a absent) fL random-signal912«0» random-signal913«2») (seq pause (loop pause)))
-  (FL))))
-  |#)
-
-
-
-(module+ test
   (require (submod ".." random-test))
-  (test-case "random"
-    (do-test #t)))
+  (test-begin
+    (check-equal?
+     (apply-reduction-relation
+      R
+      `(env ((sig S present) (sig A unknown))
+            (par (suspend^ nothing (sig S present))
+                 (present (sig A unknown) pause pause))))
+     (list
+      `(env ((sig S present) (sig A absent))
+               (par (suspend^ nothing (sig S present))
+                    (present (sig A absent) pause pause)))))
+    (check-true
+     (redex-match?
+      esterel-eval
+      ((env ((shar s 1 new))
+         pause))
+      (apply-reduction-relation
+       R
+       `(env ()
+         (shared s := 1
+                 pause)))))
+    (check-true
+     (redex-match?
+      esterel-eval
+      ((env ((shar s 5 new))
+         nothing))
+      (apply-reduction-relation
+       R
+       `(env ((shar s 1 old))
+         (<= s 5)))))
 
+    (check-true
+     (redex-match?
+      esterel-eval
+      ((env ((shar s 6 new))
+         nothing))
+      (apply-reduction-relation
+       R
+       `(env ((shar s 1 new))
+         (<= s 5)))))
+
+    (check-true
+     (redex-match?
+      esterel-eval
+      ((env ((shar s 1 ready))
+         (shared s_2 := (shar s 1 ready)
+                 pause)))
+      (apply-reduction-relation
+       R
+       `(env ((shar s 1 new))
+         (shared s2 := (shar s 1 new)
+                 pause)))))
+
+    (check-true
+     (redex-match?
+      esterel-eval
+      ((env ((shar s 1 ready))
+         (shared s2 := 1
+                 pause)))
+      (apply-reduction-relation
+       R
+       `(env ((shar s 1 ready))
+         (shared s2 := (shar s 1 ready)
+                 pause)))))
+
+    (check-true
+     (redex-match?
+      esterel-eval
+      ((env ()
+         (shared s2 := 1
+                 pause)))
+      (apply-reduction-relation
+       R
+       `(env ()
+         (shared s2 := (+ 1 0)
+                 pause)))))
+    (check-true
+     (~f `(signal random-signal14877
+                  (seq (par nothing (suspend pause random-signal14877)) (emit random-signal14877)))
+         `(z h J v)
+         `(f g y w S E o i)
+         `(() () () () () () () () () () () () () () () () () () ())
+         #:limits? #f))
+    (check-equal?
+     `(Can_K (trap (exit 0)))
+     `(0))
+    (check-equal?
+     `(Can_K (trap (par (exit 0) pause)))
+     `(0))
+    (check-true
+     (~f (quasiquote (seq (trap (par (exit 0) pause)) (emit rX)))
+         (quasiquote (x Q b))
+         (quasiquote (UU rX D |,| rF d))
+         (quasiquote ((b Q)))
+         #:limits? #f))
+    (check-equal?
+     1
+     (length
+      (apply-reduction-relation*
+       R
+       `(substitute*
+         (env ((sig E unknown) (sig C unknown) (sig dB unknown)
+               (sig EW unknown) (sig b unknown) (sig - unknown)
+               (sig DI unknown))
+              (seq (par nothing
+                        (trap (par (trap (suspend^ nothing (sig E unknown))) nothing)))
+                   (loop
+                    (present (sig C unknown)
+                             (par pause
+                                  (trap (par (trap (suspend pause (sig E unknown)))
+                                             pause)))
+                             (par
+                              (par
+                               (par pause nothing)
+                               (seq pause pause))
+                              (emit (sig - unknown)))))))
+         (sig E unknown) (sig E present)))))
+    (check-true
+     (redex-match?
+      esterel-eval p-not-v
+      `(trap
+        (suspend^ (seq nothing (loop pause)) (sig random-signal8013 unknown)))))
+    (check-true
+     (redex-match?
+      esterel-eval p-not-v
+      `(par (suspend^ nothing (sig random-signal15682 unknown)) nothing)))
+    (test-case "random"
+      (do-test #t))))
 
 (module+ tracing
-
   (define-syntax-rule (render-derivations r)
     (show-derivations (build-derivations r)))
-#;
-  (define-judgment-form cos:esterel-eval
-    #:mode     (do I I O  O      O)
-    #:contract (do M E M (S ...) k)
-    [(cos:non-det-> (machine pdotdot data) E
-                    (machine pdotdot_* data_*) ⊥ k)
-     -----------
-     (do (machine pdotdot data) E
-       (machine pdotdot_* data_*) () k)]
-
-    [(cos:non-det-> (machine pdotdot data) E
-                    (machine pdotdot_* data) S k)
-     -----------
-     (do (machine pdotdot data) E
-       (machine pdotdot_* data) (S) k)]
-
-    [(cos:non-det-> (machine pdotdot data) E
-                    (machine pdotdot_* data_*) S ⊥)
-     (do (machine pdotdot_* data_*) E
-       (machine pdotdot_** data_**) (S_r ...) k)
-     -----------
-     (do (machine pdotdot data) E
-       (machine pdotdot_** data_**) (U (S) (S_r ...)) k)]
-
-    [(cos:non-det-> (machine pdotdot data) E
-                    (machine pdotdot_* data_*) ⊥ ⊥)
-     (do (machine pdotdot_* data_*) E
-       (machine pdotdot_** data_**) (S ...) k)
-     -----------
-     (do (machine pdotdot data) E
-       (machine pdotdot_** data_**) (S ...) k)])
-
   (define (steps p)
-    (traces R `(signal () ,p))
-    (render-derivations (cos:→* (machine (· (convert ,p)) ()) () (machine pbar any_1) any_2 any_3))))
+    (traces R `(env () ,p))
+    (render-derivations
+     (cos:→* (machine (· (convert ,p)) ()) () (machine pbar any_1) any_2 any_3))))
+
+(require unstable/gui/redex slideshow/text pict)
+(define (render)
+  (define (shar-rw lws)
+    (match lws
+      [(list open _ name value status close)
+       (match* (name value status)
+         [((lw n a b c d e f)
+           (lw v _ _ _ _ _ _)
+           (lw s _ _ _ _ _ _))
+          (render-lw
+           esterel-eval
+           (lw
+            (string->symbol (format "~a_~a^~a" v s n))
+            a b c d e f))])]))
+  #;
+  (define (sig-rw lws)
+    (match lws
+      [(list open _ name status close)
+       ]))
+  (add-compound-rewriters!
+   'shar shar-rw
+   ;'sig  sig-rw
+   )
+  (parameterize ([rule-pict-style 'horizontal])
+    (values
+     (render-language esterel)
+     (render-language esterel-eval)
+     (render-reduction-relation R))))
