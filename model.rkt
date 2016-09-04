@@ -38,7 +38,9 @@
      shareddat
      vardat
      (f e ...)
-     n)
+     n
+     ;; racket value
+     any)
   (f ::= + (rfunc any))
   (shareddat ::= s)
   (vardat ::= x))
@@ -55,9 +57,9 @@
   (shared-status ::= ready old new)
   (shareddat ::= .... (shar s ev shared-status))
   (vardat ::= .... (var· x ev))
-  (ev ::= n)
+  (ev ::= n (rvalue any))
 
-  ;; values and answers
+  ;; Values and answers
   (a ::= ap a*)
   (ap ::= (in-hole A vp))
   (a* ::= (in-hole A v*))
@@ -250,7 +252,7 @@
        if-false)
   (--> (in-hole P* (if ev p q))
        (in-hole P* p)
-       (side-condition `(∉ ev (#f 0)))
+       (side-condition `(∉ ev ((rvalue #f) 0)))
        if-true)
   ;; evaling code
   (--> (in-hole E* (shar s ev ready)) (in-hole E* ev)
@@ -284,7 +286,7 @@
 (define-metafunction esterel-eval
   δ : f ev ... -> ev
   [(δ + ev ...) ,(apply + `(ev ...))]
-  [(δ (rfunc any) ev ...) ,(apply `any `(ev ...))])
+  [(δ (rfunc any) ev ...) (rvalue ,(apply `any `(ev ...)))])
 
 (define-metafunction esterel-eval
   harp : vp -> vp
@@ -433,10 +435,10 @@
           (env-v ...))]
   [(setup p
           ((shar s ev shared-status) env-v ...))
-   (setup (substitute* p (shar s ev_old old) (shar s ev shared-status))
+   (setup (substitute* p (shar s ev_old shared-status_old) (shar s ev shared-status))
           (env-v ...))
    (where
-    (env (env-v_1 ... (shar s ev_old old) env-v_2 ...) p_*)
+    (env (env-v_1 ... (shar s ev_old shared-status_old) env-v_2 ...) p_*)
     p)]
   [(setup p ()) p])
 

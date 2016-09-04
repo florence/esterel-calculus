@@ -27,7 +27,6 @@
          :=&
          get-var
          machine-prog
-         machine-store
          (for-syntax msg call est local-expand-esterel))
 (require "model.rkt"
          redex/reduction-semantics
@@ -62,33 +61,32 @@
 ;; Machine Inputs -> Machine Inputs
 ;; where Inputs = (listof (U symbol (lst symbol any)))
 (define (eval-top in-machine inputs)
-  (match-define (machine in-prog in-store valid-ins) in-machine)
+  (match-define (machine in-prog replacements valid-ins outputs) in-machine)
   (check-inputs! valid-ins inputs)
   (define in-store*
-    (for/fold ([store in-store])
-              ([i (in-list valid-ins)])
-      (match i
-        [(list s d)
-         (match inputs
-           [(list x ... (list (== s) d) y ...)
-            ;; TODO ata setting
-            (term (data<- ,store ,s ,d ready))]
-           [else (term (data<- ,store (,s status) old))])]
-        [s store])))
+    (filter
+     values
+     (for/list ([i (in-list inputs)])
+       (match i
+         [(list s v)
+          (list 'shar (dict-ref replacements s) v 'new)]
+         [else #f]))))
   (define E
     (for/list ([i (in-list valid-ins)])
       (match-define (or (list S _) S) i)
       (match inputs
         [(list _ ... (or (== S) (list (== S) _)) _ ...)
-         ;; TODO how to actuall set values
-         (list S '(Succ zero))]
-        [else (list S 'zero)])))
-  (match-define (list (list 'machine out-prog out-store) out-E)
-    ;; TODO eval -> instant
-    (term (eval (machine ,in-prog ,in-store*) ,E)))
-  (values (make-machine out-prog out-store valid-ins)
-          ;; TODO look crap up in the store
-          (get-data out-E out-store)))
+         (list 'sig S 'present)]
+        [else (list 'sig S 'absent)])))
+
+  (define n (term (instant ,in-prog ,(append in-store* E))))
+  (unless n
+    (error 'eval
+           "failed to evaluate: ~a"
+           (list 'instant in-prog (append in-store* E))))
+  (match-define (list out-prog _) n)
+  (values (make-machine out-prog replacements valid-ins outputs)
+          (get-data outputs replacements out-prog)))
 
 (define (check-inputs! vins inputs)
   (for ([i (in-list inputs)])
@@ -103,14 +101,22 @@
            (member a vins)])
       (error 'signals "not valid signal ~a" i))))
 
-(define (get-data E store)
-  (for/list ([S (in-list E)])
-    ;; TODO data-ref
-    (cond [(term (data-ref-ext ,store (,S value)))
-           => (lambda (x) (list S x))]
-          [else S])))
+(define (get-data outputs replacements p)
+  (match-define `(env (,env-vs ...) ,_) p)
+  (filter
+   values
+   (for/list ([o (in-list outputs)])
+     (match env-vs
+       [(list-no-order
+         `(shar ,(== (dict-ref replacements o #f)) ,ev ,_)
+         `(sig ,(== o) present)
+         _ ...)
+        (list o ev)]
+       [(list* _ ... `(sig (== o) present) _)
+        o]
+       [else #f]))))
 
-(struct machine (prog store valid-ins)
+(struct machine (prog replace valid-ins outputs)
   #:reflection-name 'esterel-machine
   #:extra-constructor-name make-machine)
 (define-syntax esterel-machine
@@ -123,51 +129,77 @@
          (define init-expr
            (local-expand-esterel #'machine))
          init-expr))
-     (define/with-syntax (out/value ...)
+     (define/with-syntax ((outv/sym out/value) ...)
        (for/list ([o (in-syntax #'(out ...))]
                   #:when (syntax-parse o [(a b) #t] [_ #f]))
-         (syntax-parse o
-           [(n v)
-            #`(shar n v new)])))
-     (define/with-syntax (in/value ...)
+         (syntax-parse o [(n v) (list #'n #`(shar n v new))])))
+     (define/with-syntax ((inv/sym in/value) ...)
        (for/list ([i (in-syntax #'(in ...))]
                   #:when (syntax-parse i [(a b) #t] [_ #f]))
-         (syntax-parse i
-           [(n v) #`(shar n v new)])))
+         (syntax-parse i [(n v) (list #'n #`(shar n v new))])))
      (define/with-syntax (in/sym ...)
        (for/list ([x (in-syntax #'(in ...))])
-         (syntax-parse x
-           [(i _) #'i]
-           [i #'i])))
+         (syntax-parse x [(i _) #'i] [i #'i])))
      (define/with-syntax (out/sym ...)
        (for/list ([x (in-syntax #'(out ...))])
-         (syntax-parse x
-           [(i _) #'i]
-           [i #'i])))
+         (syntax-parse x [(i _) #'i] [i #'i])))
      (define/with-syntax ((in/out ...) (in/out-replacements ...))
        (list
-        #'(in/sym ... out/sym ...)
-        (generate-temporaries #'(in/sym ... out/sym ...))))
+        #'(inv/sym ... outv/sym ...)
+        (generate-temporaries #'(inv/sym ... outv/sym ...))))
      (define/with-syntax (in/out*/value ...)
-       (syntax-parse #'(in/value ... out/value ...)
-         [((shar n v new) ...)
-          #'((shar in/out-replacements v new) ...)]))
+       (begin
+         (syntax-parse #'(in/value ... out/value ...)
+           [((shar n v new) ...)
+            #'((shar in/out-replacements v new) ...)])))
      #'(let-values ([(raw-prog)
-                     ;; TODO implement update-vars
-                     (update-vars (term t)
-                                  '((in/out . in/out-replacements) ...))])
+                     (set-sigs `(in/sym ... out/sym ...)
+                      (update-vars (term t)
+                                   '((in/out . in/out*/value) ...)))])
          ;(loop-safe! raw-prog) TODO
-         (make-machine `(env (in/sym ... out/sym ... in/out*/value ...) ,raw-prog)
+         (make-machine `(env ((sig in/sym unknown) ... (sig out/sym unknown) ... in/out*/value ...)
+                             ,raw-prog)
                        '((in/out . in/out-replacements) ...)
-                       '(in ...)))]))
+                       '(in ...)
+                       '(out/sym ...)))]))
 
 (define (update-vars t vmap)
-  (cond
-    [(list? t)
-     (for/list ([t (in-list t)])
-       (update-vars t vmap))]
-    [(dict-ref vmap t #f) => values]
+  (define (u t) (update-vars t vmap))
+  (define (u/e e) (update-vars/e e vmap))
+  (define (u/v v) (update-vars/v v vmap))
+  (match t
+    [`(var ,s := ,e ,p)
+     `(var ,(u/v s) := ,(u/e e) ,(u p))]
+    [`(shared ,s := ,e ,p)
+     `(shared ,(u/e s) := ,(u/e e) ,(u p))]
+    [`(<= ,s ,e) `(<= ,(u/v s) ,(u/e e))]
+    [`(:= ,s ,e) `(:= ,(u/v s) ,(u/e e))]
+    [`(if ,e ,p ,q) `(if ,(u/e e) ,(u p) ,(u q))]
+    [(? list?) (map u t)]
     [else t]))
+(module+ test
+  (let ([f (const #t)])
+    (check-equal? (update-vars `(if ((rfunc ,f) I) nothing nothing)
+                               '((I . R)))
+                  `(if ((rfunc ,f) R) nothing nothing))))
+
+(define (update-vars/e e vmap)
+  (cond
+    [(list? e)
+     (for/list ([e (in-list e)])
+       (update-vars/e e vmap))]
+    [(dict-ref vmap e #f) => values]
+    [else e]))
+
+(define (update-vars/v v vmap)
+  (match (dict-ref vmap v #f)
+    [`(shar ,vo ,_ ,_) vo]
+    [#f v]))
+
+(define (set-sigs s p)
+  (for/fold ([p p])
+            ([s (in-list s)])
+    (term (substitute* ,p ,s (sig ,s unknown)))))
 
 (define-syntax define-esterel-form
   (syntax-parser
@@ -231,9 +263,13 @@
              (lambda (var ...)
                (define env
                  (make-hasheq
-                  (list (cons 'var var) ...)))
+                  (list (cons 'var (maybe-rvalue->value var)) ...)))
                (f env))))
            var ... )))))
+(define (maybe-rvalue->value mrv)
+  (match mrv
+    [`(rvalue ,v) v]
+    [v v]))
 
 (begin-for-syntax
   (define-syntax-class msg
@@ -250,7 +286,7 @@
 (define-esterel-form pause& (syntax-parser [_:id #'pause]))
 (define-esterel-form exit&
   (syntax-parser
-    [(_ T:id) #`(exit (to-nat #,(get-exit-code #'T)))]))
+    [(_ T:id) #`(exit #,(get-exit-code #'T))]))
 (define-esterel-form emit&
   (syntax-parser
     [(_ S:id)
@@ -355,8 +391,7 @@
 (define-esterel-form if&
   (syntax-parser
     [(_ call:call p:est q:est)
-     (define/with-syntax v (generate-temporary))
-     #'(var v := call.func (if v p.exp q.exp))]))
+     #'(if call.func p.exp q.exp)]))
 
 (define-esterel-form loop-each&
   (syntax-parser
@@ -468,13 +503,14 @@
     (define-values (M S...)
       (eval-top
        (esterel-machine
-        #:inputs ((I 0))
+        #:inputs ((I 1))
         #:outputs ((O 0))
         (present& I
+                  nothing&
                   (if& (= (? I) 1)
                        (emit& O 1)
                        nothing&)))
-       '((I 1))))
+       '()))
     (check-equal? S... '(O))))
 
 
