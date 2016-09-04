@@ -1,12 +1,10 @@
 #lang debug racket
-(require redex)
-(require esterel/cos-model
-         racket/random
+(provide (all-defined-out))
+(require redex/reduction-semantics)
+(require racket/random
          (prefix-in r: racket)
          rackunit
-         racket/sandbox
-         (only-in (submod esterel/cos-model test) cc->>)
-         (prefix-in cos: esterel/cos-model))
+         racket/sandbox)
 
 (define-syntax quasiquote (make-rename-transformer #'term))
 
@@ -41,7 +39,7 @@
      vardat
      (f e ...)
      n)
-  (f ::= +)
+  (f ::= + (rfunc any))
   (shareddat ::= s)
   (vardat ::= x))
 
@@ -125,7 +123,6 @@
            (suspend vp Sdat)
            (suspend^ vp (sig S absent))))
 
-(define-union-language esterel-eval* esterel-eval (cos: cos:esterel-eval))
 
 (define-metafunction esterel-eval
   substitute* : any_1 any_2 any_3 -> any
@@ -286,7 +283,8 @@
 
 (define-metafunction esterel-eval
   δ : f ev ... -> ev
-  [(δ + ev ...) ,(apply + `(ev ...))])
+  [(δ + ev ...) ,(apply + `(ev ...))]
+  [(δ (rfunc any) ev ...) ,(apply `any `(ev ...))])
 
 (define-metafunction esterel-eval
   harp : vp -> vp
@@ -416,35 +414,30 @@
    (stuck-e? (f ev ... e e_r ...))])
 
 (define-metafunction esterel-eval
-  instant : p ((S status) ...) -> (p (S ...)) or #f
-  [(instant p ((S status) ...))
+  instant : p (env-v ...) -> (p (any ...)) or #f
+  [(instant p (env-v ...))
    (p_*
     (get-signals a))
-   (where (a) ,(apply-reduction-relation* R `(setup p ((sig S status) ...))))
+   (where (a) ,(apply-reduction-relation* R `(setup p (env-v ...))))
    (where p_* (add-hats (clear-up-values a)))]
-  [(instant p ((S status) ...))
+  [(instant p (env-v ...))
    #f
-   (where (p_* ...) ,(apply-reduction-relation* R `(setup p ((sig S status) ...))))
+   (where (p_* ...) ,(apply-reduction-relation* R `(setup p (env-v ...))))
    (side-condition (pretty-print `(p_* ...)))])
 
 (define-metafunction esterel-eval
-  instant* : p ((S status) ...) -> p or #f
-  [(instant* p ((S status) ...))
-   a
-   (where (a a_r ...) ,(apply-reduction-relation* R `(setup p ((sig S status) ...))))
-   (where (p_* p_r ...) ((add-hats (clear-up-values a)) (add-hats (clear-up-values a_r)) ...))
-   (where (#t ...) ,(map (lambda (x) (alpha-equivalent? wrn* `p_* x)) `(p_r ...)))]
-  [(instant* p ((S status) ...))
-   #f
-   (where (p_* ...) ,(apply-reduction-relation* R `(setup p ((sig S status) ...))))
-   (side-condition (pretty-print `(p_* ...)))])
-
-(define-metafunction esterel-eval
-  setup : p (dat ...) -> p
+  setup : p (env-v ...) -> p
   [(setup p
-          ((sig S status) dat ...))
+          ((sig S status) env-v ...))
    (setup (substitute* p (sig S unknown) (sig S status))
-          (dat ...))]
+          (env-v ...))]
+  [(setup p
+          ((shar s ev shared-status) env-v ...))
+   (setup (substitute* p (shar s ev_old old) (shar s ev shared-status))
+          (env-v ...))
+   (where
+    (env (env-v_1 ... (shar s ev_old old) env-v_2 ...) p_*)
+    p)]
   [(setup p ()) p])
 
 (define-metafunction esterel-eval
@@ -690,7 +683,13 @@
                 [n2 (in-list `(n_2 ...))])
        (max n1 n2)))])
 
-(define-metafunction esterel-eval*
+(module+ random-test
+  (require
+   (only-in (submod esterel/cos-model test) cc->>)
+   (prefix-in cos: esterel/cos-model))
+
+  (define-union-language esterel-eval* esterel-eval (cos: cos:esterel-eval))
+  (define-metafunction esterel-eval*
     convert : p -> cos:p
     [(convert nothing) nothing]
     [(convert pause) pause]
@@ -710,7 +709,7 @@
     [(convert (trap p))
      (trap (convert p))]
     [(convert (exit n))
-     (exit (to-nat ,(+ 2 `n)))]
+     (exit (cos:to-nat ,(+ 2 `n)))]
     [(convert (shared s := e p))
      (shared s := e (convert p))]
     [(convert (<= s e)) (<= s e)]
@@ -719,7 +718,7 @@
     [(convert (:= x e)) (:= x e)]
     [(convert (if e p q))
      (if e (convert p) (convert q))])
-(module+ random-test
+
 
   (define-extended-language esterel-check esterel-eval*
     (p-check
@@ -797,9 +796,9 @@
                    '(machine pbar data_*) '(S ...) 'k)))
           (define constructive-reduction
             (judgment-holds
-             (c->> (machine ,(first p) ,(second p))
-                   ,(setup-*-env i in)
-                   (machine pbar data_*) (S ...) k)
+             (cos:c->> (machine ,(first p) ,(second p))
+                       ,(setup-*-env i in)
+                       (machine pbar data_*) (S ...) k)
              (pbar data_* (S ...))))
           (match* (constructive-reduction new-reduction)
             [(`((,p2 ,data ,(and pouts (list-no-order b ...)))
@@ -834,14 +833,14 @@
   (define (setup-*-env ins in)
     (for/list ([i in])
       (if (member i ins)
-          `(,i one)
+          `(,i (Succ zero))
           `(,i zero))))
 
   (define (setup-r-env ins in)
     (for/list ([i in])
       (if (member i ins)
-          `(,i present)
-          `(,i absent))))
+          `(sig ,i present)
+          `(sig ,i absent))))
 
   (define (fixup e)
     (redex-let
@@ -1210,6 +1209,8 @@
       (do-test #t))))
 
 (module+ tracing
+  (require redex
+           (prefix-in cos: esterel/cos-model))
   (define-syntax-rule (render-derivations r)
     (show-derivations (build-derivations r)))
   (define (steps p)
@@ -1217,8 +1218,10 @@
     (render-derivations
      (cos:→* (machine (· (convert ,p)) ()) () (machine pbar any_1) any_2 any_3))))
 
-(require unstable/gui/redex slideshow/text pict)
+#;
 (define (render)
+  #|
+  (local-require unstable/gui/redex slideshow/text pict)
   (define (shar-rw lws)
     (match lws
       [(list open _ name value status close)
@@ -1240,6 +1243,7 @@
    'shar shar-rw
    ;'sig  sig-rw
    )
+  |#
   (parameterize ([rule-pict-style 'horizontal])
     (values
      (render-language esterel)
