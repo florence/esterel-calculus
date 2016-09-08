@@ -27,6 +27,7 @@
          :=&
          get-var
          machine-prog
+         data-ref
          (for-syntax msg call est local-expand-esterel))
 (require "model.rkt"
          redex/reduction-semantics
@@ -72,21 +73,27 @@
           (list 'shar (dict-ref replacements s) v 'new)]
          [else #f]))))
   (define E
-    (for/list ([i (in-list valid-ins)])
-      (match-define (or (list S _) S) i)
-      (match inputs
-        [(list _ ... (or (== S) (list (== S) _)) _ ...)
-         (list 'sig S 'present)]
-        [else (list 'sig S 'absent)])))
+    (filter
+     values
+     (for/list ([i (in-list valid-ins)])
+       (match-define (or (list S _) S) i)
+       (match inputs
+         [(list _ ... (or (== S) (list (== S) _)) _ ...)
+          (list 'sig S 'present)]
+         [else #f #;(list 'sig S 'absent)
+               ]))))
 
   (define n (term (instant ,in-prog ,(append in-store* E))))
   (unless n
     (error 'eval
            "failed to evaluate: ~a"
            (list 'instant in-prog (append in-store* E))))
-  (match-define (list out-prog _) n)
+  (match-define (list out-prog outed) n)
   (values (make-machine out-prog replacements valid-ins outputs)
-          (get-data outputs replacements out-prog)))
+          (get-data outputs
+                    outed
+                    replacements
+                    out-prog)))
 
 (define (check-inputs! vins inputs)
   (for ([i (in-list inputs)])
@@ -101,22 +108,31 @@
            (member a vins)])
       (error 'signals "not valid signal ~a" i))))
 
-(define (get-data outputs replacements p)
+(define (data-ref machine name)
+  (define data (get-data (list name)
+                         (list name)
+                         (machine-replacements machine)
+                         (machine-prog machine)))
+  (match data
+    [`((,(== name) ,ev)) ev]))
+
+(define (get-data outputs include replacements p)
   (match-define `(env (,env-vs ...) ,_) p)
   (filter
    values
    (for/list ([o (in-list outputs)])
-     (match env-vs
-       [(list-no-order
-         `(shar ,(== (dict-ref replacements o #f)) ,ev ,_)
-         `(sig ,(== o) present)
-         _ ...)
-        (list o ev)]
-       [(list* _ ... `(sig (== o) present) _)
+     (match* (env-vs include)
+       [((list* _ ...
+                `(shar ,(== (dict-ref replacements o #f)) ,ev ,_)
+                _)
+         (list* _ ... (== o) _))
+        (match-define (or `(rvalue ,ev*) ev*) ev)
+        (list o ev*)]
+       [(_ (list* _ ... (== o) _))
         o]
-       [else #f]))))
+       [(_ _) #f]))))
 
-(struct machine (prog replace valid-ins outputs)
+(struct machine (prog replacements valid-ins outputs)
   #:reflection-name 'esterel-machine
   #:extra-constructor-name make-machine)
 (define-syntax esterel-machine
@@ -132,7 +148,9 @@
      (define/with-syntax ((outv/sym out/value) ...)
        (for/list ([o (in-syntax #'(out ...))]
                   #:when (syntax-parse o [(a b) #t] [_ #f]))
-         (syntax-parse o [(n v) (list #'n #`(shar n v new))])))
+         ;; TODO i think this should be "old" but thats annoying and not needed yet
+         ;; and requires comb functions
+         (syntax-parse o [(n v) (list #'n #`(shar n v old))])))
      (define/with-syntax ((inv/sym in/value) ...)
        (for/list ([i (in-syntax #'(in ...))]
                   #:when (syntax-parse i [(a b) #t] [_ #f]))
@@ -478,10 +496,9 @@
 
 (define-for-syntax exit-stack (make-parameter null))
 (define-for-syntax (get-exit-code T)
-  (+ 2
-     (for/sum ([k (exit-stack)]
-               #:break (free-identifier=? T k))
-       1)))
+  (for/sum ([k (exit-stack)]
+            #:break (free-identifier=? T k))
+    1))
 
 (define-for-syntax signal-var-map (make-parameter (make-hash)))
 (define-for-syntax (extend-signal-var-map-for s)
@@ -511,7 +528,7 @@
                        (emit& O 1)
                        nothing&)))
        '()))
-    (check-equal? S... '(O))))
+    (check-equal? S... '((O 1)))))
 
 
 (define (fix-i/o prog ins outs)

@@ -95,35 +95,7 @@
      (<= s E)
      (:= x E)
      (if E p q)
-     (f ev ... E e ...))
-
-
-  (p-not-v q-not-v ::=
-           (signal S p)
-           (present Sdat p q)
-           (emit Sdat)
-           (shared s := e p)
-           (<= s e)
-           (var x := e p)
-           (:= x e)
-           (loop p)
-           (if e p q)
-
-           (par p-not-v q)
-           (par p q-not-v)
-           (seq p-not-v q)
-           (suspend p-not-v Sdat)
-           (suspend^ p-not-v (sig S absent))
-           (trap p-not-v)
-
-           (suspend^ p (sig S unknown))
-
-           (par vp v)
-           (par v vp)
-           (seq vp q)
-           (trap vp)
-           (suspend vp Sdat)
-           (suspend^ vp (sig S absent))))
+     (f ev ... E e ...)))
 
 
 (define-metafunction esterel-eval
@@ -179,15 +151,6 @@
     emit-unknown)
    (--> (in-hole P* (emit (sig S present))) (in-hole P* nothing)
         emit-present)
-   (-->
-    (env (env-v_1 ... (sig S unknown) env-v_2 ...) p)
-    (substitute* (env (env-v_1 ... (sig S unknown) env-v_2 ...) p) (sig S unknown) (sig S absent))
-    (where (S_not ...) (Cannot p (S)))
-    (where #t (∈ S (S_not ...)))
-    ;; these are only here to make things run with decent speed
-    (judgment-holds (stuck? p))
-    (where #t (unprogressable (env-v_1 ...) p))
-    absence)
 
    (--> (in-hole P* (loop p)) (in-hole P* (seq p (loop p)))
     loop)
@@ -224,18 +187,6 @@
                 (shar s ev_o new) (shar s (δ + ev_o ev_n) new))
    set-value-new)
 
-  (-->
-   (env (env-v_1 ... (shar s ev shared-status) env-v_2 ...) p)
-   (substitute* (env (env-v_1 ... (shar s ev shared-status) env-v_2 ...) p)
-                (shar s ev shared-status) (shar s ev ready))
-   (where (s_not ...) (Cannot_shared p (s)))
-   (where #t (∈ s (s_not ...)))
-   (where #t (∈ shared-status (old new)))
-   ;; for speed
-   (judgment-holds (stuck? p))
-   (where #t (unprogressable (env-v_1 ...) p))
-   readyness)
-
   ;; unshared state
   (-->
    (in-hole P* (var x := ev p))
@@ -262,6 +213,33 @@
   (--> (in-hole E* (f ev ...)) (in-hole E* (δ f ev ...))
        eval-δ)
   ))
+
+
+
+(define R*
+  (extend-reduction-relation
+   R
+   esterel-eval
+   (-->
+    (env (env-v_1 ... (sig S unknown) env-v_2 ...) p)
+    (substitute* (env (env-v_1 ... (sig S unknown) env-v_2 ...) p) (sig S unknown) (sig S absent))
+    (where (S_not ...) (Cannot p (S)))
+    (where #t (∈ S (S_not ...)))
+    ;; these are only here to make things run with decent speed
+    (where () ,(apply-reduction-relation R `(env (env-v_1 ... (sig S unknown) env-v_2 ...) p)))
+    (where #t (unprogressable (env-v_1 ...) p))
+    absence)
+   (-->
+   (env (env-v_1 ... (shar s ev shared-status) env-v_2 ...) p)
+   (substitute* (env (env-v_1 ... (shar s ev shared-status) env-v_2 ...) p)
+                (shar s ev shared-status) (shar s ev ready))
+   (where (s_not ...) (Cannot_shared p (s)))
+   (where #t (∈ s (s_not ...)))
+   (where #t (∈ shared-status (old new)))
+   ;; for speed
+   (where () ,(apply-reduction-relation R `(env (env-v_1 ... (sig S unknown) env-v_2 ...) p)))
+   (where #t (unprogressable (env-v_1 ...) p))
+   readyness)))
 
 (define-metafunction esterel-eval
   unprogressable : (env-v ...) p -> boolean
@@ -340,92 +318,30 @@
   [(value-max (exit n) v*) (exit n)]
   [(value-max v* (exit n)) (exit n)])
 
-(define-judgment-form esterel-eval
-  #:mode (stuck? I)
-  #:contract (stuck? p)
-  [----------- "v"
-   (stuck? v)]
-
-  [----------- "pu"
-   (stuck? (present (sig S unknown) p q))]
-
-  [(stuck? p)
-   ----------- "seq"
-   (stuck? (seq p q))]
-
-  [(stuck? p-not-v)
-   ----------- "parl"
-   (stuck? (par p-not-v v))]
-  [(stuck? q-not-v)
-   ----------- "parr"
-   (stuck? (par v q-not-v))]
-  [(stuck? p-not-v)
-   (stuck? q-not-v)
-   ----------- "para"
-   (stuck? (par p-not-v q-not-v))]
-
-  [(stuck? p)
-   ----------
-   (stuck? (suspend p Sdat))]
-
-  [(stuck? p)
-   ----------
-   (stuck? (trap p))]
-
-  [(stuck? p)
-   ----------
-   (stuck? (signal (Sdat ...) p))]
-
-  [(stuck? p)
-   -----------
-   (stuck? (suspend^ p (sig S absent)))]
-  [-----------
-   (stuck? (suspend^ p (sig S unknown)))]
-  [-----------
-   (stuck? (suspend^ p (sig S present)))]
-
-  [(stuck-e? e)
-   ----------
-   (stuck? (shared s := e p))]
-
-  [(stuck-e? e)
-   ----------
-   (stuck? (<= s e))]
-
-  [(stuck-e? e)
-   ----------
-   (stuck? (var x := e p))]
-
-  [(stuck-e? e)
-   ----------
-   (stuck? (:= x e))]
-
-  [(stuck-e? e)
-   ----------
-   (stuck? (if e p q))])
-
-(define-judgment-form esterel-eval
-  #:mode     (stuck-e? I)
-  #:contract (stuck-e? e)
-  [-----------
-   (stuck-e? (shar s ev old))]
-  [-----------
-   (stuck-e? (shar s ev new))]
-  [(stuck-e? e)
-   ----------
-   (stuck-e? (f ev ... e e_r ...))])
 
 (define-metafunction esterel-eval
   instant : p (env-v ...) -> (p (any ...)) or #f
   [(instant p (env-v ...))
    (p_*
     (get-signals a))
-   (where (a) ,(apply-reduction-relation* R `(setup p (env-v ...))))
+   (where (a) ,(apply-reduction-relation* R* `(setup p (env-v ...))))
    (where p_* (add-hats (clear-up-values a)))]
   [(instant p (env-v ...))
    #f
-   (where (p_* ...) ,(apply-reduction-relation* R `(setup p (env-v ...))))
+   (where (p_* ...) ,(apply-reduction-relation* R* `(setup p (env-v ...))))
    (side-condition (pretty-print `(p_* ...)))])
+
+(define-metafunction esterel-eval
+  instant* : p (env-v ...) -> (p (any ...)) or #f
+  [(instant* p (env-v ...))
+   (p_*
+    (get-signals a))
+   (where (a)
+          ,(let loop ([p `(setup p (env-v ...))])
+             (match (apply-reduction-relation R* p)
+               [(cons v _) (loop v)]
+               [(list) p])))
+   (where p_* (add-hats (clear-up-values a)))])
 
 (define-metafunction esterel-eval
   setup : p (env-v ...) -> p
@@ -1084,7 +1000,7 @@
   (test-begin
     (check-equal?
      (apply-reduction-relation
-      R
+      R*
       `(env ((sig S present) (sig A unknown))
             (par (suspend^ nothing (sig S present))
                  (present (sig A unknown) pause pause))))
@@ -1098,7 +1014,7 @@
       ((env ((shar s 1 new))
          pause))
       (apply-reduction-relation
-       R
+       R*
        `(env ()
          (shared s := 1
                  pause)))))
@@ -1108,7 +1024,7 @@
       ((env ((shar s 5 new))
          nothing))
       (apply-reduction-relation
-       R
+       R*
        `(env ((shar s 1 old))
          (<= s 5)))))
 
@@ -1118,7 +1034,7 @@
       ((env ((shar s 6 new))
          nothing))
       (apply-reduction-relation
-       R
+       R*
        `(env ((shar s 1 new))
          (<= s 5)))))
 
@@ -1129,7 +1045,7 @@
          (shared s_2 := (shar s 1 ready)
                  pause)))
       (apply-reduction-relation
-       R
+       R*
        `(env ((shar s 1 new))
          (shared s2 := (shar s 1 new)
                  pause)))))
@@ -1141,7 +1057,7 @@
          (shared s2 := 1
                  pause)))
       (apply-reduction-relation
-       R
+       R*
        `(env ((shar s 1 ready))
          (shared s2 := (shar s 1 ready)
                  pause)))))
@@ -1153,7 +1069,7 @@
          (shared s2 := 1
                  pause)))
       (apply-reduction-relation
-       R
+       R*
        `(env ()
          (shared s2 := (+ 1 0)
                  pause)))))
@@ -1180,7 +1096,7 @@
      1
      (length
       (apply-reduction-relation*
-       R
+       R*
        `(substitute*
          (env ((sig E unknown) (sig C unknown) (sig dB unknown)
                (sig EW unknown) (sig b unknown) (sig - unknown)
@@ -1198,15 +1114,6 @@
                                (seq pause pause))
                               (emit (sig - unknown)))))))
          (sig E unknown) (sig E present)))))
-    (check-true
-     (redex-match?
-      esterel-eval p-not-v
-      `(trap
-        (suspend^ (seq nothing (loop pause)) (sig random-signal8013 unknown)))))
-    (check-true
-     (redex-match?
-      esterel-eval p-not-v
-      `(par (suspend^ nothing (sig random-signal15682 unknown)) nothing)))
     (test-case "random"
       (do-test #t))))
 
@@ -1216,7 +1123,7 @@
   (define-syntax-rule (render-derivations r)
     (show-derivations (build-derivations r)))
   (define (steps p)
-    (traces R `(env () ,p))
+    (traces R* `(env () ,p))
     (render-derivations
      (cos:→* (machine (· (convert ,p)) ()) () (machine pbar any_1) any_2 any_3))))
 
