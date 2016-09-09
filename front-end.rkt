@@ -29,7 +29,7 @@
          machine-prog
          data-ref
          (for-syntax msg call est local-expand-esterel))
-(require "model.rkt"
+(require "shared.rkt" "reduction.rkt"
          redex/reduction-semantics
          racket/stxparam
          (for-syntax racket/pretty syntax/parse racket/syntax
@@ -37,7 +37,7 @@
                      racket/sequence racket/format racket/promise
                      syntax/id-set redex/reduction-semantics
                      syntax/id-table racket/match
-                     "model.rkt"))
+                     "shared.rkt" "reduction.rkt"))
 
 (define-for-syntax core-esterel-forms
   (syntax->list
@@ -70,7 +70,7 @@
      (for/list ([i (in-list inputs)])
        (match i
          [(list s v)
-          (list 'shar (dict-ref replacements s) v 'new)]
+          (list 'shar (dict-ref replacements s) `(rvalue ,v) 'new)]
          [else #f]))))
   (define E
     (filter
@@ -150,11 +150,11 @@
                   #:when (syntax-parse o [(a b) #t] [_ #f]))
          ;; TODO i think this should be "old" but thats annoying and not needed yet
          ;; and requires comb functions
-         (syntax-parse o [(n v) (list #'n #`(shar n v old))])))
+         (syntax-parse o [(n v) (list #'n #`(shar n (rvalue ,v) old))])))
      (define/with-syntax ((inv/sym in/value) ...)
        (for/list ([i (in-syntax #'(in ...))]
                   #:when (syntax-parse i [(a b) #t] [_ #f]))
-         (syntax-parse i [(n v) (list #'n #`(shar n v new))])))
+         (syntax-parse i [(n v) (list #'n #`(shar n (rvalue ,v) new))])))
      (define/with-syntax (in/sym ...)
        (for/list ([x (in-syntax #'(in ...))])
          (syntax-parse x [(i _) #'i] [i #'i])))
