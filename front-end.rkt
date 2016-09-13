@@ -29,15 +29,18 @@
          machine-prog
          data-ref
          (for-syntax msg call est local-expand-esterel))
-(require "shared.rkt" "reduction.rkt"
+(require (except-in "shared.rkt" esterel-eval)
+         "reduction.rkt"
          redex/reduction-semantics
          racket/stxparam
-         (for-syntax racket/pretty syntax/parse racket/syntax
-                     racket/function racket/dict
-                     racket/sequence racket/format racket/promise
-                     syntax/id-set redex/reduction-semantics
-                     syntax/id-table racket/match
-                     "shared.rkt" "reduction.rkt"))
+         (for-syntax
+          racket/pretty syntax/parse racket/syntax
+          racket/function racket/dict
+          racket/sequence racket/format racket/promise
+          syntax/id-set redex/reduction-semantics
+          syntax/id-table racket/match
+          (except-in "shared.rkt" esterel-eval)
+          "reduction.rkt"))
 
 (define-for-syntax core-esterel-forms
   (syntax->list
@@ -150,11 +153,11 @@
                   #:when (syntax-parse o [(a b) #t] [_ #f]))
          ;; TODO i think this should be "old" but thats annoying and not needed yet
          ;; and requires comb functions
-         (syntax-parse o [(n v) (list #'n #`(shar n (rvalue ,v) old))])))
+         (syntax-parse o [(n v) (list #'n #`(shar n (rvalue v) old))])))
      (define/with-syntax ((inv/sym in/value) ...)
        (for/list ([i (in-syntax #'(in ...))]
                   #:when (syntax-parse i [(a b) #t] [_ #f]))
-         (syntax-parse i [(n v) (list #'n #`(shar n (rvalue ,v) new))])))
+         (syntax-parse i [(n v) (list #'n #`(shar n (rvalue v) new))])))
      (define/with-syntax (in/sym ...)
        (for/list ([x (in-syntax #'(in ...))])
          (syntax-parse x [(i _) #'i] [i #'i])))
@@ -336,8 +339,8 @@
                   (seq& (suspend& S_local p) (exit& T)))))]
     [(_ (~or (or S:id) S:id) p:est)
      #`(suspend p.exp #,(get-signal-replacement #'S))]
-    [(s S p:expr ...)
-     #`(s S (seq& p ...))]
+    [(s S p:expr p2:expr p3:expr ...)
+     #`(s S (seq& p p2 p3 ...))]
     [(s (or S1 S2 ...) p:expr ...)
      #'(s S1 (s (or S2 ...) p ...))]))
 (define-esterel-form seq&
@@ -429,12 +432,17 @@
 
 (define-esterel-form abort&
   (syntax-parser
-    [(_ S:msg p:expr ...)
+    [(_ (n:call S:id) p:expr ...)
      (define/with-syntax T (generate-temporary (format-id #f "~a-abort-trap"
                                                           (~a (syntax->datum #'S)))))
+     (define/with-syntax S_local (generate-temporary (format-id #f "~a-abort-message"
+                                                                (~a (syntax->datum #'S)))))
      #'(trap& T
-              (par& (seq& (suspend& S (seq& p ...)) (exit& T))
-                    (seq& (await& S) (exit& T))))]))
+              (signal& S_local
+                       (par& (seq& (suspend& S_local (seq& p ...)) (exit& T))
+                             (seq& (await& n S) (emit& S_local) (exit& T)))))]
+    [(s S:id p:expr ...)
+     #'(s (1 S) p ...)]))
 
 (define-esterel-form halt&
   (syntax-parser
@@ -473,6 +481,8 @@
      #'(suspend& (not S) (repeat& n pause&))]
     #;
     [(a S:msg) #'(a 1 S)]
+    [(a (n:call S:msg))
+     #'(a n S)]
     [(a n:call S:msg)
      #'(seq& (await& S) (repeat& (- n 1) (await& S)))]
     [(a S:msg)

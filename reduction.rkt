@@ -2,8 +2,83 @@
 (require redex/reduction-semantics "shared.rkt")
 (provide (all-defined-out))
 
-
 (define-syntax quasiquote (make-rename-transformer #'term))
+
+(define-extended-language esterel-eval esterel
+  (p q ::= ....
+     (env (env-v ...) p))
+  (env-v ::= Sdat shareddat vardat)
+  (status ::= present absent unknown)
+  (dat ::= (sig S status))
+  (Sdat ::= .... dat)
+
+  ;; state
+  (shared-status ::= ready old new)
+  (shareddat ::= .... (shar s ev shared-status))
+  (vardat ::= .... (var· x ev))
+  (ev ::= n (rvalue any))
+
+  ;; Values and answers
+  (a ::= ap a*)
+  (ap ::= (in-hole A vp))
+  (a* ::= (in-hole A v*))
+  (v ::= vp v*)
+  (vp ::= nothing (exit n))
+  (v* ::=
+      pause
+      (seq v* q)
+      (par v* v*)
+      (suspend^ p (sig S present))
+      (suspend^ v* Sdat)
+      (suspend v* Sdat)
+      (trap v*))
+
+  ;; stuck programs
+  (unreducable ::= v blocked)
+  (blocked ::=
+           (present (sig S unknown) p q)
+           (suspend^ p (sig S unknown))
+           (seq blocked q)
+           (par blocked v)
+           (par v blocked)
+           (par blocked blocked)
+           (suspend^ blocked (sig S absent))
+           (suspend blocked Sdat)
+           (trap blocked)
+           (shared s := blocked/e p)
+           (var x := blocked/e p)
+           (<= s blocked/e)
+           (:= x blocked/e)
+           (if blocked/e p q))
+  (blocked/e ::=
+                 (shar s ev new)
+                 (shar s ev old)
+                 (f ev ... blocked/e e ...))
+
+  (A ::= (env (env-v ...) hole))
+  (P* Q* ::= (in-hole A P))
+  (E* ::= (in-hole A (in-hole P E)))
+
+  ;; evaluation context
+  (P Q ::=
+     hole
+     (seq P q)
+     (par P q)
+     (par unreducable Q)
+     (suspend P Sdat)
+     (suspend^ P (sig S absent))
+     (trap P))
+
+  ;; state evaluation context
+  (E ::= hole
+     (shared s := E p)
+     (var x := E p)
+     (<= s E)
+     (:= x E)
+     (if E p q)
+     (f ev ... E e ...))
+
+  )
 
 (define R
   ;; ASSUMPTIONS:
@@ -72,7 +147,7 @@
   ;; if
   (--> (in-hole P* (if ev p q))
        (in-hole P* q)
-       (side-condition `(∈ ev (#f 0)))
+       (side-condition `(∈ ev ((rvalue #f) 0)))
        if-false)
   (--> (in-hole P* (if ev p q))
        (in-hole P* p)
@@ -88,29 +163,28 @@
   ))
 
 
+
 (define R*
   (extend-reduction-relation
    R
    esterel-eval
    (-->
-    (env (env-v_1 ... (sig S unknown) env-v_2 ...) p)
-    (substitute* (env (env-v_1 ... (sig S unknown) env-v_2 ...) p) (sig S unknown) (sig S absent))
-    (where (S_not ...) (Cannot p (S)))
+    (env (env-v_1 ... (sig S unknown) env-v_2 ...) unreducable)
+    (substitute* (env (env-v_1 ... (sig S unknown) env-v_2 ...) unreducable) (sig S unknown) (sig S absent))
+    (where (S_not ...) (Cannot unreducable (S)))
     (where #t (∈ S (S_not ...)))
     ;; these are only here to make things run with decent speed
-    (where () ,(apply-reduction-relation R `(env (env-v_1 ... (sig S unknown) env-v_2 ...) p)))
-    (where #t (unprogressable (env-v_1 ...) p))
+    (where #t (unprogressable (env-v_1 ...) unreducable))
     absence)
    (-->
-   (env (env-v_1 ... (shar s ev shared-status) env-v_2 ...) p)
-   (substitute* (env (env-v_1 ... (shar s ev shared-status) env-v_2 ...) p)
+   (env (env-v_1 ... (shar s ev shared-status) env-v_2 ...) unreducable)
+   (substitute* (env (env-v_1 ... (shar s ev shared-status) env-v_2 ...) unreducable)
                 (shar s ev shared-status) (shar s ev ready))
-   (where (s_not ...) (Cannot_shared p (s)))
+   (where (s_not ...) (Cannot_shared unreducable (s)))
    (where #t (∈ s (s_not ...)))
    (where #t (∈ shared-status (old new)))
    ;; for speed
-   (where () ,(apply-reduction-relation R `(env (env-v_1 ... (sig S unknown) env-v_2 ...) p)))
-   (where #t (unprogressable (env-v_1 ...) p))
+   (where #t (unprogressable (env-v_1 ...) unreducable))
    readyness)))
 
 (define-metafunction esterel-eval
@@ -124,6 +198,7 @@
    #f
    (where (p_* ...) ,(apply-reduction-relation* R* `(setup p (env-v ...))))
    (side-condition (pretty-print `(p_* ...)))])
+
 (define-metafunction esterel-eval
   unprogressable : (env-v ...) p -> boolean
   [(unprogressable () p) #t]

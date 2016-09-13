@@ -1,5 +1,6 @@
 #lang racket
-(require redex/reduction-semantics "reduction.rkt" "shared.rkt"
+(require redex/reduction-semantics "reduction.rkt" (except-in "shared.rkt" esterel-eval)
+         ;(prefix-in calculus: "calculus.rkt")
          (only-in (submod esterel/cos-model test) cc->>)
          (prefix-in cos: esterel/cos-model)
          racket/sandbox
@@ -86,7 +87,9 @@
   (define (remove-not-outs l)
     (filter (lambda (x) (member x out)) l))
   (for/fold ([p pp]
-             [q qp])
+             [q qp]
+             #;
+             [qc qp])
             ([i (in-list ins)]
              #:break (or
                       (not p)
@@ -109,6 +112,7 @@
           (printf "running instant\n")
           (pretty-print (list 'instant q i)))
         (define new-reduction `(instant ,q ,(setup-r-env i in)))
+        ;(define calc-reduction `(calculus:instant ,q ,(setup-r-env i in)))
         (when debug?
           (printf "running c->>\n")
           (pretty-print
@@ -121,6 +125,7 @@
                      ,(setup-*-env i in)
                      (machine pbar data_*) (S ...) k)
            (pbar data_* (S ...))))
+        ;; TODO finish testing calculus
         (match* (constructive-reduction new-reduction)
           [(`((,p2 ,data ,(and pouts (list-no-order b ...)))
               (,_ ,_ ,(list-no-order b ...)) ...)
@@ -515,5 +520,18 @@
                              (seq pause pause))
                             (emit (sig - unknown)))))))
        (sig E unknown) (sig E present)))))
+  (check-equal?
+   (apply-reduction-relation*
+    R*
+    `(env
+     ((var· x 1))
+     (seq
+      (seq nothing (:= x (var· x 1)))
+      (loop (var x := 0 (seq (:= x 1) (seq pause (:= x x))))))))
+   `((env
+       ((var· x 1))
+       (seq
+        (seq pause (:= x (var· x 1)))
+        (loop (var x := 0 (seq (:= x 1) (seq pause (:= x x)))))))))
   (test-case "random"
     (do-test #t)))

@@ -105,7 +105,7 @@
   [(substitute* (shared s := e p) (shar s ev shared-status) shareddat)
    (shared s := (substitute* e (shar s ev shared-status) shareddat)  p)]
   [(substitute* (var x := e p) x vardat)
-   (shared x := (substitute* e x vardat) p)]
+   (var x := (substitute* e x vardat) p)]
   [(substitute* (var x := e p) (var· x ev) vardat)
    (var x := (substitute* e (var· x ev) vardat)  p)]
   [(substitute* (<= s e) any_2 any_3)
@@ -436,7 +436,7 @@
 (define-metafunction esterel-eval
   add-new-var : x ev p -> p
   [(add-new-var x ev (env (env-v_1 ... (var· x ev_old) env-v_2 ...) p))
-   (env (env-v_1 ... (var· x ev_old) env-v_2 ...)
+   (env (env-v_1 ... (var· x ev) env-v_2 ...)
         (substitute* (substitute* p (var· x ev_old) (var· x ev))
                      x (var· x ev)))]
   [(add-new-var x ev (env (env-v ...) p))
