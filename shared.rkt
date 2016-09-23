@@ -8,16 +8,16 @@
   ((p q)
    nothing
    (signal S p)
-   (present Sdat p q)
-   (emit Sdat)
+   (present S p q)
+   (emit S)
    (par p q)
    (loop p)
    pause
    (seq p q)
-   (suspend p Sdat)
+   (suspend p S)
    (trap p)
    (exit n)
-   (suspend^ p Sdat)
+   (suspend^ p S)
    ;; state
    (shared s := e p)
    (<= s e)
@@ -25,7 +25,6 @@
    (:= x e)
    (if e p q))
 
-  (Sdat ::= S)
   (S s x ::= variable-not-otherwise-mentioned)
   (n ::= natural)
 
@@ -36,10 +35,88 @@
      n
      ;; racket value
      any)
-  (f ::= + (rfunc any))
-  (shareddat ::= s)
-  (vardat ::= x))
+  (f ::= + (rfunc any)))
 
+(define-extended-language esterel-eval esterel
+  (p q ::= ....
+     (ρ θ. p))
+  (θ. (env-v ...))
+  (env-v ::= Sdat shareddat vardat)
+  (status ::= present absent unknown)
+  (Sdat ::= (sig S status))
+
+  ;; state
+  (shared-status ::= ready old new)
+  (shareddat ::= (shar s ev shared-status))
+  (vardat ::= (var· x ev))
+  (ev ::= n (rvalue any))
+
+  ;; Values and answers
+  (a ::= ap a*)
+  ;; TODO answers
+  (ap ::= (ρ θ. vp) vp)
+  (a* ::= v*)
+  (v ::= vp v*)
+  (vp ::= nothing (exit n))
+  (v* ::=
+      (ρ θ. v*)
+      pause
+      (seq v* q)
+      (par v* v*)
+
+      ;; TODO how to represent with stores?
+      (suspend^ p S); where S is present
+
+      (suspend^ v* S)
+      (suspend v* S)
+      (trap v*))
+
+  (C ::=
+     hole
+
+     (ρ θ. C)
+
+     (seq C q)
+     (seq q C)
+     (par C q)
+     (par p C)
+     (suspend C S)
+     (suspend^ C S)
+     (trap C)
+     (present S C q)
+     (present S p C)
+
+     (shared s := C p)
+     (shared s := e C)
+     (var x := C p)
+     (var x := e C)
+     (<= s C)
+     (:= x C)
+     (if C p q)
+     (if e C q)
+     (if e p C)
+     (f e ... C e ...))
+
+  ;; evaluation contexts
+  (E/θ ::=
+       hole
+       (seq E/θ q)
+       (par E/θ q)
+       (par p E/θ)
+       (suspend E/θ S)
+       (trap E/θ)
+       (shared s := E/θ p)
+       (var x := E/θ p)
+       (<= s E/θ)
+       (:= x E/θ)
+       (if E/θ p q)
+       (f ev ... E/θ e ...))
+  (E ::=
+     E/θ
+     (ρ (env-v_0 ... (sig S absent) env-v_2 ...)
+        (in-hole E/θ (suspend^ E S)))))
+
+#;
 (define-extended-language esterel-eval esterel
   (p q ::= ....
      (env (env-v ...) p))
@@ -102,40 +179,31 @@
    (signal S p)]
   [(substitute* (shared s := e p) s shareddat)
    (shared s := (substitute* e s shareddat) p)]
-  [(substitute* (shared s := e p) (shar s ev shared-status) shareddat)
-   (shared s := (substitute* e (shar s ev shared-status) shareddat)  p)]
+  [(substitute* (shared s := e p) (shar s any_1 any_2) shareddat)
+   (shared s := (substitute* e (shar s any_1 any_2) shareddat)  p)]
   [(substitute* (var x := e p) x vardat)
    (var x := (substitute* e x vardat) p)]
-  [(substitute* (var x := e p) (var· x ev) vardat)
-   (var x := (substitute* e (var· x ev) vardat)  p)]
-  [(substitute* (<= s e) any_2 any_3)
-   (<= s (substitute* e any_2 any_3))]
-  [(substitute* (:= x e) any_2 any_3)
-   (:= x (substitute* e any_2 any_3))]
+  [(substitute* (var x := e p) (var· x any) vardat)
+   (var x := (substitute* e (var· x any) vardat)  p)]
   [(substitute* (any_1 ...) any_2 any_3)
    ((substitute* any_1 any_2 any_3) ...)]
+  [(substitute* (shar s any_1 any_2) (shar s any_3 any_4) (shar s ev shared-status))
+   (shar s ev shared-status)]
+  [(substitute* (shar s any_1 shared-status) (shar s any_3 shared-status) (shar s ev •))
+   (shar s ev shared-status)]
+  [(substitute* (shar s ev any_2) (shar s any_3 any_4) (shar s • shared-status))
+   (shar s ev shared-status)]
+  [(substitute* (shar s  ev shared-status) (shar s ev shared-status) (shar s • •))
+   (shar s ev shared-status)]
+
+  [(substitute* (var· x any_2) (var· x any_3) (var· x ev))
+   (var· x ev)]
   [(substitute* any_1 any_2 any_3 ) any_1])
 
-(define-extended-language wrn esterel-eval
-  #:binding-forms
-  (signal S p #:refers-to S)
-  (shared s := e p #:refers-to s))
 
-(define-extended-language wrn* wrn
-  #:binding-forms
-  (signal (Sdat ...) p #:refers-to (shadow Sdat ...))
-  (shared (shareddat ...) p #:refers-to (shadow shareddat ...)))
 
-(define-metafunction esterel-eval
-  insert-into-env : env-v (env-v ...) -> (env-v ...)
-  [(insert-into-env env-v (env-v_o ...))
-   ,(sort
-     `(env-v env-v_o ...)
-     symbol<?
-     #:key second)])
-
-(define-metafunction esterel-eval
-  value-max : v v -> v
+ (define-metafunction esterel-eval
+   value-max : v v -> v
   [(value-max nothing v) v]
   [(value-max v nothing) v]
   [(value-max (exit n_1) (exit n_2)) (exit ,(max `n_1 `n_2))]
@@ -158,60 +226,50 @@
   [(setup p ()) p])
 
 (define-metafunction esterel-eval
-  get-signals : p -> (S ...)
-  [(get-signals (env ((sig S present) env-v ...) p))
-   (S S_r ...)
-   (where (S_r ...) (get-signals (env (env-v ...) p)))]
-  [(get-signals (env (env-v env-v_r ...) p))
-   (get-signals (env (env-v_r ...) p))]
-  [(get-signals (env () p)) ()])
-
-(define-metafunction esterel-eval
   add-hats : p -> p
   [(add-hats pause) nothing]
   [(add-hats nothing) nothing]
-  [(add-hats (env (env-v ...) p)) (env (env-v ...) (add-hats p))]
+  [(add-hats (ρ θ. p)) (ρ θ. (add-hats p))]
   [(add-hats (seq p q)) (seq (add-hats p) q)]
   [(add-hats (par p q)) (par (add-hats p) (add-hats q))]
-  [(add-hats (suspend p Sdat)) (suspend^ (add-hats p) Sdat)]
-  [(add-hats (suspend^ p Sdat)) (suspend^ (add-hats p) Sdat)]
+  [(add-hats (suspend p S)) (suspend^ (add-hats p) S)]
+  [(add-hats (suspend^ p S)) (suspend^ (add-hats p) S)]
   [(add-hats (trap p)) (trap (add-hats p))]
   [(add-hats (exit n)) (exit n)])
 
 (define-metafunction esterel-eval
   clear-up-values : p -> p
-  [(clear-up-values (env (env-v ...) p))
-   (env ((clear-up-env env-v) ...)
-     (clear-up-values p))]
+  [(clear-up-values (ρ θ. p))
+   (ρ (clear-up-env* θ.) (clear-up-values p))]
   [(clear-up-values nothing) nothing]
   [(clear-up-values pause) pause]
   [(clear-up-values (signal S p))
    (signal S (clear-up-values p))]
-  [(clear-up-values (present Sdat p q))
-   (present (clear-up-env Sdat) (clear-up-values p) (clear-up-values q))]
-  [(clear-up-values (emit Sdat))
-   (emit (clear-up-env Sdat))]
+  [(clear-up-values (present S p q))
+   (present S (clear-up-values p) (clear-up-values q))]
+  [(clear-up-values (emit S))
+   (emit S)]
   [(clear-up-values (par p q))
    (par (clear-up-values p) (clear-up-values q))]
   [(clear-up-values (seq p q))
    (seq (clear-up-values p) (clear-up-values q))]
   [(clear-up-values (loop p))
    (loop (clear-up-values p))]
-  [(clear-up-values (suspend p Sdat))
-   (suspend (clear-up-values p) (clear-up-env Sdat))]
-  [(clear-up-values (suspend^ p Sdat))
-   (suspend^ (clear-up-values p) (clear-up-env Sdat))]
+  [(clear-up-values (suspend p S))
+   (suspend (clear-up-values p) S)]
+  [(clear-up-values (suspend^ p S))
+   (suspend^ (clear-up-values p) S)]
   [(clear-up-values (trap p))
    (trap (clear-up-values p))]
   [(clear-up-values (exit n)) (exit n)]
   [(clear-up-values (shared s := e p))
-   (shared s := (clear-up-data e) (clear-up-values p))]
-  [(clear-up-values (<= s e)) (<= s (clear-up-data e))]
+   (shared s := e (clear-up-values p))]
+  [(clear-up-values (<= s e)) (<= s e)]
   [(clear-up-values (var x := e p))
-   (var x := (clear-up-data e) (clear-up-values p))]
-  [(clear-up-values (:= x e)) (:= x (clear-up-data e))]
+   (var x := e (clear-up-values p))]
+  [(clear-up-values (:= x e)) (:= x e)]
   [(clear-up-values (if e p q))
-   (if (clear-up-data e)
+   (if e
        (clear-up-values p)
        (clear-up-values q))])
 
@@ -226,21 +284,23 @@
   [(clear-up-data natural) natural])
 
 (define-metafunction esterel-eval
-  ;clear-up-env : env-v -> env-v
-  ;clear-up-env : S -> S
+  clear-up-env* : θ. -> θ.
+  [(clear-up-env* (env-v ...))
+   ((clear-up-env env-v) ...)])
+
+(define-metafunction esterel-eval
+  clear-up-env : env-v -> env-v
   [(clear-up-env S) S]
   [(clear-up-env (sig S status)) (sig S unknown)]
   [(clear-up-env (shar s ev shared-status)) (shar s ev old)]
   [(clear-up-env (var· x ev)) (var· x ev)])
-
-
 
 (define-metafunction esterel-eval
   Cannot : p (S ...) -> (S ...) or ⊥
   [(Cannot p (S_o ...))
    (S_1 S_r ...)
    (where ((S ...) (n ...) (s ...))
-          (Can p))
+          (Can p ()))
    (where (S_1 S_r ...)
           ,(filter (lambda (s) (not (member s `(S ...)))) `(S_o ...)))]
   [(Cannot p (S ...)) ⊥])
@@ -250,91 +310,91 @@
   [(Cannot_shared p (s_o ...))
    (s_1 s_r ...)
    (where ((S ...) (n ...) (s ...))
-          (Can p))
+          (Can p ()))
    (where (s_1 s_r ...)
           ,(filter (lambda (x) (not (member x `(s ...)))) `(s_o ...)))]
   [(Cannot_shared p (s ...)) ⊥])
 
 (define-metafunction esterel-eval
-  Can : p -> ((S ...) (n ...) (s ...))
+  Can : p θ. -> ((S ...) (n ...) (s ...))
 
-  [(Can nothing) (() (0) ())]
+  [(Can (ρ θ._1 p) θ.)
+   (Can p (<- θ. θ._1))]
 
-  [(Can pause) (() (1) ())]
+  [(Can nothing θ.) (() (0) ())]
 
-  [(Can (exit n)) (() (,(+ 2 `n)) ())]
+  [(Can pause θ.) (() (1) ())]
 
-  [(Can (emit (sig S present))) ((S) (0) ())]
-  [(Can (emit (sig S absent))) (() () ())]
-  [(Can (emit (sig S unknown))) ((S) (0) ())]
-  [(Can (emit S)) ((S) (0) ())]
+  [(Can (exit n) θ.) (() (,(+ 2 `n)) ())]
 
-  [(Can (present (sig S present) p q))
-   (Can p)]
+  [(Can (emit S) θ.) ((S) (0) ())]
 
-  [(Can (present (sig S absent) p q))
-   (Can q)]
+  [(Can (present S p q) (env-v_0 ... (sig S present) env-v_2 ...))
+   (Can p (env-v_0 ... (sig S present) env-v_2 ...))]
+  [(Can (present S p q) (env-v_0 ... (sig S absent) env-v_2 ...))
+   (Can q (env-v_0 ... (sig S absent) env-v_2 ...))]
 
-  [(Can (present Sdat p q))
-   ((U (Can_S p) (Can_S q))
-    (U (Can_K p) (Can_K q))
-    (U (Can_shared p) (Can_shared q)))]
+  [(Can (present S p q) θ.)
+   ((U (Can_S p θ.) (Can_S q θ.))
+    (U (Can_K p θ.) (Can_K q θ.))
+    (U (Can_shared p θ.) (Can_shared q θ.)))]
 
-  [(Can (suspend p Sdat))
-   (Can p)]
+  [(Can (suspend p S) θ.)
+   (Can p θ.)]
 
-  [(Can (seq p q))
-   (Can p)
-   (side-condition `(∉ 0 (Can_K p)))]
+  [(Can (seq p q) θ.)
+   (Can p θ.)
+   (side-condition `(∉ 0 (Can_K p θ.)))]
 
-  [(Can (seq p q))
-   ( (U (Can_S p) (Can_S q))
-     (U (without (Can_K p) 0)
-        (Can_K q))
-      (U (Can_shared p) (Can_shared q)))]
+  [(Can (seq p q) θ.)
+   ( (U (Can_S p θ.) (Can_S q θ.))
+     (U (without (Can_K p θ.) 0)
+        (Can_K q θ.))
+      (U (Can_shared p θ.) (Can_shared q θ.)))]
 
-  [(Can (loop p))
-   (Can p)]
+  [(Can (loop p) θ.)
 
-  [(Can (par p q))
-   ( (U (Can_S p) (Can_S q))
-     (,(apply max (append `(Can_K p) `(Can_K q))))
-     (U (Can_shared p) (Can_shared q)))]
+   (Can p θ.)]
 
-  [(Can (trap p))
-   ( (Can_S p)
-     (harp... (Can_K p))
-      (Can_shared p))]
+  [(Can (par p q) θ.)
+   ( (U (Can_S p θ.) (Can_S q θ.))
+     (,(apply max (append `(Can_K p θ.) `(Can_K q θ.))))
+     (U (Can_shared p θ.) (Can_shared q θ.)))]
 
-  [(Can (signal S p))
+  [(Can (trap p) θ.)
+   ( (Can_S p θ.)
+     (harp... (Can_K p θ.))
+      (Can_shared p θ.))]
+
+  [(Can (signal S p) θ.)
    ((without (S_* ...) S) (n ...) (s ...))
-   (where ((S_* ...) (n ...) (s ...)) (Can p))]
+   (where ((S_* ...) (n ...) (s ...)) (Can p (<- θ. (sig S unknown))))]
 
-  [(Can (suspend^ p (S absent)))
-   (Can p)]
+  [(Can (suspend^ p (S absent)) θ.)
+   (Can p θ.)]
 
-  [(Can (suspend^ p (S present)))
+  [(Can (suspend^ p (S present)) θ.)
    (() (1) ())]
 
-  [(Can (suspend^ p Sdat))
+  [(Can (suspend^ p S) θ.)
    ((S_o ...) (1 n ...) (s ...))
-   (where ((S_o ...) (n ...) (s ...)) (Can p))]
+   (where ((S_o ...) (n ...) (s ...)) (Can p θ.))]
 
-  [(Can (shared s := e p))
-   ((Can_S p)
-    (Can_K p)
-    (without (Can_shared p) s))]
-  [(Can (<= s e))
+  [(Can (shared s := e p) θ.)
+   ((Can_S p θ.)
+    (Can_K p θ.)
+    (without (Can_shared p θ.) s))]
+  [(Can (<= s e) θ.)
    (() (0) (s))]
 
-  [(Can (var x := e p))
-   (Can p)]
-  [(Can (:= x e))
+  [(Can (var x := e p) θ.)
+   (Can p θ.)]
+  [(Can (:= x e) θ.)
    (() (0) ())]
-  [(Can (if e p q))
-   ((U (Can_S p) (Can_S q))
-    (U (Can_K p) (Can_K q))
-    (U (Can_shared p) (Can_shared q)))])
+  [(Can (if e p q) θ.)
+   ((U (Can_S p θ.) (Can_S q θ.))
+    (U (Can_K p θ.) (Can_K q θ.))
+    (U (Can_shared p θ.) (Can_shared q θ.)))])
 
 (define-metafunction esterel-eval
   harp... : (n ...) -> (n ...)
@@ -349,22 +409,22 @@
   [(harp* n) ,(sub1 `n)])
 
 (define-metafunction esterel-eval
-  Can_S : p -> (S ...)
-  [(Can_S p)
+  Can_S : p θ. -> (S ...)
+  [(Can_S p θ.)
    (S ...)
-   (where ((S ...) any_1 any_2) (Can p))])
+   (where ((S ...) any_1 any_2) (Can p θ.))])
 
 (define-metafunction esterel-eval
-  Can_K : p -> (n ...)
-  [(Can_K p)
+  Can_K : p θ. -> (n ...)
+  [(Can_K p θ.)
    (n ...)
-   (where (any_1 (n ...) any_2) (Can p))])
+   (where (any_1 (n ...) any_2) (Can p θ.))])
 
 (define-metafunction esterel-eval
-  Can_shared : p -> (s ...)
-  [(Can_shared p)
+  Can_shared : p θ. -> (s ...)
+  [(Can_shared p θ.)
    (s ...)
-   (where (any_1 any_2 (s ...)) (Can p))])
+   (where (any_1 any_2 (s ...)) (Can p θ.))])
 
 (define-metafunction esterel-eval
   ∉ : any (any ...) -> boolean
@@ -400,8 +460,6 @@
                 [n2 (in-list `(n_2 ...))])
        (max n1 n2)))])
 
-
-
 (define-metafunction esterel-eval
   δ : f ev ... -> ev
   [(δ + ev ...) ,(apply + `(ev ...))]
@@ -414,32 +472,70 @@
   [(harp (exit n)) (exit ,(sub1 `n))])
 
 (define-metafunction esterel-eval
-  add-new-signal : S p -> p
-  [(add-new-signal S (env (env-v_1 ... (sig S status) env-v_2 ...) p))
-   (env (env-v_1 ... (sig S unknown) env-v_2 ...)
-        (substitute* (substitute* p (sig S status) (sig S unknown))
-                     S (sig S unknown)))]
-  [(add-new-signal S (env (env-v ...) p))
-   (env (insert-into-env (sig S unknown) (env-v ...))
-        (substitute* p S (sig S unknown)))])
+  get-signals : p -> (S ...)
+  [(get-signals (ρ θ. p))
+   (get-signals* θ.)]
+  [(get-signals p) ()])
+(define-metafunction esterel-eval
+  get-signals* : θ. -> (S ...)
+  [(get-signals* θ.) (get-signals-of-status θ. present)])
 
 (define-metafunction esterel-eval
-  add-new-shared : s ev p -> p
-  [(add-new-shared s ev (env (env-v_1 ... (shar s ev_old shared-status) env-v_2 ...) p))
-   (env (env-v_1 ... (shar s ev new) env-v_2 ...)
-        (substitute* (substitute* p (shar s ev_old shared-status) (shar s ev new))
-                     s (shar s ev new)))]
-  [(add-new-shared s ev (env (env-v ...) p))
-   (env (insert-into-env (shar s ev new) (env-v ...))
-        (substitute* p s (shar s ev new)))])
+  get-unknown-signals : θ. -> (S ...)
+  [(get-unknown-signals θ.)
+   (get-signals-of-status θ. unknown)])
 
 (define-metafunction esterel-eval
-  add-new-var : x ev p -> p
-  [(add-new-var x ev (env (env-v_1 ... (var· x ev_old) env-v_2 ...) p))
-   (env (env-v_1 ... (var· x ev) env-v_2 ...)
-        (substitute* (substitute* p (var· x ev_old) (var· x ev))
-                     x (var· x ev)))]
-  [(add-new-var x ev (env (env-v ...) p))
-   (env (insert-into-env (var· x ev) (env-v ...))
-        (substitute* p x (var· x ev)))])
+  get-signals-of-status : θ. status -> (S ...)
+  [(get-signals-of-status  ((sig S status) env-v ...) status)
+   (S S_r ...)
+   (where (S_r ...) (get-signals-of-status (env-v ...) status))]
+  [(get-signals-of-status  (env-v_h env-v ...) status)
+   (get-signals-of-status (env-v ...) status)]
+  [(get-signals-of-status  () status)
+   ()])
 
+(define-metafunction esterel-eval
+  set-all-absent : θ. (S ...) -> θ.
+  [(set-all-absent θ. ()) θ.]
+  [(set-all-absent (env-v_0 ... (sig S unknown) env-v_2 ...) (S S_r ...))
+   (set-all-absent (env-v_0 ... (sig S absent) env-v_2 ...) (S_r ...))])
+
+(define-metafunction esterel-eval
+  get-unready-shared : θ. -> (s ...)
+  [(get-unready-shared  ((shar s status ev) env-v ...))
+   (s s_r ...)
+   (where #t (∈ status (new old)))
+   (where (s_r ...) (get-all-unready (env-v ...)))]
+  [(get-unready-shared (env-v_h env-v ...))
+   (get-unready-shared (env-v ...))]
+  [(get-unready-shared ())
+   ()])
+
+(define-metafunction esterel-eval
+  set-all-ready : θ. (s ...) -> (s ...)
+  [(set-all-ready θ. ()) θ.]
+  [(set-all-ready (env-v_0 ... (shar s status ev) env-v_2 ...) (s s_r ...))
+   (set-all-ready (env-v_0 ... (shar s status ev) env-v_2 ...) (s_r ...))])
+
+(define-metafunction esterel-eval
+  ;<- : θ. env-v -> θ.
+  ;<- : θ. θ. -> θ.
+  [(<- (env-v_0 ... (var x ev_old) env-v_1 ...) (var x ev_new))
+   (env-v_0 ... (var x ev_new) env-v_1 ...)]
+  [(<- (env-v_0 ... (shar s shared-status_old ev_old) env-v_1 ...) (shar s shared-status_new ev_new))
+   (env-v_0 ... (shar s shared-status_new ev_new) env-v_1 ...)]
+  [(<- (env-v_0 ... (sig S status_old) env-v_1 ...) (sig S status_new))
+   (env-v_0 ... (sig S status_new) env-v_1 ...)]
+  [(<- θ. env-v) (insert θ. env-v)]
+  [(<- θ. ()) θ.]
+  [(<- θ. (env-v_h env-v_r ...))
+   (<- (<- θ. env-v_h) (env-v_r ...))])
+
+(define-metafunction esterel-eval
+  insert : θ. env-v -> θ.
+  [(insert θ. env-v)
+   ,(sort
+     (cons `env-v `θ.)
+     symbol<?
+     #:key second)])

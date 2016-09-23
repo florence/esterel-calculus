@@ -4,46 +4,18 @@
 
 (define-syntax quasiquote (make-rename-transformer #'term))
 
-(define-extended-language esterel-eval esterel
-  (p q ::= ....
-     (env (env-v ...) p))
-  (env-v ::= Sdat shareddat vardat)
-  (status ::= present absent unknown)
-  (dat ::= (sig S status))
-  (Sdat ::= .... dat)
-
-  ;; state
-  (shared-status ::= ready old new)
-  (shareddat ::= .... (shar s ev shared-status))
-  (vardat ::= .... (var· x ev))
-  (ev ::= n (rvalue any))
-
-  ;; Values and answers
-  (a ::= ap a*)
-  (ap ::= (in-hole A vp))
-  (a* ::= (in-hole A v*))
-  (v ::= vp v*)
-  (vp ::= nothing (exit n))
-  (v* ::=
-      pause
-      (seq v* q)
-      (par v* v*)
-      (suspend^ p (sig S present))
-      (suspend^ v* Sdat)
-      (suspend v* Sdat)
-      (trap v*))
-
+(define-extended-language esterel-standard esterel-eval
   ;; stuck programs
   (unreducable ::= v blocked)
   (blocked ::=
-           (present (sig S unknown) p q)
-           (suspend^ p (sig S unknown))
+           (present S p q) ;; TODO ???
+           (suspend^ p S) ;;TODO ???
+           (suspend^ blocked S)
            (seq blocked q)
            (par blocked v)
            (par v blocked)
            (par blocked blocked)
-           (suspend^ blocked (sig S absent))
-           (suspend blocked Sdat)
+           (suspend blocked S)
            (trap blocked)
            (shared s := blocked/e p)
            (var x := blocked/e p)
@@ -54,44 +26,153 @@
                  (shar s ev new)
                  (shar s ev old)
                  (f ev ... blocked/e e ...))
-
-  (A ::= (env (env-v ...) hole))
-  (P* Q* ::= (in-hole A P))
-  (E* ::= (in-hole A (in-hole P E)))
-
-  ;; evaluation context
-  (P Q ::=
+  (D ::=
      hole
-     (seq P q)
-     (par P q)
-     (par unreducable Q)
-     (suspend P Sdat)
-     (suspend^ P (sig S absent))
-     (trap P))
-
-  ;; state evaluation context
-  (E ::= hole
-     (shared s := E p)
-     (var x := E p)
-     (<= s E)
-     (:= x E)
-     (if E p q)
-     (f ev ... E e ...))
-
+     (seq D q)
+     (par D q)
+     (par unreducable D) ;; TODO
+     (suspend D Sdat)
+     (ρ (env-v_0 ... (sig S absent) env-v_2 ...)
+        (in-hole D (suspend^ D S)))
+     (trap D)
+     (shared s := D p)
+     (var x := D p)
+     (<= s D)
+     (:= x D)
+     (if D p q)
+     (f ev ... D e ...))
   )
 
 (define R
   ;; ASSUMPTIONS:
   ;; program is loop safe
   (reduction-relation
-   esterel-eval #:domain p
-   (--> (in-hole P* (par vp v)) (in-hole P* (value-max vp v))
+   esterel-standard #:domain p
+   ;; TODO reducing on nothings?
+   (--> (in-hole D (par vp v)) (in-hole D (value-max vp v))
         par-done-right)
-   (--> (in-hole P* (par v vp)) (in-hole P* (value-max v vp))
+   (--> (in-hole D (par v vp)) (in-hole D (value-max v vp))
         par-done-left)
-   (--> (in-hole P* (present (sig S present) p q)) (in-hole P* p)
+
+   ;; TODO can only really do in evaluation contexts ...
+   (--> (ρ θ. (in-hole D (present (sig S present) p q)))
+        (ρ θ. (in-hole D p))
+        (where #t (∈ S θ.))
+        is-present)
+   (--> (ρ θ. (in-hole D (present (sig S absent) p q)))
+        (ρ θ. (in-hole D q))
+        (where #t (∈ S θ.))
+        is-absent)
+   (--> (ρ θ. (in-hole D (emit (sig S unknown))))
+        (ρ θ. (substitute* (in-hole D nothing) (sig S unknown) (sig S present)))
+        (where #t (∈ S θ.))
+        emit-unknown)
+   (--> (ρ θ. (in-hole D (emit (sig S present))))
+        (ρ θ. (in-hole D nothing))
+        (where #t (∈ S θ.))
+        emit-present)
+
+   (--> (in-hole D (loop p)) (in-hole D (seq p (loop p)))
+    loop)
+   (--> (in-hole D (seq nothing q)) (in-hole D q)
+    seq-done)
+   (--> (in-hole D (seq (exit n) q)) (in-hole D (exit n))
+    seq-exit)
+   (--> (in-hole D (suspend vp Sdat)) (in-hole D vp)
+    suspend-value)
+   (--> (in-hole D (suspend^ vp (sig S absent))) (in-hole D vp)
+    suspend^-value)
+   ;; traps
+   (--> (in-hole D (trap vp)) (in-hole D (harp vp))
+        trap-done)
+   ;; lifting signals
+   (--> (in-hole D (signal S p))
+        (in-hole D (ρ (S) p))
+        raise-signal)
+
+   ;; shared state
+   (-->
+    (in-hole D (shared s := ev p))
+    (in-hole D (ρ (s) (substitute* p s (shar s ev new))))
+    raise-shared)
+   (-->
+    (ρ θ. (in-hole D (<= (shar s ev_old old) ev)))
+    (ρ θ. (substitute* (in-hole D nothing) (shar s ev_old old) (shar s ev new)))
+    (where #t (∈ s θ.))
+    set-shared-value-old)
+   (-->
+    (ρ θ. (in-hole D (<= (shar s ev_old new) ev)))
+    (ρ θ. (substitute* (in-hole D nothing) (shar s ev_old old) (shar s (δ + ev_old ev) new)))
+    (where #t (∈ s θ.))
+    set-shared-value-new)
+   ;; unshared state
+   (-->
+    (in-hole D (var x := ev p))
+    (in-hole D (ρ (x) (substitute* p x (var· x ev))))
+    raise-var)
+  (-->
+   (ρ θ. (in-hole D (:= (var· x ev_old) ev)))
+   (ρ θ. (substitute* (in-hole D nothing) (var· x ev_old) (var· x ev)))
+   (where #t (∈ x θ.))
+   set-var)
+  ;; if
+  (--> (in-hole D (if ev p q))
+       (in-hole D q)
+       (side-condition `(∈ ev ((rvalue #f) 0)))
+       if-false)
+  (--> (in-hole D (if ev p q))
+       (in-hole D p)
+       (side-condition `(∉ ev ((rvalue #f) 0)))
+       if-true)
+  ;; evaling code
+  (--> (ρ θ. (in-hole D (shar s ev ready)))
+       (ρ θ. (in-hole D (shar s ev ready)))
+       (where #t (∈ s θ.))
+       eval-shared)
+  (--> (ρ θ. (in-hole D (var· x ev)))
+       (ρ θ. (in-hole D ev))
+       (where #t (∈ x θ.))
+       eval-var)
+  (--> (in-hole D (f ev ...)) (in-hole D (δ f ev ...))
+       eval-δ)
+
+  ;; progression
+  (-->
+   (ρ θ. unreducable)
+   (ρ θ. (substitute* unreducable (sig S •) (sig S absent)))
+   (where θ._prime (get-unknown-signals-in p θ.))
+   (where (S_0 ... S S_2 ...) (Cannot p θ._prime))
+   (where #t (unprogressable (S_0 ...) unreducable))
+   absence)
+  (-->
+   (in-hole C (ρ θ. unreducable))
+   (in-hole C (ρ θ. (substitute* unreducable (shar s • •) (shar s • ready))))
+   (where θ._prime (get-unready-shared-in unreducable θ.))
+   (where (s_0 ... s s_1 ...) (Cannot_shared unreducable θ._prime))
+   (where #t (unprogressable (s_0 ...) unreducable))
+   readyness)
+
+  ;; lifting
+
+  ;; TODO doesn't quite work because we don't have renaming and might lift too high for something that
+  ;; will be reused.
+  (-->
+   (in-hole C (ρ θ._1 (in-hole E (ρ θ._2 p))))
+   (in-hole C (ρ (U θ._1 θ._2) (in-hole E p))))))
+
+#;
+(define R
+  ;; ASSUMPTIONS:
+  ;; program is loop safe
+  (reduction-relation
+   esterel-eval #:domain p
+   (--> (in-hole D (par vp v)) (in-hole P* (value-max vp v))
+        par-done-right)
+   (--> (in-hole D (par v vp)) (in-hole P* (value-max v vp))
+        par-done-left)
+   (--> (in-hole D (present (sig S present) p q)) (in-hole D p)
     is-present)
-   (--> (in-hole P* (present (sig S absent) p q)) (in-hole P* q)
+   (--> (in-hole D (present (sig S absent) p q)) (in-hole D q)
     is-absent)
    (-->
     (in-hole P* (emit (sig S unknown)))
@@ -164,6 +245,7 @@
 
 
 
+#;
 (define R*
   (extend-reduction-relation
    R
@@ -192,29 +274,32 @@
   [(instant p (env-v ...))
    (p_*
     (get-signals a))
-   (where (a) ,(apply-reduction-relation* R* `(setup p (env-v ...))))
+   (where (a) ,(apply-reduction-relation* R `(setup p (env-v ...))))
    (where p_* (add-hats (clear-up-values a)))]
   [(instant p (env-v ...))
    #f
-   (where (p_* ...) ,(apply-reduction-relation* R* `(setup p (env-v ...))))
+   (where (p_* ...) ,(apply-reduction-relation* R `(setup p (env-v ...))))
    (side-condition (pretty-print `(p_* ...)))])
 
 (define-metafunction esterel-eval
-  unprogressable : (env-v ...) p -> boolean
+  unprogressable : (env ...) p -> boolean
   [(unprogressable () p) #t]
-  [(unprogressable ((var· x ev) env-v ...) p)
-   (unprogressable (env-v ...) p)]
-  [(unprogressable ((sig S status) env-v ...) p)
-   (unprogressable (env-v ...) p)
+  [(unprogressable (x env ...) p)
+   (unprogressable (env ...) p)
+   (where (var· x ev) (get-env-v x p))]
+  [(unprogressable (S env ...) p)
+   (unprogressable (env ...) p)
+   (where (sig S status) (get-env-v S p))
    (where #t (∈ status (present absent)))]
-  [(unprogressable ((sig S unknown) env-v ...) p)
-   #t
-   (where ⊥ (Cannot p (S)))
-   (where #t (unprogressable (env-v ...) p))]
-  [(unprogressable ((shar s ev ready) env-v ...) p)
-   (unprogressable (env-v ...) p)]
-  [(unprogressable ((shar s ev shared-status) env-v ...) p)
-   #t
-   (where ⊥ (Cannot_shared p (s)))
-   (where #t (unprogressable (env-v ...) p))]
+  [(unprogressable (S env ...) p)
+   (unprogressable (env ...) p)
+   (where (sig S status) (get-env-v S p))
+   (where ⊥ (Cannot p (S)))]
+  [(unprogressable (s env ...) p)
+   (unprogressable (env ...) p)
+   (where (shar s ev ready) (get-env-v s p))]
+  [(unprogressable (s env ...) p)
+   (unprogressable (env ...) p)
+   (where (shar s ev shared-status) (get-env-v s p))
+   (where ⊥ (Cannot_shared p (s)))]
   [(unprogressable (env-v ...) p) #f])

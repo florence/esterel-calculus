@@ -1,5 +1,8 @@
 #lang racket
-(require redex/reduction-semantics "reduction.rkt" (except-in "shared.rkt" esterel-eval)
+(require redex
+         ;"reduction.rkt"
+         "calculus.rkt"
+         "shared.rkt"
          ;(prefix-in calculus: "calculus.rkt")
          (only-in (submod esterel/cos-model test) cc->>)
          (prefix-in cos: esterel/cos-model)
@@ -96,7 +99,9 @@
                       (not p)
                       (and
                        (redex-match cos:esterel-eval p (first p))
-                       (redex-match esterel-eval (in-hole A nothing) q))))
+                       (or
+                        (redex-match esterel-eval (ρ θ. nothing) q)
+                        (redex-match esterel-eval nothing q)))))
     (when debug?
       (printf "running:\np:")
       (pretty-print pp)
@@ -134,12 +139,13 @@
              (equal? (list->set (remove-not-outs pouts))
                      (list->set (remove-not-outs qouts)))
              (error 'test
-                    "programs were ~a -> (~a ~a)\n ~a -> ~a\n under ~a\nThe origional call was ~a"
+                    "programs were ~a -> (~a ~a)\n ~a -> (~a ~a)\n under ~a\nThe origional call was ~a"
                     p
                     p2
-                    pouts
+                    (list->set (remove-not-outs pouts))
                     q
                     q2
+                    (list->set (remove-not-outs qouts))
                     i
                     (list 'relate pp qp ins in out)))
            (values (list p2 data) q2)]
@@ -348,10 +354,8 @@
 (define-metafunction esterel-eval
   add-extra-syms : p (S ...) -> p
   [(add-extra-syms p (S ...))
-   (env ((sig S unknown) ...)
-        ,(for/fold ([p `p])
-                   ([S (in-list `(S ...))])
-           `(substitute* ,p ,S (sig ,S unknown))))])
+   (ρ ((sig S unknown) ...)
+      p)])
 
 (provide do-test)
 (define (do-test [print #f] #:limits? [limits? #f])
@@ -403,70 +407,59 @@
              [s signals])
     (list p s)))
 
+#;
 (test-begin
   (check-equal?
    (apply-reduction-relation
     R*
-    `(env ((sig S present) (sig A unknown))
-          (par (suspend^ nothing (sig S present))
-               (present (sig A unknown) pause pause))))
+    `(ρ (S A)
+        (par (suspend^ nothing (sig S present))
+             (present (sig A unknown) pause pause))))
    (list
-    `(env ((sig S present) (sig A absent))
-          (par (suspend^ nothing (sig S present))
-               (present (sig A absent) pause pause)))))
+    `(ρ (S A)
+        (par (suspend^ nothing (sig S present))
+             (present (sig A absent) pause pause)))))
+  (check-true
+   ;; TODO BUG! how do we extract shared value if its gone?
+   (redex-match?
+    esterel-eval
+    ((ρ (s) pause))
+    (apply-reduction-relation
+     R*
+     `(ρ () (shared s := 1 pause)))))
   (check-true
    (redex-match?
     esterel-eval
-    ((env ((shar s 1 new))
-          pause))
+    ((ρ (s) nothing))
     (apply-reduction-relation
      R*
-     `(env ()
-           (shared s := 1
-                   pause)))))
-  (check-true
-   (redex-match?
-    esterel-eval
-    ((env ((shar s 5 new))
-          nothing))
-    (apply-reduction-relation
-     R*
-     `(env ((shar s 1 old))
-           (<= s 5)))))
+     `(ρ (s) (<= (shar s 1 old) 5)))))
 
   (check-true
    (redex-match?
     esterel-eval
-    ((env ((shar s 6 new))
-          nothing))
+    ((ρ (s) nothing))
     (apply-reduction-relation
      R*
-     `(env ((shar s 1 new))
-           (<= s 5)))))
+     `(ρ (s) (<= (shar s 1 new) 5)))))
 
   (check-true
    (redex-match?
     esterel-eval
-    ((env ((shar s 1 ready))
-          (shared s_2 := (shar s 1 ready)
-                  pause)))
+    ((ρ (s) (shared s_2 := (shar s 1 ready) pause)))
     (apply-reduction-relation
      R*
-     `(env ((shar s 1 new))
-           (shared s2 := (shar s 1 new)
-                   pause)))))
+     `(ρ (s) (shared s2 := (shar s 1 new) pause)))))
 
   (check-true
    (redex-match?
     esterel-eval
-    ((env ((shar s 1 ready))
+    ((ρ ((shar s 1 ready))
           (shared s2 := 1
                   pause)))
     (apply-reduction-relation
      R*
-     `(env ((shar s 1 ready))
-           (shared s2 := (shar s 1 ready)
-                   pause)))))
+     `(ρ (s) (shared s2 := (shar s 1 ready) pause)))))
 
   (check-true
    (redex-match?
@@ -523,15 +516,18 @@
   (check-equal?
    (apply-reduction-relation*
     R*
-    `(env
-     ((var· x 1))
+    `(ρ
+     (x)
      (seq
       (seq nothing (:= x (var· x 1)))
       (loop (var x := 0 (seq (:= x 1) (seq pause (:= x x))))))))
-   `((env
-       ((var· x 1))
+   `((ρ
+       (x)
        (seq
         (seq pause (:= x (var· x 1)))
         (loop (var x := 0 (seq (:= x 1) (seq pause (:= x x)))))))))
+  )
+
+(module+ test
   (test-case "random"
     (do-test #t)))
