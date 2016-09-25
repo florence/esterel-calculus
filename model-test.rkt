@@ -111,8 +111,11 @@
       (pretty-print i))
     (with-handlers ([(lambda (x) (and (exn:fail:resource? x)
                                       (eq? 'time (exn:fail:resource-resource x))))
-                     (lambda (_) (values #f #f))])
-      (with-limits (and limits? (r:* 10 60)) #f
+                     (lambda (_)
+                       (when debug? (displayln 'timeout))
+                       (values #f #f))])
+      (with-limits (and limits? 60 #;(r:* 10 60)
+                        ) #f
         (when debug?
           (printf "running instant\n")
           (pretty-print (list 'instant q i)))
@@ -151,13 +154,13 @@
            (values (list p2 data) q2)]
           [((list) #f)
            (values #f #f)]
-          [(v v*)
+          [(done paused)
            (error 'test
                   "inconsitent output states:\n programs were ~a -> ~a\n ~a -> ~a\n under ~a\nThe origional call was ~a"
                   p
-                  v
+                  done
                   q
-                  v*
+                  paused
                   i
                   (list 'relate pp qp ins in out))]))))
   #t)
@@ -530,4 +533,28 @@
 
 (module+ test
   (test-case "random"
-    (do-test #t)))
+    (do-test #t #:limits? #t)))
+
+(define (render)
+  (local-require redex/pict
+                 unstable/gui/redex
+                 (only-in pict show-pict scale hc-append))
+  (add-compound-rewriters!
+   '∈ (binary-rw " ∈ ")
+   '∉ (binary-rw " ∉ ")
+   'without (binary-rw "\\")
+   )
+  (with-rewriters
+    (lambda ()
+      (parameterize ([rule-pict-style 'horizontal])
+        (show-pict
+         (scale
+          (hc-append
+           (render-language esterel)
+           (render-language esterel-eval)
+           (render-reduction-relation R)
+           ;(render-metafunction Cannot)
+           (render-metafunction Can))
+          1.3))))))
+
+(module+ render (render))

@@ -8,9 +8,9 @@
   (reduction-relation
    esterel-eval #:domain p
    ;; TODO reducing on nothings?
-   (--> (in-hole C (par vp v)) (in-hole C (value-max vp v))
+   (--> (in-hole C (par halted done)) (in-hole C (value-max halted done))
         par-done-right)
-   (--> (in-hole C (par v vp)) (in-hole C (value-max v vp))
+   (--> (in-hole C (par done halted)) (in-hole C (value-max done halted))
         par-done-left)
 
    ;; TODO can only really do in evaluation contexts ...
@@ -24,8 +24,9 @@
         is-absent)
    (--> (in-hole C (ρ θ. (in-hole E (emit S))))
         (in-hole C (ρ (<- θ. (sig S present)) (in-hole E nothing)))
-        (where #t (∈ (sig S unknown) θ.))
-        emit-unknown)
+        (where (env-v_0 ... (sig S status) env-v_2 ...) θ.)
+        emit)
+   #;
    (--> (in-hole C (ρ θ. (in-hole E (emit S))))
         (in-hole C (ρ θ. (in-hole E nothing)))
         (where #t (∈ (sig S present) θ.))
@@ -37,14 +38,10 @@
     seq-done)
    (--> (in-hole C (seq (exit n) q)) (in-hole C (exit n))
     seq-exit)
-   (--> (in-hole C (suspend vp S)) (in-hole C vp)
-    suspend-value)
-   (--> (in-hole C (ρ θ. (in-hole E (suspend^ vp S))))
-        (in-hole C (in-hole E vp))
-        (where #t (∈ (sig S absent) θ.))
-    suspend^-value)
+   (--> (in-hole C (suspend halted S)) (in-hole C halted)
+    suspend-done)
    ;; traps
-   (--> (in-hole C (trap vp)) (in-hole C (harp vp))
+   (--> (in-hole C (trap halted)) (in-hole C (harp halted))
         trap-done)
    ;; lifting signals
    (--> (in-hole C (signal S p))
@@ -63,8 +60,9 @@
     set-shared-value-old)
    (-->
     (in-hole C (ρ θ. (in-hole E (<= s ev))))
-    (in-hole C (ρ (<- θ. (shar s ev new)) (in-hole E nothing)))
+    (in-hole C (ρ (<- θ. (shar s (δ f_c ev ev_old) new)) (in-hole E nothing)))
     (where (env-v_0 ... (shar s ev_old new) env-v_2 ...)  θ.)
+    (where f_c +)
     set-shared-value-new)
    ;; unshared state
    (-->
@@ -79,11 +77,11 @@
   ;; if
   (--> (in-hole C (if ev p q))
        (in-hole C q)
-       (side-condition `(∈ ev ((rvalue #f) 0)))
+       (where #t (∈ ev ((rvalue #f) 0)))
        if-false)
   (--> (in-hole C (if ev p q))
        (in-hole C p)
-       (side-condition `(∉ ev ((rvalue #f) 0)))
+       (where #t (∉ ev ((rvalue #f) 0)))
        if-true)
   ;; evaling code
   (--> (in-hole C (ρ θ. (in-hole E s)))
@@ -101,12 +99,12 @@
   (-->
    (in-hole C (ρ θ. p))
    (in-hole C (ρ (set-all-absent θ. (S_a1 S_a ...)) p))
-   (where (S_a1 S_a ...) (Cannot_shared (in-hole C (ρ θ. p)) (get-unknown-signals θ.)))
+   (where (S_a1 S_a ...) (Cannot (ρ θ. p) (get-unknown-signals θ.)))
    absence)
   (-->
    (in-hole C (ρ θ. p))
    (in-hole C (ρ (set-all-ready θ. (s_r1 s_r ...)) p))
-   (where (s_r1 s_r ...) (Cannot_shared (in-hole C (ρ θ. p)) (get-unready-shared θ.)))
+   (where (s_r1 s_r ...) (Cannot_shared (ρ θ. p) (get-unready-shared θ.)))
    readyness)
 
   ;; lifting
@@ -121,9 +119,9 @@
   instant : p (env-v ...) -> (p (any ...)) or #f
   [(instant p (env-v ...))
    (p_*
-    (get-signals a))
-   (where (a) ,(apply-reduction-relation*/pick R `(setup p (env-v ...))))
-   (where p_* (add-hats (clear-up-values a)))]
+    (get-signals done))
+   (where (done) ,(apply-reduction-relation*/pick R `(setup p (env-v ...))))
+   (where p_* (add-hats (clear-up-values done)))]
   [(instant p (env-v ...))
    #f
    (where (p_* ...) ,(apply-reduction-relation* R `(setup p (env-v ...))))
@@ -134,6 +132,6 @@
     [(list) (list p)]
     [(list* r)
      (define pick (random-ref r))
-     (if (redex-match? esterel-eval a pick)
+     (if (redex-match? esterel-eval done pick)
          (list pick)
          (apply-reduction-relation*/pick R pick))]))

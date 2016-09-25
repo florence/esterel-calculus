@@ -1,6 +1,7 @@
 #lang racket
 (require redex/reduction-semantics)
 (provide (all-defined-out))
+(module+ test (require rackunit))
 
 (define-syntax quasiquote (make-rename-transformer #'term))
 
@@ -17,7 +18,6 @@
    (suspend p S)
    (trap p)
    (exit n)
-   (suspend^ p S)
    ;; state
    (shared s := e p)
    (<= s e)
@@ -29,12 +29,11 @@
   (n ::= natural)
 
   (e ::=
-     shareddat
-     vardat
      (f e ...)
      n
+     s x
      ;; racket value
-     any)
+     (rvalue any))
   (f ::= + (rfunc any)))
 
 (define-extended-language esterel-eval esterel
@@ -52,24 +51,15 @@
   (ev ::= n (rvalue any))
 
   ;; Values and answers
-  (a ::= ap a*)
-  ;; TODO answers
-  (ap ::= (ρ θ. vp) vp)
-  (a* ::= v*)
-  (v ::= vp v*)
-  (vp ::= nothing (exit n))
-  (v* ::=
-      (ρ θ. v*)
+  (done ::= halted paused (ρ θ. halted) (ρ θ. paused))
+  (halted ::= nothing (exit n))
+  (paused ::=
       pause
-      (seq v* q)
-      (par v* v*)
+      (seq paused q)
+      (par paused paused)
 
-      ;; TODO how to represent with stores?
-      (suspend^ p S); where S is present
-
-      (suspend^ v* S)
-      (suspend v* S)
-      (trap v*))
+      (suspend paused S)
+      (trap paused))
 
   (C ::=
      hole
@@ -81,7 +71,6 @@
      (par C q)
      (par p C)
      (suspend C S)
-     (suspend^ C S)
      (trap C)
      (present S C q)
      (present S p C)
@@ -98,23 +87,19 @@
      (f e ... C e ...))
 
   ;; evaluation contexts
-  (E/θ ::=
-       hole
-       (seq E/θ q)
-       (par E/θ q)
-       (par p E/θ)
-       (suspend E/θ S)
-       (trap E/θ)
-       (shared s := E/θ p)
-       (var x := E/θ p)
-       (<= s E/θ)
-       (:= x E/θ)
-       (if E/θ p q)
-       (f ev ... E/θ e ...))
   (E ::=
-     E/θ
-     (ρ (env-v_0 ... (sig S absent) env-v_2 ...)
-        (in-hole E/θ (suspend^ E S)))))
+       hole
+       (seq E q)
+       (par E q)
+       (par p E)
+       (suspend E S)
+       (trap E)
+       (shared s := E p)
+       (var x := E p)
+       (<= s E)
+       (:= x E)
+       (if E p q)
+       (f ev ... E e ...)))
 
 #;
 (define-extended-language esterel-eval esterel
@@ -133,18 +118,18 @@
 
   ;; Values and answers
   (a ::= ap a*)
-  (ap ::= (in-hole A vp))
-  (a* ::= (in-hole A v*))
-  (v ::= vp v*)
-  (vp ::= nothing (exit n))
-  (v* ::=
+  (ap ::= (in-hole A halted))
+  (a* ::= (in-hole A paused))
+  (v ::= halted paused)
+  (halted ::= nothing (exit n))
+  (paused ::=
       pause
-      (seq v* q)
-      (par v* v*)
+      (seq paused q)
+      (par paused paused)
       (suspend^ p (sig S present))
-      (suspend^ v* Sdat)
-      (suspend v* Sdat)
-      (trap v*))
+      (suspend^ paused Sdat)
+      (suspend paused Sdat)
+      (trap paused))
 
   (A ::= (env (env-v ...) hole))
   (P* Q* ::= (in-hole A P))
@@ -203,12 +188,12 @@
 
 
  (define-metafunction esterel-eval
-   value-max : v v -> v
-  [(value-max nothing v) v]
-  [(value-max v nothing) v]
+   value-max : done done -> done
+  [(value-max nothing done) done]
+  [(value-max done nothing) done]
   [(value-max (exit n_1) (exit n_2)) (exit ,(max `n_1 `n_2))]
-  [(value-max (exit n) v*) (exit n)]
-  [(value-max v* (exit n)) (exit n)])
+  [(value-max (exit n) paused) (exit n)]
+  [(value-max paused (exit n)) (exit n)])
 
 (define-metafunction esterel-eval
   setup : p (env-v ...) -> p
@@ -232,15 +217,14 @@
   [(add-hats (ρ θ. p)) (ρ θ. (add-hats p))]
   [(add-hats (seq p q)) (seq (add-hats p) q)]
   [(add-hats (par p q)) (par (add-hats p) (add-hats q))]
-  [(add-hats (suspend p S)) (suspend^ (add-hats p) S)]
-  [(add-hats (suspend^ p S)) (suspend^ (add-hats p) S)]
+  [(add-hats (suspend p S)) (suspend (seq (present S pause nothing) (add-hats p)) S)]
   [(add-hats (trap p)) (trap (add-hats p))]
   [(add-hats (exit n)) (exit n)])
 
 (define-metafunction esterel-eval
   clear-up-values : p -> p
   [(clear-up-values (ρ θ. p))
-   (ρ (clear-up-env* θ.) (clear-up-values p))]
+   (ρ (clear-up-enpaused θ.) (clear-up-values p))]
   [(clear-up-values nothing) nothing]
   [(clear-up-values pause) pause]
   [(clear-up-values (signal S p))
@@ -257,8 +241,6 @@
    (loop (clear-up-values p))]
   [(clear-up-values (suspend p S))
    (suspend (clear-up-values p) S)]
-  [(clear-up-values (suspend^ p S))
-   (suspend^ (clear-up-values p) S)]
   [(clear-up-values (trap p))
    (trap (clear-up-values p))]
   [(clear-up-values (exit n)) (exit n)]
@@ -284,8 +266,8 @@
   [(clear-up-data natural) natural])
 
 (define-metafunction esterel-eval
-  clear-up-env* : θ. -> θ.
-  [(clear-up-env* (env-v ...))
+  clear-up-enpaused : θ. -> θ.
+  [(clear-up-enpaused (env-v ...))
    ((clear-up-env env-v) ...)])
 
 (define-metafunction esterel-eval
@@ -344,7 +326,7 @@
 
   [(Can (seq p q) θ.)
    (Can p θ.)
-   (side-condition `(∉ 0 (Can_K p θ.)))]
+   (where #t (∉ 0 (Can_K p θ.)))]
 
   [(Can (seq p q) θ.)
    ( (U (Can_S p θ.) (Can_S q θ.))
@@ -369,16 +351,6 @@
   [(Can (signal S p) θ.)
    ((without (S_* ...) S) (n ...) (s ...))
    (where ((S_* ...) (n ...) (s ...)) (Can p (<- θ. (sig S unknown))))]
-
-  [(Can (suspend^ p (S absent)) θ.)
-   (Can p θ.)]
-
-  [(Can (suspend^ p (S present)) θ.)
-   (() (1) ())]
-
-  [(Can (suspend^ p S) θ.)
-   ((S_o ...) (1 n ...) (s ...))
-   (where ((S_o ...) (n ...) (s ...)) (Can p θ.))]
 
   [(Can (shared s := e p) θ.)
    ((Can_S p θ.)
@@ -466,7 +438,7 @@
   [(δ (rfunc any) ev ...) (rvalue ,(apply `any `(ev ...)))])
 
 (define-metafunction esterel-eval
-  harp : vp -> vp
+  harp : halted -> halted
   [(harp nothing) nothing]
   [(harp (exit 0)) nothing]
   [(harp (exit n)) (exit ,(sub1 `n))])
@@ -503,28 +475,42 @@
 
 (define-metafunction esterel-eval
   get-unready-shared : θ. -> (s ...)
-  [(get-unready-shared  ((shar s status ev) env-v ...))
+  [(get-unready-shared  ((shar s ev shared-status) env-v ...))
    (s s_r ...)
-   (where #t (∈ status (new old)))
-   (where (s_r ...) (get-all-unready (env-v ...)))]
+   (where #t (∈ shared-status (new old)))
+   (where (s_r ...) (get-unready-shared (env-v ...)))]
   [(get-unready-shared (env-v_h env-v ...))
    (get-unready-shared (env-v ...))]
   [(get-unready-shared ())
    ()])
 
+(module+ test
+  (check-equal?
+   `(get-unready-shared ((sig Ib absent)
+                         (sig d absent)
+                         (sig l absent)
+                         (shar random-shared766092 0 new)
+                         (sig random-signal766091 absent)))
+   '(random-shared766092)))
+
 (define-metafunction esterel-eval
-  set-all-ready : θ. (s ...) -> (s ...)
+  set-all-ready : θ. (s ...) -> θ.
   [(set-all-ready θ. ()) θ.]
-  [(set-all-ready (env-v_0 ... (shar s status ev) env-v_2 ...) (s s_r ...))
-   (set-all-ready (env-v_0 ... (shar s status ev) env-v_2 ...) (s_r ...))])
+  [(set-all-ready (env-v_0 ... (shar s ev shared-status) env-v_2 ...) (s s_r ...))
+   (set-all-ready (env-v_0 ... (shar s ev ready) env-v_2 ...) (s_r ...))])
+
+(module+ test
+  (check-equal?
+   `(set-all-ready ((shar random-shared934658 0 ready)) ())
+   '((shar random-shared934658 0 ready))))
 
 (define-metafunction esterel-eval
   ;<- : θ. env-v -> θ.
   ;<- : θ. θ. -> θ.
   [(<- (env-v_0 ... (var x ev_old) env-v_1 ...) (var x ev_new))
    (env-v_0 ... (var x ev_new) env-v_1 ...)]
-  [(<- (env-v_0 ... (shar s shared-status_old ev_old) env-v_1 ...) (shar s shared-status_new ev_new))
-   (env-v_0 ... (shar s shared-status_new ev_new) env-v_1 ...)]
+  [(<- (env-v_0 ... (shar s ev_old shared-status_old) env-v_1 ...) (shar s ev_new shared-status_new))
+   (env-v_0 ... (shar s ev_new shared-status_new) env-v_1 ...)]
   [(<- (env-v_0 ... (sig S status_old) env-v_1 ...) (sig S status_new))
    (env-v_0 ... (sig S status_new) env-v_1 ...)]
   [(<- θ. env-v) (insert θ. env-v)]
