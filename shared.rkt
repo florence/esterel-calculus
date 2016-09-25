@@ -51,7 +51,8 @@
   (ev ::= n (rvalue any))
 
   ;; Values and answers
-  (done ::= halted paused (ρ θ. halted) (ρ θ. paused))
+  (complete ::= done (ρ θ. done))
+  (done ::= halted paused)
   (halted ::= nothing (exit n))
   (paused ::=
       pause
@@ -525,3 +526,10 @@
      (cons `env-v `θ.)
      symbol<?
      #:key second)])
+
+(define-metafunction esterel-eval
+  FV : e -> (s ...)
+  [(FV ev) ()]
+  [(FV s) (s)]
+  [(FV (f e ...))
+   (U (FV e) ...)])

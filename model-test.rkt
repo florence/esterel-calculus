@@ -1,9 +1,9 @@
 #lang racket
 (require redex
          ;"reduction.rkt"
-         "calculus.rkt"
          "shared.rkt"
-         ;(prefix-in calculus: "calculus.rkt")
+         (prefix-in calculus: "calculus.rkt")
+         (prefix-in standard: "reduction.rkt")
          (only-in (submod esterel/cos-model test) cc->>)
          (prefix-in cos: esterel/cos-model)
          racket/sandbox
@@ -91,7 +91,6 @@
     (filter (lambda (x) (member x out)) l))
   (for/fold ([p pp]
              [q qp]
-             #;
              [qc qp])
             ([i (in-list ins)]
              #:break (or
@@ -113,13 +112,21 @@
                                       (eq? 'time (exn:fail:resource-resource x))))
                      (lambda (_)
                        (when debug? (displayln 'timeout))
-                       (values #f #f))])
-      (with-limits (and limits? 60 #;(r:* 10 60)
+                       (values #f #f #f))])
+      (with-limits (and limits? 120 #;(r:* 10 60)
                         ) #f
         (when debug?
           (printf "running instant\n")
           (pretty-print (list 'instant q i)))
-        (define new-reduction `(instant ,q ,(setup-r-env i in)))
+        (define new-reduction/standard `(standard:instant ,q ,(setup-r-env i in)))
+        (define new-reduction/calculus
+          (with-handlers
+            ([(lambda (x) (and (exn:fail:resource? x)
+                               (eq? 'time (exn:fail:resource-resource x))))
+              ;; TODO hack: if calculus times out, use standard
+              (const new-reduction/standard)])
+            (with-limits 60 #f
+              `(calculus:instant ,q ,(setup-r-env i in)))))
         ;(define calc-reduction `(calculus:instant ,q ,(setup-r-env i in)))
         (when debug?
           (printf "running c->>\n")
@@ -134,33 +141,48 @@
                      (machine pbar data_*) (S ...) k)
            (pbar data_* (S ...))))
         ;; TODO finish testing calculus
-        (match* (constructive-reduction new-reduction)
+        (match* (constructive-reduction new-reduction/standard new-reduction/calculus)
           [(`((,p2 ,data ,(and pouts (list-no-order b ...)))
               (,_ ,_ ,(list-no-order b ...)) ...)
-            (list q2 qouts))
+            (list q2 qouts)
+            (list qc2 qcouts))
            (unless #;(judgment-holds (~ (,p2 ,pouts) ,a ,out))
-             (equal? (list->set (remove-not-outs pouts))
-                     (list->set (remove-not-outs qouts)))
+             (and
+              (equal? (list->set (remove-not-outs pouts))
+                      (list->set (remove-not-outs qouts)))
+              (equal? (list->set (remove-not-outs pouts))
+                      (list->set (remove-not-outs qcouts))))
              (error 'test
-                    "programs were ~a -> (~a ~a)\n ~a -> (~a ~a)\n under ~a\nThe origional call was ~a"
+                    (string-append "programs were ~a -> (~a ~a)\n"
+                                   "~a -> (~a ~a)\n"
+                                   "~a = (~a ~a)\n"
+                                   "under ~a\nThe origional call was ~a")
                     p
                     p2
                     (list->set (remove-not-outs pouts))
                     q
                     q2
                     (list->set (remove-not-outs qouts))
+                    qc
+                    qc2
+                    (list->set (remove-not-outs qcouts))
                     i
                     (list 'relate pp qp ins in out)))
-           (values (list p2 data) q2)]
-          [((list) #f)
-           (values #f #f)]
-          [(done paused)
+           (values (list p2 data) q2 qc2)]
+          [((list) #f #f)
+           (values #f #f #f)]
+          [(done paused paused/c)
            (error 'test
-                  "inconsitent output states:\n programs were ~a -> ~a\n ~a -> ~a\n under ~a\nThe origional call was ~a"
+                  (string-append "inconsitent output states:\n programs were ~a -> ~a\n"
+                                 "~a -> ~a\n"
+                                 "~a = ~a\n"
+                                 "under ~a\nThe origional call was ~a")
                   p
                   done
                   q
                   paused
+                  qc
+                  paused/c
                   i
                   (list 'relate pp qp ins in out))]))))
   #t)
@@ -533,7 +555,7 @@
 
 (module+ test
   (test-case "random"
-    (do-test #t #:limits? #t)))
+    (do-test #t #:limits? #f)))
 
 (define (render)
   (local-require redex/pict
@@ -544,17 +566,18 @@
    '∉ (binary-rw " ∉ ")
    'without (binary-rw "\\")
    )
+  (define (show p) (show-pict (scale p 1.3)))
   (with-rewriters
     (lambda ()
       (parameterize ([rule-pict-style 'horizontal])
-        (show-pict
-         (scale
-          (hc-append
-           (render-language esterel)
-           (render-language esterel-eval)
-           (render-reduction-relation R)
-           ;(render-metafunction Cannot)
-           (render-metafunction Can))
-          1.3))))))
+        (show
+         (render-reduction-relation calculus:R))
+        (show
+         (render-reduction-relation standard:R))
+        (show
+         (hc-append
+          (render-language esterel)
+          (render-language esterel-eval)
+          (render-metafunction Can)))))))
 
 (module+ render (render))
