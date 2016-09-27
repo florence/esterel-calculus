@@ -51,7 +51,14 @@
   (ev ::= n (rvalue any))
 
   ;; Values and answers
-  (complete ::= done (ρ θ. done))
+  (complete ::= done (ρ θ./c done))
+  (θ./c ::=
+        (env-v/c ...))
+  (env-v/c ::=
+           vardat
+           (shar s ev ready)
+           (sig S present)
+           (sig S absent))
   (done ::= halted paused)
   (halted ::= nothing (exit n))
   (paused ::=
@@ -411,9 +418,9 @@
    #f])
 
 (define-metafunction esterel-eval
-  U : (any ...) (any ...) -> (any ...)
-  [(U (any_1 ...) (any_2 ...))
-   (any_1 ... any_2 ...)])
+  U : (any ...) ... -> (any ...)
+  [(U (any ...) ...)
+   ,(set->list (list->set `(any ... ...)))])
 
 (define-metafunction esterel-eval
   without : (any ...) any -> (any ...)
@@ -508,9 +515,10 @@
 (define-metafunction esterel-eval
   ;<- : θ. env-v -> θ.
   ;<- : θ. θ. -> θ.
-  [(<- (env-v_0 ... (var x ev_old) env-v_1 ...) (var x ev_new))
-   (env-v_0 ... (var x ev_new) env-v_1 ...)]
-  [(<- (env-v_0 ... (shar s ev_old shared-status_old) env-v_1 ...) (shar s ev_new shared-status_new))
+  [(<- (env-v_0 ... (var· x ev_old) env-v_1 ...) (var· x ev_new))
+   (env-v_0 ... (var· x ev_new) env-v_1 ...)]
+  [(<- (env-v_0 ... (shar s ev_old shared-status_old) env-v_1 ...)
+       (shar s ev_new shared-status_new))
    (env-v_0 ... (shar s ev_new shared-status_new) env-v_1 ...)]
   [(<- (env-v_0 ... (sig S status_old) env-v_1 ...) (sig S status_new))
    (env-v_0 ... (sig S status_new) env-v_1 ...)]

@@ -113,25 +113,3 @@
    (in-hole C (ρ θ._1 (in-hole E (ρ θ._2 p))))
    (in-hole C (ρ (<- θ._1 θ._2) (in-hole E p)))
    merge)))
-
-(define-metafunction esterel-eval
-  ;; TODO blarg
-  instant : p (env-v ...) -> (p (any ...)) or #f
-  [(instant p (env-v ...))
-   (p_*
-    (get-signals complete))
-   (where (complete) ,(apply-reduction-relation*/pick R `(setup p (env-v ...))))
-   (where p_* (add-hats (clear-up-values complete)))]
-  [(instant p (env-v ...))
-   #f
-   (where (p_* ...) ,(apply-reduction-relation* R `(setup p (env-v ...))))
-   (side-condition (pretty-print `(p_* ...)))])
-
-(define (apply-reduction-relation*/pick R p)
-  (match (apply-reduction-relation R p)
-    [(list) (list p)]
-    [(list* r)
-     (define pick (random-ref r))
-     (if (redex-match? esterel-eval hole pick)
-         (list pick)
-         (apply-reduction-relation*/pick R pick))]))

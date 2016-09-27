@@ -6,7 +6,6 @@
 (define-syntax quasiquote (make-rename-transformer #'term))
 
 (define-extended-language esterel-standard esterel-eval
-  ;; stuck programs
   (D ::=
      hole
      (seq D q)
@@ -19,7 +18,25 @@
      (<= s D)
      (:= x D)
      (if D p q)
-     (f ev ... D e ...)))
+     (f ev ... D e ...))
+
+  (not-done
+   ::=
+   (signal S p)
+   (present S p q)
+   (emit S)
+   (par not-done q)
+   (par p not-done)
+   (loop p)
+   (seq not-done q)
+   (suspend not-done S)
+   (exit n)
+   (trap not-done)
+   (shared s := e p)
+   (<= s e)
+   (var x := e p)
+   (:= x e)
+   (if e p q)))
 
 (define-metafunction esterel-eval
   instant : p (env-v ...) -> (p (any ...)) or #f
@@ -65,7 +82,8 @@
    (--> (ρ θ. (in-hole D (loop p))) (ρ θ. (in-hole D (seq p (loop p))))
         (judgment-holds (good D θ.))
         loop)
-   (--> (ρ θ. (in-hole D (seq nothing q))) (ρ θ. (in-hole C q))
+   (--> (ρ θ. (in-hole D (seq nothing q)))
+        (ρ θ. (in-hole D q))
         (judgment-holds (good D θ.))
         seq-done)
    (--> (ρ θ. (in-hole D (seq (exit n) q))) (ρ θ. (in-hole D (exit n)))
@@ -145,14 +163,14 @@
   (-->
    (ρ θ. p)
    (ρ (set-all-absent θ. (S_a1 S_a ...)) p)
-   (judgment-holds (stuck p (get-unknown-signals θ.) (get-unready-shared θ.)))
+   (judgment-holds (stuck-or-done p (get-unknown-signals θ.) (get-unready-shared θ.)))
    (where (S_a1 S_a ...) (Cannot (ρ θ. p) (get-unknown-signals θ.)))
    absence)
   (-->
    (ρ θ. p)
    (ρ (set-all-ready θ. (s_r1 s_r ...)) p)
-   (judgment-holds (stuck p (get-unknown-signals θ.) (get-unready-shared θ.)))
-   (where () (Cannot (ρ θ. p) (get-unknown-signals θ.)))
+   (judgment-holds (stuck-or-done p (get-unknown-signals θ.) (get-unready-shared θ.)))
+   (where ⊥ (Cannot (ρ θ. p) (get-unknown-signals θ.)))
    (where (s_r1 s_r ...) (Cannot_shared (ρ θ. p) (get-unready-shared θ.)))
    readyness)
 
@@ -160,9 +178,23 @@
   (-->
    (ρ θ._1 (in-hole D (ρ θ._2 p)))
    (ρ (<- θ._1 θ._2) (in-hole D p))
-   (judgment-holds (good D θ.))
+   (judgment-holds (good D θ._1))
    merge)
   ))
+
+(module+ test
+  (check-true
+   (redex-match?
+    esterel-standard
+    (ρ θ. p)
+    `(ρ ((shar s 1 new)) (shared s2 := s pause))))
+  (check-true (judgment-holds
+               (stuck (shared s2 := s pause)
+                      (get-unknown-signals ((shar s 1 new)))
+                      (get-unready-shared ((shar s 1 new))))))
+  (check-equal?
+   `(Cannot (ρ ((shar s 1 new)) (shared s2 := s pause)) (get-unknown-signals ((shar s 1 new))))
+   `⊥))
 
 (define-judgment-form esterel-standard
   #:mode     (good I I)
@@ -184,7 +216,7 @@
    ----------
    (good-D (par D q) (S ...) (s ...))]
   [(good-D D (S ...) (s ...))
-   (stuck p (S ...) (s ...))
+   (stuck-or-done p (S ...) (s ...))
    ----------
    (good-D (par p D) (S ...) (s ...))]
   [(good-D D (S ...) (s ...))
@@ -193,10 +225,27 @@
   [(good-D D (S ...) (s ...))
    ----------
    (good-D (trap D) (S ...) (s ...))]
-  ;; TODO state
-  [(good-D D (S ...) (s ...))
-   ----------
-   (good-D (trap D) (S ...) (s ...))])
+  ;; par can't appear in these D's
+  ;; so not recursion necessary
+  [----------
+   (good-D (shared s_s := D p) (S ...) (s ...))]
+  [----------
+   (good-D (<= s_s D) (S ...) (s ...))]
+  [----------
+   (good-D (var x := D p) (S ...) (s ...))]
+  [----------
+   (good-D (:= x D) (S ...) (s ...))]
+  [----------
+   (good-D (if D p q) (S ...) (s ...))])
+
+(define-judgment-form esterel-standard
+  #:mode     (stuck-or-done I I I)
+  #:contract (stuck-or-done p (S ...) (s ...))
+  [----------
+   (stuck-or-done done (S ...) (s ...))]
+  [(stuck p (S ...) (s ...))
+   ---------
+   (stuck-or-done p (S ...) (s ...))])
 
 (define-judgment-form esterel-standard
   #:mode     (stuck I I I)
@@ -206,13 +255,26 @@
   [(where #t (∈ S_p (S ...)))
    ----------
    (stuck (present S_p p q) (S ...) (s ...))]
+
   [(stuck p (S ...) (s ...))
    (stuck q (S ...) (s ...))
    ----------
    (stuck (par p q) (S ...) (s ...))]
+
+  [(stuck p (S ...) (s ...))
+   ----------
+   (stuck (par p done) (S ...) (s ...))]
+
+  [(stuck not-done (S ...) (s ...))
+   ----------
+   (stuck (par done not-done) (S ...) (s ...))]
+
   [(stuck p (S ...) (s ...))
    ---------
    (stuck (seq p q) (S ...) (s ...))]
+  [(stuck p (S ...) (s ...))
+   ---------
+   (stuck (suspend p S_S) (S ...) (s ...))]
   [(stuck p (S ...) (s ...))
    ---------
    (stuck (trap p) (S ...) (s ...))]
@@ -239,3 +301,115 @@
    (where #t (∈ s_u (s ...)))
    ------------
    (stuck-e e (s ...))])
+
+(module+ test
+  (check-true
+   (judgment-holds
+    (stuck
+      (seq (present random-signal1618 pause nothing) nothing)
+     (get-unknown-signals
+      ((sig J absent)
+       (sig P unknown)
+       (sig Q unknown)
+       (sig b unknown)
+       (sig dp unknown)
+       (sig g unknown)
+       (sig k unknown)
+       (sig l unknown)
+       (shar random-shared1620 0 old)
+       (shar random-shared1621 0 old)
+       (sig random-signal1618 unknown)
+       (sig random-signal1619 unknown)
+       (sig s unknown)
+       (sig w unknown)
+       (sig xw unknown)))
+     (get-unready-shared
+      ((sig J absent)
+       (sig P unknown)
+       (sig Q unknown)
+       (sig b unknown)
+       (sig dp unknown)
+       (sig g unknown)
+       (sig k unknown)
+       (sig l unknown)
+       (shar random-shared1620 0 old)
+       (shar random-shared1621 0 old)
+       (sig random-signal1618 unknown)
+       (sig random-signal1619 unknown)
+       (sig s unknown)
+       (sig w unknown)
+       (sig xw unknown))))))
+  (check-true
+   (judgment-holds
+    (stuck
+     (suspend
+      (present random-signal1618 pause nothing)
+      random-signal1618)
+     (get-unknown-signals
+      ((sig J absent)
+       (sig P unknown)
+       (sig Q unknown)
+       (sig b unknown)
+       (sig dp unknown)
+       (sig g unknown)
+       (sig k unknown)
+       (sig l unknown)
+       (shar random-shared1620 0 old)
+       (shar random-shared1621 0 old)
+       (sig random-signal1618 unknown)
+       (sig random-signal1619 unknown)
+       (sig s unknown)
+       (sig w unknown)
+       (sig xw unknown)))
+     (get-unready-shared
+      ((sig J absent)
+       (sig P unknown)
+       (sig Q unknown)
+       (sig b unknown)
+       (sig dp unknown)
+       (sig g unknown)
+       (sig k unknown)
+       (sig l unknown)
+       (shar random-shared1620 0 old)
+       (shar random-shared1621 0 old)
+       (sig random-signal1618 unknown)
+       (sig random-signal1619 unknown)
+       (sig s unknown)
+       (sig w unknown)
+       (sig xw unknown))))))
+
+  (check-true
+   (judgment-holds
+    (good
+     (par
+      (suspend
+       (seq hole nothing)
+       random-signal2266)
+      nothing)
+     ())))
+  (check-true
+   (judgment-holds
+    (stuck-or-done
+     (suspend
+      (seq (present random-signal2266 pause nothing) nothing)
+      random-signal2266)
+     (random-signal2266)
+     ())))
+  (check-true
+   (judgment-holds
+    (stuck-or-done
+     (par
+      (present S nothing nothing)
+      nothing)
+     (S)
+     ())))
+  (check-true
+   (judgment-holds
+    (stuck-or-done
+     (par
+      (suspend
+       (seq (present random-signal2266 pause nothing) nothing)
+       random-signal2266)
+      nothing)
+     (random-signal2266)
+     ()))))

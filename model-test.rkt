@@ -90,8 +90,7 @@
   (define (remove-not-outs l)
     (filter (lambda (x) (member x out)) l))
   (for/fold ([p pp]
-             [q qp]
-             [qc qp])
+             [q qp])
             ([i (in-list ins)]
              #:break (or
                       (not p)
@@ -119,15 +118,6 @@
           (printf "running instant\n")
           (pretty-print (list 'instant q i)))
         (define new-reduction/standard `(standard:instant ,q ,(setup-r-env i in)))
-        (define new-reduction/calculus
-          (with-handlers
-            ([(lambda (x) (and (exn:fail:resource? x)
-                               (eq? 'time (exn:fail:resource-resource x))))
-              ;; TODO hack: if calculus times out, use standard
-              (const new-reduction/standard)])
-            (with-limits 60 #f
-              `(calculus:instant ,q ,(setup-r-env i in)))))
-        ;(define calc-reduction `(calculus:instant ,q ,(setup-r-env i in)))
         (when debug?
           (printf "running c->>\n")
           (pretty-print
@@ -141,21 +131,16 @@
                      (machine pbar data_*) (S ...) k)
            (pbar data_* (S ...))))
         ;; TODO finish testing calculus
-        (match* (constructive-reduction new-reduction/standard new-reduction/calculus)
+        (match* (constructive-reduction new-reduction/standard)
           [(`((,p2 ,data ,(and pouts (list-no-order b ...)))
               (,_ ,_ ,(list-no-order b ...)) ...)
-            (list q2 qouts)
-            (list qc2 qcouts))
+            (list q2 qouts))
            (unless #;(judgment-holds (~ (,p2 ,pouts) ,a ,out))
-             (and
-              (equal? (list->set (remove-not-outs pouts))
-                      (list->set (remove-not-outs qouts)))
-              (equal? (list->set (remove-not-outs pouts))
-                      (list->set (remove-not-outs qcouts))))
+             (equal? (list->set (remove-not-outs pouts))
+                     (list->set (remove-not-outs qouts)))
              (error 'test
                     (string-append "programs were ~a -> (~a ~a)\n"
                                    "~a -> (~a ~a)\n"
-                                   "~a = (~a ~a)\n"
                                    "under ~a\nThe origional call was ~a")
                     p
                     p2
@@ -163,26 +148,20 @@
                     q
                     q2
                     (list->set (remove-not-outs qouts))
-                    qc
-                    qc2
-                    (list->set (remove-not-outs qcouts))
                     i
                     (list 'relate pp qp ins in out)))
-           (values (list p2 data) q2 qc2)]
-          [((list) #f #f)
-           (values #f #f #f)]
-          [(done paused paused/c)
+           (values (list p2 data) q2)]
+          [((list) #f)
+           (values #f #f)]
+          [(done paused)
            (error 'test
                   (string-append "inconsitent output states:\n programs were ~a -> ~a\n"
                                  "~a -> ~a\n"
-                                 "~a = ~a\n"
                                  "under ~a\nThe origional call was ~a")
                   p
                   done
                   q
                   paused
-                  qc
-                  paused/c
                   i
                   (list 'relate pp qp ins in out))]))))
   #t)
@@ -194,10 +173,9 @@
         `(,i zero))))
 
 (define (setup-r-env ins in)
-  (for/list ([i in])
-    (if (member i ins)
-        `(sig ,i present)
-        `(sig ,i absent))))
+  (for/list ([i in]
+             #:when (member i ins))
+    `(sig ,i present)))
 
 (define (fixup e)
   (redex-let
@@ -397,7 +375,9 @@
         (displayln (list `~f ``p-check ``i ``o ``((S ...) ...) '#:limits? limits?))
         #;
         (displayln `(p-check in: i out: o instants: ((S ...) ...)))))
-    (~f `p-check `i `o `((S ...) ...) #:limits? limits?)
+    (and
+     (~f `p-check `i `o `((S ...) ...) #:limits? limits?)
+     (~r `p-check `i `o `((S ...) ...) #:limits? limits?))
     #;
     (relate `((convert p-check) ())
             `(add-extra-syms p-check ,(append `i `o))
@@ -408,7 +388,6 @@
    #:prepare fixup
    #:attempts 10000))
 
-(provide ~f)
 (define (~f p-check i o s #:limits? limits? #:debug? [debug? #f])
   (relate `((convert ,p-check) ())
           `(add-extra-syms ,p-check ,(append i o))
@@ -417,6 +396,47 @@
           o
           #:limits? limits?
           #:debug? debug?))
+
+(define (~r p-check i o s #:limits? limits? #:debug? [debug? #f])
+  ;; boundary signals shouldnt be used in reductions
+  ;; output might be okay, input is not
+  (define p `(add-extra-syms
+              ,(calc-shuffle p-check)
+              ,(append i o)))
+  (define r  `((convert ,p-check) ()))
+  (printf "testing: ~a\n derived from ~a\n"
+          `(relate `,r
+                   `,p
+                   `,s
+                   `,i
+                   `,o
+                   #:limits? ,limits?
+                   #:debug? ,debug?)
+          `(add-extra-syms ,p-check ,(append i o)))
+  (relate r
+          p
+          s
+          i
+          o
+          #:limits? limits?
+          #:debug? debug?))
+
+(define (calc-shuffle p)
+  (define-values (app p*)
+    (for/fold ([applied empty] [p p])
+              ([i (in-range 10)])
+      (define-values (t p-next) (apply-reduction-relation/pick calculus:R p))
+      (values (cons (list t p-next) applied)
+              p-next)))
+  (printf "calculus equasions applied: ~a\n" (reverse app))
+  p*)
+
+(define (apply-reduction-relation/pick R p)
+  (match (apply-reduction-relation/tag-with-names calculus:R p)
+    [(list) (values #f p)]
+    [(list* r)
+     (match-define (list tag p) (random-ref r))
+     (values tag p)]))
 
 (define (generate-all-instants prog signals)
   (define progs
@@ -432,71 +452,67 @@
              [s signals])
     (list p s)))
 
-#;
+(module+ test
 (test-begin
   (check-equal?
    (apply-reduction-relation
-    R*
-    `(ρ (S A)
-        (par (suspend^ nothing (sig S present))
-             (present (sig A unknown) pause pause))))
+    standard:R
+    `(ρ ((sig S present) (sig A unknown))
+        (par (suspend (seq pause nothing) S)
+             (present A pause pause))))
    (list
-    `(ρ (S A)
-        (par (suspend^ nothing (sig S present))
-             (present (sig A absent) pause pause)))))
-  (check-true
-   ;; TODO BUG! how do we extract shared value if its gone?
-   (redex-match?
-    esterel-eval
-    ((ρ (s) pause))
-    (apply-reduction-relation
-     R*
-     `(ρ () (shared s := 1 pause)))))
-  (check-true
-   (redex-match?
-    esterel-eval
-    ((ρ (s) nothing))
-    (apply-reduction-relation
-     R*
-     `(ρ (s) (<= (shar s 1 old) 5)))))
+    `(ρ ((sig S present) (sig A absent))
+        (par (suspend (seq pause nothing) S)
+             (present A pause pause)))))
+  (check-equal?
+   (apply-reduction-relation
+    standard:R
+    `(ρ () (shared s := 1 pause)))
+   (list `(ρ () (ρ ((shar s 1 new)) pause))))
+  (check-equal?
+   (apply-reduction-relation
+    standard:R
+    `(ρ () (ρ ((shar s 1 new)) pause)))
+   (list `(ρ ((shar s 1 new)) pause)))
+  (check-equal?
+   (apply-reduction-relation
+    standard:R
+    `(ρ ((shar s 1 old)) (<= s 5)))
+   (list `(ρ ((shar s 5 new)) nothing)))
 
-  (check-true
-   (redex-match?
-    esterel-eval
-    ((ρ (s) nothing))
-    (apply-reduction-relation
-     R*
-     `(ρ (s) (<= (shar s 1 new) 5)))))
+  (check-equal?
+   (apply-reduction-relation
+    standard:R
+    `(ρ ((shar s 1 new)) (<= s 5)))
+   (list `(ρ ((shar s 6 new)) nothing)))
 
-  (check-true
-   (redex-match?
-    esterel-eval
-    ((ρ (s) (shared s_2 := (shar s 1 ready) pause)))
-    (apply-reduction-relation
-     R*
-     `(ρ (s) (shared s2 := (shar s 1 new) pause)))))
+  (check-equal?
+   (apply-reduction-relation
+    standard:R
+    `(ρ ((shar s 1 new)) (shared s2 := s pause)))
+   (list `(ρ ((shar s 1 ready)) (shared s2 := s pause))))
 
-  (check-true
-   (redex-match?
-    esterel-eval
-    ((ρ ((shar s 1 ready))
-          (shared s2 := 1
-                  pause)))
-    (apply-reduction-relation
-     R*
-     `(ρ (s) (shared s2 := (shar s 1 ready) pause)))))
+  (check-equal?
+   (apply-reduction-relation
+    standard:R
+    `(ρ ((shar s 1 ready)) (shared s2 := s pause)))
+   (list `(ρ ((shar s 1 ready)) (shared s2 := 1 pause))))
+  (check-equal?
+   (apply-reduction-relation
+    standard:R
+    `(ρ ((shar s 1 ready)) (shared s2 := 1 pause)))
+   (list `(ρ ((shar s 1 ready)) (ρ ((shar s2 1 new)) pause))))
 
-  (check-true
-   (redex-match?
-    esterel-eval
-    ((env ()
-          (shared s2 := 1
-                  pause)))
-    (apply-reduction-relation
-     R*
-     `(env ()
-           (shared s2 := (+ 1 0)
-                   pause)))))
+
+  (check-equal?
+   (apply-reduction-relation
+    standard:R
+    `(ρ ()
+        (shared s2 := (+ 1 0)
+                pause)))
+   (list `(ρ ()
+            (shared s2 := 1
+                    pause))))
   (check-true
    (~f `(signal random-signal14877
                 (seq (par nothing (suspend pause random-signal14877)) (emit random-signal14877)))
@@ -505,10 +521,10 @@
        `(() () () () () () () () () () () () () () () () () () ())
        #:limits? #f))
   (check-equal?
-   `(Can_K (trap (exit 0)))
+   `(Can_K (trap (exit 0)) ())
    `(0))
   (check-equal?
-   `(Can_K (trap (par (exit 0) pause)))
+   `(Can_K (trap (par (exit 0) pause)) ())
    `(0))
   (check-true
    (~f (quasiquote (seq (trap (par (exit 0) pause)) (emit rX)))
@@ -520,42 +536,39 @@
    1
    (length
     (apply-reduction-relation*
-     R*
-     `(substitute*
-       (env ((sig E unknown) (sig C unknown) (sig dB unknown)
-             (sig EW unknown) (sig b unknown) (sig - unknown)
-             (sig DI unknown))
-            (seq (par nothing
-                      (trap (par (trap (suspend^ nothing (sig E unknown))) nothing)))
-                 (loop
-                  (present (sig C unknown)
-                           (par pause
-                                (trap (par (trap (suspend pause (sig E unknown)))
-                                           pause)))
-                           (par
-                            (par
-                             (par pause nothing)
-                             (seq pause pause))
-                            (emit (sig - unknown)))))))
-       (sig E unknown) (sig E present)))))
+     standard:R
+     `(ρ ((sig E present) (sig C unknown) (sig dB unknown)
+          (sig EW unknown) (sig b unknown) (sig - unknown)
+          (sig DI unknown))
+         (seq (par nothing
+                   (trap (par (trap (suspend (seq (present E pause nothing) nothing) E)) nothing)))
+              (loop
+               (present C
+                        (par pause
+                             (trap (par (trap (suspend pause E))
+                                        pause)))
+                        (par
+                         (par
+                          (par pause nothing)
+                          (seq pause pause))
+                         (emit -)))))))))
   (check-equal?
    (apply-reduction-relation*
-    R*
+    standard:R
     `(ρ
-     (x)
-     (seq
-      (seq nothing (:= x (var· x 1)))
-      (loop (var x := 0 (seq (:= x 1) (seq pause (:= x x))))))))
+      ((var· x 1))
+      (seq
+       (seq nothing (:= x x))
+       (loop (var x := 0 (seq (:= x 1) (seq pause (:= x x))))))))
    `((ρ
-       (x)
-       (seq
-        (seq pause (:= x (var· x 1)))
-        (loop (var x := 0 (seq (:= x 1) (seq pause (:= x x)))))))))
-  )
+      ((var· x 1))
+      (seq
+       (seq pause (:= x x))
+       (loop (var x := 0 (seq (:= x 1) (seq pause (:= x x)))))))))
 
-(module+ test
   (test-case "random"
-    (do-test #t #:limits? #f)))
+    (do-test #t #:limits? #f))
+  ))
 
 (define (render)
   (local-require redex/pict
