@@ -13,7 +13,6 @@
    (--> (in-hole C (par done halted)) (in-hole C (value-max done halted))
         par-done-left)
 
-   ;; TODO can only really do in evaluation contexts ...
    (--> (in-hole C (ρ θ. (in-hole E (present S p q))))
         (in-hole C (ρ θ. (in-hole E p)))
         (where #t (∈ (sig S present) θ.))

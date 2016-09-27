@@ -50,20 +50,24 @@
    (where (p_* ...) ,(apply-reduction-relation* R `(setup p (env-v ...))))
    (side-condition (pretty-print `(p_* ...)))])
 
+(define (apply-reduction-relation*/enforce-single R p)
+  (match (apply-reduction-relation R p)
+    [(list) (list p)]
+    [(list p) (apply-reduction-relation*/enforce-single R p)]
+    [(list* p) p]))
+
+
 (define R
   ;; ASSUMPTIONS:
   ;; program is loop safe
   (reduction-relation
    esterel-standard #:domain p
-   ;; TODO reducing on nothings?
    (--> (ρ θ. (in-hole D (par halted done))) (ρ θ. (in-hole D (value-max halted done)))
         (judgment-holds (good D θ.))
         par-done-right)
    (--> (ρ θ. (in-hole D (par done halted))) (ρ θ. (in-hole D (value-max done halted)))
         (judgment-holds (good D θ.))
         par-done-left)
-
-   ;; TODO can only really do in evaluation contexts ...
    (--> (ρ θ. (in-hole D (present S p q)))
         (ρ θ. (in-hole D p))
         (judgment-holds (good D θ.))

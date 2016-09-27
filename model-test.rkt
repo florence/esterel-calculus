@@ -130,7 +130,6 @@
                      ,(setup-*-env i in)
                      (machine pbar data_*) (S ...) k)
            (pbar data_* (S ...))))
-        ;; TODO finish testing calculus
         (match* (constructive-reduction new-reduction/standard)
           [(`((,p2 ,data ,(and pouts (list-no-order b ...)))
               (,_ ,_ ,(list-no-order b ...)) ...)
