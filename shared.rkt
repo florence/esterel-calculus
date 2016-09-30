@@ -163,38 +163,6 @@
      (f ev ... E e ...)))
 
 
-(define-metafunction esterel-eval
-  substitute* : any_1 any_2 any_3 -> any
-  [(substitute* any any any_3) any_3]
-  [(substitute* (signal S p) S Sdat)
-   (signal S p)]
-  [(substitute* (signal S p) (sig S status) Sdat)
-   (signal S p)]
-  [(substitute* (shared s := e p) s shareddat)
-   (shared s := (substitute* e s shareddat) p)]
-  [(substitute* (shared s := e p) (shar s any_1 any_2) shareddat)
-   (shared s := (substitute* e (shar s any_1 any_2) shareddat)  p)]
-  [(substitute* (var x := e p) x vardat)
-   (var x := (substitute* e x vardat) p)]
-  [(substitute* (var x := e p) (var· x any) vardat)
-   (var x := (substitute* e (var· x any) vardat)  p)]
-  [(substitute* (any_1 ...) any_2 any_3)
-   ((substitute* any_1 any_2 any_3) ...)]
-  [(substitute* (shar s any_1 any_2) (shar s any_3 any_4) (shar s ev shared-status))
-   (shar s ev shared-status)]
-  [(substitute* (shar s any_1 shared-status) (shar s any_3 shared-status) (shar s ev •))
-   (shar s ev shared-status)]
-  [(substitute* (shar s ev any_2) (shar s any_3 any_4) (shar s • shared-status))
-   (shar s ev shared-status)]
-  [(substitute* (shar s  ev shared-status) (shar s ev shared-status) (shar s • •))
-   (shar s ev shared-status)]
-
-  [(substitute* (var· x any_2) (var· x any_3) (var· x ev))
-   (var· x ev)]
-  [(substitute* any_1 any_2 any_3 ) any_1])
-
-
-
  (define-metafunction esterel-eval
    value-max : done done -> done
   [(value-max nothing done) done]
@@ -204,19 +172,10 @@
   [(value-max paused (exit n)) (exit n)])
 
 (define-metafunction esterel-eval
-  setup : p (env-v ...) -> p
-  [(setup p
-          ((sig S status) env-v ...))
-   (setup (substitute* p (sig S unknown) (sig S status))
-          (env-v ...))]
-  [(setup p
-          ((shar s ev shared-status) env-v ...))
-   (setup (substitute* p (shar s ev_old shared-status_old) (shar s ev shared-status))
-          (env-v ...))
-   (where
-    (env (env-v_1 ... (shar s ev_old shared-status_old) env-v_2 ...) p_*)
-    p)]
-  [(setup p ()) p])
+  setup : p θ. -> p
+  [(setup (ρ θ. p)
+          θ._2)
+   (ρ (<- θ. θ._2) p)])
 
 (define-metafunction esterel-eval
   add-hats : p -> p

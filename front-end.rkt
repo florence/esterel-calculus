@@ -25,11 +25,12 @@
          var&
          ?
          :=&
+         suspend-immediate&
          get-var
          machine-prog
          data-ref
          (for-syntax msg call est local-expand-esterel))
-(require (except-in "shared.rkt" esterel-eval)
+(require "shared.rkt"
          "reduction.rkt"
          redex/reduction-semantics
          racket/stxparam
@@ -39,7 +40,7 @@
           racket/sequence racket/format racket/promise
           syntax/id-set redex/reduction-semantics
           syntax/id-table racket/match
-          (except-in "shared.rkt" esterel-eval)
+          "shared.rkt"
           "reduction.rkt"))
 
 (define-for-syntax core-esterel-forms
@@ -120,7 +121,7 @@
     [`((,(== name) ,ev)) ev]))
 
 (define (get-data outputs include replacements p)
-  (match-define `(env (,env-vs ...) ,_) p)
+  (match-define `(ρ (,env-vs ...) ,_) p)
   (filter
    values
    (for/list ([o (in-list outputs)])
@@ -174,11 +175,10 @@
            [((shar n v new) ...)
             #'((shar in/out-replacements v new) ...)])))
      #'(let-values ([(raw-prog)
-                     (set-sigs `(in/sym ... out/sym ...)
-                      (update-vars (term t)
-                                   '((in/out . in/out*/value) ...)))])
+                     (update-vars (term t)
+                                  '((in/out . in/out-replacements) ...))])
          ;(loop-safe! raw-prog) TODO
-         (make-machine `(env ((sig in/sym unknown) ... (sig out/sym unknown) ... in/out*/value ...)
+         (make-machine `(ρ ((sig in/sym unknown) ... (sig out/sym unknown) ... in/out*/value ...)
                              ,raw-prog)
                        '((in/out . in/out-replacements) ...)
                        '(in ...)
@@ -187,14 +187,13 @@
 (define (update-vars t vmap)
   (define (u t) (update-vars t vmap))
   (define (u/e e) (update-vars/e e vmap))
-  (define (u/v v) (update-vars/v v vmap))
   (match t
     [`(var ,s := ,e ,p)
-     `(var ,(u/v s) := ,(u/e e) ,(u p))]
+     `(var ,(u/e s) := ,(u/e e) ,(u p))]
     [`(shared ,s := ,e ,p)
      `(shared ,(u/e s) := ,(u/e e) ,(u p))]
-    [`(<= ,s ,e) `(<= ,(u/v s) ,(u/e e))]
-    [`(:= ,s ,e) `(:= ,(u/v s) ,(u/e e))]
+    [`(<= ,s ,e) `(<= ,(u/e s) ,(u/e e))]
+    [`(:= ,s ,e) `(:= ,(u/e s) ,(u/e e))]
     [`(if ,e ,p ,q) `(if ,(u/e e) ,(u p) ,(u q))]
     [(? list?) (map u t)]
     [else t]))
@@ -211,16 +210,6 @@
        (update-vars/e e vmap))]
     [(dict-ref vmap e #f) => values]
     [else e]))
-
-(define (update-vars/v v vmap)
-  (match (dict-ref vmap v #f)
-    [`(shar ,vo ,_ ,_) vo]
-    [#f v]))
-
-(define (set-sigs s p)
-  (for/fold ([p p])
-            ([s (in-list s)])
-    (term (substitute* ,p ,s (sig ,s unknown)))))
 
 (define-syntax define-esterel-form
   (syntax-parser
@@ -286,7 +275,7 @@
                  (make-hasheq
                   (list (cons 'var (maybe-rvalue->value var)) ...)))
                (f env))))
-           var ... )))))
+           var ...)))))
 (define (maybe-rvalue->value mrv)
   (match mrv
     [`(rvalue ,v) v]
@@ -343,6 +332,11 @@
      #`(s S (seq& p p2 p3 ...))]
     [(s (or S1 S2 ...) p:expr ...)
      #'(s S1 (s (or S2 ...) p ...))]))
+
+(define-esterel-form suspend-immediate&
+  (syntax-parser
+    [(s c:msg p:expr)
+     #'(suspend& c (present& c pause&) p)]))
 (define-esterel-form seq&
   (syntax-parser
     [(_ p:expr) #'p]

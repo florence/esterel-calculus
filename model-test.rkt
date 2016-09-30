@@ -7,6 +7,7 @@
          (only-in (submod esterel/cos-model test) cc->>)
          (prefix-in cos: esterel/cos-model)
          racket/sandbox
+         unstable/error
          rackunit
          racket/random
          (prefix-in r: racket))
@@ -361,31 +362,34 @@
 
 (provide do-test)
 (define (do-test [print #f] #:limits? [limits? #f])
-  (redex-check
-   esterel-check
-   (p-check (name i (S_!_g S_!_g ...)) (name o (S_!_g S_!_g ...)) ((S ...) ...))
-   ;#:ad-hoc
-   (redex-let
-    esterel-eval
-    ([(S_i ...) `i]
-     [(S_o ...) `o])
-    (begin
-      (when print
-        (displayln (list `~f ``p-check ``i ``o ``((S ...) ...) '#:limits? limits?))
-        #;
-        (displayln `(p-check in: i out: o instants: ((S ...) ...)))))
-    (and
-     (~f `p-check `i `o `((S ...) ...) #:limits? limits?)
-     (~r `p-check `i `o `((S ...) ...) #:limits? limits?))
-    #;
-    (relate `((convert p-check) ())
-            `(add-extra-syms p-check ,(append `i `o))
-            `((S ...) ...)
-            `(S_i ...)
-            `(S_o ...)
-            #:limits? limits?))
-   #:prepare fixup
-   #:attempts 10000))
+  (parameterize ([current-error-port (current-output-port)])
+    (redex-check
+     esterel-check
+     (p-check (name i (S_!_g S_!_g ...)) (name o (S_!_g S_!_g ...)) ((S ...) ...))
+     ;#:ad-hoc
+     (redex-let
+      esterel-eval
+      ([(S_i ...) `i]
+       [(S_o ...) `o])
+      (begin
+        (when print
+          (displayln (list `~f ``p-check ``i ``o ``((S ...) ...) '#:limits? limits?))
+          #;
+          (displayln `(p-check in: i out: o instants: ((S ...) ...)))))
+      (with-handlers ([exn:fail? (lambda (e) (error-display e) #f)])
+        (and
+         (~f `p-check `i `o `((S ...) ...) #:limits? limits?)
+         (~r `p-check `i `o `((S ...) ...) #:limits? limits?)))
+      #;
+      (relate `((convert p-check) ())
+              `(add-extra-syms p-check ,(append `i `o))
+              `((S ...) ...)
+              `(S_i ...)
+              `(S_o ...)
+              #:limits? limits?))
+     #:prepare fixup
+     #:attempts 10000
+     #:keep-going? #t)))
 
 (define (~f p-check i o s #:limits? limits? #:debug? [debug? #f])
   (relate `((convert ,p-check) ())

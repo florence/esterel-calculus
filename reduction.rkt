@@ -43,18 +43,21 @@
   [(instant p (env-v ...))
    (p_*
     (get-signals complete))
-   (where (complete) ,(apply-reduction-relation* R `(setup p (env-v ...))))
+   (where (complete)
+          ,(apply-reduction-relation*/enforce-single R `(setup p (env-v ...))))
    (where p_* (add-hats (clear-up-values complete)))]
   [(instant p (env-v ...))
    #f
-   (where (p_* ...) ,(apply-reduction-relation* R `(setup p (env-v ...))))
+   (where (p_* ...) ,(apply-reduction-relation*/enforce-single R `(setup p (env-v ...))))
    (side-condition (pretty-print `(p_* ...)))])
 
 (define (apply-reduction-relation*/enforce-single R p)
   (match (apply-reduction-relation R p)
     [(list) (list p)]
     [(list p) (apply-reduction-relation*/enforce-single R p)]
-    [(list* p) p]))
+    [(list* p)
+     (printf "diverged on ~a\n" p)
+     p]))
 
 
 (define R
@@ -265,9 +268,9 @@
    ----------
    (stuck (par p q) (S ...) (s ...))]
 
-  [(stuck p (S ...) (s ...))
+  [(stuck not-done (S ...) (s ...))
    ----------
-   (stuck (par p done) (S ...) (s ...))]
+   (stuck (par not-done done) (S ...) (s ...))]
 
   [(stuck not-done (S ...) (s ...))
    ----------
@@ -279,15 +282,14 @@
   [(stuck p (S ...) (s ...))
    ---------
    (stuck (suspend p S_S) (S ...) (s ...))]
+
   [(stuck p (S ...) (s ...))
    ---------
    (stuck (trap p) (S ...) (s ...))]
+
   [(stuck-e e (s ...))
    --------
    (stuck (shared s_s := e p) (S ...) (s ...))]
-  [(where #t (∈ s_s (s ...)))
-   --------
-   (stuck (<= s_s e) (S ...) (s ...))]
   [(stuck-e e (s ...))
    --------
    (stuck (<= s_s e) (S ...) (s ...))]
@@ -296,7 +298,10 @@
    (stuck (var x := e p) (S ...) (s ...))]
   [(stuck-e e (s ...))
    --------
-   (stuck (:= x e) (S ...) (s ...))])
+   (stuck (:= x e) (S ...) (s ...))]
+  [(stuck-e e (s ...))
+   --------
+   (stuck (if e p q) (S ...) (s ...))])
 
 (define-judgment-form esterel-standard
   #:mode     (stuck-e I I)
@@ -416,4 +421,41 @@
        random-signal2266)
       nothing)
      (random-signal2266)
-     ()))))
+     ())))
+
+  (check-false
+   (judgment-holds
+    (stuck-or-done
+     (par pause nothing)
+     ()
+     ())))
+
+  (check-false
+   (judgment-holds
+    (stuck-or-done
+     (suspend (<= g3233 9) sA)
+     (get-unknown-signals ((sig Go present)
+                           (sig R present)
+                           (sig V present)
+                           (sig d present)
+                           (sig e present)
+                           (shar g3233 0 new)
+                           (sig r unknown)
+                           (sig sA unknown)))
+     (get-unready-shared ((sig Go present)
+                          (sig R present)
+                          (sig V present)
+                          (sig d present)
+                          (sig e present)
+                          (shar g3233 0 new)
+                          (sig r unknown)
+                          (sig sA unknown))))))
+
+  (check-false
+   (judgment-holds
+    (stuck-or-done
+     (par (seq (trap (if ((rfunc ,+) a) pause pause))
+               (loop pause))
+          (present x pause pause))
+     (x)
+     (a)))))
