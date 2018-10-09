@@ -1,0 +1,3 @@
+[submodule "install-prefix/hiphop"]
+	path = install-prefix/hiphop
+	url = https://github.com/colinvidal/hiphop.git

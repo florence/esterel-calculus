@@ -1,0 +1,23 @@
+
+===========================================================
+loop iteration 0
+
+match: no matching clause for '(loop^stop (par (loop^stop (seq (par pause pause) (suspend nothing Sq)) (present Sp (:= xF (+)) (seq pause nothing))) (seq (trap (seq pause pause)) nothing)) (suspend (trap pause) Sy))
+  location...:
+   <THIS-ARTIFACT>/cross-tests/send-steps.rkt:243:4
+  context...:
+   /Applications/Racket v6.12/collects/racket/match/runtime.rkt:24:0: match:error
+   <THIS-ARTIFACT>/cross-tests/send-lib.rkt:161:0: send-thing
+   /Applications/Racket v6.12/collects/racket/contract/private/arrow-higher-order.rkt:357:33
+   ...on-semantics.rkt:71:30
+   <THIS-ARTIFACT>/cross-tests/send-lib.rkt:161:0: send-thing
+   /Applications/Racket v6.12/collects/racket/contract/private/arrow-higher-order.rkt:357:33
+   <THIS-ARTIFACT>/cross-tests/send-steps.rkt:17:2: for-loop
+   <THIS-ARTIFACT>/cross-tests/send-steps.rkt:15:0: send-steps
+   /Applications/Racket v6.12/collects/racket/contract/private/arrow-higher-order.rkt:357:33
+   <THIS-ARTIFACT>/cross-tests/send-lib.rkt:111:35
+   <THIS-ARTIFACT>/cross-tests/send-lib.rkt:112:0: establish-context/proc
+   <THIS-ARTIFACT>/cross-tests/redex-model-implies-agda-model.rkt:45:7: for-loop
+   <THIS-ARTIFACT>/cross-tests/redex-model-implies-agda-model.rkt:39:5: for-loop
+   <THIS-ARTIFACT>/cross-tests/redex-model-implies-agda-model.rkt:34:0: main
+   (submod <THIS-ARTIFACT>/cross-tests/redex-model-implies-agda-model.rkt main): [running body]

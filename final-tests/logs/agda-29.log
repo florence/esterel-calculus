@@ -1,0 +1,5545 @@
+
+===========================================================
+loop iteration 0 for 6699
+
+
+rule tests generated:
+((emit count 0 avg-size #f)
+ (is-present count 0 avg-size #f)
+ (loop^stop-exit count 0 avg-size #f)
+ (par-1exit count 0 avg-size #f)
+ (set-new count 0 avg-size #f)
+ (set-old count 0 avg-size #f)
+ (if-true count 1 avg-size 58)
+ (is-absent count 1 avg-size 28)
+ (par-2exit count 1 avg-size 5)
+ (seq-exit count 1 avg-size 9)
+ (if-false count 2 avg-size 45)
+ (absence count 3 avg-size 29)
+ (seq-done count 3 avg-size 12)
+ (set-var count 5 avg-size 28)
+ (par-nothing count 6 avg-size 13)
+ (var count 6 avg-size 32)
+ (shared count 9 avg-size 34)
+ (suspend count 10 avg-size 3)
+ (merge count 11 avg-size 52)
+ (trap count 14 avg-size 2)
+ (signal count 36 avg-size 7)
+ (loop count 41 avg-size 6)
+ (par-swap count 60 avg-size 18)
+ (readyness count 97 avg-size 35))
+
+Checking 6699scratch-all (<THIS-ARTIFACT>/cross-tests/scratch/6699scratch-all.agda).
+Finished 6699scratch-all.
+agda finished
+
+===========================================================
+loop iteration 1 for 6699
+
+
+rule tests generated:
+((emit count 0 avg-size #f)
+ (is-present count 0 avg-size #f)
+ (loop^stop-exit count 0 avg-size #f)
+ (par-1exit count 0 avg-size #f)
+ (is-absent count 1 avg-size 28)
+ (par-2exit count 1 avg-size 5)
+ (seq-exit count 1 avg-size 9)
+ (set-new count 1 avg-size 41)
+ (set-old count 1 avg-size 35)
+ (if-false count 3 avg-size 52)
+ (if-true count 3 avg-size 51)
+ (seq-done count 5 avg-size 8)
+ (set-var count 7 avg-size 27)
+ (absence count 8 avg-size 23)
+ (var count 9 avg-size 33)
+ (par-nothing count 13 avg-size 13)
+ (suspend count 14 avg-size 3)
+ (shared count 15 avg-size 34)
+ (trap count 26 avg-size 3)
+ (merge count 30 avg-size 49)
+ (signal count 72 avg-size 7)
+ (loop count 90 avg-size 6)
+ (par-swap count 118 avg-size 19)
+ (readyness count 203 avg-size 36))
+
+agda finished
+
+===========================================================
+loop iteration 2 for 6699
+
+
+rule tests generated:
+((emit count 0 avg-size #f)
+ (is-present count 0 avg-size #f)
+ (loop^stop-exit count 0 avg-size #f)
+ (is-absent count 1 avg-size 28)
+ (set-new count 1 avg-size 41)
+ (par-1exit count 3 avg-size 23)
+ (seq-exit count 3 avg-size 14)
+ (set-old count 3 avg-size 23)
+ (if-true count 4 avg-size 47)
+ (par-2exit count 4 avg-size 5)
+ (if-false count 5 avg-size 49)
+ (set-var count 9 avg-size 27)
+ (seq-done count 12 avg-size 11)
+ (absence count 13 avg-size 20)
+ (var count 13 avg-size 33)
+ (par-nothing count 17 avg-size 11)
+ (suspend count 23 avg-size 3)
+ (shared count 24 avg-size 30)
+ (trap count 42 avg-size 2)
+ (merge count 46 avg-size 45)
+ (signal count 115 avg-size 8)
+ (loop count 130 avg-size 7)
+ (par-swap count 171 avg-size 19)
+ (readyness count 310 avg-size 36))
+
+agda finished
+
+===========================================================
+loop iteration 3 for 6699
+
+
+rule tests generated:
+((is-present count 0 avg-size #f)
+ (loop^stop-exit count 0 avg-size #f)
+ (emit count 1 avg-size 38)
+ (is-absent count 1 avg-size 28)
+ (seq-exit count 3 avg-size 14)
+ (if-true count 4 avg-size 47)
+ (par-1exit count 4 avg-size 18)
+ (set-new count 4 avg-size 28)
+ (if-false count 5 avg-size 49)
+ (par-2exit count 5 avg-size 5)
+ (set-old count 5 avg-size 24)
+ (set-var count 13 avg-size 26)
+ (absence count 14 avg-size 19)
+ (seq-done count 17 avg-size 11)
+ (par-nothing count 21 avg-size 12)
+ (var count 23 avg-size 37)
+ (suspend count 28 avg-size 3)
+ (shared count 29 avg-size 31)
+ (trap count 47 avg-size 2)
+ (merge count 57 avg-size 43)
+ (signal count 149 avg-size 8)
+ (loop count 152 avg-size 7)
+ (par-swap count 218 avg-size 19)
+ (readyness count 411 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 4 for 6699
+
+
+rule tests generated:
+((emit count 1 avg-size 38)
+ (is-absent count 1 avg-size 28)
+ (is-present count 1 avg-size 58)
+ (loop^stop-exit count 2 avg-size 9)
+ (seq-exit count 3 avg-size 14)
+ (par-1exit count 4 avg-size 18)
+ (if-false count 5 avg-size 49)
+ (set-new count 5 avg-size 27)
+ (set-old count 6 avg-size 24)
+ (par-2exit count 7 avg-size 5)
+ (if-true count 8 avg-size 49)
+ (set-var count 14 avg-size 26)
+ (absence count 17 avg-size 19)
+ (par-nothing count 25 avg-size 11)
+ (seq-done count 25 avg-size 9)
+ (var count 27 avg-size 39)
+ (suspend count 34 avg-size 3)
+ (shared count 36 avg-size 31)
+ (trap count 62 avg-size 2)
+ (merge count 74 avg-size 44)
+ (loop count 203 avg-size 7)
+ (signal count 206 avg-size 8)
+ (par-swap count 276 avg-size 20)
+ (readyness count 523 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 5 for 6699
+
+
+rule tests generated:
+((emit count 1 avg-size 38)
+ (is-absent count 1 avg-size 28)
+ (is-present count 1 avg-size 58)
+ (loop^stop-exit count 3 avg-size 9)
+ (par-1exit count 4 avg-size 18)
+ (seq-exit count 4 avg-size 17)
+ (set-new count 5 avg-size 27)
+ (if-false count 6 avg-size 44)
+ (set-old count 7 avg-size 24)
+ (if-true count 9 avg-size 49)
+ (par-2exit count 9 avg-size 5)
+ (set-var count 16 avg-size 27)
+ (absence count 22 avg-size 18)
+ (seq-done count 31 avg-size 8)
+ (var count 33 avg-size 38)
+ (par-nothing count 36 avg-size 10)
+ (suspend count 41 avg-size 3)
+ (shared count 43 avg-size 32)
+ (trap count 68 avg-size 2)
+ (merge count 96 avg-size 44)
+ (signal count 246 avg-size 8)
+ (loop count 250 avg-size 7)
+ (par-swap count 335 avg-size 19)
+ (readyness count 626 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 6 for 6699
+
+
+rule tests generated:
+((emit count 1 avg-size 38)
+ (is-absent count 1 avg-size 28)
+ (is-present count 1 avg-size 58)
+ (loop^stop-exit count 3 avg-size 9)
+ (par-1exit count 4 avg-size 18)
+ (seq-exit count 4 avg-size 17)
+ (set-new count 5 avg-size 27)
+ (if-false count 7 avg-size 46)
+ (if-true count 9 avg-size 49)
+ (set-old count 9 avg-size 23)
+ (par-2exit count 10 avg-size 5)
+ (set-var count 17 avg-size 27)
+ (absence count 28 avg-size 21)
+ (seq-done count 36 avg-size 8)
+ (var count 37 avg-size 37)
+ (par-nothing count 44 avg-size 9)
+ (shared count 50 avg-size 31)
+ (suspend count 53 avg-size 3)
+ (trap count 74 avg-size 2)
+ (merge count 116 avg-size 44)
+ (signal count 276 avg-size 8)
+ (loop count 284 avg-size 7)
+ (par-swap count 389 avg-size 19)
+ (readyness count 723 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 7 for 6699
+
+
+rule tests generated:
+((emit count 1 avg-size 38)
+ (is-absent count 1 avg-size 28)
+ (is-present count 1 avg-size 58)
+ (loop^stop-exit count 4 avg-size 10)
+ (seq-exit count 4 avg-size 17)
+ (par-1exit count 5 avg-size 18)
+ (set-new count 5 avg-size 27)
+ (if-false count 8 avg-size 47)
+ (par-2exit count 10 avg-size 5)
+ (set-old count 11 avg-size 29)
+ (if-true count 12 avg-size 52)
+ (set-var count 19 avg-size 27)
+ (absence count 34 avg-size 21)
+ (seq-done count 41 avg-size 8)
+ (var count 42 avg-size 36)
+ (par-nothing count 49 avg-size 9)
+ (shared count 59 avg-size 30)
+ (suspend count 67 avg-size 3)
+ (trap count 81 avg-size 2)
+ (merge count 136 avg-size 45)
+ (signal count 326 avg-size 7)
+ (loop count 332 avg-size 7)
+ (par-swap count 432 avg-size 19)
+ (readyness count 836 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 8 for 6699
+
+
+rule tests generated:
+((emit count 1 avg-size 38)
+ (is-absent count 1 avg-size 28)
+ (is-present count 1 avg-size 58)
+ (seq-exit count 4 avg-size 17)
+ (par-1exit count 5 avg-size 18)
+ (set-new count 5 avg-size 27)
+ (loop^stop-exit count 6 avg-size 9)
+ (if-false count 9 avg-size 47)
+ (par-2exit count 11 avg-size 5)
+ (set-old count 11 avg-size 29)
+ (if-true count 15 avg-size 52)
+ (set-var count 20 avg-size 27)
+ (absence count 42 avg-size 24)
+ (seq-done count 44 avg-size 8)
+ (var count 47 avg-size 38)
+ (par-nothing count 53 avg-size 8)
+ (shared count 64 avg-size 30)
+ (suspend count 81 avg-size 3)
+ (trap count 94 avg-size 2)
+ (merge count 158 avg-size 44)
+ (signal count 366 avg-size 8)
+ (loop count 379 avg-size 7)
+ (par-swap count 490 avg-size 20)
+ (readyness count 935 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 9 for 6699
+
+
+rule tests generated:
+((emit count 1 avg-size 38)
+ (is-present count 1 avg-size 58)
+ (is-absent count 2 avg-size 52)
+ (par-1exit count 5 avg-size 18)
+ (seq-exit count 5 avg-size 14)
+ (set-new count 5 avg-size 27)
+ (loop^stop-exit count 8 avg-size 8)
+ (if-false count 10 avg-size 46)
+ (set-old count 11 avg-size 29)
+ (par-2exit count 13 avg-size 5)
+ (if-true count 16 avg-size 52)
+ (set-var count 22 avg-size 28)
+ (absence count 48 avg-size 24)
+ (seq-done count 48 avg-size 8)
+ (var count 56 avg-size 37)
+ (par-nothing count 57 avg-size 9)
+ (shared count 73 avg-size 31)
+ (suspend count 91 avg-size 3)
+ (trap count 104 avg-size 2)
+ (merge count 179 avg-size 44)
+ (signal count 405 avg-size 7)
+ (loop count 437 avg-size 7)
+ (par-swap count 548 avg-size 20)
+ (readyness count 1037 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 10 for 6699
+
+
+rule tests generated:
+((emit count 1 avg-size 38)
+ (is-present count 1 avg-size 58)
+ (is-absent count 2 avg-size 52)
+ (par-1exit count 6 avg-size 19)
+ (seq-exit count 6 avg-size 13)
+ (set-new count 6 avg-size 27)
+ (if-false count 10 avg-size 46)
+ (loop^stop-exit count 11 avg-size 11)
+ (set-old count 11 avg-size 29)
+ (par-2exit count 14 avg-size 5)
+ (if-true count 17 avg-size 52)
+ (set-var count 23 avg-size 28)
+ (absence count 48 avg-size 24)
+ (seq-done count 52 avg-size 8)
+ (par-nothing count 62 avg-size 8)
+ (var count 62 avg-size 37)
+ (shared count 83 avg-size 31)
+ (suspend count 103 avg-size 3)
+ (trap count 121 avg-size 2)
+ (merge count 204 avg-size 44)
+ (signal count 434 avg-size 7)
+ (loop count 467 avg-size 7)
+ (par-swap count 617 avg-size 20)
+ (readyness count 1134 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 11 for 6699
+
+
+rule tests generated:
+((emit count 1 avg-size 38)
+ (is-present count 1 avg-size 58)
+ (is-absent count 2 avg-size 52)
+ (set-new count 6 avg-size 27)
+ (par-1exit count 8 avg-size 21)
+ (seq-exit count 8 avg-size 11)
+ (if-false count 11 avg-size 46)
+ (loop^stop-exit count 12 avg-size 10)
+ (set-old count 12 avg-size 29)
+ (par-2exit count 15 avg-size 5)
+ (if-true count 18 avg-size 52)
+ (set-var count 27 avg-size 27)
+ (absence count 52 avg-size 23)
+ (seq-done count 54 avg-size 8)
+ (var count 70 avg-size 36)
+ (par-nothing count 72 avg-size 8)
+ (shared count 87 avg-size 31)
+ (suspend count 115 avg-size 3)
+ (trap count 128 avg-size 2)
+ (merge count 219 avg-size 44)
+ (signal count 480 avg-size 8)
+ (loop count 500 avg-size 7)
+ (par-swap count 673 avg-size 20)
+ (readyness count 1236 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 12 for 6699
+
+
+rule tests generated:
+((emit count 1 avg-size 38)
+ (is-present count 1 avg-size 58)
+ (is-absent count 2 avg-size 52)
+ (set-new count 7 avg-size 26)
+ (par-1exit count 8 avg-size 21)
+ (seq-exit count 8 avg-size 11)
+ (if-false count 12 avg-size 49)
+ (set-old count 13 avg-size 28)
+ (loop^stop-exit count 14 avg-size 9)
+ (par-2exit count 15 avg-size 5)
+ (if-true count 18 avg-size 52)
+ (set-var count 28 avg-size 27)
+ (absence count 59 avg-size 23)
+ (seq-done count 63 avg-size 8)
+ (par-nothing count 75 avg-size 8)
+ (var count 77 avg-size 36)
+ (shared count 91 avg-size 31)
+ (suspend count 127 avg-size 3)
+ (trap count 136 avg-size 2)
+ (merge count 234 avg-size 44)
+ (signal count 527 avg-size 8)
+ (loop count 534 avg-size 7)
+ (par-swap count 721 avg-size 20)
+ (readyness count 1344 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 13 for 6699
+
+
+rule tests generated:
+((is-present count 1 avg-size 58)
+ (emit count 2 avg-size 24)
+ (is-absent count 2 avg-size 52)
+ (par-1exit count 8 avg-size 21)
+ (set-new count 8 avg-size 25)
+ (seq-exit count 10 avg-size 12)
+ (if-false count 13 avg-size 50)
+ (set-old count 13 avg-size 28)
+ (loop^stop-exit count 16 avg-size 9)
+ (par-2exit count 17 avg-size 5)
+ (if-true count 18 avg-size 52)
+ (set-var count 29 avg-size 27)
+ (absence count 67 avg-size 23)
+ (seq-done count 73 avg-size 8)
+ (par-nothing count 80 avg-size 8)
+ (var count 85 avg-size 36)
+ (shared count 98 avg-size 31)
+ (suspend count 138 avg-size 3)
+ (trap count 150 avg-size 2)
+ (merge count 250 avg-size 44)
+ (signal count 575 avg-size 8)
+ (loop count 580 avg-size 7)
+ (par-swap count 779 avg-size 20)
+ (readyness count 1441 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 14 for 6699
+
+
+rule tests generated:
+((is-present count 1 avg-size 58)
+ (emit count 2 avg-size 24)
+ (is-absent count 3 avg-size 40)
+ (par-1exit count 8 avg-size 21)
+ (set-new count 9 avg-size 25)
+ (seq-exit count 10 avg-size 12)
+ (if-false count 14 avg-size 47)
+ (set-old count 15 avg-size 28)
+ (par-2exit count 17 avg-size 5)
+ (if-true count 19 avg-size 51)
+ (loop^stop-exit count 19 avg-size 9)
+ (set-var count 31 avg-size 27)
+ (absence count 73 avg-size 24)
+ (seq-done count 80 avg-size 8)
+ (par-nothing count 86 avg-size 8)
+ (var count 86 avg-size 36)
+ (shared count 103 avg-size 31)
+ (suspend count 149 avg-size 3)
+ (trap count 159 avg-size 2)
+ (merge count 264 avg-size 44)
+ (signal count 606 avg-size 8)
+ (loop count 620 avg-size 7)
+ (par-swap count 820 avg-size 20)
+ (readyness count 1531 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 15 for 6699
+
+
+rule tests generated:
+((is-present count 1 avg-size 58)
+ (emit count 3 avg-size 21)
+ (is-absent count 3 avg-size 40)
+ (par-1exit count 8 avg-size 21)
+ (set-new count 10 avg-size 25)
+ (seq-exit count 12 avg-size 13)
+ (set-old count 15 avg-size 28)
+ (par-2exit count 17 avg-size 5)
+ (if-false count 18 avg-size 46)
+ (loop^stop-exit count 20 avg-size 9)
+ (if-true count 21 avg-size 51)
+ (set-var count 34 avg-size 27)
+ (absence count 85 avg-size 24)
+ (seq-done count 87 avg-size 8)
+ (par-nothing count 89 avg-size 8)
+ (var count 97 avg-size 36)
+ (shared count 109 avg-size 31)
+ (suspend count 155 avg-size 3)
+ (trap count 177 avg-size 2)
+ (merge count 291 avg-size 44)
+ (signal count 652 avg-size 8)
+ (loop count 662 avg-size 7)
+ (par-swap count 882 avg-size 20)
+ (readyness count 1646 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 16 for 6699
+
+
+rule tests generated:
+((is-present count 1 avg-size 58)
+ (emit count 3 avg-size 21)
+ (is-absent count 4 avg-size 36)
+ (par-1exit count 8 avg-size 21)
+ (set-new count 11 avg-size 25)
+ (seq-exit count 13 avg-size 13)
+ (set-old count 15 avg-size 28)
+ (par-2exit count 17 avg-size 5)
+ (if-false count 21 avg-size 46)
+ (if-true count 21 avg-size 51)
+ (loop^stop-exit count 22 avg-size 8)
+ (set-var count 36 avg-size 27)
+ (absence count 88 avg-size 24)
+ (seq-done count 91 avg-size 8)
+ (par-nothing count 100 avg-size 7)
+ (var count 100 avg-size 36)
+ (shared count 120 avg-size 31)
+ (suspend count 165 avg-size 3)
+ (trap count 188 avg-size 2)
+ (merge count 307 avg-size 44)
+ (signal count 693 avg-size 8)
+ (loop count 707 avg-size 7)
+ (par-swap count 946 avg-size 20)
+ (readyness count 1751 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 17 for 6699
+
+
+rule tests generated:
+((is-present count 1 avg-size 58)
+ (emit count 3 avg-size 21)
+ (is-absent count 4 avg-size 36)
+ (par-1exit count 9 avg-size 20)
+ (set-new count 12 avg-size 24)
+ (seq-exit count 15 avg-size 13)
+ (par-2exit count 17 avg-size 5)
+ (set-old count 17 avg-size 27)
+ (if-false count 21 avg-size 46)
+ (if-true count 22 avg-size 52)
+ (loop^stop-exit count 24 avg-size 8)
+ (set-var count 38 avg-size 27)
+ (absence count 91 avg-size 24)
+ (seq-done count 93 avg-size 8)
+ (var count 104 avg-size 37)
+ (par-nothing count 107 avg-size 7)
+ (shared count 123 avg-size 31)
+ (suspend count 172 avg-size 3)
+ (trap count 198 avg-size 2)
+ (merge count 317 avg-size 44)
+ (signal count 723 avg-size 8)
+ (loop count 752 avg-size 7)
+ (par-swap count 978 avg-size 20)
+ (readyness count 1853 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 18 for 6699
+
+
+rule tests generated:
+((is-present count 1 avg-size 58)
+ (emit count 3 avg-size 21)
+ (is-absent count 4 avg-size 36)
+ (par-1exit count 9 avg-size 20)
+ (set-new count 13 avg-size 25)
+ (seq-exit count 15 avg-size 13)
+ (par-2exit count 18 avg-size 5)
+ (set-old count 18 avg-size 27)
+ (if-false count 22 avg-size 46)
+ (if-true count 22 avg-size 52)
+ (loop^stop-exit count 24 avg-size 8)
+ (set-var count 41 avg-size 27)
+ (absence count 95 avg-size 23)
+ (seq-done count 98 avg-size 8)
+ (var count 108 avg-size 36)
+ (par-nothing count 114 avg-size 7)
+ (shared count 129 avg-size 30)
+ (suspend count 178 avg-size 3)
+ (trap count 207 avg-size 2)
+ (merge count 329 avg-size 44)
+ (signal count 757 avg-size 8)
+ (loop count 798 avg-size 7)
+ (par-swap count 1034 avg-size 20)
+ (readyness count 1940 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 19 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 5 avg-size 33)
+ (par-1exit count 10 avg-size 19)
+ (set-new count 13 avg-size 25)
+ (seq-exit count 15 avg-size 13)
+ (par-2exit count 18 avg-size 5)
+ (set-old count 19 avg-size 27)
+ (if-false count 22 avg-size 46)
+ (if-true count 26 avg-size 53)
+ (loop^stop-exit count 26 avg-size 8)
+ (set-var count 41 avg-size 27)
+ (absence count 100 avg-size 24)
+ (seq-done count 104 avg-size 8)
+ (var count 114 avg-size 36)
+ (par-nothing count 120 avg-size 7)
+ (shared count 133 avg-size 30)
+ (suspend count 186 avg-size 3)
+ (trap count 213 avg-size 2)
+ (merge count 348 avg-size 44)
+ (signal count 802 avg-size 8)
+ (loop count 841 avg-size 7)
+ (par-swap count 1093 avg-size 20)
+ (readyness count 2029 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 20 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 5 avg-size 33)
+ (par-1exit count 10 avg-size 19)
+ (set-new count 13 avg-size 25)
+ (seq-exit count 16 avg-size 12)
+ (par-2exit count 19 avg-size 5)
+ (set-old count 20 avg-size 27)
+ (if-false count 24 avg-size 46)
+ (if-true count 26 avg-size 53)
+ (loop^stop-exit count 28 avg-size 8)
+ (set-var count 44 avg-size 27)
+ (seq-done count 104 avg-size 8)
+ (absence count 105 avg-size 24)
+ (var count 122 avg-size 36)
+ (par-nothing count 126 avg-size 7)
+ (shared count 141 avg-size 31)
+ (suspend count 195 avg-size 3)
+ (trap count 228 avg-size 2)
+ (merge count 364 avg-size 45)
+ (signal count 847 avg-size 8)
+ (loop count 876 avg-size 7)
+ (par-swap count 1146 avg-size 20)
+ (readyness count 2134 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 21 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 5 avg-size 33)
+ (par-1exit count 10 avg-size 19)
+ (set-new count 13 avg-size 25)
+ (seq-exit count 18 avg-size 13)
+ (par-2exit count 19 avg-size 5)
+ (set-old count 23 avg-size 26)
+ (if-false count 26 avg-size 47)
+ (if-true count 27 avg-size 52)
+ (loop^stop-exit count 29 avg-size 8)
+ (set-var count 47 avg-size 27)
+ (seq-done count 108 avg-size 8)
+ (absence count 111 avg-size 23)
+ (par-nothing count 129 avg-size 7)
+ (var count 132 avg-size 36)
+ (shared count 147 avg-size 31)
+ (suspend count 200 avg-size 3)
+ (trap count 234 avg-size 2)
+ (merge count 384 avg-size 45)
+ (signal count 896 avg-size 8)
+ (loop count 905 avg-size 7)
+ (par-swap count 1191 avg-size 20)
+ (readyness count 2243 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 22 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 5 avg-size 33)
+ (par-1exit count 10 avg-size 19)
+ (set-new count 13 avg-size 25)
+ (seq-exit count 19 avg-size 12)
+ (par-2exit count 21 avg-size 5)
+ (set-old count 23 avg-size 26)
+ (if-false count 27 avg-size 47)
+ (if-true count 28 avg-size 51)
+ (loop^stop-exit count 29 avg-size 8)
+ (set-var count 48 avg-size 26)
+ (seq-done count 114 avg-size 8)
+ (absence count 121 avg-size 23)
+ (par-nothing count 134 avg-size 7)
+ (var count 140 avg-size 36)
+ (shared count 153 avg-size 31)
+ (suspend count 209 avg-size 3)
+ (trap count 240 avg-size 2)
+ (merge count 399 avg-size 45)
+ (signal count 936 avg-size 8)
+ (loop count 947 avg-size 7)
+ (par-swap count 1238 avg-size 20)
+ (readyness count 2344 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 23 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 5 avg-size 33)
+ (par-1exit count 10 avg-size 19)
+ (set-new count 13 avg-size 25)
+ (par-2exit count 21 avg-size 5)
+ (seq-exit count 21 avg-size 12)
+ (set-old count 23 avg-size 26)
+ (if-false count 27 avg-size 47)
+ (if-true count 31 avg-size 51)
+ (loop^stop-exit count 32 avg-size 8)
+ (set-var count 52 avg-size 26)
+ (seq-done count 119 avg-size 7)
+ (absence count 123 avg-size 23)
+ (par-nothing count 136 avg-size 7)
+ (var count 151 avg-size 36)
+ (shared count 163 avg-size 31)
+ (suspend count 215 avg-size 3)
+ (trap count 250 avg-size 2)
+ (merge count 413 avg-size 45)
+ (signal count 974 avg-size 8)
+ (loop count 982 avg-size 7)
+ (par-swap count 1296 avg-size 20)
+ (readyness count 2440 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 24 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 5 avg-size 33)
+ (par-1exit count 12 avg-size 16)
+ (set-new count 14 avg-size 25)
+ (par-2exit count 21 avg-size 5)
+ (seq-exit count 23 avg-size 12)
+ (set-old count 23 avg-size 26)
+ (if-false count 27 avg-size 47)
+ (if-true count 31 avg-size 51)
+ (loop^stop-exit count 34 avg-size 9)
+ (set-var count 55 avg-size 26)
+ (seq-done count 125 avg-size 8)
+ (absence count 128 avg-size 23)
+ (par-nothing count 146 avg-size 6)
+ (var count 157 avg-size 36)
+ (shared count 169 avg-size 30)
+ (suspend count 227 avg-size 3)
+ (trap count 259 avg-size 2)
+ (merge count 427 avg-size 45)
+ (signal count 1020 avg-size 8)
+ (loop count 1036 avg-size 7)
+ (par-swap count 1354 avg-size 19)
+ (readyness count 2532 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 25 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 5 avg-size 33)
+ (par-1exit count 12 avg-size 16)
+ (set-new count 14 avg-size 25)
+ (par-2exit count 21 avg-size 5)
+ (set-old count 23 avg-size 26)
+ (seq-exit count 25 avg-size 12)
+ (if-false count 27 avg-size 47)
+ (if-true count 32 avg-size 51)
+ (loop^stop-exit count 35 avg-size 9)
+ (set-var count 56 avg-size 26)
+ (seq-done count 127 avg-size 7)
+ (absence count 132 avg-size 23)
+ (par-nothing count 149 avg-size 6)
+ (var count 160 avg-size 36)
+ (shared count 176 avg-size 30)
+ (suspend count 236 avg-size 3)
+ (trap count 267 avg-size 2)
+ (merge count 441 avg-size 45)
+ (signal count 1057 avg-size 8)
+ (loop count 1077 avg-size 7)
+ (par-swap count 1388 avg-size 19)
+ (readyness count 2619 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 26 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 6 avg-size 32)
+ (par-1exit count 12 avg-size 16)
+ (set-new count 14 avg-size 25)
+ (par-2exit count 24 avg-size 5)
+ (set-old count 24 avg-size 26)
+ (seq-exit count 26 avg-size 12)
+ (if-false count 28 avg-size 47)
+ (if-true count 33 avg-size 50)
+ (loop^stop-exit count 36 avg-size 10)
+ (set-var count 59 avg-size 26)
+ (seq-done count 129 avg-size 7)
+ (absence count 140 avg-size 23)
+ (par-nothing count 157 avg-size 6)
+ (var count 167 avg-size 36)
+ (shared count 178 avg-size 30)
+ (suspend count 243 avg-size 3)
+ (trap count 281 avg-size 2)
+ (merge count 457 avg-size 45)
+ (signal count 1087 avg-size 8)
+ (loop count 1110 avg-size 7)
+ (par-swap count 1452 avg-size 19)
+ (readyness count 2726 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 27 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 7 avg-size 30)
+ (par-1exit count 13 avg-size 16)
+ (set-new count 14 avg-size 25)
+ (par-2exit count 25 avg-size 5)
+ (set-old count 25 avg-size 26)
+ (if-false count 29 avg-size 47)
+ (seq-exit count 29 avg-size 11)
+ (if-true count 33 avg-size 50)
+ (loop^stop-exit count 39 avg-size 10)
+ (set-var count 62 avg-size 26)
+ (seq-done count 130 avg-size 8)
+ (absence count 147 avg-size 23)
+ (par-nothing count 162 avg-size 6)
+ (var count 173 avg-size 36)
+ (shared count 184 avg-size 31)
+ (suspend count 254 avg-size 3)
+ (trap count 289 avg-size 2)
+ (merge count 480 avg-size 45)
+ (signal count 1122 avg-size 8)
+ (loop count 1144 avg-size 7)
+ (par-swap count 1493 avg-size 19)
+ (readyness count 2831 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 28 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 8 avg-size 30)
+ (par-1exit count 13 avg-size 16)
+ (set-new count 14 avg-size 25)
+ (par-2exit count 26 avg-size 5)
+ (set-old count 27 avg-size 26)
+ (seq-exit count 29 avg-size 11)
+ (if-false count 30 avg-size 48)
+ (if-true count 35 avg-size 50)
+ (loop^stop-exit count 39 avg-size 10)
+ (set-var count 63 avg-size 26)
+ (seq-done count 134 avg-size 8)
+ (absence count 151 avg-size 23)
+ (par-nothing count 166 avg-size 6)
+ (var count 179 avg-size 36)
+ (shared count 187 avg-size 30)
+ (suspend count 267 avg-size 3)
+ (trap count 300 avg-size 2)
+ (merge count 503 avg-size 45)
+ (signal count 1165 avg-size 8)
+ (loop count 1191 avg-size 7)
+ (par-swap count 1544 avg-size 19)
+ (readyness count 2942 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 29 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 8 avg-size 30)
+ (par-1exit count 14 avg-size 16)
+ (set-new count 14 avg-size 25)
+ (par-2exit count 26 avg-size 5)
+ (set-old count 27 avg-size 26)
+ (if-false count 30 avg-size 48)
+ (seq-exit count 30 avg-size 11)
+ (if-true count 35 avg-size 50)
+ (loop^stop-exit count 39 avg-size 10)
+ (set-var count 65 avg-size 26)
+ (seq-done count 141 avg-size 7)
+ (absence count 160 avg-size 23)
+ (par-nothing count 173 avg-size 6)
+ (var count 189 avg-size 35)
+ (shared count 194 avg-size 31)
+ (suspend count 276 avg-size 3)
+ (trap count 314 avg-size 2)
+ (merge count 533 avg-size 45)
+ (signal count 1206 avg-size 8)
+ (loop count 1237 avg-size 7)
+ (par-swap count 1610 avg-size 19)
+ (readyness count 3054 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 30 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 8 avg-size 30)
+ (set-new count 14 avg-size 25)
+ (par-1exit count 16 avg-size 16)
+ (par-2exit count 27 avg-size 5)
+ (set-old count 28 avg-size 26)
+ (if-false count 31 avg-size 47)
+ (seq-exit count 31 avg-size 11)
+ (if-true count 36 avg-size 50)
+ (loop^stop-exit count 40 avg-size 10)
+ (set-var count 67 avg-size 26)
+ (seq-done count 149 avg-size 7)
+ (absence count 163 avg-size 23)
+ (par-nothing count 178 avg-size 7)
+ (var count 191 avg-size 35)
+ (shared count 200 avg-size 31)
+ (suspend count 282 avg-size 3)
+ (trap count 317 avg-size 2)
+ (merge count 545 avg-size 45)
+ (signal count 1253 avg-size 8)
+ (loop count 1269 avg-size 7)
+ (par-swap count 1663 avg-size 19)
+ (readyness count 3153 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 31 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 9 avg-size 31)
+ (set-new count 15 avg-size 26)
+ (par-1exit count 16 avg-size 16)
+ (par-2exit count 28 avg-size 5)
+ (set-old count 30 avg-size 26)
+ (seq-exit count 31 avg-size 11)
+ (if-false count 32 avg-size 48)
+ (if-true count 37 avg-size 49)
+ (loop^stop-exit count 40 avg-size 10)
+ (set-var count 70 avg-size 27)
+ (seq-done count 154 avg-size 7)
+ (absence count 171 avg-size 23)
+ (par-nothing count 182 avg-size 7)
+ (var count 202 avg-size 35)
+ (shared count 205 avg-size 31)
+ (suspend count 288 avg-size 3)
+ (trap count 331 avg-size 2)
+ (merge count 568 avg-size 45)
+ (signal count 1304 avg-size 8)
+ (loop count 1310 avg-size 7)
+ (par-swap count 1717 avg-size 19)
+ (readyness count 3257 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 32 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 9 avg-size 31)
+ (par-1exit count 16 avg-size 16)
+ (set-new count 17 avg-size 25)
+ (par-2exit count 28 avg-size 5)
+ (set-old count 30 avg-size 26)
+ (if-false count 32 avg-size 48)
+ (seq-exit count 33 avg-size 11)
+ (if-true count 39 avg-size 50)
+ (loop^stop-exit count 41 avg-size 10)
+ (set-var count 72 avg-size 26)
+ (seq-done count 157 avg-size 7)
+ (absence count 176 avg-size 23)
+ (par-nothing count 190 avg-size 6)
+ (var count 208 avg-size 35)
+ (shared count 215 avg-size 31)
+ (suspend count 296 avg-size 3)
+ (trap count 347 avg-size 2)
+ (merge count 588 avg-size 45)
+ (loop count 1345 avg-size 7)
+ (signal count 1357 avg-size 8)
+ (par-swap count 1776 avg-size 19)
+ (readyness count 3360 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 33 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 9 avg-size 31)
+ (par-1exit count 17 avg-size 17)
+ (set-new count 17 avg-size 25)
+ (par-2exit count 29 avg-size 5)
+ (set-old count 31 avg-size 26)
+ (if-false count 32 avg-size 48)
+ (seq-exit count 33 avg-size 11)
+ (if-true count 39 avg-size 50)
+ (loop^stop-exit count 42 avg-size 10)
+ (set-var count 76 avg-size 27)
+ (seq-done count 160 avg-size 7)
+ (absence count 183 avg-size 23)
+ (par-nothing count 194 avg-size 7)
+ (var count 216 avg-size 36)
+ (shared count 221 avg-size 31)
+ (suspend count 306 avg-size 3)
+ (trap count 355 avg-size 2)
+ (merge count 603 avg-size 45)
+ (loop count 1372 avg-size 7)
+ (signal count 1392 avg-size 8)
+ (par-swap count 1826 avg-size 19)
+ (readyness count 3444 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 34 for 6699
+
+
+rule tests generated:
+((is-present count 2 avg-size 50)
+ (emit count 3 avg-size 21)
+ (is-absent count 9 avg-size 31)
+ (set-new count 17 avg-size 25)
+ (par-1exit count 18 avg-size 16)
+ (par-2exit count 30 avg-size 5)
+ (set-old count 32 avg-size 26)
+ (if-false count 33 avg-size 48)
+ (seq-exit count 35 avg-size 11)
+ (if-true count 40 avg-size 49)
+ (loop^stop-exit count 44 avg-size 10)
+ (set-var count 80 avg-size 26)
+ (seq-done count 167 avg-size 7)
+ (absence count 191 avg-size 24)
+ (par-nothing count 202 avg-size 6)
+ (var count 220 avg-size 36)
+ (shared count 224 avg-size 31)
+ (suspend count 311 avg-size 3)
+ (trap count 359 avg-size 2)
+ (merge count 621 avg-size 45)
+ (loop count 1411 avg-size 7)
+ (signal count 1434 avg-size 8)
+ (par-swap count 1877 avg-size 19)
+ (readyness count 3549 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 35 for 6699
+
+
+rule tests generated:
+((is-present count 3 avg-size 61)
+ (emit count 4 avg-size 36)
+ (is-absent count 9 avg-size 31)
+ (set-new count 18 avg-size 25)
+ (par-1exit count 19 avg-size 18)
+ (par-2exit count 30 avg-size 5)
+ (set-old count 33 avg-size 25)
+ (if-false count 34 avg-size 47)
+ (seq-exit count 37 avg-size 11)
+ (if-true count 43 avg-size 49)
+ (loop^stop-exit count 46 avg-size 10)
+ (set-var count 83 avg-size 26)
+ (seq-done count 173 avg-size 7)
+ (absence count 196 avg-size 23)
+ (par-nothing count 204 avg-size 7)
+ (shared count 225 avg-size 31)
+ (var count 229 avg-size 36)
+ (suspend count 320 avg-size 3)
+ (trap count 372 avg-size 2)
+ (merge count 644 avg-size 45)
+ (loop count 1452 avg-size 7)
+ (signal count 1470 avg-size 8)
+ (par-swap count 1925 avg-size 19)
+ (readyness count 3664 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 36 for 6699
+
+
+rule tests generated:
+((is-present count 3 avg-size 61)
+ (emit count 4 avg-size 36)
+ (is-absent count 9 avg-size 31)
+ (par-1exit count 19 avg-size 18)
+ (set-new count 21 avg-size 26)
+ (par-2exit count 30 avg-size 5)
+ (set-old count 33 avg-size 25)
+ (if-false count 34 avg-size 47)
+ (seq-exit count 37 avg-size 11)
+ (if-true count 44 avg-size 48)
+ (loop^stop-exit count 47 avg-size 10)
+ (set-var count 85 avg-size 27)
+ (seq-done count 178 avg-size 7)
+ (absence count 201 avg-size 23)
+ (par-nothing count 211 avg-size 7)
+ (shared count 230 avg-size 31)
+ (var count 234 avg-size 36)
+ (suspend count 328 avg-size 3)
+ (trap count 384 avg-size 2)
+ (merge count 655 avg-size 45)
+ (loop count 1481 avg-size 7)
+ (signal count 1506 avg-size 8)
+ (par-swap count 1983 avg-size 19)
+ (readyness count 3763 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 37 for 6699
+
+
+rule tests generated:
+((is-present count 3 avg-size 61)
+ (emit count 4 avg-size 36)
+ (is-absent count 9 avg-size 31)
+ (par-1exit count 19 avg-size 18)
+ (set-new count 21 avg-size 26)
+ (par-2exit count 31 avg-size 5)
+ (set-old count 33 avg-size 25)
+ (if-false count 34 avg-size 47)
+ (seq-exit count 37 avg-size 11)
+ (if-true count 46 avg-size 48)
+ (loop^stop-exit count 48 avg-size 10)
+ (set-var count 85 avg-size 27)
+ (seq-done count 182 avg-size 7)
+ (absence count 212 avg-size 23)
+ (par-nothing count 216 avg-size 7)
+ (shared count 235 avg-size 31)
+ (var count 236 avg-size 36)
+ (suspend count 334 avg-size 3)
+ (trap count 394 avg-size 2)
+ (merge count 675 avg-size 45)
+ (loop count 1517 avg-size 7)
+ (signal count 1539 avg-size 8)
+ (par-swap count 2026 avg-size 19)
+ (readyness count 3869 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 38 for 6699
+
+
+rule tests generated:
+((is-present count 3 avg-size 61)
+ (emit count 4 avg-size 36)
+ (is-absent count 10 avg-size 29)
+ (par-1exit count 19 avg-size 18)
+ (set-new count 22 avg-size 26)
+ (par-2exit count 31 avg-size 5)
+ (set-old count 34 avg-size 26)
+ (if-false count 37 avg-size 47)
+ (seq-exit count 37 avg-size 11)
+ (if-true count 47 avg-size 48)
+ (loop^stop-exit count 51 avg-size 10)
+ (set-var count 87 avg-size 27)
+ (seq-done count 191 avg-size 7)
+ (absence count 218 avg-size 23)
+ (par-nothing count 225 avg-size 7)
+ (var count 242 avg-size 35)
+ (shared count 243 avg-size 31)
+ (suspend count 344 avg-size 3)
+ (trap count 407 avg-size 2)
+ (merge count 695 avg-size 45)
+ (loop count 1567 avg-size 7)
+ (signal count 1588 avg-size 8)
+ (par-swap count 2083 avg-size 19)
+ (readyness count 3995 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 39 for 6699
+
+
+rule tests generated:
+((is-present count 3 avg-size 61)
+ (emit count 4 avg-size 36)
+ (is-absent count 10 avg-size 29)
+ (par-1exit count 19 avg-size 18)
+ (set-new count 22 avg-size 26)
+ (par-2exit count 33 avg-size 5)
+ (set-old count 35 avg-size 26)
+ (seq-exit count 37 avg-size 11)
+ (if-false count 39 avg-size 47)
+ (if-true count 47 avg-size 48)
+ (loop^stop-exit count 54 avg-size 10)
+ (set-var count 90 avg-size 27)
+ (seq-done count 195 avg-size 7)
+ (absence count 222 avg-size 23)
+ (par-nothing count 232 avg-size 7)
+ (var count 246 avg-size 35)
+ (shared count 249 avg-size 31)
+ (suspend count 354 avg-size 3)
+ (trap count 410 avg-size 2)
+ (merge count 719 avg-size 45)
+ (loop count 1601 avg-size 7)
+ (signal count 1620 avg-size 8)
+ (par-swap count 2138 avg-size 19)
+ (readyness count 4085 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 40 for 6699
+
+
+rule tests generated:
+((is-present count 3 avg-size 61)
+ (emit count 5 avg-size 31)
+ (is-absent count 10 avg-size 29)
+ (par-1exit count 20 avg-size 17)
+ (set-new count 22 avg-size 26)
+ (par-2exit count 34 avg-size 5)
+ (set-old count 36 avg-size 26)
+ (seq-exit count 37 avg-size 11)
+ (if-false count 39 avg-size 47)
+ (if-true count 48 avg-size 49)
+ (loop^stop-exit count 54 avg-size 10)
+ (set-var count 91 avg-size 27)
+ (seq-done count 201 avg-size 7)
+ (absence count 229 avg-size 23)
+ (par-nothing count 239 avg-size 7)
+ (var count 253 avg-size 35)
+ (shared count 257 avg-size 31)
+ (suspend count 372 avg-size 3)
+ (trap count 421 avg-size 2)
+ (merge count 738 avg-size 45)
+ (loop count 1643 avg-size 7)
+ (signal count 1663 avg-size 8)
+ (par-swap count 2190 avg-size 19)
+ (readyness count 4207 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 41 for 6699
+
+
+rule tests generated:
+((is-present count 3 avg-size 61)
+ (emit count 6 avg-size 30)
+ (is-absent count 10 avg-size 29)
+ (par-1exit count 22 avg-size 18)
+ (set-new count 24 avg-size 25)
+ (par-2exit count 34 avg-size 5)
+ (set-old count 37 avg-size 26)
+ (if-false count 41 avg-size 48)
+ (seq-exit count 41 avg-size 11)
+ (if-true count 51 avg-size 49)
+ (loop^stop-exit count 55 avg-size 10)
+ (set-var count 92 avg-size 27)
+ (seq-done count 212 avg-size 8)
+ (absence count 235 avg-size 24)
+ (par-nothing count 242 avg-size 7)
+ (var count 256 avg-size 35)
+ (shared count 265 avg-size 31)
+ (suspend count 382 avg-size 3)
+ (trap count 430 avg-size 2)
+ (merge count 761 avg-size 45)
+ (loop count 1682 avg-size 7)
+ (signal count 1707 avg-size 8)
+ (par-swap count 2255 avg-size 19)
+ (readyness count 4311 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 42 for 6699
+
+
+rule tests generated:
+((is-present count 3 avg-size 61)
+ (emit count 6 avg-size 30)
+ (is-absent count 10 avg-size 29)
+ (par-1exit count 23 avg-size 18)
+ (set-new count 25 avg-size 25)
+ (par-2exit count 35 avg-size 5)
+ (set-old count 38 avg-size 26)
+ (seq-exit count 41 avg-size 11)
+ (if-false count 42 avg-size 48)
+ (if-true count 54 avg-size 48)
+ (loop^stop-exit count 56 avg-size 10)
+ (set-var count 95 avg-size 27)
+ (seq-done count 220 avg-size 8)
+ (absence count 240 avg-size 24)
+ (par-nothing count 249 avg-size 7)
+ (var count 258 avg-size 35)
+ (shared count 270 avg-size 31)
+ (suspend count 389 avg-size 3)
+ (trap count 444 avg-size 2)
+ (merge count 776 avg-size 45)
+ (loop count 1731 avg-size 7)
+ (signal count 1756 avg-size 8)
+ (par-swap count 2300 avg-size 19)
+ (readyness count 4408 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 43 for 6699
+
+
+rule tests generated:
+((is-present count 4 avg-size 49)
+ (emit count 6 avg-size 30)
+ (is-absent count 10 avg-size 29)
+ (par-1exit count 23 avg-size 18)
+ (set-new count 25 avg-size 25)
+ (par-2exit count 36 avg-size 5)
+ (set-old count 38 avg-size 26)
+ (if-false count 42 avg-size 48)
+ (seq-exit count 42 avg-size 11)
+ (if-true count 55 avg-size 48)
+ (loop^stop-exit count 56 avg-size 10)
+ (set-var count 97 avg-size 27)
+ (seq-done count 225 avg-size 8)
+ (absence count 248 avg-size 24)
+ (par-nothing count 253 avg-size 7)
+ (var count 268 avg-size 35)
+ (shared count 275 avg-size 31)
+ (suspend count 397 avg-size 3)
+ (trap count 452 avg-size 2)
+ (merge count 794 avg-size 45)
+ (loop count 1760 avg-size 7)
+ (signal count 1806 avg-size 8)
+ (par-swap count 2368 avg-size 19)
+ (readyness count 4505 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 44 for 6699
+
+
+rule tests generated:
+((is-present count 5 avg-size 45)
+ (emit count 6 avg-size 30)
+ (is-absent count 10 avg-size 29)
+ (par-1exit count 25 avg-size 17)
+ (set-new count 25 avg-size 25)
+ (par-2exit count 38 avg-size 5)
+ (set-old count 38 avg-size 26)
+ (seq-exit count 44 avg-size 11)
+ (if-false count 45 avg-size 48)
+ (if-true count 57 avg-size 48)
+ (loop^stop-exit count 57 avg-size 10)
+ (set-var count 97 avg-size 27)
+ (seq-done count 229 avg-size 8)
+ (absence count 253 avg-size 24)
+ (par-nothing count 259 avg-size 7)
+ (var count 273 avg-size 35)
+ (shared count 280 avg-size 31)
+ (suspend count 408 avg-size 3)
+ (trap count 464 avg-size 2)
+ (merge count 812 avg-size 45)
+ (loop count 1796 avg-size 7)
+ (signal count 1843 avg-size 8)
+ (par-swap count 2419 avg-size 19)
+ (readyness count 4604 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 45 for 6699
+
+
+rule tests generated:
+((is-present count 5 avg-size 45)
+ (emit count 7 avg-size 29)
+ (is-absent count 11 avg-size 31)
+ (set-new count 25 avg-size 25)
+ (par-1exit count 26 avg-size 18)
+ (par-2exit count 38 avg-size 5)
+ (set-old count 38 avg-size 26)
+ (seq-exit count 45 avg-size 11)
+ (if-false count 46 avg-size 48)
+ (if-true count 59 avg-size 48)
+ (loop^stop-exit count 59 avg-size 10)
+ (set-var count 99 avg-size 27)
+ (seq-done count 236 avg-size 8)
+ (absence count 259 avg-size 24)
+ (par-nothing count 262 avg-size 7)
+ (var count 283 avg-size 35)
+ (shared count 287 avg-size 31)
+ (suspend count 418 avg-size 3)
+ (trap count 481 avg-size 2)
+ (merge count 830 avg-size 45)
+ (loop count 1849 avg-size 7)
+ (signal count 1883 avg-size 8)
+ (par-swap count 2466 avg-size 19)
+ (readyness count 4709 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 46 for 6699
+
+
+rule tests generated:
+((is-present count 5 avg-size 45)
+ (emit count 7 avg-size 29)
+ (is-absent count 12 avg-size 31)
+ (par-1exit count 26 avg-size 18)
+ (set-new count 26 avg-size 25)
+ (par-2exit count 39 avg-size 5)
+ (set-old count 39 avg-size 26)
+ (seq-exit count 46 avg-size 11)
+ (if-false count 47 avg-size 48)
+ (loop^stop-exit count 59 avg-size 10)
+ (if-true count 63 avg-size 48)
+ (set-var count 103 avg-size 27)
+ (seq-done count 243 avg-size 8)
+ (absence count 262 avg-size 24)
+ (par-nothing count 268 avg-size 7)
+ (var count 289 avg-size 35)
+ (shared count 291 avg-size 31)
+ (suspend count 425 avg-size 3)
+ (trap count 487 avg-size 2)
+ (merge count 842 avg-size 45)
+ (loop count 1893 avg-size 7)
+ (signal count 1923 avg-size 8)
+ (par-swap count 2529 avg-size 19)
+ (readyness count 4821 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 47 for 6699
+
+
+rule tests generated:
+((is-present count 5 avg-size 45)
+ (emit count 8 avg-size 27)
+ (is-absent count 12 avg-size 31)
+ (par-1exit count 28 avg-size 18)
+ (set-new count 28 avg-size 25)
+ (set-old count 39 avg-size 26)
+ (par-2exit count 40 avg-size 5)
+ (seq-exit count 46 avg-size 11)
+ (if-false count 48 avg-size 48)
+ (loop^stop-exit count 59 avg-size 10)
+ (if-true count 63 avg-size 48)
+ (set-var count 105 avg-size 27)
+ (seq-done count 251 avg-size 8)
+ (absence count 269 avg-size 24)
+ (par-nothing count 277 avg-size 7)
+ (var count 299 avg-size 35)
+ (shared count 301 avg-size 31)
+ (suspend count 441 avg-size 3)
+ (trap count 492 avg-size 2)
+ (merge count 858 avg-size 45)
+ (loop count 1934 avg-size 7)
+ (signal count 1972 avg-size 8)
+ (par-swap count 2600 avg-size 19)
+ (readyness count 4907 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 48 for 6699
+
+
+rule tests generated:
+((is-present count 5 avg-size 45)
+ (emit count 8 avg-size 27)
+ (is-absent count 12 avg-size 31)
+ (par-1exit count 28 avg-size 18)
+ (set-new count 28 avg-size 25)
+ (par-2exit count 40 avg-size 5)
+ (set-old count 41 avg-size 26)
+ (seq-exit count 46 avg-size 11)
+ (if-false count 50 avg-size 48)
+ (loop^stop-exit count 59 avg-size 10)
+ (if-true count 64 avg-size 48)
+ (set-var count 109 avg-size 26)
+ (seq-done count 255 avg-size 8)
+ (absence count 273 avg-size 24)
+ (par-nothing count 282 avg-size 7)
+ (shared count 304 avg-size 31)
+ (var count 307 avg-size 35)
+ (suspend count 451 avg-size 3)
+ (trap count 499 avg-size 2)
+ (merge count 870 avg-size 45)
+ (loop count 1970 avg-size 7)
+ (signal count 2005 avg-size 8)
+ (par-swap count 2643 avg-size 19)
+ (readyness count 5011 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 49 for 6699
+
+
+rule tests generated:
+((is-present count 5 avg-size 45)
+ (emit count 8 avg-size 27)
+ (is-absent count 13 avg-size 31)
+ (par-1exit count 28 avg-size 18)
+ (set-new count 28 avg-size 25)
+ (set-old count 41 avg-size 26)
+ (par-2exit count 43 avg-size 5)
+ (seq-exit count 47 avg-size 11)
+ (if-false count 52 avg-size 48)
+ (loop^stop-exit count 60 avg-size 10)
+ (if-true count 67 avg-size 48)
+ (set-var count 111 avg-size 26)
+ (seq-done count 259 avg-size 8)
+ (absence count 277 avg-size 24)
+ (par-nothing count 288 avg-size 7)
+ (shared count 309 avg-size 31)
+ (var count 319 avg-size 35)
+ (suspend count 461 avg-size 3)
+ (trap count 501 avg-size 2)
+ (merge count 887 avg-size 45)
+ (loop count 2017 avg-size 7)
+ (signal count 2050 avg-size 8)
+ (par-swap count 2695 avg-size 19)
+ (readyness count 5117 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 50 for 6699
+
+
+rule tests generated:
+((is-present count 5 avg-size 45)
+ (emit count 8 avg-size 27)
+ (is-absent count 13 avg-size 31)
+ (par-1exit count 28 avg-size 18)
+ (set-new count 29 avg-size 25)
+ (set-old count 42 avg-size 26)
+ (par-2exit count 45 avg-size 5)
+ (seq-exit count 48 avg-size 11)
+ (if-false count 53 avg-size 48)
+ (loop^stop-exit count 60 avg-size 10)
+ (if-true count 67 avg-size 48)
+ (set-var count 112 avg-size 26)
+ (seq-done count 264 avg-size 8)
+ (absence count 284 avg-size 24)
+ (par-nothing count 296 avg-size 7)
+ (shared count 316 avg-size 31)
+ (var count 324 avg-size 35)
+ (suspend count 475 avg-size 3)
+ (trap count 511 avg-size 2)
+ (merge count 900 avg-size 45)
+ (loop count 2053 avg-size 7)
+ (signal count 2103 avg-size 8)
+ (par-swap count 2749 avg-size 19)
+ (readyness count 5211 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 51 for 6699
+
+
+rule tests generated:
+((is-present count 5 avg-size 45)
+ (emit count 8 avg-size 27)
+ (is-absent count 13 avg-size 31)
+ (par-1exit count 29 avg-size 19)
+ (set-new count 30 avg-size 26)
+ (set-old count 42 avg-size 26)
+ (par-2exit count 47 avg-size 5)
+ (seq-exit count 49 avg-size 11)
+ (if-false count 56 avg-size 49)
+ (loop^stop-exit count 60 avg-size 10)
+ (if-true count 67 avg-size 48)
+ (set-var count 114 avg-size 27)
+ (seq-done count 267 avg-size 8)
+ (absence count 286 avg-size 24)
+ (par-nothing count 303 avg-size 7)
+ (shared count 321 avg-size 31)
+ (var count 331 avg-size 34)
+ (suspend count 482 avg-size 3)
+ (trap count 516 avg-size 2)
+ (merge count 922 avg-size 45)
+ (loop count 2104 avg-size 7)
+ (signal count 2145 avg-size 8)
+ (par-swap count 2812 avg-size 19)
+ (readyness count 5314 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 52 for 6699
+
+
+rule tests generated:
+((is-present count 5 avg-size 45)
+ (emit count 8 avg-size 27)
+ (is-absent count 14 avg-size 31)
+ (par-1exit count 29 avg-size 19)
+ (set-new count 30 avg-size 26)
+ (set-old count 42 avg-size 26)
+ (par-2exit count 47 avg-size 5)
+ (seq-exit count 50 avg-size 11)
+ (if-false count 58 avg-size 49)
+ (loop^stop-exit count 61 avg-size 10)
+ (if-true count 67 avg-size 48)
+ (set-var count 116 avg-size 26)
+ (seq-done count 274 avg-size 8)
+ (absence count 294 avg-size 24)
+ (par-nothing count 315 avg-size 7)
+ (shared count 327 avg-size 31)
+ (var count 332 avg-size 34)
+ (suspend count 490 avg-size 3)
+ (trap count 527 avg-size 2)
+ (merge count 936 avg-size 45)
+ (loop count 2157 avg-size 7)
+ (signal count 2183 avg-size 8)
+ (par-swap count 2867 avg-size 19)
+ (readyness count 5419 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 53 for 6699
+
+
+rule tests generated:
+((is-present count 5 avg-size 45)
+ (emit count 8 avg-size 27)
+ (is-absent count 14 avg-size 31)
+ (par-1exit count 29 avg-size 19)
+ (set-new count 30 avg-size 26)
+ (set-old count 43 avg-size 26)
+ (par-2exit count 48 avg-size 5)
+ (seq-exit count 53 avg-size 11)
+ (if-false count 60 avg-size 49)
+ (loop^stop-exit count 64 avg-size 10)
+ (if-true count 69 avg-size 49)
+ (set-var count 119 avg-size 26)
+ (seq-done count 280 avg-size 8)
+ (absence count 302 avg-size 24)
+ (par-nothing count 321 avg-size 7)
+ (shared count 336 avg-size 31)
+ (var count 339 avg-size 34)
+ (suspend count 505 avg-size 3)
+ (trap count 540 avg-size 2)
+ (merge count 954 avg-size 45)
+ (loop count 2201 avg-size 7)
+ (signal count 2222 avg-size 8)
+ (par-swap count 2931 avg-size 19)
+ (readyness count 5517 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 54 for 6699
+
+
+rule tests generated:
+((is-present count 5 avg-size 45)
+ (emit count 8 avg-size 27)
+ (is-absent count 14 avg-size 31)
+ (par-1exit count 29 avg-size 19)
+ (set-new count 30 avg-size 26)
+ (set-old count 43 avg-size 26)
+ (par-2exit count 49 avg-size 5)
+ (seq-exit count 56 avg-size 11)
+ (if-false count 62 avg-size 49)
+ (loop^stop-exit count 66 avg-size 11)
+ (if-true count 69 avg-size 49)
+ (set-var count 122 avg-size 26)
+ (seq-done count 282 avg-size 8)
+ (absence count 305 avg-size 24)
+ (par-nothing count 326 avg-size 7)
+ (shared count 338 avg-size 31)
+ (var count 347 avg-size 34)
+ (suspend count 519 avg-size 3)
+ (trap count 548 avg-size 2)
+ (merge count 972 avg-size 45)
+ (loop count 2239 avg-size 7)
+ (signal count 2256 avg-size 8)
+ (par-swap count 2972 avg-size 19)
+ (readyness count 5601 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 55 for 6699
+
+
+rule tests generated:
+((is-present count 5 avg-size 45)
+ (emit count 8 avg-size 27)
+ (is-absent count 15 avg-size 30)
+ (par-1exit count 29 avg-size 19)
+ (set-new count 30 avg-size 26)
+ (set-old count 43 avg-size 26)
+ (par-2exit count 49 avg-size 5)
+ (seq-exit count 58 avg-size 11)
+ (if-false count 64 avg-size 48)
+ (loop^stop-exit count 67 avg-size 11)
+ (if-true count 72 avg-size 49)
+ (set-var count 126 avg-size 26)
+ (seq-done count 287 avg-size 8)
+ (absence count 313 avg-size 24)
+ (par-nothing count 333 avg-size 7)
+ (shared count 343 avg-size 31)
+ (var count 350 avg-size 34)
+ (suspend count 525 avg-size 3)
+ (trap count 562 avg-size 2)
+ (merge count 983 avg-size 45)
+ (loop count 2281 avg-size 7)
+ (signal count 2296 avg-size 8)
+ (par-swap count 3011 avg-size 19)
+ (readyness count 5706 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 56 for 6699
+
+
+rule tests generated:
+((is-present count 5 avg-size 45)
+ (emit count 8 avg-size 27)
+ (is-absent count 16 avg-size 30)
+ (par-1exit count 30 avg-size 18)
+ (set-new count 31 avg-size 26)
+ (set-old count 44 avg-size 26)
+ (par-2exit count 50 avg-size 5)
+ (seq-exit count 61 avg-size 11)
+ (if-false count 64 avg-size 48)
+ (loop^stop-exit count 69 avg-size 11)
+ (if-true count 73 avg-size 49)
+ (set-var count 128 avg-size 26)
+ (seq-done count 291 avg-size 8)
+ (absence count 321 avg-size 23)
+ (par-nothing count 335 avg-size 7)
+ (shared count 349 avg-size 31)
+ (var count 358 avg-size 34)
+ (suspend count 539 avg-size 3)
+ (trap count 570 avg-size 2)
+ (merge count 1001 avg-size 45)
+ (loop count 2322 avg-size 7)
+ (signal count 2329 avg-size 8)
+ (par-swap count 3061 avg-size 19)
+ (readyness count 5810 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 57 for 6699
+
+
+rule tests generated:
+((is-present count 5 avg-size 45)
+ (emit count 8 avg-size 27)
+ (is-absent count 16 avg-size 30)
+ (par-1exit count 30 avg-size 18)
+ (set-new count 33 avg-size 26)
+ (set-old count 45 avg-size 26)
+ (par-2exit count 51 avg-size 5)
+ (seq-exit count 62 avg-size 12)
+ (if-false count 65 avg-size 49)
+ (loop^stop-exit count 69 avg-size 11)
+ (if-true count 75 avg-size 49)
+ (set-var count 133 avg-size 26)
+ (seq-done count 295 avg-size 8)
+ (absence count 323 avg-size 23)
+ (par-nothing count 340 avg-size 7)
+ (shared count 357 avg-size 31)
+ (var count 363 avg-size 34)
+ (suspend count 546 avg-size 3)
+ (trap count 580 avg-size 2)
+ (merge count 1021 avg-size 45)
+ (loop count 2360 avg-size 7)
+ (signal count 2362 avg-size 8)
+ (par-swap count 3107 avg-size 19)
+ (readyness count 5913 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 58 for 6699
+
+
+rule tests generated:
+((is-present count 5 avg-size 45)
+ (emit count 8 avg-size 27)
+ (is-absent count 16 avg-size 30)
+ (par-1exit count 30 avg-size 18)
+ (set-new count 35 avg-size 27)
+ (set-old count 47 avg-size 25)
+ (par-2exit count 52 avg-size 5)
+ (seq-exit count 62 avg-size 12)
+ (if-false count 65 avg-size 49)
+ (loop^stop-exit count 70 avg-size 11)
+ (if-true count 78 avg-size 49)
+ (set-var count 134 avg-size 26)
+ (seq-done count 302 avg-size 8)
+ (absence count 325 avg-size 23)
+ (par-nothing count 344 avg-size 7)
+ (shared count 365 avg-size 31)
+ (var count 372 avg-size 34)
+ (suspend count 554 avg-size 3)
+ (trap count 593 avg-size 2)
+ (merge count 1044 avg-size 45)
+ (signal count 2392 avg-size 8)
+ (loop count 2400 avg-size 7)
+ (par-swap count 3158 avg-size 19)
+ (readyness count 6019 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 59 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 8 avg-size 27)
+ (is-absent count 17 avg-size 32)
+ (par-1exit count 33 avg-size 18)
+ (set-new count 35 avg-size 27)
+ (set-old count 47 avg-size 25)
+ (par-2exit count 53 avg-size 5)
+ (seq-exit count 62 avg-size 12)
+ (if-false count 65 avg-size 49)
+ (loop^stop-exit count 71 avg-size 11)
+ (if-true count 78 avg-size 49)
+ (set-var count 138 avg-size 26)
+ (seq-done count 307 avg-size 8)
+ (absence count 331 avg-size 23)
+ (par-nothing count 346 avg-size 7)
+ (shared count 371 avg-size 31)
+ (var count 378 avg-size 34)
+ (suspend count 562 avg-size 3)
+ (trap count 606 avg-size 2)
+ (merge count 1064 avg-size 45)
+ (signal count 2426 avg-size 8)
+ (loop count 2448 avg-size 7)
+ (par-swap count 3218 avg-size 19)
+ (readyness count 6121 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 60 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 8 avg-size 27)
+ (is-absent count 17 avg-size 32)
+ (par-1exit count 34 avg-size 18)
+ (set-new count 35 avg-size 27)
+ (set-old count 47 avg-size 25)
+ (par-2exit count 55 avg-size 5)
+ (seq-exit count 64 avg-size 12)
+ (if-false count 67 avg-size 48)
+ (loop^stop-exit count 74 avg-size 11)
+ (if-true count 81 avg-size 49)
+ (set-var count 140 avg-size 26)
+ (seq-done count 316 avg-size 8)
+ (absence count 338 avg-size 23)
+ (par-nothing count 350 avg-size 7)
+ (shared count 375 avg-size 31)
+ (var count 384 avg-size 34)
+ (suspend count 567 avg-size 3)
+ (trap count 616 avg-size 2)
+ (merge count 1085 avg-size 45)
+ (signal count 2459 avg-size 8)
+ (loop count 2480 avg-size 7)
+ (par-swap count 3279 avg-size 19)
+ (readyness count 6226 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 61 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 8 avg-size 27)
+ (is-absent count 18 avg-size 34)
+ (par-1exit count 34 avg-size 18)
+ (set-new count 36 avg-size 27)
+ (set-old count 48 avg-size 26)
+ (par-2exit count 55 avg-size 5)
+ (if-false count 68 avg-size 48)
+ (seq-exit count 68 avg-size 12)
+ (loop^stop-exit count 74 avg-size 11)
+ (if-true count 83 avg-size 49)
+ (set-var count 143 avg-size 27)
+ (seq-done count 325 avg-size 8)
+ (absence count 341 avg-size 23)
+ (par-nothing count 357 avg-size 7)
+ (shared count 383 avg-size 32)
+ (var count 392 avg-size 34)
+ (suspend count 581 avg-size 3)
+ (trap count 622 avg-size 2)
+ (merge count 1099 avg-size 45)
+ (signal count 2488 avg-size 8)
+ (loop count 2508 avg-size 7)
+ (par-swap count 3345 avg-size 19)
+ (readyness count 6327 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 62 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 8 avg-size 27)
+ (is-absent count 18 avg-size 34)
+ (par-1exit count 34 avg-size 18)
+ (set-new count 36 avg-size 27)
+ (set-old count 49 avg-size 26)
+ (par-2exit count 56 avg-size 5)
+ (seq-exit count 71 avg-size 11)
+ (if-false count 72 avg-size 49)
+ (loop^stop-exit count 75 avg-size 11)
+ (if-true count 83 avg-size 49)
+ (set-var count 149 avg-size 27)
+ (seq-done count 330 avg-size 8)
+ (absence count 347 avg-size 23)
+ (par-nothing count 361 avg-size 7)
+ (shared count 389 avg-size 32)
+ (var count 397 avg-size 34)
+ (suspend count 589 avg-size 3)
+ (trap count 630 avg-size 2)
+ (merge count 1112 avg-size 45)
+ (signal count 2515 avg-size 8)
+ (loop count 2539 avg-size 7)
+ (par-swap count 3395 avg-size 19)
+ (readyness count 6431 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 63 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 8 avg-size 27)
+ (is-absent count 18 avg-size 34)
+ (par-1exit count 36 avg-size 18)
+ (set-new count 37 avg-size 26)
+ (set-old count 50 avg-size 26)
+ (par-2exit count 57 avg-size 5)
+ (if-false count 72 avg-size 49)
+ (seq-exit count 73 avg-size 11)
+ (loop^stop-exit count 75 avg-size 11)
+ (if-true count 85 avg-size 48)
+ (set-var count 152 avg-size 27)
+ (seq-done count 339 avg-size 8)
+ (absence count 352 avg-size 23)
+ (par-nothing count 368 avg-size 7)
+ (shared count 397 avg-size 32)
+ (var count 401 avg-size 34)
+ (suspend count 594 avg-size 3)
+ (trap count 641 avg-size 2)
+ (merge count 1137 avg-size 45)
+ (signal count 2560 avg-size 8)
+ (loop count 2582 avg-size 7)
+ (par-swap count 3466 avg-size 19)
+ (readyness count 6541 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 64 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 8 avg-size 27)
+ (is-absent count 18 avg-size 34)
+ (par-1exit count 37 avg-size 18)
+ (set-new count 37 avg-size 26)
+ (set-old count 50 avg-size 26)
+ (par-2exit count 61 avg-size 5)
+ (if-false count 75 avg-size 48)
+ (seq-exit count 76 avg-size 11)
+ (loop^stop-exit count 77 avg-size 11)
+ (if-true count 87 avg-size 48)
+ (set-var count 154 avg-size 27)
+ (seq-done count 344 avg-size 8)
+ (absence count 358 avg-size 23)
+ (par-nothing count 373 avg-size 7)
+ (shared count 408 avg-size 32)
+ (var count 412 avg-size 34)
+ (suspend count 604 avg-size 3)
+ (trap count 652 avg-size 2)
+ (merge count 1157 avg-size 45)
+ (signal count 2602 avg-size 8)
+ (loop count 2623 avg-size 7)
+ (par-swap count 3533 avg-size 19)
+ (readyness count 6648 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 65 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 9 avg-size 26)
+ (is-absent count 19 avg-size 35)
+ (set-new count 37 avg-size 26)
+ (par-1exit count 38 avg-size 18)
+ (set-old count 50 avg-size 26)
+ (par-2exit count 61 avg-size 5)
+ (if-false count 77 avg-size 48)
+ (loop^stop-exit count 77 avg-size 11)
+ (seq-exit count 77 avg-size 11)
+ (if-true count 88 avg-size 49)
+ (set-var count 157 avg-size 27)
+ (seq-done count 346 avg-size 8)
+ (absence count 367 avg-size 23)
+ (par-nothing count 380 avg-size 7)
+ (shared count 411 avg-size 32)
+ (var count 415 avg-size 34)
+ (suspend count 617 avg-size 3)
+ (trap count 663 avg-size 2)
+ (merge count 1176 avg-size 45)
+ (signal count 2647 avg-size 8)
+ (loop count 2657 avg-size 7)
+ (par-swap count 3573 avg-size 19)
+ (readyness count 6764 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 66 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 10 avg-size 26)
+ (is-absent count 20 avg-size 34)
+ (set-new count 37 avg-size 26)
+ (par-1exit count 38 avg-size 18)
+ (set-old count 51 avg-size 25)
+ (par-2exit count 62 avg-size 5)
+ (if-false count 77 avg-size 48)
+ (loop^stop-exit count 78 avg-size 10)
+ (seq-exit count 80 avg-size 11)
+ (if-true count 89 avg-size 48)
+ (set-var count 161 avg-size 27)
+ (seq-done count 353 avg-size 8)
+ (absence count 370 avg-size 23)
+ (par-nothing count 387 avg-size 7)
+ (shared count 412 avg-size 32)
+ (var count 422 avg-size 34)
+ (suspend count 621 avg-size 3)
+ (trap count 673 avg-size 2)
+ (merge count 1202 avg-size 45)
+ (signal count 2680 avg-size 8)
+ (loop count 2683 avg-size 7)
+ (par-swap count 3614 avg-size 19)
+ (readyness count 6879 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 67 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 10 avg-size 26)
+ (is-absent count 20 avg-size 34)
+ (par-1exit count 38 avg-size 18)
+ (set-new count 38 avg-size 26)
+ (set-old count 51 avg-size 25)
+ (par-2exit count 62 avg-size 5)
+ (loop^stop-exit count 78 avg-size 10)
+ (if-false count 80 avg-size 49)
+ (seq-exit count 81 avg-size 11)
+ (if-true count 89 avg-size 48)
+ (set-var count 163 avg-size 27)
+ (seq-done count 356 avg-size 8)
+ (absence count 377 avg-size 23)
+ (par-nothing count 390 avg-size 7)
+ (shared count 415 avg-size 32)
+ (var count 429 avg-size 34)
+ (suspend count 630 avg-size 3)
+ (trap count 685 avg-size 2)
+ (merge count 1221 avg-size 45)
+ (signal count 2715 avg-size 8)
+ (loop count 2728 avg-size 7)
+ (par-swap count 3658 avg-size 19)
+ (readyness count 6991 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 68 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 10 avg-size 26)
+ (is-absent count 20 avg-size 34)
+ (par-1exit count 38 avg-size 18)
+ (set-new count 38 avg-size 26)
+ (set-old count 51 avg-size 25)
+ (par-2exit count 63 avg-size 5)
+ (loop^stop-exit count 79 avg-size 11)
+ (if-false count 81 avg-size 49)
+ (seq-exit count 83 avg-size 11)
+ (if-true count 91 avg-size 48)
+ (set-var count 164 avg-size 27)
+ (seq-done count 359 avg-size 8)
+ (absence count 380 avg-size 23)
+ (par-nothing count 396 avg-size 7)
+ (shared count 423 avg-size 32)
+ (var count 436 avg-size 33)
+ (suspend count 636 avg-size 3)
+ (trap count 692 avg-size 2)
+ (merge count 1233 avg-size 45)
+ (signal count 2752 avg-size 8)
+ (loop count 2764 avg-size 7)
+ (par-swap count 3711 avg-size 19)
+ (readyness count 7084 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 69 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 10 avg-size 26)
+ (is-absent count 20 avg-size 34)
+ (set-new count 38 avg-size 26)
+ (par-1exit count 39 avg-size 18)
+ (set-old count 51 avg-size 25)
+ (par-2exit count 63 avg-size 5)
+ (loop^stop-exit count 79 avg-size 11)
+ (if-false count 84 avg-size 49)
+ (seq-exit count 84 avg-size 11)
+ (if-true count 93 avg-size 48)
+ (set-var count 165 avg-size 27)
+ (seq-done count 360 avg-size 8)
+ (absence count 391 avg-size 23)
+ (par-nothing count 407 avg-size 7)
+ (shared count 425 avg-size 32)
+ (var count 443 avg-size 33)
+ (suspend count 645 avg-size 3)
+ (trap count 706 avg-size 2)
+ (merge count 1253 avg-size 45)
+ (signal count 2782 avg-size 8)
+ (loop count 2794 avg-size 7)
+ (par-swap count 3785 avg-size 19)
+ (readyness count 7185 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 70 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 10 avg-size 26)
+ (is-absent count 20 avg-size 34)
+ (set-new count 39 avg-size 26)
+ (par-1exit count 40 avg-size 18)
+ (set-old count 51 avg-size 25)
+ (par-2exit count 65 avg-size 5)
+ (loop^stop-exit count 81 avg-size 11)
+ (seq-exit count 84 avg-size 11)
+ (if-false count 86 avg-size 49)
+ (if-true count 95 avg-size 48)
+ (set-var count 168 avg-size 27)
+ (seq-done count 363 avg-size 8)
+ (absence count 407 avg-size 23)
+ (par-nothing count 414 avg-size 7)
+ (shared count 434 avg-size 32)
+ (var count 454 avg-size 34)
+ (suspend count 659 avg-size 3)
+ (trap count 714 avg-size 2)
+ (merge count 1267 avg-size 45)
+ (signal count 2836 avg-size 8)
+ (loop count 2841 avg-size 7)
+ (par-swap count 3844 avg-size 19)
+ (readyness count 7290 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 71 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 10 avg-size 26)
+ (is-absent count 20 avg-size 34)
+ (par-1exit count 40 avg-size 18)
+ (set-new count 41 avg-size 26)
+ (set-old count 51 avg-size 25)
+ (par-2exit count 66 avg-size 5)
+ (loop^stop-exit count 83 avg-size 10)
+ (seq-exit count 85 avg-size 11)
+ (if-false count 86 avg-size 49)
+ (if-true count 98 avg-size 47)
+ (set-var count 170 avg-size 27)
+ (seq-done count 369 avg-size 8)
+ (absence count 410 avg-size 23)
+ (par-nothing count 421 avg-size 7)
+ (shared count 438 avg-size 32)
+ (var count 459 avg-size 34)
+ (suspend count 666 avg-size 3)
+ (trap count 721 avg-size 2)
+ (merge count 1287 avg-size 45)
+ (signal count 2874 avg-size 8)
+ (loop count 2877 avg-size 7)
+ (par-swap count 3900 avg-size 19)
+ (readyness count 7381 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 72 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 10 avg-size 26)
+ (is-absent count 20 avg-size 34)
+ (par-1exit count 40 avg-size 18)
+ (set-new count 42 avg-size 27)
+ (set-old count 51 avg-size 25)
+ (par-2exit count 68 avg-size 5)
+ (loop^stop-exit count 83 avg-size 10)
+ (seq-exit count 86 avg-size 12)
+ (if-false count 87 avg-size 49)
+ (if-true count 99 avg-size 48)
+ (set-var count 170 avg-size 27)
+ (seq-done count 372 avg-size 8)
+ (absence count 418 avg-size 23)
+ (par-nothing count 426 avg-size 7)
+ (shared count 446 avg-size 32)
+ (var count 466 avg-size 34)
+ (suspend count 672 avg-size 3)
+ (trap count 726 avg-size 2)
+ (merge count 1304 avg-size 45)
+ (signal count 2911 avg-size 8)
+ (loop count 2922 avg-size 7)
+ (par-swap count 3937 avg-size 19)
+ (readyness count 7478 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 73 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 10 avg-size 26)
+ (is-absent count 20 avg-size 34)
+ (par-1exit count 40 avg-size 18)
+ (set-new count 42 avg-size 27)
+ (set-old count 51 avg-size 25)
+ (par-2exit count 68 avg-size 5)
+ (loop^stop-exit count 83 avg-size 10)
+ (seq-exit count 86 avg-size 12)
+ (if-false count 87 avg-size 49)
+ (if-true count 100 avg-size 48)
+ (set-var count 172 avg-size 27)
+ (seq-done count 378 avg-size 8)
+ (absence count 427 avg-size 23)
+ (par-nothing count 428 avg-size 7)
+ (shared count 450 avg-size 32)
+ (var count 476 avg-size 34)
+ (suspend count 683 avg-size 3)
+ (trap count 743 avg-size 2)
+ (merge count 1324 avg-size 45)
+ (signal count 2947 avg-size 8)
+ (loop count 2967 avg-size 7)
+ (par-swap count 3988 avg-size 19)
+ (readyness count 7593 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 74 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 12 avg-size 27)
+ (is-absent count 20 avg-size 34)
+ (par-1exit count 41 avg-size 17)
+ (set-new count 42 avg-size 27)
+ (set-old count 52 avg-size 26)
+ (par-2exit count 69 avg-size 5)
+ (loop^stop-exit count 84 avg-size 10)
+ (if-false count 87 avg-size 49)
+ (seq-exit count 87 avg-size 12)
+ (if-true count 101 avg-size 48)
+ (set-var count 173 avg-size 27)
+ (seq-done count 386 avg-size 8)
+ (absence count 431 avg-size 23)
+ (par-nothing count 432 avg-size 7)
+ (shared count 460 avg-size 32)
+ (var count 484 avg-size 34)
+ (suspend count 689 avg-size 3)
+ (trap count 756 avg-size 2)
+ (merge count 1339 avg-size 45)
+ (signal count 2984 avg-size 8)
+ (loop count 3006 avg-size 7)
+ (par-swap count 4042 avg-size 19)
+ (readyness count 7695 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 75 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 12 avg-size 27)
+ (is-absent count 20 avg-size 34)
+ (par-1exit count 42 avg-size 18)
+ (set-new count 42 avg-size 27)
+ (set-old count 52 avg-size 26)
+ (par-2exit count 70 avg-size 5)
+ (loop^stop-exit count 84 avg-size 10)
+ (if-false count 88 avg-size 49)
+ (seq-exit count 88 avg-size 11)
+ (if-true count 102 avg-size 48)
+ (set-var count 176 avg-size 27)
+ (seq-done count 390 avg-size 8)
+ (par-nothing count 438 avg-size 7)
+ (absence count 439 avg-size 23)
+ (shared count 467 avg-size 32)
+ (var count 489 avg-size 34)
+ (suspend count 697 avg-size 3)
+ (trap count 764 avg-size 2)
+ (merge count 1348 avg-size 45)
+ (signal count 3018 avg-size 8)
+ (loop count 3048 avg-size 7)
+ (par-swap count 4098 avg-size 19)
+ (readyness count 7791 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 76 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 12 avg-size 27)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 43 avg-size 17)
+ (set-new count 43 avg-size 27)
+ (set-old count 53 avg-size 26)
+ (par-2exit count 71 avg-size 5)
+ (loop^stop-exit count 85 avg-size 10)
+ (if-false count 89 avg-size 49)
+ (seq-exit count 89 avg-size 11)
+ (if-true count 103 avg-size 48)
+ (set-var count 177 avg-size 27)
+ (seq-done count 393 avg-size 8)
+ (par-nothing count 443 avg-size 7)
+ (absence count 452 avg-size 23)
+ (shared count 476 avg-size 31)
+ (var count 498 avg-size 34)
+ (suspend count 703 avg-size 3)
+ (trap count 781 avg-size 2)
+ (merge count 1376 avg-size 45)
+ (signal count 3077 avg-size 8)
+ (loop count 3080 avg-size 7)
+ (par-swap count 4161 avg-size 19)
+ (readyness count 7906 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 77 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 13 avg-size 26)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 44 avg-size 17)
+ (set-new count 44 avg-size 26)
+ (set-old count 54 avg-size 26)
+ (par-2exit count 72 avg-size 5)
+ (loop^stop-exit count 87 avg-size 11)
+ (seq-exit count 89 avg-size 11)
+ (if-false count 90 avg-size 49)
+ (if-true count 104 avg-size 48)
+ (set-var count 178 avg-size 27)
+ (seq-done count 400 avg-size 8)
+ (par-nothing count 448 avg-size 7)
+ (absence count 456 avg-size 23)
+ (shared count 480 avg-size 31)
+ (var count 503 avg-size 34)
+ (suspend count 707 avg-size 3)
+ (trap count 789 avg-size 2)
+ (merge count 1392 avg-size 45)
+ (signal count 3111 avg-size 8)
+ (loop count 3130 avg-size 7)
+ (par-swap count 4198 avg-size 19)
+ (readyness count 8007 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 78 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 13 avg-size 26)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 45 avg-size 17)
+ (set-new count 45 avg-size 26)
+ (set-old count 54 avg-size 26)
+ (par-2exit count 72 avg-size 5)
+ (loop^stop-exit count 89 avg-size 10)
+ (seq-exit count 92 avg-size 11)
+ (if-false count 93 avg-size 49)
+ (if-true count 105 avg-size 48)
+ (set-var count 181 avg-size 27)
+ (seq-done count 403 avg-size 8)
+ (par-nothing count 455 avg-size 7)
+ (absence count 456 avg-size 23)
+ (shared count 484 avg-size 31)
+ (var count 508 avg-size 34)
+ (suspend count 714 avg-size 3)
+ (trap count 797 avg-size 2)
+ (merge count 1402 avg-size 45)
+ (signal count 3135 avg-size 8)
+ (loop count 3163 avg-size 7)
+ (par-swap count 4236 avg-size 19)
+ (readyness count 8099 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 79 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 13 avg-size 26)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 45 avg-size 17)
+ (set-new count 45 avg-size 26)
+ (set-old count 55 avg-size 26)
+ (par-2exit count 72 avg-size 5)
+ (loop^stop-exit count 93 avg-size 10)
+ (seq-exit count 93 avg-size 11)
+ (if-false count 94 avg-size 49)
+ (if-true count 105 avg-size 48)
+ (set-var count 183 avg-size 27)
+ (seq-done count 404 avg-size 8)
+ (par-nothing count 460 avg-size 7)
+ (absence count 461 avg-size 23)
+ (shared count 491 avg-size 32)
+ (var count 514 avg-size 33)
+ (suspend count 724 avg-size 3)
+ (trap count 806 avg-size 2)
+ (merge count 1414 avg-size 45)
+ (signal count 3172 avg-size 8)
+ (loop count 3187 avg-size 7)
+ (par-swap count 4275 avg-size 19)
+ (readyness count 8185 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 80 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 13 avg-size 26)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 45 avg-size 17)
+ (set-new count 45 avg-size 26)
+ (set-old count 56 avg-size 26)
+ (par-2exit count 72 avg-size 5)
+ (seq-exit count 93 avg-size 11)
+ (if-false count 94 avg-size 49)
+ (loop^stop-exit count 94 avg-size 11)
+ (if-true count 106 avg-size 48)
+ (set-var count 183 avg-size 27)
+ (seq-done count 410 avg-size 8)
+ (par-nothing count 466 avg-size 7)
+ (absence count 467 avg-size 23)
+ (shared count 496 avg-size 32)
+ (var count 520 avg-size 33)
+ (suspend count 734 avg-size 3)
+ (trap count 815 avg-size 2)
+ (merge count 1441 avg-size 45)
+ (signal count 3209 avg-size 8)
+ (loop count 3241 avg-size 7)
+ (par-swap count 4338 avg-size 19)
+ (readyness count 8294 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 81 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 13 avg-size 26)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 45 avg-size 17)
+ (set-new count 45 avg-size 26)
+ (set-old count 56 avg-size 26)
+ (par-2exit count 72 avg-size 5)
+ (seq-exit count 93 avg-size 11)
+ (loop^stop-exit count 94 avg-size 11)
+ (if-false count 95 avg-size 49)
+ (if-true count 109 avg-size 48)
+ (set-var count 186 avg-size 27)
+ (seq-done count 413 avg-size 8)
+ (absence count 472 avg-size 23)
+ (par-nothing count 474 avg-size 7)
+ (shared count 505 avg-size 32)
+ (var count 523 avg-size 33)
+ (suspend count 741 avg-size 3)
+ (trap count 825 avg-size 2)
+ (merge count 1460 avg-size 45)
+ (signal count 3250 avg-size 8)
+ (loop count 3285 avg-size 7)
+ (par-swap count 4396 avg-size 19)
+ (readyness count 8397 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 82 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 14 avg-size 26)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 45 avg-size 17)
+ (set-new count 46 avg-size 26)
+ (set-old count 57 avg-size 26)
+ (par-2exit count 72 avg-size 5)
+ (seq-exit count 94 avg-size 12)
+ (loop^stop-exit count 95 avg-size 11)
+ (if-false count 97 avg-size 49)
+ (if-true count 110 avg-size 48)
+ (set-var count 188 avg-size 27)
+ (seq-done count 419 avg-size 8)
+ (absence count 476 avg-size 23)
+ (par-nothing count 481 avg-size 7)
+ (shared count 510 avg-size 32)
+ (var count 528 avg-size 33)
+ (suspend count 748 avg-size 3)
+ (trap count 834 avg-size 2)
+ (merge count 1471 avg-size 45)
+ (signal count 3281 avg-size 8)
+ (loop count 3311 avg-size 7)
+ (par-swap count 4449 avg-size 19)
+ (readyness count 8485 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 83 for 6699
+
+
+rule tests generated:
+((is-present count 6 avg-size 44)
+ (emit count 14 avg-size 26)
+ (is-absent count 21 avg-size 35)
+ (set-new count 46 avg-size 26)
+ (par-1exit count 47 avg-size 17)
+ (set-old count 59 avg-size 26)
+ (par-2exit count 73 avg-size 5)
+ (seq-exit count 95 avg-size 12)
+ (if-false count 97 avg-size 49)
+ (loop^stop-exit count 100 avg-size 11)
+ (if-true count 112 avg-size 48)
+ (set-var count 190 avg-size 27)
+ (seq-done count 423 avg-size 8)
+ (absence count 478 avg-size 23)
+ (par-nothing count 486 avg-size 7)
+ (shared count 514 avg-size 32)
+ (var count 534 avg-size 33)
+ (suspend count 759 avg-size 3)
+ (trap count 840 avg-size 2)
+ (merge count 1487 avg-size 45)
+ (signal count 3314 avg-size 8)
+ (loop count 3346 avg-size 7)
+ (par-swap count 4490 avg-size 19)
+ (readyness count 8572 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 84 for 6699
+
+
+rule tests generated:
+((is-present count 7 avg-size 50)
+ (emit count 14 avg-size 26)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 47 avg-size 17)
+ (set-new count 47 avg-size 26)
+ (set-old count 61 avg-size 25)
+ (par-2exit count 73 avg-size 5)
+ (seq-exit count 96 avg-size 11)
+ (if-false count 99 avg-size 49)
+ (loop^stop-exit count 100 avg-size 11)
+ (if-true count 112 avg-size 48)
+ (set-var count 194 avg-size 27)
+ (seq-done count 425 avg-size 8)
+ (absence count 484 avg-size 23)
+ (par-nothing count 488 avg-size 7)
+ (shared count 524 avg-size 32)
+ (var count 540 avg-size 33)
+ (suspend count 763 avg-size 3)
+ (trap count 848 avg-size 2)
+ (merge count 1505 avg-size 45)
+ (signal count 3359 avg-size 8)
+ (loop count 3379 avg-size 7)
+ (par-swap count 4541 avg-size 19)
+ (readyness count 8680 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 85 for 6699
+
+
+rule tests generated:
+((is-present count 7 avg-size 50)
+ (emit count 14 avg-size 26)
+ (is-absent count 21 avg-size 35)
+ (set-new count 47 avg-size 26)
+ (par-1exit count 48 avg-size 17)
+ (set-old count 63 avg-size 25)
+ (par-2exit count 74 avg-size 5)
+ (if-false count 99 avg-size 49)
+ (seq-exit count 99 avg-size 11)
+ (loop^stop-exit count 101 avg-size 11)
+ (if-true count 112 avg-size 48)
+ (set-var count 196 avg-size 27)
+ (seq-done count 429 avg-size 8)
+ (absence count 488 avg-size 23)
+ (par-nothing count 492 avg-size 7)
+ (shared count 530 avg-size 32)
+ (var count 548 avg-size 33)
+ (suspend count 778 avg-size 3)
+ (trap count 855 avg-size 2)
+ (merge count 1528 avg-size 45)
+ (signal count 3389 avg-size 8)
+ (loop count 3422 avg-size 7)
+ (par-swap count 4598 avg-size 19)
+ (readyness count 8782 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 86 for 6699
+
+
+rule tests generated:
+((is-present count 8 avg-size 56)
+ (emit count 15 avg-size 31)
+ (is-absent count 21 avg-size 35)
+ (set-new count 48 avg-size 26)
+ (par-1exit count 49 avg-size 16)
+ (set-old count 63 avg-size 25)
+ (par-2exit count 76 avg-size 5)
+ (seq-exit count 99 avg-size 11)
+ (if-false count 100 avg-size 49)
+ (loop^stop-exit count 102 avg-size 11)
+ (if-true count 112 avg-size 48)
+ (set-var count 199 avg-size 27)
+ (seq-done count 432 avg-size 8)
+ (par-nothing count 499 avg-size 7)
+ (absence count 500 avg-size 23)
+ (shared count 538 avg-size 31)
+ (var count 559 avg-size 33)
+ (suspend count 790 avg-size 3)
+ (trap count 863 avg-size 2)
+ (merge count 1546 avg-size 45)
+ (signal count 3426 avg-size 8)
+ (loop count 3467 avg-size 7)
+ (par-swap count 4663 avg-size 19)
+ (readyness count 8880 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 87 for 6699
+
+
+rule tests generated:
+((is-present count 8 avg-size 56)
+ (emit count 16 avg-size 31)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 50 avg-size 16)
+ (set-new count 52 avg-size 26)
+ (set-old count 67 avg-size 26)
+ (par-2exit count 77 avg-size 5)
+ (seq-exit count 99 avg-size 11)
+ (loop^stop-exit count 102 avg-size 11)
+ (if-false count 103 avg-size 49)
+ (if-true count 112 avg-size 48)
+ (set-var count 202 avg-size 27)
+ (seq-done count 436 avg-size 8)
+ (par-nothing count 505 avg-size 7)
+ (absence count 509 avg-size 23)
+ (shared count 547 avg-size 31)
+ (var count 566 avg-size 33)
+ (suspend count 797 avg-size 3)
+ (trap count 872 avg-size 2)
+ (merge count 1566 avg-size 45)
+ (signal count 3466 avg-size 8)
+ (loop count 3514 avg-size 7)
+ (par-swap count 4722 avg-size 19)
+ (readyness count 8980 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 88 for 6699
+
+
+rule tests generated:
+((is-present count 9 avg-size 52)
+ (emit count 16 avg-size 31)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 51 avg-size 16)
+ (set-new count 52 avg-size 26)
+ (set-old count 67 avg-size 26)
+ (par-2exit count 79 avg-size 5)
+ (seq-exit count 101 avg-size 11)
+ (loop^stop-exit count 103 avg-size 11)
+ (if-false count 104 avg-size 49)
+ (if-true count 112 avg-size 48)
+ (set-var count 203 avg-size 27)
+ (seq-done count 441 avg-size 8)
+ (par-nothing count 506 avg-size 7)
+ (absence count 513 avg-size 23)
+ (shared count 558 avg-size 31)
+ (var count 567 avg-size 33)
+ (suspend count 805 avg-size 3)
+ (trap count 888 avg-size 2)
+ (merge count 1581 avg-size 45)
+ (signal count 3507 avg-size 8)
+ (loop count 3565 avg-size 7)
+ (par-swap count 4771 avg-size 19)
+ (readyness count 9074 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 89 for 6699
+
+
+rule tests generated:
+((is-present count 9 avg-size 52)
+ (emit count 17 avg-size 31)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 51 avg-size 16)
+ (set-new count 52 avg-size 26)
+ (set-old count 68 avg-size 26)
+ (par-2exit count 79 avg-size 5)
+ (seq-exit count 102 avg-size 11)
+ (if-false count 104 avg-size 49)
+ (loop^stop-exit count 105 avg-size 11)
+ (if-true count 114 avg-size 48)
+ (set-var count 209 avg-size 27)
+ (seq-done count 451 avg-size 8)
+ (par-nothing count 512 avg-size 7)
+ (absence count 523 avg-size 24)
+ (shared count 568 avg-size 31)
+ (var count 577 avg-size 33)
+ (suspend count 810 avg-size 3)
+ (trap count 899 avg-size 2)
+ (merge count 1602 avg-size 45)
+ (signal count 3546 avg-size 8)
+ (loop count 3620 avg-size 7)
+ (par-swap count 4829 avg-size 19)
+ (readyness count 9171 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 90 for 6699
+
+
+rule tests generated:
+((is-present count 9 avg-size 52)
+ (emit count 17 avg-size 31)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 51 avg-size 16)
+ (set-new count 54 avg-size 26)
+ (set-old count 68 avg-size 26)
+ (par-2exit count 79 avg-size 5)
+ (seq-exit count 104 avg-size 11)
+ (loop^stop-exit count 106 avg-size 11)
+ (if-false count 108 avg-size 50)
+ (if-true count 114 avg-size 48)
+ (set-var count 211 avg-size 27)
+ (seq-done count 454 avg-size 8)
+ (par-nothing count 519 avg-size 7)
+ (absence count 533 avg-size 24)
+ (shared count 575 avg-size 32)
+ (var count 587 avg-size 33)
+ (suspend count 816 avg-size 3)
+ (trap count 910 avg-size 2)
+ (merge count 1620 avg-size 45)
+ (signal count 3591 avg-size 8)
+ (loop count 3663 avg-size 7)
+ (par-swap count 4874 avg-size 19)
+ (readyness count 9283 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 91 for 6699
+
+
+rule tests generated:
+((is-present count 9 avg-size 52)
+ (emit count 17 avg-size 31)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 51 avg-size 16)
+ (set-new count 54 avg-size 26)
+ (set-old count 70 avg-size 26)
+ (par-2exit count 79 avg-size 5)
+ (seq-exit count 104 avg-size 11)
+ (loop^stop-exit count 108 avg-size 11)
+ (if-false count 112 avg-size 49)
+ (if-true count 116 avg-size 48)
+ (set-var count 213 avg-size 27)
+ (seq-done count 459 avg-size 8)
+ (par-nothing count 522 avg-size 7)
+ (absence count 539 avg-size 24)
+ (shared count 581 avg-size 32)
+ (var count 592 avg-size 33)
+ (suspend count 828 avg-size 3)
+ (trap count 914 avg-size 2)
+ (merge count 1637 avg-size 45)
+ (signal count 3634 avg-size 8)
+ (loop count 3700 avg-size 7)
+ (par-swap count 4919 avg-size 19)
+ (readyness count 9370 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 92 for 6699
+
+
+rule tests generated:
+((is-present count 10 avg-size 50)
+ (emit count 17 avg-size 31)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 51 avg-size 16)
+ (set-new count 54 avg-size 26)
+ (set-old count 71 avg-size 25)
+ (par-2exit count 80 avg-size 5)
+ (seq-exit count 104 avg-size 11)
+ (loop^stop-exit count 109 avg-size 11)
+ (if-false count 115 avg-size 49)
+ (if-true count 117 avg-size 48)
+ (set-var count 214 avg-size 27)
+ (seq-done count 467 avg-size 8)
+ (par-nothing count 525 avg-size 7)
+ (absence count 545 avg-size 24)
+ (shared count 585 avg-size 32)
+ (var count 603 avg-size 34)
+ (suspend count 840 avg-size 3)
+ (trap count 926 avg-size 2)
+ (merge count 1658 avg-size 45)
+ (signal count 3666 avg-size 8)
+ (loop count 3733 avg-size 7)
+ (par-swap count 4959 avg-size 19)
+ (readyness count 9472 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 93 for 6699
+
+
+rule tests generated:
+((is-present count 10 avg-size 50)
+ (emit count 17 avg-size 31)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 52 avg-size 16)
+ (set-new count 55 avg-size 26)
+ (set-old count 72 avg-size 25)
+ (par-2exit count 81 avg-size 5)
+ (seq-exit count 104 avg-size 11)
+ (loop^stop-exit count 110 avg-size 11)
+ (if-false count 116 avg-size 49)
+ (if-true count 119 avg-size 48)
+ (set-var count 215 avg-size 27)
+ (seq-done count 469 avg-size 8)
+ (par-nothing count 529 avg-size 7)
+ (absence count 558 avg-size 24)
+ (shared count 590 avg-size 32)
+ (var count 609 avg-size 33)
+ (suspend count 852 avg-size 3)
+ (trap count 939 avg-size 2)
+ (merge count 1677 avg-size 45)
+ (signal count 3692 avg-size 8)
+ (loop count 3787 avg-size 7)
+ (par-swap count 4998 avg-size 19)
+ (readyness count 9549 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 94 for 6699
+
+
+rule tests generated:
+((is-present count 10 avg-size 50)
+ (emit count 17 avg-size 31)
+ (is-absent count 21 avg-size 35)
+ (par-1exit count 55 avg-size 16)
+ (set-new count 55 avg-size 26)
+ (set-old count 74 avg-size 25)
+ (par-2exit count 83 avg-size 5)
+ (seq-exit count 107 avg-size 11)
+ (loop^stop-exit count 112 avg-size 11)
+ (if-false count 116 avg-size 49)
+ (if-true count 121 avg-size 48)
+ (set-var count 218 avg-size 27)
+ (seq-done count 477 avg-size 8)
+ (par-nothing count 533 avg-size 7)
+ (absence count 563 avg-size 24)
+ (shared count 594 avg-size 32)
+ (var count 619 avg-size 34)
+ (suspend count 859 avg-size 3)
+ (trap count 948 avg-size 2)
+ (merge count 1688 avg-size 45)
+ (signal count 3722 avg-size 8)
+ (loop count 3823 avg-size 7)
+ (par-swap count 5047 avg-size 19)
+ (readyness count 9650 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 95 for 6699
+
+
+rule tests generated:
+((is-present count 10 avg-size 50)
+ (emit count 17 avg-size 31)
+ (is-absent count 22 avg-size 34)
+ (par-1exit count 55 avg-size 16)
+ (set-new count 57 avg-size 26)
+ (set-old count 76 avg-size 25)
+ (par-2exit count 84 avg-size 5)
+ (seq-exit count 107 avg-size 11)
+ (loop^stop-exit count 114 avg-size 11)
+ (if-false count 117 avg-size 48)
+ (if-true count 122 avg-size 48)
+ (set-var count 219 avg-size 27)
+ (seq-done count 483 avg-size 8)
+ (par-nothing count 540 avg-size 7)
+ (absence count 574 avg-size 24)
+ (shared count 602 avg-size 31)
+ (var count 629 avg-size 34)
+ (suspend count 869 avg-size 3)
+ (trap count 953 avg-size 2)
+ (merge count 1711 avg-size 45)
+ (signal count 3754 avg-size 8)
+ (loop count 3851 avg-size 7)
+ (par-swap count 5103 avg-size 19)
+ (readyness count 9746 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 96 for 6699
+
+
+rule tests generated:
+((is-present count 10 avg-size 50)
+ (emit count 17 avg-size 31)
+ (is-absent count 22 avg-size 34)
+ (par-1exit count 55 avg-size 16)
+ (set-new count 61 avg-size 27)
+ (set-old count 77 avg-size 25)
+ (par-2exit count 84 avg-size 5)
+ (seq-exit count 107 avg-size 11)
+ (loop^stop-exit count 115 avg-size 11)
+ (if-false count 118 avg-size 49)
+ (if-true count 123 avg-size 48)
+ (set-var count 222 avg-size 27)
+ (seq-done count 484 avg-size 8)
+ (par-nothing count 546 avg-size 7)
+ (absence count 582 avg-size 24)
+ (shared count 607 avg-size 32)
+ (var count 631 avg-size 34)
+ (suspend count 886 avg-size 3)
+ (trap count 965 avg-size 2)
+ (merge count 1732 avg-size 45)
+ (signal count 3777 avg-size 8)
+ (loop count 3889 avg-size 7)
+ (par-swap count 5154 avg-size 19)
+ (readyness count 9836 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 97 for 6699
+
+
+rule tests generated:
+((is-present count 10 avg-size 50)
+ (emit count 17 avg-size 31)
+ (is-absent count 22 avg-size 34)
+ (par-1exit count 55 avg-size 16)
+ (set-new count 61 avg-size 27)
+ (set-old count 78 avg-size 25)
+ (par-2exit count 85 avg-size 5)
+ (seq-exit count 107 avg-size 11)
+ (loop^stop-exit count 116 avg-size 11)
+ (if-false count 121 avg-size 48)
+ (if-true count 125 avg-size 47)
+ (set-var count 222 avg-size 27)
+ (seq-done count 490 avg-size 8)
+ (par-nothing count 553 avg-size 7)
+ (absence count 591 avg-size 24)
+ (shared count 610 avg-size 32)
+ (var count 637 avg-size 34)
+ (suspend count 899 avg-size 3)
+ (trap count 976 avg-size 2)
+ (merge count 1748 avg-size 45)
+ (signal count 3819 avg-size 8)
+ (loop count 3940 avg-size 7)
+ (par-swap count 5213 avg-size 19)
+ (readyness count 9941 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 98 for 6699
+
+
+rule tests generated:
+((is-present count 11 avg-size 48)
+ (emit count 17 avg-size 31)
+ (is-absent count 22 avg-size 34)
+ (par-1exit count 57 avg-size 16)
+ (set-new count 61 avg-size 27)
+ (set-old count 78 avg-size 25)
+ (par-2exit count 86 avg-size 5)
+ (seq-exit count 107 avg-size 11)
+ (loop^stop-exit count 116 avg-size 11)
+ (if-false count 124 avg-size 48)
+ (if-true count 125 avg-size 47)
+ (set-var count 225 avg-size 27)
+ (seq-done count 498 avg-size 8)
+ (par-nothing count 555 avg-size 7)
+ (absence count 596 avg-size 24)
+ (shared count 618 avg-size 32)
+ (var count 644 avg-size 34)
+ (suspend count 905 avg-size 3)
+ (trap count 986 avg-size 2)
+ (merge count 1766 avg-size 45)
+ (signal count 3843 avg-size 8)
+ (loop count 3964 avg-size 7)
+ (par-swap count 5253 avg-size 19)
+ (readyness count 10049 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 99 for 6699
+
+
+rule tests generated:
+((is-present count 11 avg-size 48)
+ (emit count 17 avg-size 31)
+ (is-absent count 22 avg-size 34)
+ (par-1exit count 57 avg-size 16)
+ (set-new count 61 avg-size 27)
+ (set-old count 78 avg-size 25)
+ (par-2exit count 86 avg-size 5)
+ (seq-exit count 108 avg-size 11)
+ (loop^stop-exit count 122 avg-size 11)
+ (if-true count 125 avg-size 47)
+ (if-false count 127 avg-size 48)
+ (set-var count 227 avg-size 27)
+ (seq-done count 506 avg-size 8)
+ (par-nothing count 563 avg-size 7)
+ (absence count 600 avg-size 24)
+ (shared count 626 avg-size 32)
+ (var count 648 avg-size 34)
+ (suspend count 911 avg-size 3)
+ (trap count 1001 avg-size 2)
+ (merge count 1786 avg-size 45)
+ (signal count 3888 avg-size 8)
+ (loop count 4017 avg-size 7)
+ (par-swap count 5303 avg-size 19)
+ (readyness count 10135 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 100 for 6699
+
+
+rule tests generated:
+((is-present count 11 avg-size 48)
+ (emit count 17 avg-size 31)
+ (is-absent count 22 avg-size 34)
+ (par-1exit count 58 avg-size 16)
+ (set-new count 61 avg-size 27)
+ (set-old count 80 avg-size 26)
+ (par-2exit count 87 avg-size 5)
+ (seq-exit count 111 avg-size 11)
+ (loop^stop-exit count 123 avg-size 11)
+ (if-false count 127 avg-size 48)
+ (if-true count 128 avg-size 47)
+ (set-var count 228 avg-size 27)
+ (seq-done count 509 avg-size 8)
+ (par-nothing count 573 avg-size 7)
+ (absence count 603 avg-size 24)
+ (shared count 629 avg-size 32)
+ (var count 654 avg-size 34)
+ (suspend count 919 avg-size 3)
+ (trap count 1011 avg-size 2)
+ (merge count 1801 avg-size 45)
+ (signal count 3917 avg-size 8)
+ (loop count 4050 avg-size 7)
+ (par-swap count 5350 avg-size 19)
+ (readyness count 10234 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 101 for 6699
+
+
+rule tests generated:
+((is-present count 11 avg-size 48)
+ (emit count 17 avg-size 31)
+ (is-absent count 22 avg-size 34)
+ (par-1exit count 58 avg-size 16)
+ (set-new count 61 avg-size 27)
+ (set-old count 80 avg-size 26)
+ (par-2exit count 91 avg-size 5)
+ (seq-exit count 112 avg-size 11)
+ (loop^stop-exit count 125 avg-size 11)
+ (if-false count 130 avg-size 48)
+ (if-true count 131 avg-size 47)
+ (set-var count 230 avg-size 27)
+ (seq-done count 518 avg-size 8)
+ (par-nothing count 579 avg-size 7)
+ (absence count 607 avg-size 24)
+ (shared count 631 avg-size 32)
+ (var count 660 avg-size 34)
+ (suspend count 926 avg-size 3)
+ (trap count 1015 avg-size 2)
+ (merge count 1824 avg-size 45)
+ (signal count 3951 avg-size 8)
+ (loop count 4089 avg-size 7)
+ (par-swap count 5406 avg-size 19)
+ (readyness count 10344 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 102 for 6699
+
+
+rule tests generated:
+((is-present count 11 avg-size 48)
+ (emit count 17 avg-size 31)
+ (is-absent count 22 avg-size 34)
+ (par-1exit count 58 avg-size 16)
+ (set-new count 62 avg-size 27)
+ (set-old count 80 avg-size 26)
+ (par-2exit count 91 avg-size 5)
+ (seq-exit count 112 avg-size 11)
+ (loop^stop-exit count 126 avg-size 11)
+ (if-false count 131 avg-size 49)
+ (if-true count 134 avg-size 47)
+ (set-var count 232 avg-size 27)
+ (seq-done count 522 avg-size 8)
+ (par-nothing count 584 avg-size 7)
+ (absence count 609 avg-size 24)
+ (shared count 639 avg-size 32)
+ (var count 669 avg-size 34)
+ (suspend count 935 avg-size 3)
+ (trap count 1025 avg-size 2)
+ (merge count 1845 avg-size 45)
+ (signal count 3986 avg-size 8)
+ (loop count 4131 avg-size 7)
+ (par-swap count 5458 avg-size 19)
+ (readyness count 10445 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 103 for 6699
+
+
+rule tests generated:
+((is-present count 11 avg-size 48)
+ (emit count 17 avg-size 31)
+ (is-absent count 22 avg-size 34)
+ (par-1exit count 59 avg-size 16)
+ (set-new count 66 avg-size 27)
+ (set-old count 82 avg-size 26)
+ (par-2exit count 91 avg-size 5)
+ (seq-exit count 112 avg-size 11)
+ (loop^stop-exit count 127 avg-size 12)
+ (if-false count 131 avg-size 49)
+ (if-true count 139 avg-size 47)
+ (set-var count 234 avg-size 27)
+ (seq-done count 528 avg-size 7)
+ (par-nothing count 586 avg-size 7)
+ (absence count 610 avg-size 24)
+ (shared count 645 avg-size 32)
+ (var count 674 avg-size 34)
+ (suspend count 941 avg-size 3)
+ (trap count 1034 avg-size 2)
+ (merge count 1871 avg-size 45)
+ (signal count 4019 avg-size 8)
+ (loop count 4174 avg-size 7)
+ (par-swap count 5525 avg-size 19)
+ (readyness count 10559 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 104 for 6699
+
+
+rule tests generated:
+((is-present count 12 avg-size 49)
+ (emit count 17 avg-size 31)
+ (is-absent count 23 avg-size 34)
+ (par-1exit count 59 avg-size 16)
+ (set-new count 66 avg-size 27)
+ (set-old count 84 avg-size 26)
+ (par-2exit count 92 avg-size 5)
+ (seq-exit count 112 avg-size 11)
+ (loop^stop-exit count 127 avg-size 12)
+ (if-false count 135 avg-size 49)
+ (if-true count 140 avg-size 47)
+ (set-var count 235 avg-size 27)
+ (seq-done count 539 avg-size 7)
+ (par-nothing count 590 avg-size 7)
+ (absence count 618 avg-size 24)
+ (shared count 658 avg-size 32)
+ (var count 677 avg-size 34)
+ (suspend count 948 avg-size 3)
+ (trap count 1044 avg-size 2)
+ (merge count 1889 avg-size 45)
+ (signal count 4052 avg-size 8)
+ (loop count 4238 avg-size 7)
+ (par-swap count 5571 avg-size 19)
+ (readyness count 10668 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 105 for 6699
+
+
+rule tests generated:
+((is-present count 12 avg-size 49)
+ (emit count 17 avg-size 31)
+ (is-absent count 23 avg-size 34)
+ (par-1exit count 60 avg-size 16)
+ (set-new count 67 avg-size 27)
+ (set-old count 84 avg-size 26)
+ (par-2exit count 92 avg-size 5)
+ (seq-exit count 112 avg-size 11)
+ (loop^stop-exit count 129 avg-size 11)
+ (if-false count 135 avg-size 49)
+ (if-true count 143 avg-size 47)
+ (set-var count 238 avg-size 27)
+ (seq-done count 544 avg-size 7)
+ (par-nothing count 594 avg-size 7)
+ (absence count 627 avg-size 25)
+ (shared count 666 avg-size 32)
+ (var count 682 avg-size 34)
+ (suspend count 956 avg-size 3)
+ (trap count 1056 avg-size 2)
+ (merge count 1902 avg-size 45)
+ (signal count 4089 avg-size 8)
+ (loop count 4279 avg-size 7)
+ (par-swap count 5638 avg-size 19)
+ (readyness count 10772 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 106 for 6699
+
+
+rule tests generated:
+((is-present count 13 avg-size 49)
+ (emit count 17 avg-size 31)
+ (is-absent count 23 avg-size 34)
+ (par-1exit count 60 avg-size 16)
+ (set-new count 68 avg-size 27)
+ (set-old count 85 avg-size 26)
+ (par-2exit count 94 avg-size 5)
+ (seq-exit count 115 avg-size 11)
+ (loop^stop-exit count 129 avg-size 11)
+ (if-false count 137 avg-size 48)
+ (if-true count 143 avg-size 47)
+ (set-var count 244 avg-size 27)
+ (seq-done count 552 avg-size 7)
+ (par-nothing count 602 avg-size 7)
+ (absence count 632 avg-size 25)
+ (shared count 674 avg-size 32)
+ (var count 686 avg-size 34)
+ (suspend count 964 avg-size 3)
+ (trap count 1062 avg-size 2)
+ (merge count 1923 avg-size 45)
+ (signal count 4123 avg-size 8)
+ (loop count 4316 avg-size 7)
+ (par-swap count 5713 avg-size 19)
+ (readyness count 10872 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 107 for 6699
+
+
+rule tests generated:
+((is-present count 13 avg-size 49)
+ (emit count 18 avg-size 30)
+ (is-absent count 23 avg-size 34)
+ (par-1exit count 61 avg-size 17)
+ (set-new count 68 avg-size 27)
+ (set-old count 87 avg-size 26)
+ (par-2exit count 97 avg-size 5)
+ (seq-exit count 116 avg-size 11)
+ (loop^stop-exit count 129 avg-size 11)
+ (if-false count 138 avg-size 48)
+ (if-true count 145 avg-size 47)
+ (set-var count 245 avg-size 27)
+ (seq-done count 554 avg-size 7)
+ (par-nothing count 611 avg-size 7)
+ (absence count 641 avg-size 25)
+ (shared count 679 avg-size 32)
+ (var count 699 avg-size 34)
+ (suspend count 977 avg-size 3)
+ (trap count 1068 avg-size 2)
+ (merge count 1939 avg-size 45)
+ (signal count 4170 avg-size 8)
+ (loop count 4363 avg-size 7)
+ (par-swap count 5775 avg-size 19)
+ (readyness count 10983 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 108 for 6699
+
+
+rule tests generated:
+((is-present count 13 avg-size 49)
+ (emit count 18 avg-size 30)
+ (is-absent count 23 avg-size 34)
+ (par-1exit count 61 avg-size 17)
+ (set-new count 71 avg-size 27)
+ (set-old count 87 avg-size 26)
+ (par-2exit count 99 avg-size 5)
+ (seq-exit count 118 avg-size 11)
+ (loop^stop-exit count 129 avg-size 11)
+ (if-false count 141 avg-size 48)
+ (if-true count 146 avg-size 47)
+ (set-var count 247 avg-size 27)
+ (seq-done count 560 avg-size 8)
+ (par-nothing count 618 avg-size 7)
+ (absence count 644 avg-size 25)
+ (shared count 681 avg-size 32)
+ (var count 704 avg-size 34)
+ (suspend count 981 avg-size 3)
+ (trap count 1072 avg-size 2)
+ (merge count 1946 avg-size 45)
+ (signal count 4199 avg-size 8)
+ (loop count 4388 avg-size 7)
+ (par-swap count 5825 avg-size 19)
+ (readyness count 11065 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 109 for 6699
+
+
+rule tests generated:
+((is-present count 13 avg-size 49)
+ (emit count 18 avg-size 30)
+ (is-absent count 23 avg-size 34)
+ (par-1exit count 62 avg-size 17)
+ (set-new count 71 avg-size 27)
+ (set-old count 88 avg-size 26)
+ (par-2exit count 101 avg-size 5)
+ (seq-exit count 118 avg-size 11)
+ (loop^stop-exit count 131 avg-size 12)
+ (if-false count 143 avg-size 48)
+ (if-true count 147 avg-size 47)
+ (set-var count 249 avg-size 27)
+ (seq-done count 570 avg-size 8)
+ (par-nothing count 621 avg-size 7)
+ (absence count 648 avg-size 25)
+ (shared count 689 avg-size 32)
+ (var count 712 avg-size 34)
+ (suspend count 987 avg-size 3)
+ (trap count 1078 avg-size 2)
+ (merge count 1957 avg-size 45)
+ (signal count 4236 avg-size 8)
+ (loop count 4433 avg-size 7)
+ (par-swap count 5890 avg-size 19)
+ (readyness count 11144 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 110 for 6699
+
+
+rule tests generated:
+((is-present count 13 avg-size 49)
+ (emit count 18 avg-size 30)
+ (is-absent count 23 avg-size 34)
+ (par-1exit count 63 avg-size 17)
+ (set-new count 71 avg-size 27)
+ (set-old count 88 avg-size 26)
+ (par-2exit count 102 avg-size 5)
+ (seq-exit count 118 avg-size 11)
+ (loop^stop-exit count 134 avg-size 11)
+ (if-false count 144 avg-size 48)
+ (if-true count 148 avg-size 47)
+ (set-var count 253 avg-size 27)
+ (seq-done count 573 avg-size 8)
+ (par-nothing count 628 avg-size 7)
+ (absence count 651 avg-size 25)
+ (shared count 695 avg-size 32)
+ (var count 716 avg-size 34)
+ (suspend count 993 avg-size 3)
+ (trap count 1085 avg-size 2)
+ (merge count 1979 avg-size 45)
+ (signal count 4282 avg-size 8)
+ (loop count 4473 avg-size 7)
+ (par-swap count 5938 avg-size 19)
+ (readyness count 11254 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 111 for 6699
+
+
+rule tests generated:
+((is-present count 13 avg-size 49)
+ (emit count 18 avg-size 30)
+ (is-absent count 24 avg-size 34)
+ (par-1exit count 64 avg-size 16)
+ (set-new count 71 avg-size 27)
+ (set-old count 88 avg-size 26)
+ (par-2exit count 102 avg-size 5)
+ (seq-exit count 119 avg-size 11)
+ (loop^stop-exit count 136 avg-size 11)
+ (if-false count 146 avg-size 48)
+ (if-true count 149 avg-size 47)
+ (set-var count 254 avg-size 27)
+ (seq-done count 581 avg-size 8)
+ (par-nothing count 629 avg-size 7)
+ (absence count 658 avg-size 25)
+ (shared count 703 avg-size 32)
+ (var count 726 avg-size 34)
+ (suspend count 1004 avg-size 3)
+ (trap count 1095 avg-size 2)
+ (merge count 1996 avg-size 45)
+ (signal count 4332 avg-size 8)
+ (loop count 4503 avg-size 7)
+ (par-swap count 5986 avg-size 19)
+ (readyness count 11337 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 112 for 6699
+
+
+rule tests generated:
+((is-present count 13 avg-size 49)
+ (emit count 18 avg-size 30)
+ (is-absent count 24 avg-size 34)
+ (par-1exit count 64 avg-size 16)
+ (set-new count 71 avg-size 27)
+ (set-old count 90 avg-size 26)
+ (par-2exit count 103 avg-size 5)
+ (seq-exit count 122 avg-size 11)
+ (loop^stop-exit count 139 avg-size 11)
+ (if-false count 146 avg-size 48)
+ (if-true count 149 avg-size 47)
+ (set-var count 255 avg-size 27)
+ (seq-done count 587 avg-size 8)
+ (par-nothing count 633 avg-size 7)
+ (absence count 660 avg-size 25)
+ (shared count 707 avg-size 32)
+ (var count 732 avg-size 34)
+ (suspend count 1016 avg-size 3)
+ (trap count 1101 avg-size 2)
+ (merge count 2011 avg-size 45)
+ (signal count 4357 avg-size 8)
+ (loop count 4542 avg-size 7)
+ (par-swap count 6031 avg-size 19)
+ (readyness count 11448 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 113 for 6699
+
+
+rule tests generated:
+((is-present count 13 avg-size 49)
+ (emit count 18 avg-size 30)
+ (is-absent count 24 avg-size 34)
+ (par-1exit count 64 avg-size 16)
+ (set-new count 72 avg-size 27)
+ (set-old count 90 avg-size 26)
+ (par-2exit count 103 avg-size 5)
+ (seq-exit count 124 avg-size 11)
+ (loop^stop-exit count 140 avg-size 11)
+ (if-false count 147 avg-size 48)
+ (if-true count 150 avg-size 47)
+ (set-var count 258 avg-size 27)
+ (seq-done count 594 avg-size 8)
+ (par-nothing count 641 avg-size 7)
+ (absence count 664 avg-size 25)
+ (shared count 711 avg-size 32)
+ (var count 742 avg-size 34)
+ (suspend count 1029 avg-size 3)
+ (trap count 1107 avg-size 2)
+ (merge count 2027 avg-size 45)
+ (signal count 4405 avg-size 8)
+ (loop count 4575 avg-size 7)
+ (par-swap count 6089 avg-size 19)
+ (readyness count 11577 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 114 for 6699
+
+
+rule tests generated:
+((is-present count 13 avg-size 49)
+ (emit count 18 avg-size 30)
+ (is-absent count 24 avg-size 34)
+ (par-1exit count 65 avg-size 17)
+ (set-new count 73 avg-size 27)
+ (set-old count 90 avg-size 26)
+ (par-2exit count 104 avg-size 5)
+ (seq-exit count 126 avg-size 11)
+ (loop^stop-exit count 141 avg-size 11)
+ (if-false count 148 avg-size 48)
+ (if-true count 151 avg-size 47)
+ (set-var count 262 avg-size 27)
+ (seq-done count 599 avg-size 8)
+ (par-nothing count 643 avg-size 7)
+ (absence count 670 avg-size 25)
+ (shared count 720 avg-size 32)
+ (var count 748 avg-size 34)
+ (suspend count 1036 avg-size 3)
+ (trap count 1113 avg-size 2)
+ (merge count 2048 avg-size 45)
+ (signal count 4450 avg-size 8)
+ (loop count 4623 avg-size 7)
+ (par-swap count 6146 avg-size 19)
+ (readyness count 11684 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 115 for 6699
+
+
+rule tests generated:
+((is-present count 13 avg-size 49)
+ (emit count 20 avg-size 28)
+ (is-absent count 24 avg-size 34)
+ (par-1exit count 66 avg-size 17)
+ (set-new count 74 avg-size 27)
+ (set-old count 90 avg-size 26)
+ (par-2exit count 104 avg-size 5)
+ (seq-exit count 126 avg-size 11)
+ (loop^stop-exit count 141 avg-size 11)
+ (if-false count 149 avg-size 48)
+ (if-true count 153 avg-size 47)
+ (set-var count 265 avg-size 27)
+ (seq-done count 611 avg-size 8)
+ (par-nothing count 648 avg-size 7)
+ (absence count 674 avg-size 25)
+ (shared count 724 avg-size 32)
+ (var count 754 avg-size 34)
+ (suspend count 1047 avg-size 3)
+ (trap count 1123 avg-size 2)
+ (merge count 2069 avg-size 45)
+ (signal count 4495 avg-size 8)
+ (loop count 4664 avg-size 7)
+ (par-swap count 6194 avg-size 19)
+ (readyness count 11799 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 116 for 6699
+
+
+rule tests generated:
+((is-present count 14 avg-size 49)
+ (emit count 21 avg-size 29)
+ (is-absent count 24 avg-size 34)
+ (par-1exit count 67 avg-size 17)
+ (set-new count 74 avg-size 27)
+ (set-old count 92 avg-size 25)
+ (par-2exit count 104 avg-size 5)
+ (seq-exit count 126 avg-size 11)
+ (loop^stop-exit count 141 avg-size 11)
+ (if-false count 150 avg-size 48)
+ (if-true count 155 avg-size 47)
+ (set-var count 266 avg-size 27)
+ (seq-done count 621 avg-size 8)
+ (par-nothing count 654 avg-size 7)
+ (absence count 680 avg-size 25)
+ (shared count 729 avg-size 32)
+ (var count 761 avg-size 34)
+ (suspend count 1052 avg-size 3)
+ (trap count 1133 avg-size 2)
+ (merge count 2090 avg-size 45)
+ (signal count 4534 avg-size 8)
+ (loop count 4696 avg-size 7)
+ (par-swap count 6257 avg-size 19)
+ (readyness count 11903 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 117 for 6699
+
+
+rule tests generated:
+((is-present count 14 avg-size 49)
+ (emit count 21 avg-size 29)
+ (is-absent count 24 avg-size 34)
+ (par-1exit count 67 avg-size 17)
+ (set-new count 74 avg-size 27)
+ (set-old count 92 avg-size 25)
+ (par-2exit count 105 avg-size 5)
+ (seq-exit count 127 avg-size 11)
+ (loop^stop-exit count 143 avg-size 11)
+ (if-false count 151 avg-size 48)
+ (if-true count 157 avg-size 48)
+ (set-var count 271 avg-size 27)
+ (seq-done count 627 avg-size 8)
+ (par-nothing count 664 avg-size 7)
+ (absence count 683 avg-size 25)
+ (shared count 736 avg-size 32)
+ (var count 763 avg-size 34)
+ (suspend count 1061 avg-size 3)
+ (trap count 1143 avg-size 2)
+ (merge count 2104 avg-size 45)
+ (signal count 4577 avg-size 8)
+ (loop count 4740 avg-size 7)
+ (par-swap count 6317 avg-size 19)
+ (readyness count 12012 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 118 for 6699
+
+
+rule tests generated:
+((is-present count 14 avg-size 49)
+ (emit count 21 avg-size 29)
+ (is-absent count 24 avg-size 34)
+ (par-1exit count 67 avg-size 17)
+ (set-new count 74 avg-size 27)
+ (set-old count 93 avg-size 25)
+ (par-2exit count 106 avg-size 5)
+ (seq-exit count 128 avg-size 11)
+ (loop^stop-exit count 143 avg-size 11)
+ (if-false count 154 avg-size 48)
+ (if-true count 158 avg-size 48)
+ (set-var count 274 avg-size 27)
+ (seq-done count 633 avg-size 8)
+ (par-nothing count 667 avg-size 7)
+ (absence count 686 avg-size 25)
+ (shared count 741 avg-size 32)
+ (var count 768 avg-size 34)
+ (suspend count 1069 avg-size 3)
+ (trap count 1153 avg-size 2)
+ (merge count 2122 avg-size 45)
+ (signal count 4614 avg-size 8)
+ (loop count 4766 avg-size 7)
+ (par-swap count 6371 avg-size 19)
+ (readyness count 12090 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 119 for 6699
+
+
+rule tests generated:
+((is-present count 16 avg-size 48)
+ (emit count 21 avg-size 29)
+ (is-absent count 24 avg-size 34)
+ (par-1exit count 67 avg-size 17)
+ (set-new count 75 avg-size 27)
+ (set-old count 93 avg-size 25)
+ (par-2exit count 106 avg-size 5)
+ (seq-exit count 131 avg-size 11)
+ (loop^stop-exit count 143 avg-size 11)
+ (if-false count 154 avg-size 48)
+ (if-true count 161 avg-size 48)
+ (set-var count 276 avg-size 27)
+ (seq-done count 644 avg-size 8)
+ (par-nothing count 674 avg-size 7)
+ (absence count 692 avg-size 25)
+ (shared count 747 avg-size 32)
+ (var count 771 avg-size 34)
+ (suspend count 1075 avg-size 3)
+ (trap count 1160 avg-size 2)
+ (merge count 2141 avg-size 45)
+ (signal count 4656 avg-size 8)
+ (loop count 4797 avg-size 7)
+ (par-swap count 6433 avg-size 19)
+ (readyness count 12199 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 120 for 6699
+
+
+rule tests generated:
+((is-present count 16 avg-size 48)
+ (emit count 21 avg-size 29)
+ (is-absent count 24 avg-size 34)
+ (par-1exit count 67 avg-size 17)
+ (set-new count 75 avg-size 27)
+ (set-old count 93 avg-size 25)
+ (par-2exit count 109 avg-size 5)
+ (seq-exit count 132 avg-size 11)
+ (loop^stop-exit count 144 avg-size 11)
+ (if-false count 156 avg-size 48)
+ (if-true count 161 avg-size 48)
+ (set-var count 281 avg-size 27)
+ (seq-done count 651 avg-size 8)
+ (par-nothing count 680 avg-size 7)
+ (absence count 699 avg-size 25)
+ (shared count 750 avg-size 32)
+ (var count 777 avg-size 34)
+ (suspend count 1088 avg-size 3)
+ (trap count 1164 avg-size 2)
+ (merge count 2151 avg-size 45)
+ (signal count 4706 avg-size 8)
+ (loop count 4842 avg-size 7)
+ (par-swap count 6473 avg-size 19)
+ (readyness count 12308 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 121 for 6699
+
+
+rule tests generated:
+((is-present count 16 avg-size 48)
+ (emit count 21 avg-size 29)
+ (is-absent count 24 avg-size 34)
+ (par-1exit count 69 avg-size 17)
+ (set-new count 77 avg-size 26)
+ (set-old count 95 avg-size 25)
+ (par-2exit count 109 avg-size 5)
+ (seq-exit count 136 avg-size 11)
+ (loop^stop-exit count 145 avg-size 11)
+ (if-false count 157 avg-size 48)
+ (if-true count 163 avg-size 47)
+ (set-var count 288 avg-size 27)
+ (seq-done count 658 avg-size 8)
+ (par-nothing count 685 avg-size 7)
+ (absence count 702 avg-size 25)
+ (shared count 755 avg-size 32)
+ (var count 780 avg-size 34)
+ (suspend count 1094 avg-size 3)
+ (trap count 1171 avg-size 2)
+ (merge count 2173 avg-size 45)
+ (signal count 4742 avg-size 8)
+ (loop count 4868 avg-size 7)
+ (par-swap count 6517 avg-size 19)
+ (readyness count 12433 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 122 for 6699
+
+
+rule tests generated:
+((is-present count 16 avg-size 48)
+ (emit count 21 avg-size 29)
+ (is-absent count 24 avg-size 34)
+ (par-1exit count 69 avg-size 17)
+ (set-new count 79 avg-size 26)
+ (set-old count 95 avg-size 25)
+ (par-2exit count 110 avg-size 5)
+ (seq-exit count 137 avg-size 11)
+ (loop^stop-exit count 148 avg-size 11)
+ (if-false count 157 avg-size 48)
+ (if-true count 163 avg-size 47)
+ (set-var count 292 avg-size 27)
+ (seq-done count 664 avg-size 8)
+ (par-nothing count 690 avg-size 7)
+ (absence count 709 avg-size 25)
+ (shared count 762 avg-size 32)
+ (var count 785 avg-size 34)
+ (suspend count 1103 avg-size 3)
+ (trap count 1176 avg-size 2)
+ (merge count 2190 avg-size 45)
+ (signal count 4772 avg-size 8)
+ (loop count 4893 avg-size 7)
+ (par-swap count 6568 avg-size 19)
+ (readyness count 12528 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 123 for 6699
+
+
+rule tests generated:
+((is-present count 16 avg-size 48)
+ (emit count 21 avg-size 29)
+ (is-absent count 25 avg-size 34)
+ (par-1exit count 70 avg-size 17)
+ (set-new count 81 avg-size 26)
+ (set-old count 96 avg-size 25)
+ (par-2exit count 111 avg-size 5)
+ (seq-exit count 138 avg-size 11)
+ (loop^stop-exit count 150 avg-size 11)
+ (if-false count 160 avg-size 48)
+ (if-true count 164 avg-size 47)
+ (set-var count 297 avg-size 27)
+ (seq-done count 670 avg-size 8)
+ (par-nothing count 693 avg-size 7)
+ (absence count 714 avg-size 25)
+ (shared count 773 avg-size 33)
+ (var count 792 avg-size 34)
+ (suspend count 1107 avg-size 3)
+ (trap count 1182 avg-size 2)
+ (merge count 2202 avg-size 45)
+ (signal count 4803 avg-size 8)
+ (loop count 4925 avg-size 7)
+ (par-swap count 6617 avg-size 19)
+ (readyness count 12640 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 124 for 6699
+
+
+rule tests generated:
+((is-present count 17 avg-size 46)
+ (emit count 21 avg-size 29)
+ (is-absent count 25 avg-size 34)
+ (par-1exit count 70 avg-size 17)
+ (set-new count 81 avg-size 26)
+ (set-old count 99 avg-size 25)
+ (par-2exit count 111 avg-size 5)
+ (seq-exit count 139 avg-size 11)
+ (loop^stop-exit count 151 avg-size 11)
+ (if-false count 161 avg-size 48)
+ (if-true count 165 avg-size 47)
+ (set-var count 297 avg-size 27)
+ (seq-done count 677 avg-size 8)
+ (par-nothing count 699 avg-size 7)
+ (absence count 719 avg-size 25)
+ (shared count 780 avg-size 33)
+ (var count 798 avg-size 34)
+ (suspend count 1118 avg-size 3)
+ (trap count 1192 avg-size 2)
+ (merge count 2217 avg-size 45)
+ (signal count 4823 avg-size 8)
+ (loop count 4952 avg-size 7)
+ (par-swap count 6650 avg-size 19)
+ (readyness count 12744 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 125 for 6699
+
+
+rule tests generated:
+((is-present count 17 avg-size 46)
+ (emit count 22 avg-size 29)
+ (is-absent count 25 avg-size 34)
+ (par-1exit count 70 avg-size 17)
+ (set-new count 81 avg-size 26)
+ (set-old count 99 avg-size 25)
+ (par-2exit count 111 avg-size 5)
+ (seq-exit count 139 avg-size 11)
+ (loop^stop-exit count 152 avg-size 11)
+ (if-false count 162 avg-size 48)
+ (if-true count 166 avg-size 47)
+ (set-var count 298 avg-size 27)
+ (seq-done count 677 avg-size 8)
+ (par-nothing count 707 avg-size 7)
+ (absence count 729 avg-size 25)
+ (shared count 788 avg-size 33)
+ (var count 802 avg-size 34)
+ (suspend count 1125 avg-size 3)
+ (trap count 1194 avg-size 2)
+ (merge count 2235 avg-size 45)
+ (signal count 4854 avg-size 8)
+ (loop count 5002 avg-size 7)
+ (par-swap count 6716 avg-size 19)
+ (readyness count 12847 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 126 for 6699
+
+
+rule tests generated:
+((is-present count 17 avg-size 46)
+ (emit count 23 avg-size 28)
+ (is-absent count 25 avg-size 34)
+ (par-1exit count 72 avg-size 16)
+ (set-new count 81 avg-size 26)
+ (set-old count 101 avg-size 25)
+ (par-2exit count 113 avg-size 5)
+ (seq-exit count 139 avg-size 11)
+ (loop^stop-exit count 152 avg-size 11)
+ (if-false count 162 avg-size 48)
+ (if-true count 166 avg-size 47)
+ (set-var count 299 avg-size 27)
+ (seq-done count 684 avg-size 8)
+ (par-nothing count 713 avg-size 7)
+ (absence count 732 avg-size 25)
+ (shared count 793 avg-size 33)
+ (var count 812 avg-size 34)
+ (suspend count 1129 avg-size 3)
+ (trap count 1200 avg-size 2)
+ (merge count 2248 avg-size 45)
+ (signal count 4892 avg-size 8)
+ (loop count 5042 avg-size 7)
+ (par-swap count 6774 avg-size 19)
+ (readyness count 12940 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 127 for 6699
+
+
+rule tests generated:
+((is-present count 17 avg-size 46)
+ (emit count 23 avg-size 28)
+ (is-absent count 27 avg-size 33)
+ (par-1exit count 73 avg-size 16)
+ (set-new count 82 avg-size 26)
+ (set-old count 104 avg-size 25)
+ (par-2exit count 114 avg-size 5)
+ (seq-exit count 139 avg-size 11)
+ (loop^stop-exit count 152 avg-size 11)
+ (if-false count 163 avg-size 48)
+ (if-true count 168 avg-size 48)
+ (set-var count 304 avg-size 27)
+ (seq-done count 688 avg-size 8)
+ (par-nothing count 716 avg-size 7)
+ (absence count 741 avg-size 25)
+ (shared count 797 avg-size 33)
+ (var count 815 avg-size 34)
+ (suspend count 1133 avg-size 3)
+ (trap count 1211 avg-size 2)
+ (merge count 2272 avg-size 45)
+ (signal count 4942 avg-size 8)
+ (loop count 5072 avg-size 7)
+ (par-swap count 6820 avg-size 19)
+ (readyness count 13057 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 128 for 6699
+
+
+rule tests generated:
+((is-present count 17 avg-size 46)
+ (emit count 24 avg-size 28)
+ (is-absent count 27 avg-size 33)
+ (par-1exit count 75 avg-size 16)
+ (set-new count 83 avg-size 26)
+ (set-old count 104 avg-size 25)
+ (par-2exit count 114 avg-size 5)
+ (seq-exit count 142 avg-size 11)
+ (loop^stop-exit count 153 avg-size 11)
+ (if-false count 165 avg-size 48)
+ (if-true count 168 avg-size 48)
+ (set-var count 306 avg-size 27)
+ (seq-done count 697 avg-size 8)
+ (par-nothing count 721 avg-size 7)
+ (absence count 751 avg-size 25)
+ (shared count 803 avg-size 33)
+ (var count 821 avg-size 34)
+ (suspend count 1137 avg-size 3)
+ (trap count 1219 avg-size 2)
+ (merge count 2291 avg-size 45)
+ (signal count 4974 avg-size 8)
+ (loop count 5110 avg-size 7)
+ (par-swap count 6870 avg-size 19)
+ (readyness count 13156 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 129 for 6699
+
+
+rule tests generated:
+((is-present count 17 avg-size 46)
+ (emit count 24 avg-size 28)
+ (is-absent count 27 avg-size 33)
+ (par-1exit count 75 avg-size 16)
+ (set-new count 83 avg-size 26)
+ (set-old count 105 avg-size 25)
+ (par-2exit count 114 avg-size 5)
+ (seq-exit count 145 avg-size 11)
+ (loop^stop-exit count 154 avg-size 11)
+ (if-false count 166 avg-size 48)
+ (if-true count 169 avg-size 48)
+ (set-var count 307 avg-size 27)
+ (seq-done count 705 avg-size 8)
+ (par-nothing count 728 avg-size 7)
+ (absence count 757 avg-size 25)
+ (shared count 806 avg-size 33)
+ (var count 828 avg-size 34)
+ (suspend count 1148 avg-size 3)
+ (trap count 1224 avg-size 2)
+ (merge count 2302 avg-size 45)
+ (signal count 5005 avg-size 8)
+ (loop count 5146 avg-size 7)
+ (par-swap count 6927 avg-size 19)
+ (readyness count 13249 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 130 for 6699
+
+
+rule tests generated:
+((is-present count 19 avg-size 45)
+ (emit count 25 avg-size 28)
+ (is-absent count 28 avg-size 34)
+ (par-1exit count 75 avg-size 16)
+ (set-new count 84 avg-size 26)
+ (set-old count 105 avg-size 25)
+ (par-2exit count 114 avg-size 5)
+ (seq-exit count 149 avg-size 11)
+ (loop^stop-exit count 156 avg-size 11)
+ (if-false count 167 avg-size 48)
+ (if-true count 169 avg-size 48)
+ (set-var count 309 avg-size 27)
+ (seq-done count 711 avg-size 8)
+ (par-nothing count 734 avg-size 7)
+ (absence count 764 avg-size 25)
+ (shared count 812 avg-size 33)
+ (var count 833 avg-size 34)
+ (suspend count 1157 avg-size 3)
+ (trap count 1236 avg-size 2)
+ (merge count 2321 avg-size 45)
+ (signal count 5049 avg-size 8)
+ (loop count 5196 avg-size 7)
+ (par-swap count 6994 avg-size 19)
+ (readyness count 13348 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 131 for 6699
+
+
+rule tests generated:
+((is-present count 19 avg-size 45)
+ (emit count 27 avg-size 28)
+ (is-absent count 29 avg-size 34)
+ (par-1exit count 75 avg-size 16)
+ (set-new count 84 avg-size 26)
+ (set-old count 105 avg-size 25)
+ (par-2exit count 117 avg-size 5)
+ (seq-exit count 151 avg-size 11)
+ (loop^stop-exit count 158 avg-size 11)
+ (if-false count 168 avg-size 48)
+ (if-true count 172 avg-size 48)
+ (set-var count 310 avg-size 27)
+ (seq-done count 720 avg-size 8)
+ (par-nothing count 744 avg-size 7)
+ (absence count 768 avg-size 25)
+ (shared count 814 avg-size 33)
+ (var count 835 avg-size 34)
+ (suspend count 1162 avg-size 3)
+ (trap count 1248 avg-size 2)
+ (merge count 2338 avg-size 45)
+ (signal count 5088 avg-size 8)
+ (loop count 5253 avg-size 7)
+ (par-swap count 7045 avg-size 19)
+ (readyness count 13467 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 132 for 6699
+
+
+rule tests generated:
+((is-present count 19 avg-size 45)
+ (emit count 27 avg-size 28)
+ (is-absent count 29 avg-size 34)
+ (par-1exit count 75 avg-size 16)
+ (set-new count 85 avg-size 26)
+ (set-old count 105 avg-size 25)
+ (par-2exit count 118 avg-size 5)
+ (seq-exit count 152 avg-size 11)
+ (loop^stop-exit count 159 avg-size 11)
+ (if-false count 171 avg-size 48)
+ (if-true count 172 avg-size 48)
+ (set-var count 314 avg-size 27)
+ (seq-done count 725 avg-size 8)
+ (par-nothing count 751 avg-size 7)
+ (absence count 773 avg-size 25)
+ (shared count 817 avg-size 33)
+ (var count 839 avg-size 34)
+ (suspend count 1169 avg-size 3)
+ (trap count 1250 avg-size 2)
+ (merge count 2357 avg-size 45)
+ (signal count 5115 avg-size 8)
+ (loop count 5307 avg-size 7)
+ (par-swap count 7093 avg-size 19)
+ (readyness count 13575 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 133 for 6699
+
+
+rule tests generated:
+((is-present count 19 avg-size 45)
+ (emit count 28 avg-size 29)
+ (is-absent count 29 avg-size 34)
+ (par-1exit count 76 avg-size 16)
+ (set-new count 85 avg-size 26)
+ (set-old count 105 avg-size 25)
+ (par-2exit count 121 avg-size 5)
+ (seq-exit count 152 avg-size 11)
+ (loop^stop-exit count 161 avg-size 11)
+ (if-false count 173 avg-size 48)
+ (if-true count 173 avg-size 48)
+ (set-var count 317 avg-size 27)
+ (seq-done count 733 avg-size 8)
+ (par-nothing count 754 avg-size 7)
+ (absence count 778 avg-size 25)
+ (shared count 820 avg-size 33)
+ (var count 845 avg-size 34)
+ (suspend count 1178 avg-size 3)
+ (trap count 1259 avg-size 2)
+ (merge count 2378 avg-size 45)
+ (signal count 5143 avg-size 8)
+ (loop count 5344 avg-size 7)
+ (par-swap count 7144 avg-size 19)
+ (readyness count 13685 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 134 for 6699
+
+
+rule tests generated:
+((is-present count 19 avg-size 45)
+ (emit count 28 avg-size 29)
+ (is-absent count 30 avg-size 34)
+ (par-1exit count 76 avg-size 16)
+ (set-new count 86 avg-size 26)
+ (set-old count 105 avg-size 25)
+ (par-2exit count 121 avg-size 5)
+ (seq-exit count 152 avg-size 11)
+ (loop^stop-exit count 163 avg-size 11)
+ (if-false count 174 avg-size 48)
+ (if-true count 178 avg-size 48)
+ (set-var count 321 avg-size 27)
+ (seq-done count 739 avg-size 8)
+ (par-nothing count 764 avg-size 7)
+ (absence count 784 avg-size 25)
+ (shared count 822 avg-size 33)
+ (var count 848 avg-size 34)
+ (suspend count 1183 avg-size 3)
+ (trap count 1266 avg-size 2)
+ (merge count 2388 avg-size 45)
+ (signal count 5193 avg-size 8)
+ (loop count 5390 avg-size 7)
+ (par-swap count 7196 avg-size 19)
+ (readyness count 13791 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 135 for 6699
+
+
+rule tests generated:
+((is-present count 19 avg-size 45)
+ (emit count 28 avg-size 29)
+ (is-absent count 30 avg-size 34)
+ (par-1exit count 77 avg-size 16)
+ (set-new count 88 avg-size 26)
+ (set-old count 106 avg-size 25)
+ (par-2exit count 121 avg-size 5)
+ (seq-exit count 152 avg-size 11)
+ (loop^stop-exit count 164 avg-size 11)
+ (if-false count 174 avg-size 48)
+ (if-true count 178 avg-size 48)
+ (set-var count 323 avg-size 27)
+ (seq-done count 744 avg-size 8)
+ (par-nothing count 769 avg-size 7)
+ (absence count 791 avg-size 25)
+ (shared count 824 avg-size 33)
+ (var count 856 avg-size 34)
+ (suspend count 1189 avg-size 3)
+ (trap count 1279 avg-size 2)
+ (merge count 2405 avg-size 45)
+ (signal count 5222 avg-size 8)
+ (loop count 5420 avg-size 7)
+ (par-swap count 7247 avg-size 19)
+ (readyness count 13876 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 136 for 6699
+
+
+rule tests generated:
+((is-present count 20 avg-size 44)
+ (emit count 28 avg-size 29)
+ (is-absent count 30 avg-size 34)
+ (par-1exit count 80 avg-size 16)
+ (set-new count 89 avg-size 26)
+ (set-old count 107 avg-size 25)
+ (par-2exit count 121 avg-size 5)
+ (seq-exit count 153 avg-size 11)
+ (loop^stop-exit count 165 avg-size 11)
+ (if-false count 174 avg-size 48)
+ (if-true count 179 avg-size 48)
+ (set-var count 326 avg-size 27)
+ (seq-done count 748 avg-size 8)
+ (par-nothing count 775 avg-size 7)
+ (absence count 797 avg-size 25)
+ (shared count 832 avg-size 33)
+ (var count 862 avg-size 34)
+ (suspend count 1196 avg-size 3)
+ (trap count 1286 avg-size 2)
+ (merge count 2433 avg-size 45)
+ (signal count 5258 avg-size 8)
+ (loop count 5450 avg-size 7)
+ (par-swap count 7294 avg-size 19)
+ (readyness count 13988 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 137 for 6699
+
+
+rule tests generated:
+((is-present count 20 avg-size 44)
+ (emit count 28 avg-size 29)
+ (is-absent count 31 avg-size 34)
+ (par-1exit count 80 avg-size 16)
+ (set-new count 89 avg-size 26)
+ (set-old count 107 avg-size 25)
+ (par-2exit count 121 avg-size 5)
+ (seq-exit count 155 avg-size 11)
+ (loop^stop-exit count 166 avg-size 11)
+ (if-false count 176 avg-size 48)
+ (if-true count 182 avg-size 48)
+ (set-var count 327 avg-size 27)
+ (seq-done count 751 avg-size 8)
+ (par-nothing count 778 avg-size 7)
+ (absence count 802 avg-size 25)
+ (shared count 838 avg-size 32)
+ (var count 868 avg-size 34)
+ (suspend count 1210 avg-size 3)
+ (trap count 1297 avg-size 2)
+ (merge count 2457 avg-size 45)
+ (signal count 5305 avg-size 8)
+ (loop count 5490 avg-size 7)
+ (par-swap count 7346 avg-size 19)
+ (readyness count 14107 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 138 for 6699
+
+
+rule tests generated:
+((is-present count 20 avg-size 44)
+ (emit count 28 avg-size 29)
+ (is-absent count 31 avg-size 34)
+ (par-1exit count 83 avg-size 17)
+ (set-new count 90 avg-size 26)
+ (set-old count 107 avg-size 25)
+ (par-2exit count 121 avg-size 5)
+ (seq-exit count 156 avg-size 11)
+ (loop^stop-exit count 167 avg-size 11)
+ (if-false count 177 avg-size 48)
+ (if-true count 183 avg-size 47)
+ (set-var count 331 avg-size 27)
+ (seq-done count 757 avg-size 8)
+ (par-nothing count 784 avg-size 7)
+ (absence count 809 avg-size 25)
+ (shared count 844 avg-size 33)
+ (var count 875 avg-size 34)
+ (suspend count 1218 avg-size 3)
+ (trap count 1308 avg-size 2)
+ (merge count 2476 avg-size 45)
+ (signal count 5351 avg-size 8)
+ (loop count 5534 avg-size 7)
+ (par-swap count 7404 avg-size 19)
+ (readyness count 14209 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 139 for 6699
+
+
+rule tests generated:
+((is-present count 21 avg-size 45)
+ (emit count 29 avg-size 28)
+ (is-absent count 31 avg-size 34)
+ (par-1exit count 84 avg-size 17)
+ (set-new count 91 avg-size 26)
+ (set-old count 107 avg-size 25)
+ (par-2exit count 121 avg-size 5)
+ (seq-exit count 158 avg-size 11)
+ (loop^stop-exit count 170 avg-size 12)
+ (if-false count 178 avg-size 48)
+ (if-true count 186 avg-size 48)
+ (set-var count 334 avg-size 27)
+ (seq-done count 764 avg-size 8)
+ (par-nothing count 792 avg-size 7)
+ (absence count 813 avg-size 25)
+ (shared count 852 avg-size 33)
+ (var count 884 avg-size 34)
+ (suspend count 1223 avg-size 3)
+ (trap count 1314 avg-size 2)
+ (merge count 2501 avg-size 45)
+ (signal count 5392 avg-size 8)
+ (loop count 5581 avg-size 7)
+ (par-swap count 7465 avg-size 19)
+ (readyness count 14307 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 140 for 6699
+
+
+rule tests generated:
+((is-present count 21 avg-size 45)
+ (emit count 29 avg-size 28)
+ (is-absent count 31 avg-size 34)
+ (par-1exit count 85 avg-size 17)
+ (set-new count 91 avg-size 26)
+ (set-old count 107 avg-size 25)
+ (par-2exit count 122 avg-size 5)
+ (seq-exit count 159 avg-size 11)
+ (loop^stop-exit count 173 avg-size 12)
+ (if-false count 179 avg-size 48)
+ (if-true count 190 avg-size 48)
+ (set-var count 339 avg-size 27)
+ (seq-done count 766 avg-size 8)
+ (par-nothing count 798 avg-size 7)
+ (absence count 821 avg-size 25)
+ (shared count 858 avg-size 33)
+ (var count 890 avg-size 34)
+ (suspend count 1231 avg-size 3)
+ (trap count 1325 avg-size 2)
+ (merge count 2523 avg-size 45)
+ (signal count 5434 avg-size 8)
+ (loop count 5612 avg-size 7)
+ (par-swap count 7530 avg-size 19)
+ (readyness count 14409 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 141 for 6699
+
+
+rule tests generated:
+((is-present count 21 avg-size 45)
+ (emit count 30 avg-size 28)
+ (is-absent count 31 avg-size 34)
+ (par-1exit count 85 avg-size 17)
+ (set-new count 92 avg-size 26)
+ (set-old count 108 avg-size 26)
+ (par-2exit count 122 avg-size 5)
+ (seq-exit count 159 avg-size 11)
+ (loop^stop-exit count 173 avg-size 12)
+ (if-false count 179 avg-size 48)
+ (if-true count 193 avg-size 48)
+ (set-var count 342 avg-size 27)
+ (seq-done count 771 avg-size 8)
+ (par-nothing count 803 avg-size 7)
+ (absence count 828 avg-size 25)
+ (shared count 863 avg-size 33)
+ (var count 898 avg-size 34)
+ (suspend count 1240 avg-size 3)
+ (trap count 1337 avg-size 2)
+ (merge count 2540 avg-size 45)
+ (signal count 5473 avg-size 8)
+ (loop count 5647 avg-size 7)
+ (par-swap count 7591 avg-size 19)
+ (readyness count 14532 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 142 for 6699
+
+
+rule tests generated:
+((is-present count 21 avg-size 45)
+ (emit count 30 avg-size 28)
+ (is-absent count 31 avg-size 34)
+ (par-1exit count 85 avg-size 17)
+ (set-new count 93 avg-size 26)
+ (set-old count 108 avg-size 26)
+ (par-2exit count 122 avg-size 5)
+ (seq-exit count 159 avg-size 11)
+ (loop^stop-exit count 173 avg-size 12)
+ (if-false count 183 avg-size 47)
+ (if-true count 194 avg-size 48)
+ (set-var count 342 avg-size 27)
+ (seq-done count 776 avg-size 8)
+ (par-nothing count 810 avg-size 7)
+ (absence count 836 avg-size 25)
+ (shared count 871 avg-size 33)
+ (var count 907 avg-size 34)
+ (suspend count 1248 avg-size 3)
+ (trap count 1346 avg-size 2)
+ (merge count 2550 avg-size 45)
+ (signal count 5518 avg-size 8)
+ (loop count 5698 avg-size 7)
+ (par-swap count 7642 avg-size 19)
+ (readyness count 14616 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 143 for 6699
+
+
+rule tests generated:
+((is-present count 21 avg-size 45)
+ (is-absent count 31 avg-size 34)
+ (emit count 32 avg-size 27)
+ (par-1exit count 85 avg-size 17)
+ (set-new count 93 avg-size 26)
+ (set-old count 109 avg-size 26)
+ (par-2exit count 123 avg-size 5)
+ (seq-exit count 160 avg-size 11)
+ (loop^stop-exit count 174 avg-size 12)
+ (if-false count 187 avg-size 47)
+ (if-true count 194 avg-size 48)
+ (set-var count 342 avg-size 27)
+ (seq-done count 781 avg-size 8)
+ (par-nothing count 813 avg-size 7)
+ (absence count 842 avg-size 25)
+ (shared count 877 avg-size 33)
+ (var count 914 avg-size 34)
+ (suspend count 1260 avg-size 3)
+ (trap count 1355 avg-size 2)
+ (merge count 2576 avg-size 45)
+ (signal count 5565 avg-size 8)
+ (loop count 5738 avg-size 7)
+ (par-swap count 7692 avg-size 19)
+ (readyness count 14714 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 144 for 6699
+
+
+rule tests generated:
+((is-present count 21 avg-size 45)
+ (is-absent count 31 avg-size 34)
+ (emit count 32 avg-size 27)
+ (par-1exit count 85 avg-size 17)
+ (set-new count 93 avg-size 26)
+ (set-old count 110 avg-size 26)
+ (par-2exit count 124 avg-size 5)
+ (seq-exit count 163 avg-size 11)
+ (loop^stop-exit count 177 avg-size 12)
+ (if-false count 189 avg-size 47)
+ (if-true count 196 avg-size 47)
+ (set-var count 344 avg-size 27)
+ (seq-done count 788 avg-size 8)
+ (par-nothing count 820 avg-size 7)
+ (absence count 848 avg-size 25)
+ (shared count 884 avg-size 33)
+ (var count 915 avg-size 34)
+ (suspend count 1271 avg-size 3)
+ (trap count 1363 avg-size 2)
+ (merge count 2598 avg-size 45)
+ (signal count 5607 avg-size 8)
+ (loop count 5776 avg-size 7)
+ (par-swap count 7751 avg-size 19)
+ (readyness count 14818 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 145 for 6699
+
+
+rule tests generated:
+((is-present count 21 avg-size 45)
+ (is-absent count 31 avg-size 34)
+ (emit count 33 avg-size 27)
+ (par-1exit count 86 avg-size 17)
+ (set-new count 93 avg-size 26)
+ (set-old count 111 avg-size 26)
+ (par-2exit count 127 avg-size 5)
+ (seq-exit count 164 avg-size 11)
+ (loop^stop-exit count 178 avg-size 12)
+ (if-false count 190 avg-size 47)
+ (if-true count 197 avg-size 48)
+ (set-var count 350 avg-size 27)
+ (seq-done count 797 avg-size 8)
+ (par-nothing count 822 avg-size 7)
+ (absence count 851 avg-size 25)
+ (shared count 890 avg-size 33)
+ (var count 920 avg-size 34)
+ (suspend count 1278 avg-size 3)
+ (trap count 1374 avg-size 2)
+ (merge count 2612 avg-size 45)
+ (signal count 5642 avg-size 8)
+ (loop count 5817 avg-size 7)
+ (par-swap count 7792 avg-size 19)
+ (readyness count 14920 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 146 for 6699
+
+
+rule tests generated:
+((is-present count 21 avg-size 45)
+ (is-absent count 31 avg-size 34)
+ (emit count 33 avg-size 27)
+ (par-1exit count 86 avg-size 17)
+ (set-new count 94 avg-size 26)
+ (set-old count 112 avg-size 26)
+ (par-2exit count 129 avg-size 5)
+ (seq-exit count 167 avg-size 11)
+ (loop^stop-exit count 180 avg-size 12)
+ (if-false count 190 avg-size 47)
+ (if-true count 200 avg-size 48)
+ (set-var count 355 avg-size 27)
+ (seq-done count 802 avg-size 8)
+ (par-nothing count 824 avg-size 7)
+ (absence count 852 avg-size 25)
+ (shared count 897 avg-size 33)
+ (var count 924 avg-size 34)
+ (suspend count 1284 avg-size 3)
+ (trap count 1388 avg-size 2)
+ (merge count 2627 avg-size 45)
+ (signal count 5665 avg-size 8)
+ (loop count 5858 avg-size 7)
+ (par-swap count 7833 avg-size 19)
+ (readyness count 15017 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 147 for 6699
+
+
+rule tests generated:
+((is-present count 21 avg-size 45)
+ (is-absent count 31 avg-size 34)
+ (emit count 33 avg-size 27)
+ (par-1exit count 88 avg-size 17)
+ (set-new count 94 avg-size 26)
+ (set-old count 113 avg-size 26)
+ (par-2exit count 129 avg-size 5)
+ (seq-exit count 167 avg-size 11)
+ (loop^stop-exit count 180 avg-size 12)
+ (if-false count 191 avg-size 47)
+ (if-true count 202 avg-size 48)
+ (set-var count 358 avg-size 27)
+ (seq-done count 807 avg-size 8)
+ (par-nothing count 828 avg-size 7)
+ (absence count 859 avg-size 25)
+ (shared count 903 avg-size 32)
+ (var count 931 avg-size 34)
+ (suspend count 1292 avg-size 3)
+ (trap count 1397 avg-size 2)
+ (merge count 2646 avg-size 45)
+ (signal count 5689 avg-size 8)
+ (loop count 5902 avg-size 7)
+ (par-swap count 7870 avg-size 19)
+ (readyness count 15130 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 148 for 6699
+
+
+rule tests generated:
+((is-present count 21 avg-size 45)
+ (is-absent count 31 avg-size 34)
+ (emit count 33 avg-size 27)
+ (par-1exit count 89 avg-size 17)
+ (set-new count 94 avg-size 26)
+ (set-old count 114 avg-size 26)
+ (par-2exit count 129 avg-size 5)
+ (seq-exit count 168 avg-size 11)
+ (loop^stop-exit count 181 avg-size 12)
+ (if-false count 194 avg-size 47)
+ (if-true count 204 avg-size 48)
+ (set-var count 363 avg-size 27)
+ (seq-done count 810 avg-size 8)
+ (par-nothing count 830 avg-size 7)
+ (absence count 865 avg-size 25)
+ (shared count 911 avg-size 32)
+ (var count 941 avg-size 34)
+ (suspend count 1304 avg-size 3)
+ (trap count 1405 avg-size 2)
+ (merge count 2669 avg-size 45)
+ (signal count 5717 avg-size 8)
+ (loop count 5943 avg-size 7)
+ (par-swap count 7924 avg-size 19)
+ (readyness count 15237 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 149 for 6699
+
+
+rule tests generated:
+((is-present count 21 avg-size 45)
+ (is-absent count 31 avg-size 34)
+ (emit count 33 avg-size 27)
+ (par-1exit count 90 avg-size 17)
+ (set-new count 95 avg-size 26)
+ (set-old count 114 avg-size 26)
+ (par-2exit count 130 avg-size 5)
+ (seq-exit count 169 avg-size 11)
+ (loop^stop-exit count 184 avg-size 11)
+ (if-false count 196 avg-size 47)
+ (if-true count 207 avg-size 48)
+ (set-var count 369 avg-size 27)
+ (seq-done count 813 avg-size 8)
+ (par-nothing count 835 avg-size 7)
+ (absence count 867 avg-size 25)
+ (shared count 913 avg-size 32)
+ (var count 946 avg-size 34)
+ (suspend count 1320 avg-size 3)
+ (trap count 1413 avg-size 2)
+ (merge count 2684 avg-size 45)
+ (signal count 5753 avg-size 8)
+ (loop count 5978 avg-size 7)
+ (par-swap count 7972 avg-size 19)
+ (readyness count 15342 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 150 for 6699
+
+
+rule tests generated:
+((is-present count 21 avg-size 45)
+ (is-absent count 32 avg-size 34)
+ (emit count 33 avg-size 27)
+ (par-1exit count 91 avg-size 17)
+ (set-new count 96 avg-size 26)
+ (set-old count 114 avg-size 26)
+ (par-2exit count 130 avg-size 5)
+ (seq-exit count 170 avg-size 11)
+ (loop^stop-exit count 184 avg-size 11)
+ (if-false count 197 avg-size 47)
+ (if-true count 209 avg-size 48)
+ (set-var count 371 avg-size 27)
+ (seq-done count 827 avg-size 8)
+ (par-nothing count 842 avg-size 7)
+ (absence count 878 avg-size 25)
+ (shared count 919 avg-size 32)
+ (var count 952 avg-size 34)
+ (suspend count 1329 avg-size 3)
+ (trap count 1428 avg-size 2)
+ (merge count 2705 avg-size 45)
+ (signal count 5816 avg-size 8)
+ (loop count 6028 avg-size 7)
+ (par-swap count 8058 avg-size 19)
+ (readyness count 15451 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 151 for 6699
+
+
+rule tests generated:
+((is-present count 23 avg-size 46)
+ (emit count 33 avg-size 27)
+ (is-absent count 33 avg-size 33)
+ (par-1exit count 91 avg-size 17)
+ (set-new count 97 avg-size 26)
+ (set-old count 115 avg-size 26)
+ (par-2exit count 130 avg-size 5)
+ (seq-exit count 171 avg-size 11)
+ (loop^stop-exit count 185 avg-size 11)
+ (if-false count 197 avg-size 47)
+ (if-true count 210 avg-size 47)
+ (set-var count 371 avg-size 27)
+ (seq-done count 832 avg-size 8)
+ (par-nothing count 846 avg-size 6)
+ (absence count 887 avg-size 25)
+ (shared count 923 avg-size 33)
+ (var count 958 avg-size 34)
+ (suspend count 1337 avg-size 3)
+ (trap count 1438 avg-size 2)
+ (merge count 2720 avg-size 45)
+ (signal count 5857 avg-size 8)
+ (loop count 6070 avg-size 7)
+ (par-swap count 8106 avg-size 19)
+ (readyness count 15545 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 152 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (is-absent count 33 avg-size 33)
+ (emit count 34 avg-size 27)
+ (par-1exit count 91 avg-size 17)
+ (set-new count 97 avg-size 26)
+ (set-old count 115 avg-size 26)
+ (par-2exit count 131 avg-size 5)
+ (seq-exit count 171 avg-size 11)
+ (loop^stop-exit count 186 avg-size 11)
+ (if-false count 200 avg-size 47)
+ (if-true count 210 avg-size 47)
+ (set-var count 372 avg-size 27)
+ (seq-done count 837 avg-size 7)
+ (par-nothing count 851 avg-size 6)
+ (absence count 898 avg-size 25)
+ (shared count 930 avg-size 33)
+ (var count 965 avg-size 34)
+ (suspend count 1344 avg-size 3)
+ (trap count 1449 avg-size 2)
+ (merge count 2740 avg-size 45)
+ (signal count 5906 avg-size 8)
+ (loop count 6117 avg-size 7)
+ (par-swap count 8168 avg-size 19)
+ (readyness count 15657 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 153 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (is-absent count 33 avg-size 33)
+ (emit count 34 avg-size 27)
+ (par-1exit count 91 avg-size 17)
+ (set-new count 97 avg-size 26)
+ (set-old count 115 avg-size 26)
+ (par-2exit count 131 avg-size 5)
+ (seq-exit count 172 avg-size 11)
+ (loop^stop-exit count 188 avg-size 12)
+ (if-false count 201 avg-size 47)
+ (if-true count 211 avg-size 47)
+ (set-var count 376 avg-size 27)
+ (seq-done count 843 avg-size 8)
+ (par-nothing count 855 avg-size 6)
+ (absence count 902 avg-size 25)
+ (shared count 933 avg-size 33)
+ (var count 971 avg-size 34)
+ (suspend count 1352 avg-size 3)
+ (trap count 1462 avg-size 2)
+ (merge count 2751 avg-size 45)
+ (signal count 5954 avg-size 8)
+ (loop count 6183 avg-size 7)
+ (par-swap count 8219 avg-size 19)
+ (readyness count 15758 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 154 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (is-absent count 33 avg-size 33)
+ (emit count 34 avg-size 27)
+ (par-1exit count 91 avg-size 17)
+ (set-new count 97 avg-size 26)
+ (set-old count 117 avg-size 26)
+ (par-2exit count 132 avg-size 5)
+ (seq-exit count 174 avg-size 11)
+ (loop^stop-exit count 189 avg-size 12)
+ (if-false count 202 avg-size 47)
+ (if-true count 212 avg-size 47)
+ (set-var count 378 avg-size 27)
+ (seq-done count 845 avg-size 8)
+ (par-nothing count 862 avg-size 6)
+ (absence count 906 avg-size 25)
+ (shared count 937 avg-size 33)
+ (var count 975 avg-size 34)
+ (suspend count 1360 avg-size 3)
+ (trap count 1467 avg-size 2)
+ (merge count 2764 avg-size 45)
+ (signal count 5990 avg-size 8)
+ (loop count 6238 avg-size 7)
+ (par-swap count 8276 avg-size 19)
+ (readyness count 15859 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 155 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (is-absent count 33 avg-size 33)
+ (emit count 34 avg-size 27)
+ (par-1exit count 92 avg-size 17)
+ (set-new count 97 avg-size 26)
+ (set-old count 119 avg-size 26)
+ (par-2exit count 132 avg-size 5)
+ (seq-exit count 175 avg-size 11)
+ (loop^stop-exit count 189 avg-size 12)
+ (if-false count 205 avg-size 47)
+ (if-true count 212 avg-size 47)
+ (set-var count 380 avg-size 27)
+ (seq-done count 854 avg-size 8)
+ (par-nothing count 865 avg-size 6)
+ (absence count 908 avg-size 25)
+ (shared count 943 avg-size 33)
+ (var count 980 avg-size 34)
+ (suspend count 1370 avg-size 3)
+ (trap count 1478 avg-size 2)
+ (merge count 2783 avg-size 45)
+ (signal count 6030 avg-size 8)
+ (loop count 6292 avg-size 7)
+ (par-swap count 8323 avg-size 19)
+ (readyness count 15953 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 156 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (is-absent count 33 avg-size 33)
+ (emit count 34 avg-size 27)
+ (par-1exit count 92 avg-size 17)
+ (set-new count 98 avg-size 26)
+ (set-old count 120 avg-size 26)
+ (par-2exit count 135 avg-size 5)
+ (seq-exit count 175 avg-size 11)
+ (loop^stop-exit count 189 avg-size 12)
+ (if-false count 206 avg-size 47)
+ (if-true count 215 avg-size 47)
+ (set-var count 383 avg-size 27)
+ (seq-done count 856 avg-size 8)
+ (par-nothing count 869 avg-size 6)
+ (absence count 914 avg-size 25)
+ (shared count 949 avg-size 33)
+ (var count 988 avg-size 34)
+ (suspend count 1376 avg-size 3)
+ (trap count 1490 avg-size 2)
+ (merge count 2791 avg-size 45)
+ (signal count 6063 avg-size 8)
+ (loop count 6323 avg-size 7)
+ (par-swap count 8360 avg-size 19)
+ (readyness count 16059 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 157 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 34 avg-size 27)
+ (is-absent count 35 avg-size 33)
+ (par-1exit count 93 avg-size 17)
+ (set-new count 98 avg-size 26)
+ (set-old count 120 avg-size 26)
+ (par-2exit count 135 avg-size 5)
+ (seq-exit count 177 avg-size 11)
+ (loop^stop-exit count 190 avg-size 11)
+ (if-false count 207 avg-size 47)
+ (if-true count 219 avg-size 47)
+ (set-var count 383 avg-size 27)
+ (seq-done count 864 avg-size 8)
+ (par-nothing count 874 avg-size 6)
+ (absence count 925 avg-size 25)
+ (shared count 951 avg-size 33)
+ (var count 995 avg-size 34)
+ (suspend count 1391 avg-size 3)
+ (trap count 1500 avg-size 2)
+ (merge count 2807 avg-size 45)
+ (signal count 6111 avg-size 8)
+ (loop count 6379 avg-size 7)
+ (par-swap count 8408 avg-size 19)
+ (readyness count 16167 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 158 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 34 avg-size 27)
+ (is-absent count 36 avg-size 32)
+ (par-1exit count 93 avg-size 17)
+ (set-new count 99 avg-size 26)
+ (set-old count 121 avg-size 26)
+ (par-2exit count 135 avg-size 5)
+ (seq-exit count 181 avg-size 11)
+ (loop^stop-exit count 190 avg-size 11)
+ (if-false count 207 avg-size 47)
+ (if-true count 219 avg-size 47)
+ (set-var count 388 avg-size 27)
+ (seq-done count 870 avg-size 8)
+ (par-nothing count 876 avg-size 7)
+ (absence count 929 avg-size 25)
+ (shared count 963 avg-size 32)
+ (var count 1001 avg-size 34)
+ (suspend count 1399 avg-size 3)
+ (trap count 1508 avg-size 2)
+ (merge count 2832 avg-size 45)
+ (signal count 6147 avg-size 8)
+ (loop count 6420 avg-size 7)
+ (par-swap count 8448 avg-size 19)
+ (readyness count 16278 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 159 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 34 avg-size 27)
+ (is-absent count 39 avg-size 34)
+ (par-1exit count 94 avg-size 17)
+ (set-new count 99 avg-size 26)
+ (set-old count 124 avg-size 26)
+ (par-2exit count 135 avg-size 5)
+ (seq-exit count 182 avg-size 11)
+ (loop^stop-exit count 191 avg-size 11)
+ (if-false count 207 avg-size 47)
+ (if-true count 222 avg-size 47)
+ (set-var count 392 avg-size 27)
+ (seq-done count 874 avg-size 8)
+ (par-nothing count 890 avg-size 7)
+ (absence count 932 avg-size 25)
+ (shared count 971 avg-size 32)
+ (var count 1008 avg-size 34)
+ (suspend count 1406 avg-size 3)
+ (trap count 1514 avg-size 2)
+ (merge count 2855 avg-size 45)
+ (signal count 6176 avg-size 8)
+ (loop count 6457 avg-size 7)
+ (par-swap count 8503 avg-size 19)
+ (readyness count 16381 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 160 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 34 avg-size 27)
+ (is-absent count 39 avg-size 34)
+ (par-1exit count 94 avg-size 17)
+ (set-new count 101 avg-size 26)
+ (set-old count 124 avg-size 26)
+ (par-2exit count 135 avg-size 5)
+ (seq-exit count 182 avg-size 11)
+ (loop^stop-exit count 191 avg-size 11)
+ (if-false count 209 avg-size 47)
+ (if-true count 222 avg-size 47)
+ (set-var count 394 avg-size 27)
+ (seq-done count 878 avg-size 8)
+ (par-nothing count 895 avg-size 7)
+ (absence count 941 avg-size 25)
+ (shared count 974 avg-size 32)
+ (var count 1014 avg-size 34)
+ (suspend count 1414 avg-size 3)
+ (trap count 1527 avg-size 2)
+ (merge count 2871 avg-size 45)
+ (signal count 6214 avg-size 8)
+ (loop count 6503 avg-size 7)
+ (par-swap count 8556 avg-size 19)
+ (readyness count 16492 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 161 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 34 avg-size 27)
+ (is-absent count 39 avg-size 34)
+ (par-1exit count 94 avg-size 17)
+ (set-new count 101 avg-size 26)
+ (set-old count 129 avg-size 26)
+ (par-2exit count 135 avg-size 5)
+ (seq-exit count 184 avg-size 12)
+ (loop^stop-exit count 192 avg-size 11)
+ (if-false count 210 avg-size 48)
+ (if-true count 225 avg-size 48)
+ (set-var count 394 avg-size 27)
+ (seq-done count 878 avg-size 8)
+ (par-nothing count 901 avg-size 7)
+ (absence count 947 avg-size 25)
+ (shared count 985 avg-size 33)
+ (var count 1023 avg-size 34)
+ (suspend count 1425 avg-size 3)
+ (trap count 1536 avg-size 2)
+ (merge count 2885 avg-size 45)
+ (signal count 6245 avg-size 8)
+ (loop count 6545 avg-size 7)
+ (par-swap count 8611 avg-size 19)
+ (readyness count 16584 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 162 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 34 avg-size 27)
+ (is-absent count 39 avg-size 34)
+ (par-1exit count 95 avg-size 17)
+ (set-new count 102 avg-size 26)
+ (set-old count 131 avg-size 26)
+ (par-2exit count 135 avg-size 5)
+ (seq-exit count 186 avg-size 11)
+ (loop^stop-exit count 194 avg-size 12)
+ (if-false count 212 avg-size 48)
+ (if-true count 226 avg-size 48)
+ (set-var count 394 avg-size 27)
+ (seq-done count 887 avg-size 8)
+ (par-nothing count 902 avg-size 7)
+ (absence count 954 avg-size 25)
+ (shared count 993 avg-size 32)
+ (var count 1026 avg-size 34)
+ (suspend count 1429 avg-size 3)
+ (trap count 1544 avg-size 2)
+ (merge count 2900 avg-size 45)
+ (signal count 6272 avg-size 8)
+ (loop count 6584 avg-size 7)
+ (par-swap count 8650 avg-size 19)
+ (readyness count 16673 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 163 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 34 avg-size 27)
+ (is-absent count 40 avg-size 34)
+ (par-1exit count 97 avg-size 17)
+ (set-new count 102 avg-size 26)
+ (set-old count 132 avg-size 26)
+ (par-2exit count 136 avg-size 5)
+ (seq-exit count 189 avg-size 11)
+ (loop^stop-exit count 195 avg-size 12)
+ (if-false count 212 avg-size 48)
+ (if-true count 229 avg-size 47)
+ (set-var count 397 avg-size 27)
+ (seq-done count 891 avg-size 8)
+ (par-nothing count 907 avg-size 7)
+ (absence count 962 avg-size 25)
+ (shared count 1001 avg-size 32)
+ (var count 1031 avg-size 34)
+ (suspend count 1440 avg-size 3)
+ (trap count 1547 avg-size 2)
+ (merge count 2925 avg-size 45)
+ (signal count 6314 avg-size 8)
+ (loop count 6620 avg-size 7)
+ (par-swap count 8707 avg-size 19)
+ (readyness count 16778 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 164 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 34 avg-size 27)
+ (is-absent count 40 avg-size 34)
+ (par-1exit count 98 avg-size 17)
+ (set-new count 103 avg-size 26)
+ (set-old count 133 avg-size 26)
+ (par-2exit count 137 avg-size 5)
+ (seq-exit count 190 avg-size 11)
+ (loop^stop-exit count 196 avg-size 12)
+ (if-false count 213 avg-size 48)
+ (if-true count 229 avg-size 47)
+ (set-var count 398 avg-size 27)
+ (seq-done count 897 avg-size 8)
+ (par-nothing count 914 avg-size 7)
+ (absence count 969 avg-size 25)
+ (shared count 1004 avg-size 32)
+ (var count 1037 avg-size 34)
+ (suspend count 1456 avg-size 3)
+ (trap count 1558 avg-size 2)
+ (merge count 2948 avg-size 45)
+ (signal count 6354 avg-size 8)
+ (loop count 6655 avg-size 7)
+ (par-swap count 8775 avg-size 19)
+ (readyness count 16863 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 165 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 34 avg-size 27)
+ (is-absent count 40 avg-size 34)
+ (par-1exit count 99 avg-size 17)
+ (set-new count 103 avg-size 26)
+ (set-old count 133 avg-size 26)
+ (par-2exit count 137 avg-size 5)
+ (seq-exit count 191 avg-size 11)
+ (loop^stop-exit count 197 avg-size 12)
+ (if-false count 214 avg-size 48)
+ (if-true count 229 avg-size 47)
+ (set-var count 401 avg-size 27)
+ (seq-done count 904 avg-size 8)
+ (par-nothing count 919 avg-size 7)
+ (absence count 972 avg-size 25)
+ (shared count 1010 avg-size 32)
+ (var count 1043 avg-size 34)
+ (suspend count 1459 avg-size 3)
+ (trap count 1576 avg-size 2)
+ (merge count 2962 avg-size 45)
+ (signal count 6387 avg-size 8)
+ (loop count 6677 avg-size 7)
+ (par-swap count 8824 avg-size 19)
+ (readyness count 16971 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 166 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 35 avg-size 27)
+ (is-absent count 40 avg-size 34)
+ (par-1exit count 99 avg-size 17)
+ (set-new count 103 avg-size 26)
+ (set-old count 134 avg-size 26)
+ (par-2exit count 137 avg-size 5)
+ (seq-exit count 193 avg-size 11)
+ (loop^stop-exit count 197 avg-size 12)
+ (if-false count 215 avg-size 48)
+ (if-true count 230 avg-size 47)
+ (set-var count 405 avg-size 27)
+ (seq-done count 907 avg-size 8)
+ (par-nothing count 923 avg-size 7)
+ (absence count 977 avg-size 25)
+ (shared count 1012 avg-size 32)
+ (var count 1047 avg-size 34)
+ (suspend count 1467 avg-size 3)
+ (trap count 1585 avg-size 2)
+ (merge count 2976 avg-size 45)
+ (signal count 6433 avg-size 8)
+ (loop count 6714 avg-size 7)
+ (par-swap count 8867 avg-size 19)
+ (readyness count 17069 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 167 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 35 avg-size 27)
+ (is-absent count 40 avg-size 34)
+ (par-1exit count 99 avg-size 17)
+ (set-new count 104 avg-size 26)
+ (par-2exit count 137 avg-size 5)
+ (set-old count 137 avg-size 26)
+ (seq-exit count 194 avg-size 11)
+ (loop^stop-exit count 199 avg-size 12)
+ (if-false count 217 avg-size 48)
+ (if-true count 232 avg-size 47)
+ (set-var count 407 avg-size 26)
+ (seq-done count 911 avg-size 8)
+ (par-nothing count 927 avg-size 7)
+ (absence count 982 avg-size 25)
+ (shared count 1021 avg-size 32)
+ (var count 1053 avg-size 34)
+ (suspend count 1472 avg-size 3)
+ (trap count 1590 avg-size 2)
+ (merge count 2989 avg-size 45)
+ (signal count 6475 avg-size 8)
+ (loop count 6751 avg-size 7)
+ (par-swap count 8925 avg-size 19)
+ (readyness count 17158 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 168 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 35 avg-size 27)
+ (is-absent count 40 avg-size 34)
+ (par-1exit count 102 avg-size 17)
+ (set-new count 105 avg-size 26)
+ (par-2exit count 138 avg-size 5)
+ (set-old count 138 avg-size 26)
+ (seq-exit count 194 avg-size 11)
+ (loop^stop-exit count 202 avg-size 12)
+ (if-false count 217 avg-size 48)
+ (if-true count 233 avg-size 47)
+ (set-var count 408 avg-size 26)
+ (seq-done count 914 avg-size 8)
+ (par-nothing count 933 avg-size 7)
+ (absence count 992 avg-size 25)
+ (shared count 1027 avg-size 32)
+ (var count 1058 avg-size 34)
+ (suspend count 1477 avg-size 3)
+ (trap count 1592 avg-size 2)
+ (merge count 3009 avg-size 45)
+ (signal count 6499 avg-size 8)
+ (loop count 6780 avg-size 7)
+ (par-swap count 8987 avg-size 19)
+ (readyness count 17244 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 169 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 36 avg-size 27)
+ (is-absent count 40 avg-size 34)
+ (par-1exit count 102 avg-size 17)
+ (set-new count 105 avg-size 26)
+ (set-old count 138 avg-size 26)
+ (par-2exit count 139 avg-size 5)
+ (seq-exit count 194 avg-size 11)
+ (loop^stop-exit count 203 avg-size 12)
+ (if-false count 220 avg-size 48)
+ (if-true count 234 avg-size 47)
+ (set-var count 409 avg-size 26)
+ (seq-done count 916 avg-size 8)
+ (par-nothing count 937 avg-size 7)
+ (absence count 997 avg-size 25)
+ (shared count 1032 avg-size 32)
+ (var count 1062 avg-size 34)
+ (suspend count 1488 avg-size 3)
+ (trap count 1606 avg-size 2)
+ (merge count 3033 avg-size 45)
+ (signal count 6543 avg-size 8)
+ (loop count 6821 avg-size 7)
+ (par-swap count 9045 avg-size 19)
+ (readyness count 17343 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 170 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 36 avg-size 27)
+ (is-absent count 40 avg-size 34)
+ (par-1exit count 103 avg-size 17)
+ (set-new count 106 avg-size 26)
+ (set-old count 138 avg-size 26)
+ (par-2exit count 139 avg-size 5)
+ (seq-exit count 194 avg-size 11)
+ (loop^stop-exit count 204 avg-size 12)
+ (if-false count 221 avg-size 48)
+ (if-true count 236 avg-size 47)
+ (set-var count 414 avg-size 26)
+ (seq-done count 921 avg-size 8)
+ (par-nothing count 941 avg-size 7)
+ (absence count 1001 avg-size 25)
+ (shared count 1036 avg-size 32)
+ (var count 1065 avg-size 34)
+ (suspend count 1494 avg-size 3)
+ (trap count 1616 avg-size 2)
+ (merge count 3050 avg-size 45)
+ (signal count 6586 avg-size 8)
+ (loop count 6856 avg-size 7)
+ (par-swap count 9085 avg-size 19)
+ (readyness count 17429 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 171 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 36 avg-size 27)
+ (is-absent count 40 avg-size 34)
+ (par-1exit count 103 avg-size 17)
+ (set-new count 108 avg-size 26)
+ (set-old count 138 avg-size 26)
+ (par-2exit count 139 avg-size 5)
+ (seq-exit count 195 avg-size 12)
+ (loop^stop-exit count 204 avg-size 12)
+ (if-false count 223 avg-size 48)
+ (if-true count 238 avg-size 47)
+ (set-var count 417 avg-size 26)
+ (seq-done count 926 avg-size 8)
+ (par-nothing count 945 avg-size 7)
+ (absence count 1011 avg-size 25)
+ (shared count 1036 avg-size 32)
+ (var count 1073 avg-size 34)
+ (suspend count 1500 avg-size 3)
+ (trap count 1622 avg-size 2)
+ (merge count 3075 avg-size 45)
+ (signal count 6621 avg-size 8)
+ (loop count 6888 avg-size 7)
+ (par-swap count 9130 avg-size 19)
+ (readyness count 17537 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 172 for 6699
+
+
+rule tests generated:
+((is-present count 24 avg-size 45)
+ (emit count 36 avg-size 27)
+ (is-absent count 40 avg-size 34)
+ (par-1exit count 103 avg-size 17)
+ (set-new count 110 avg-size 26)
+ (set-old count 139 avg-size 26)
+ (par-2exit count 141 avg-size 5)
+ (seq-exit count 195 avg-size 12)
+ (loop^stop-exit count 205 avg-size 12)
+ (if-false count 224 avg-size 48)
+ (if-true count 238 avg-size 47)
+ (set-var count 418 avg-size 26)
+ (seq-done count 930 avg-size 8)
+ (par-nothing count 947 avg-size 7)
+ (absence count 1015 avg-size 25)
+ (shared count 1040 avg-size 32)
+ (var count 1079 avg-size 34)
+ (suspend count 1514 avg-size 3)
+ (trap count 1638 avg-size 2)
+ (merge count 3091 avg-size 45)
+ (signal count 6653 avg-size 8)
+ (loop count 6917 avg-size 7)
+ (par-swap count 9181 avg-size 19)
+ (readyness count 17613 avg-size 35))
+
+terminate break
+  context...:
+   /Applications/Racket v6.12/collects/racket/system.rkt:174:0: do-system*/exit-code
+   /Applications/Racket v6.12/collects/racket/system.rkt:213:0: system46
+   <THIS-ARTIFACT>/cross-tests/send-lib.rkt:306:0: run-agda
+   <THIS-ARTIFACT>/cross-tests/redex-model-implies-agda-model.rkt:41:5: for-loop
+   <THIS-ARTIFACT>/cross-tests/redex-model-implies-agda-model.rkt:35:0: main
+   (submod <THIS-ARTIFACT>/cross-tests/redex-model-implies-agda-model.rkt main): [running body]

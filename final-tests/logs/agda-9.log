@@ -1,0 +1,57 @@
+
+===========================================================
+loop iteration 0
+
+
+rule tests generated:
+((emit count 0 avg-size #f)
+ (is-absent count 0 avg-size #f)
+ (is-present count 0 avg-size #f)
+ (loop^stop-exit count 0 avg-size #f)
+ (par-1exit count 0 avg-size #f)
+ (seq-exit count 0 avg-size #f)
+ (set-old count 0 avg-size #f)
+ (if-false count 1 avg-size 44)
+ (if-true count 1 avg-size 52)
+ (par-2exit count 1 avg-size 5)
+ (set-new count 1 avg-size 25)
+ (absence count 3 avg-size 7)
+ (seq-done count 3 avg-size 13)
+ (set-var count 3 avg-size 24)
+ (par-nothing count 4 avg-size 6)
+ (shared count 4 avg-size 43)
+ (var count 6 avg-size 42)
+ (suspend count 12 avg-size 3)
+ (merge count 13 avg-size 43)
+ (trap count 16 avg-size 2)
+ (signal count 37 avg-size 8)
+ (par-swap count 39 avg-size 24)
+ (loop count 44 avg-size 4)
+ (readyness count 85 avg-size 35))
+
+agda finished
+
+===========================================================
+loop iteration 1
+
+match: no matching clause for '(loop^stop (par (trap (loop^stop pause pause)) (trap (suspend pause SINPUT))) (var x2903 := (+ 0) (shared s2904 := (+) (suspend pause SINPUT))))
+  location...:
+   <THIS-ARTIFACT>/cross-tests/send-steps.rkt:243:4
+  context...:
+   /Applications/Racket v6.12/collects/racket/match/runtime.rkt:24:0: match:error
+   <THIS-ARTIFACT>/cross-tests/send-steps.rkt:242:2: loop
+   <THIS-ARTIFACT>/cross-tests/send-lib.rkt:161:0: send-thing
+   /Applications/Racket v6.12/collects/racket/contract/private/arrow-higher-order.rkt:357:33
+   <THIS-ARTIFACT>/cross-tests/send-steps.rkt:268:0: recur-over-done
+   <THIS-ARTIFACT>/cross-tests/send-lib.rkt:161:0: send-thing
+   /Applications/Racket v6.12/collects/racket/contract/private/arrow-higher-order.rkt:357:33
+   ...on-semantics.rkt:71:30
+   <THIS-ARTIFACT>/cross-tests/send-lib.rkt:161:0: send-thing
+   /Applications/Racket v6.12/collects/racket/contract/private/arrow-higher-order.rkt:357:33
+   <THIS-ARTIFACT>/cross-tests/send-steps.rkt:17:2: for-loop
+   [repeats 1 more time]
+   <THIS-ARTIFACT>/cross-tests/send-steps.rkt:15:0: send-steps
+   /Applications/Racket v6.12/collects/racket/contract/private/arrow-higher-order.rkt:357:33
+   <THIS-ARTIFACT>/cross-tests/send-lib.rkt:111:35
+   <THIS-ARTIFACT>/cross-tests/send-lib.rkt:112:0: establish-context/proc
+   ...

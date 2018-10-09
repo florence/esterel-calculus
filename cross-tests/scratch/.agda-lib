@@ -1,0 +1,4 @@
+name: REDEX-INTEGRATION-TESTS
+include: ../../agda
+  /usr/local/lib/agda/src
+  .

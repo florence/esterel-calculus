@@ -1,0 +1,50 @@
+#t
+running test 100
+has been running for 7 seconds
+running test 200
+has been running for 28 seconds
+running test 300
+has been running for 47 seconds
+running test 400
+has been running for 67 seconds
+running test 500
+has been running for 95 seconds
+running test 600
+has been running for 123 seconds
+running test 700
+has been running for 158 seconds
+running test 800
+has been running for 197 seconds
+running test 900
+has been running for 230 seconds
+running test 1000
+has been running for 252 seconds
+running test 1100
+has been running for 292 seconds
+running test 1200
+has been running for 324 seconds
+running test 1300
+has been running for 350 seconds
+running test 1400
+has been running for 389 seconds
+running test 1500
+has been running for 424 seconds
+terminate break
+  context...:
+   /Applications/Racket v6.12/collects/racket/contract/private/arrow-val-first.rkt:388:18
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/reduction-semantics.rkt:1060:9
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/reduction-semantics.rkt:297:9: loop
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/reduction-semantics.rkt:270:0: apply-reduction-relation/tagged
+   /Applications/Racket v6.12/collects/racket/contract/private/arrow-val-first.rkt:388:18
+   <THIS-ARTIFACT>/redex/model/instant.rkt:69:0: apply-reduction-relation*/enforce-single
+   ...private/term.rkt:80:18
+   ...on-semantics.rkt:1540:37
+   loop
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/reduction-semantics.rkt:1863:24: loop
+   ...cket/sandbox.rkt:441:30
+   /Applications/Racket v6.12/share/pkgs/sandbox-lib/racket/sandbox.rkt:397:0: call-with-limits
+   <THIS-ARTIFACT>/redex/test/model-test.rkt:134:2: for-loop
+   <THIS-ARTIFACT>/redex/test/model-test.rkt:124:0: relate61
+   .../more-scheme.rkt:261:28
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/generate-term.rkt:455:2: loop
+   ...

@@ -1,0 +1,177 @@
+
+===========================================================
+loop iteration 0
+
+
+rule tests generated:
+((emit count 0 avg-size #f)
+ (is-absent count 0 avg-size #f)
+ (is-present count 0 avg-size #f)
+ (par-1exit count 0 avg-size #f)
+ (seq-exit count 0 avg-size #f)
+ (set-old count 0 avg-size #f)
+ (if-false count 1 avg-size 37)
+ (loop^stop-exit count 1 avg-size 14)
+ (set-var count 1 avg-size 25)
+ (if-true count 2 avg-size 42)
+ (par-2exit count 3 avg-size 5)
+ (par-nothing count 3 avg-size 3)
+ (absence count 4 avg-size 22)
+ (seq-done count 4 avg-size 4)
+ (set-new count 4 avg-size 34)
+ (shared count 8 avg-size 35)
+ (trap count 8 avg-size 2)
+ (var count 8 avg-size 29)
+ (suspend count 9 avg-size 3)
+ (merge count 20 avg-size 45)
+ (signal count 30 avg-size 7)
+ (loop count 37 avg-size 4)
+ (par-swap count 58 avg-size 19)
+ (readyness count 114 avg-size 36))
+
+  Checking context-properties (<THIS-ARTIFACT>/agda/context-properties.agda).
+    Checking Esterel.Lang.PotentialFunction.Base (<THIS-ARTIFACT>/agda/Esterel/Lang/PotentialFunction/Base.agda).
+    Finished Esterel.Lang.PotentialFunction.Base.
+    Checking Esterel.Lang.PotentialFunction.MergePotentialRuleCan (<THIS-ARTIFACT>/agda/Esterel/Lang/PotentialFunction/MergePotentialRuleCan.agda).
+    Finished Esterel.Lang.PotentialFunction.MergePotentialRuleCan.
+     Checking Esterel.Lang.PotentialFunction.CanThetaContinuation (<THIS-ARTIFACT>/agda/Esterel/Lang/PotentialFunction/CanThetaContinuation.agda).
+     Finished Esterel.Lang.PotentialFunction.CanThetaContinuation.
+      Checking Esterel.Lang.PotentialFunction.MergePotentialRuleLeftBase (<THIS-ARTIFACT>/agda/Esterel/Lang/PotentialFunction/MergePotentialRuleLeftBase.agda).
+      Finished Esterel.Lang.PotentialFunction.MergePotentialRuleLeftBase.
+     Checking Esterel.Lang.PotentialFunction.MergePotentialRuleLeftInductive (<THIS-ARTIFACT>/agda/Esterel/Lang/PotentialFunction/MergePotentialRuleLeftInductive.agda).
+     Finished Esterel.Lang.PotentialFunction.MergePotentialRuleLeftInductive.
+     Checking Esterel.Lang.PotentialFunction.NonMergePotentialRules (<THIS-ARTIFACT>/agda/Esterel/Lang/PotentialFunction/NonMergePotentialRules.agda).
+     Finished Esterel.Lang.PotentialFunction.NonMergePotentialRules.
+    Checking Esterel.Lang.PotentialFunction.MergePotentialRuleTheta (<THIS-ARTIFACT>/agda/Esterel/Lang/PotentialFunction/MergePotentialRuleTheta.agda).
+    Finished Esterel.Lang.PotentialFunction.MergePotentialRuleTheta.
+   Checking Esterel.Lang.PotentialFunction.Properties (<THIS-ARTIFACT>/agda/Esterel/Lang/PotentialFunction/Properties.agda).
+   Finished Esterel.Lang.PotentialFunction.Properties.
+   Checking sn-calculus (<THIS-ARTIFACT>/agda/sn-calculus.agda).
+   Finished sn-calculus.
+  Finished context-properties.
+  Checking calculus (<THIS-ARTIFACT>/agda/calculus.agda).
+  Finished calculus.
+  Checking blocked (<THIS-ARTIFACT>/agda/blocked.agda).
+  Finished blocked.
+agda finished
+
+===========================================================
+loop iteration 1
+
+
+rule tests generated:
+((emit count 0 avg-size #f)
+ (is-absent count 0 avg-size #f)
+ (is-present count 0 avg-size #f)
+ (par-1exit count 0 avg-size #f)
+ (if-false count 1 avg-size 37)
+ (loop^stop-exit count 2 avg-size 10)
+ (seq-exit count 2 avg-size 6)
+ (set-old count 2 avg-size 30)
+ (if-true count 3 avg-size 51)
+ (par-2exit count 3 avg-size 5)
+ (set-new count 5 avg-size 37)
+ (set-var count 5 avg-size 21)
+ (absence count 9 avg-size 31)
+ (par-nothing count 11 avg-size 3)
+ (seq-done count 11 avg-size 7)
+ (var count 12 avg-size 32)
+ (shared count 13 avg-size 39)
+ (trap count 18 avg-size 2)
+ (suspend count 21 avg-size 3)
+ (merge count 30 avg-size 48)
+ (signal count 62 avg-size 8)
+ (loop count 78 avg-size 5)
+ (par-swap count 113 avg-size 19)
+ (readyness count 234 avg-size 34))
+
+agda finished
+
+===========================================================
+loop iteration 2
+
+
+rule tests generated:
+((is-absent count 0 avg-size #f)
+ (par-1exit count 0 avg-size #f)
+ (emit count 1 avg-size 7)
+ (is-present count 1 avg-size 10)
+ (if-false count 3 avg-size 51)
+ (par-2exit count 3 avg-size 5)
+ (loop^stop-exit count 4 avg-size 16)
+ (seq-exit count 4 avg-size 8)
+ (set-old count 4 avg-size 27)
+ (if-true count 5 avg-size 48)
+ (set-new count 6 avg-size 35)
+ (set-var count 8 avg-size 26)
+ (absence count 13 avg-size 28)
+ (par-nothing count 15 avg-size 3)
+ (seq-done count 16 avg-size 7)
+ (shared count 16 avg-size 39)
+ (var count 16 avg-size 32)
+ (suspend count 31 avg-size 3)
+ (trap count 31 avg-size 2)
+ (merge count 47 avg-size 47)
+ (signal count 107 avg-size 8)
+ (loop count 111 avg-size 6)
+ (par-swap count 169 avg-size 19)
+ (readyness count 340 avg-size 34))
+
+agda finished
+
+===========================================================
+loop iteration 3
+
+
+rule tests generated:
+((is-absent count 0 avg-size #f)
+ (par-1exit count 0 avg-size #f)
+ (emit count 1 avg-size 7)
+ (is-present count 1 avg-size 10)
+ (par-2exit count 3 avg-size 5)
+ (loop^stop-exit count 4 avg-size 16)
+ (set-old count 4 avg-size 27)
+ (seq-exit count 5 avg-size 7)
+ (if-false count 6 avg-size 61)
+ (if-true count 7 avg-size 46)
+ (set-new count 8 avg-size 34)
+ (set-var count 11 avg-size 30)
+ (absence count 18 avg-size 27)
+ (par-nothing count 20 avg-size 3)
+ (seq-done count 20 avg-size 8)
+ (shared count 21 avg-size 40)
+ (var count 28 avg-size 34)
+ (suspend count 34 avg-size 3)
+ (trap count 39 avg-size 2)
+ (merge count 68 avg-size 46)
+ (loop count 140 avg-size 6)
+ (signal count 146 avg-size 7)
+ (par-swap count 223 avg-size 19)
+ (readyness count 459 avg-size 34))
+
+agda finished
+
+===========================================================
+loop iteration 4
+
+match: no matching clause for '(loop^stop (loop^stop (trap pause) (suspend nothing SINPUT)) (if xintroduced2 (:= xintroduced2 (+)) (emit SOUTPUT)))
+  location...:
+   <THIS-ARTIFACT>/cross-tests/send-steps.rkt:243:4
+  context...:
+   /Applications/Racket v6.12/collects/racket/match/runtime.rkt:24:0: match:error
+   <THIS-ARTIFACT>/cross-tests/send-steps.rkt:242:2: loop
+   <THIS-ARTIFACT>/cross-tests/send-lib.rkt:161:0: send-thing
+   /Applications/Racket v6.12/collects/racket/contract/private/arrow-higher-order.rkt:357:33
+   <THIS-ARTIFACT>/cross-tests/send-steps.rkt:268:0: recur-over-done
+   <THIS-ARTIFACT>/cross-tests/send-lib.rkt:161:0: send-thing
+   /Applications/Racket v6.12/collects/racket/contract/private/arrow-higher-order.rkt:357:33
+   ...on-semantics.rkt:71:30
+   <THIS-ARTIFACT>/cross-tests/send-lib.rkt:161:0: send-thing
+   /Applications/Racket v6.12/collects/racket/contract/private/arrow-higher-order.rkt:357:33
+   <THIS-ARTIFACT>/cross-tests/send-steps.rkt:17:2: for-loop
+   [repeats 1 more time]
+   <THIS-ARTIFACT>/cross-tests/send-steps.rkt:15:0: send-steps
+   /Applications/Racket v6.12/collects/racket/contract/private/arrow-higher-order.rkt:357:33
+   <THIS-ARTIFACT>/cross-tests/send-lib.rkt:111:35
+   <THIS-ARTIFACT>/cross-tests/send-lib.rkt:112:0: establish-context/proc
+   ...

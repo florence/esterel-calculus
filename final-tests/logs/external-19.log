@@ -1,0 +1,854 @@
+#t
+running test 100
+has been running for 120 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((trap (seq (exit 0) (loop nothing))) (ST) (Sk SO) (()))
+V5: (())
+HH: non-constructive
+
+running test 200
+has been running for 250 seconds
+running test 300
+has been running for 386 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((trap (suspend (exit 0) SY)) (SY Sy) (SR Sr) ((SY) (SY) () (SY) () (SY) () (SY) () () (SY) (SY) () () (SY) (SY) () (SY) (SY)))
+V5: (() () () () () () () () () () () () () () () () () () ())
+HH: non-constructive
+
+running test 400
+has been running for 518 seconds
+running test 500
+has been running for 663 seconds
+running test 600
+has been running for 826 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((suspend (trap (exit 0)) Sxmn) (Sr Sxmn) (SMz SyR) ((Sxmn)))
+V5: (())
+HH: non-constructive
+
+running test 700
+has been running for 979 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S1 (signal S2 (shared s1 := (+) (present S1 (<= s1 (+ s1 s1 s1)) nothing)))) (SP SE) (SK) (() () () () () () () () () () () () () () () ()))
+V5: (() () () () () () () () () () () () () () () ())
+HH: non-constructive
+
+running test 800
+has been running for 1145 seconds
+running test 900
+has been running for 1309 seconds
+running test 1000
+has been running for 1467 seconds
+running test 1100
+has been running for 1627 seconds
+running test 1200
+has been running for 1784 seconds
+running test 1300
+has been running for 1928 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S7 (shared s1 := (+) (shared s2 := (+) (var xrandom-var47968 := (+ s2) (trap (trap (<= s2 (+)))))))) (SX Su) (St SR) (() () ()))
+V5: non-constructive
+HH: (() () ())
+
+running test 1400
+has been running for 2091 seconds
+running test 1500
+has been running for 2267 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((present S2 (present S2 pause pause) (var x54778 := (+) (loop (par nothing nothing)))) (SyR SB S2) (S· Syn) ((S2) (S2) () () (S2) (S2) () () () () () (S2)))
+V5: non-constructive
+HH: (() () () () () () () () () () () ())
+
+running test 1600
+has been running for 2432 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((present S< nothing (var x68893 := (+ 0 8 0) (loop (shared s68894 := (+) nothing)))) (S<) (Sk Sg) ((S<) (S<) (S<) ()))
+V5: non-constructive
+HH: (() () () ())
+
+running test 1700
+has been running for 2634 seconds
+running test 1800
+has been running for 2819 seconds
+running test 1900
+has been running for 2984 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((seq (trap (suspend (exit 0) S8)) (par nothing nothing)) (S8) (SQ Sph) ((S8) () (S8) () (S8) (S8)))
+V5: (() () () () () ())
+HH: non-constructive
+
+running test 2000
+has been running for 3141 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S5 (shared s1 := (+) (var xrandom-var88316 := (+ s1) (<= s1 (+))))) (Sk Sc) (S@ Sn) (() () () () () () () () () ()))
+V5: non-constructive
+HH: (() () () () () () () () () ())
+
+running test 2100
+has been running for 3298 seconds
+running test 2200
+has been running for 3476 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((present Sd (par (loop (par nothing nothing)) nothing) (par nothing (loop (suspend pause Sm)))) (Sgv Sm Sd) (SX S[k) ((Sm)))
+V5: non-constructive
+HH: (())
+
+running test 2300
+has been running for 3626 seconds
+running test 2400
+has been running for 3773 seconds
+test: VERY BAD: inconsistent output states:
+ programs were ((shared s105640 := (+ 0 2) (present Sir (shared s105641 := (+ s105640 s105640 s105640 s105640 1) (<= s105640 (+))) (signal S105642 (trap (exit (Succ (Succ zero))))))) ()) -> ()
+(ρ ((sig Sir unknown) ((sig S$ unknown) ((sig SCZAgx unknown) ·))) (shared s105640 := (+ 0 2) (present Sir (shared s105641 := (+ s105640 s105640 s105640 s105640 1) (<= s105640 (+))) (signal S105642 (trap (exit 0)))))) -> #f
+exec : (Sir)
+under (() () () () () () () () () () () () () () () ())
+The original call was (relate ((shared s105640 := (+ 0 2) (present Sir (shared s105641 := (+ s105640 s105640 s105640 s105640 1) (<= s105640 (+))) (signal S105642 (trap (exit (Succ (Succ zero))))))) ()) (ρ ((sig Sir unknown) ((sig S$ unknown) ((sig SCZAgx unknown) ·))) (shared s105640 := (+ 0 2) (present Sir (shared s105641 := (+ s105640 s105640 s105640 s105640 1) (<= s105640 (+))) (signal S105642 (trap (exit 0)))))) ((Sir) (Sir) () (Sir) (Sir) (Sir) (Sir) (Sir) () (Sir) (Sir) () (Sir) (Sir) () (Sir)) (Sir) (S$ SCZAgx) #:oracle (() () () () () () () () () () () () () () () ()))
+
+  context...:
+   /Applications/Racket v6.12/share/pkgs/sandbox-lib/racket/sandbox.rkt:397:0: call-with-limits
+   <THIS-ARTIFACT>/redex/test/model-test.rkt:134:2: for-loop
+   <THIS-ARTIFACT>/redex/test/model-test.rkt:124:0: relate61
+   .../more-scheme.rkt:261:28
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/generate-term.rkt:455:2: loop
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/generate-term.rkt:423:0: check-one
+   <THIS-ARTIFACT>/redex/test/long-tests/external.rkt: [running body]
+redex-check: <THIS-ARTIFACT>//redex/test/model-test.rkt:34
+counterexample found after 2427 attempts:
+((shared s105640
+   :=
+   (+ 0 2)
+   (present
+    Sir
+    (shared s105641 := (+ s105640 s105640 s105640 s105640 1) (<= s105640 (+)))
+    (signal S105642 (trap (exit 0)))))
+ (Sir)
+ (S$ SCZAgx)
+ ((Sir)
+  (Sir)
+  ()
+  (Sir)
+  (Sir)
+  (Sir)
+  (Sir)
+  (Sir)
+  ()
+  (Sir)
+  (Sir)
+  ()
+  (Sir)
+  (Sir)
+  ()
+  (Sir)))
+running test 2500
+has been running for 3948 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((seq (signal S109326 nothing) (present SL-n (emit S枙) (seq (signal S109327 (present SG pause nothing)) (loop (signal S109328 nothing))))) (SI SI≫ SL-n SG) (SSb Su S枙) ((SL-n SG) (SL-n SG) (SL-n) (SG) () () (SL-n SG) (SG) (SL-n)))
+V5: non-constructive
+HH: ((S枙) () () () () () () () ())
+
+running test 2600
+has been running for 4114 seconds
+running test 2700
+has been running for 4322 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((shared s118403 := (+ 0 5 0) (suspend (var x118404 := (+ s118403) (<= s118403 (+))) SOn)) (Sj SOn) (S3lh S%) ((SOn) () () (SOn)))
+V5: non-constructive
+HH: (() () () ())
+
+running test 2800
+has been running for 4475 seconds
+running test 2900
+has been running for 4648 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((par (par nothing (seq (loop (seq (suspend pause Sl) (loop pause))) (par (loop nothing) nothing))) nothing) (So Se Sl) (Sz Sj) (() (Sl) (Sl) () () () () (Sl) () () () () ()))
+V5: (() () () () () () () () () () () () ())
+HH: non-constructive
+
+BAD: Esterelv5 and Hiphop behave differently on ((present Sn (present Sn nothing (signal S128534 (loop (shared s128535 := (+) nothing)))) (emit Sb)) (Sn) (Sr Sb) ((Sn) (Sn) () (Sn) (Sn) (Sn) () (Sn) (Sn) (Sn) ()))
+V5: non-constructive
+HH: (() () () () () () () () () () ())
+
+running test 3000
+has been running for 4809 seconds
+running test 3100
+has been running for 5020 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S2 (signal S3 (shared s1 := (+) (shared s2 := (+) (trap (present S2 (<= s1 (+ s1)) pause)))))) (Sd S△) (SW Sz) (() () () () () () () () () () () ()))
+V5: (() () () () () () () () () () () ())
+HH: non-constructive
+
+running test 3200
+has been running for 5549 seconds
+running test 3300
+has been running for 5737 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((trap (trap (signal S153867 (loop (suspend (exit 0) SH))))) (SH Sf) (Sm SP) ((SH) ()))
+V5: (() ())
+HH: non-constructive
+
+BAD: Esterelv5 and Hiphop behave differently on ((var x161466 := (+) (present ST (par (present ST nothing (loop (shared s161467 := (+) nothing))) (seq (emit Sv) (:= x161466 (+)))) (:= x161466 (+)))) (ST) (Sv SnZSp) (() (ST) (ST) () () (ST) (ST) (ST) () (ST) () (ST) () (ST) ()))
+V5: non-constructive
+HH: (() () () () () () () () () () () () () () ())
+
+running test 3400
+has been running for 5921 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((suspend (present SY (loop (signal S163208 (signal S163209 nothing))) nothing) Sp) (SR SV Sp SY) (SBW SO) ((Sp) (Sp SY) (Sp SY)))
+V5: non-constructive
+HH: (() () ())
+
+BAD: Esterelv5 and Hiphop behave differently on ((present S$ (trap (trap (emit SE))) (var x164962 := (+ 0 0 0) (loop (par (present SaN pause nothing) (par nothing nothing))))) (Sjs S$ SaN) (Sf SO SE) ((S$) (S$) (SaN) (S$ SaN)))
+V5: non-constructive
+HH: ((SE) () () ())
+
+running test 3500
+has been running for 6073 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((present Sz (loop (shared s172210 := (+) (emit SFv))) (seq nothing (shared s172211 := (+) (seq nothing (var x172212 := (+) nothing))))) (Sshared Sz) (SU SY SFv) (() (Sz) (Sz) (Sz) (Sz)))
+V5: non-constructive
+HH: (() () () () ())
+
+BAD: Esterelv5 and Hiphop behave differently on ((signal S172575 (present S172575 (signal S172576 (seq (var x172577 := (+) (if x172577 pause nothing)) (loop (signal S172578 nothing)))) nothing)) (S^ Sg) (So SCM) (() () () () () () () () () () ()))
+V5: non-constructive
+HH: (() () () () () () () () () () ())
+
+BAD: Esterelv5 and Hiphop behave differently on ((trap (seq (present Sb0 (seq pause (signal S174790 nothing)) (suspend (exit 0) SQ)) (shared s174791 := (+ 5 28 0) (exit 0)))) (Sb0 SX SQ) (St Sa) (() (Sb0 SQ) ()))
+V5: (() () ())
+HH: non-constructive
+
+running test 3600
+has been running for 6275 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((present Sbu(P. (loop pause) (present SZ (seq (loop (shared s181363 := (+) nothing)) (par (emit SW) pause)) (present Si (shared s181364 := (+) (present SF nothing pause)) (par (seq nothing pause) (signal S181365 pause))))) (Si Sbu(P. SF SZ) (SW) ((SF Sbu(P.) (Si SZ) (Si Sbu(P. SF SZ)))
+V5: non-constructive
+HH: (() () ())
+
+running test 3700
+has been running for 6473 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((present Si (seq nothing (loop (trap (shared s186731 := (+) (emit Sh))))) nothing) (Sm SE Si) (SL-n SoT Sh) (()))
+V5: non-constructive
+HH: (())
+
+running test 3800
+has been running for 6874 seconds
+running test 3900
+has been running for 7055 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S1 (signal S2 (shared s1 := (+) (var xrandom-var201307 := (+ 14) (present S2 (par (suspend pause S2) nothing) (var xrandom-var201308 := (+ 0 22 26 xrandom-var201307 4 xrandom-var201307 s1) (<= s1 (+ xrandom-var201307)))))))) (SK Sdvar) (Sb Sp) (() () () () () () () () () () () () ()))
+V5: non-constructive
+HH: (() () () () () () () () () () () () ())
+
+first: contract violation
+  expected: (and/c list? (not/c empty?))
+  given: #f
+  context...:
+   <THIS-ARTIFACT>/redex/test/model-test.rkt:252:0: cos:done?
+   <THIS-ARTIFACT>/redex/test/model-test.rkt:134:2: for-loop
+   <THIS-ARTIFACT>/redex/test/model-test.rkt:124:0: relate61
+   .../more-scheme.rkt:261:28
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/generate-term.rkt:455:2: loop
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/generate-term.rkt:423:0: check-one
+   <THIS-ARTIFACT>/redex/test/long-tests/external.rkt: [running body]
+redex-check: <THIS-ARTIFACT>//redex/test/model-test.rkt:34
+counterexample found after 3969 attempts:
+((par
+  (par
+   (suspend (par (seq pause pause) nothing) Ssl)
+   (par pause (shared s202472 := (+) (suspend nothing Ssl))))
+  (par nothing (loop (seq nothing (signal S202473 pause)))))
+ (Ssl Sy)
+ (ShX SZ)
+ ((Ssl) ()))
+running test 4000
+has been running for 8978 seconds
+running test 4100
+has been running for 9166 seconds
+running test 4200
+has been running for 9345 seconds
+running test 4300
+has been running for 9519 seconds
+running test 4400
+has been running for 9695 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S3 (shared s1 := (+) (shared s2 := (+) (suspend (seq (trap (var xrandom-var232219 := (+) (exit 0))) (present S3 (trap nothing) nothing)) S3)))) (SWg ScU) (Si S;z) (() () () () () () ()))
+V5: (() () () () () () ())
+HH: non-constructive
+
+running test 4500
+has been running for 9880 seconds
+running test 4600
+has been running for 10062 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((suspend (trap (exit 0)) Sy) (SF SJ Sy) (Sn SvHg) ((Sy) () () (Sy) () () () () (Sy) () ()))
+V5: (() () () () () () () () () () ())
+HH: non-constructive
+
+running test 4700
+has been running for 10244 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((present SK (var x255744 := (+ 6 0 0 0 0 1 0 0) nothing) (loop (loop (signal S255745 (emit SC))))) (SV SK) (SC Sgp) ((SK) () () () () ()))
+V5: non-constructive
+HH: (() () () () () ())
+
+BAD: Esterelv5 and Hiphop behave differently on ((seq nothing (seq (seq (var x256333 := (+ 0 0 0) (var x256334 := (+) pause)) (signal S256335 nothing)) (suspend (trap (exit 0)) Sa))) (Sa) (Sx SeE) ((Sa) () () (Sa) (Sa) (Sa) () (Sa) (Sa) () () (Sa) (Sa) (Sa) (Sa)))
+V5: (() () () () () () () () () () () () () () ())
+HH: non-constructive
+
+running test 4800
+has been running for 10418 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((seq (loop (trap pause)) (suspend (present So (emit SR) (loop nothing)) So)) (So SA) (S≃ Svar· SR) (() () (So) () () () ()))
+V5: (() () () () () () ())
+HH: non-constructive
+
+BAD: Esterelv5 and Hiphop behave differently on ((suspend (trap (suspend (exit 0) SU)) St=) (SL St= SU) (Sw" SFN) ((SU)))
+V5: (())
+HH: non-constructive
+
+BAD: Esterelv5 and Hiphop behave differently on ((trap (signal S265146 (suspend (exit 0) S265146))) (SA S8W) (SW) (() () () () () () () ()))
+V5: (() () () () () () () ())
+HH: non-constructive
+
+running test 4900
+has been running for 12297 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((seq (present SC (seq (suspend nothing SC) nothing) (par nothing pause)) (suspend (suspend (trap (exit 0)) SC) SC)) (SC) (Scp Si) ((SC) (SC) (SC) (SC) () () () () () () () () () () (SC) () () (SC) ()))
+V5: (() () () () () () () () () () () () () () () () () () ())
+HH: non-constructive
+
+running test 5000
+has been running for 12461 seconds
+running test 5100
+has been running for 12630 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((present So (seq pause nothing) (loop (signal S285939 (shared s285940 := (+) (shared s285941 := (+) nothing))))) (SN0 StS So) (Sc S:=) ((So) (So) (So) () () () ()))
+V5: non-constructive
+HH: (() () () () () () ())
+
+running test 5200
+has been running for 12806 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S1 (signal S2 (shared s1 := (+) (shared s2 := (+) (var xrandom-var295476 := (+ s2 s1) (<= s2 (+))))))) (Sx) (Sloop^stop) (() () ()))
+V5: non-constructive
+HH: (() () ())
+
+BAD: Esterelv5 and Hiphop behave differently on ((signal S1 (shared s1 := (+) (shared s2 := (+) (trap (seq (suspend (exit 0) S1) (trap pause)))))) (SM SD) (SC SlIh) (() () ()))
+V5: (() () ())
+HH: non-constructive
+
+BAD: Esterelv5 and Hiphop behave differently on ((shared s296280 := (+) (shared s296281 := (+ s296280) (<= s296280 (+ 17 s296281 12)))) (SCn) (Sg So) (() () ()))
+V5: (() () ())
+HH: non-constructive
+
+test: VERY BAD: inconsistent output states:
+ programs were ((shared s296280 := (+) (shared s296281 := (+ s296280) (<= s296280 (+ 17 s296281 12)))) ()) -> ()
+(ρ ((sig SCn unknown) ((sig Sg unknown) ((sig So unknown) ·))) (shared s296280 := (+) (shared s296281 := (+ s296280) (<= s296280 (+ 17 s296281 12))))) -> #f
+exec : ()
+under (() () ())
+The original call was (relate ((shared s296280 := (+) (shared s296281 := (+ s296280) (<= s296280 (+ 17 s296281 12)))) ()) (ρ ((sig SCn unknown) ((sig Sg unknown) ((sig So unknown) ·))) (shared s296280 := (+) (shared s296281 := (+ s296280) (<= s296280 (+ 17 s296281 12))))) (() () ()) (SCn) (Sg So) #:oracle (() () ()))
+
+  context...:
+   /Applications/Racket v6.12/share/pkgs/sandbox-lib/racket/sandbox.rkt:397:0: call-with-limits
+   <THIS-ARTIFACT>/redex/test/model-test.rkt:134:2: for-loop
+   <THIS-ARTIFACT>/redex/test/model-test.rkt:124:0: relate61
+   .../more-scheme.rkt:261:28
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/generate-term.rkt:455:2: loop
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/generate-term.rkt:423:0: check-one
+   <THIS-ARTIFACT>/redex/test/long-tests/external.rkt: [running body]
+redex-check: <THIS-ARTIFACT>//redex/test/model-test.rkt:34
+counterexample found after 5299 attempts:
+((shared s296280
+   :=
+   (+)
+   (shared s296281 := (+ s296280) (<= s296280 (+ 17 s296281 12))))
+ (SCn)
+ (Sg So)
+ (() () ()))
+running test 5300
+has been running for 12966 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S9 (shared s1 := (+) (var xrandom-var297717 := (+ 4 9 s1 s1 s1 0 s1 s1 6 s1) (if xrandom-var297717 (<= s1 (+)) (suspend nothing S9))))) (Sk Semit) (Sp SH) (() () ()))
+V5: non-constructive
+HH: (() () ())
+
+running test 5400
+has been running for 13130 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S1 (signal S2 (shared s1 := (+) (shared s2 := (+) (present S2 (<= s2 (+ s2 s2)) (var xrandom-var307903 := (+ s1 s2 1) (var xrandom-var307904 := (+) (:= xrandom-var307904 (+))))))))) (SF SC) (Slv SG) (() () () () () () () () () () () () () () () () () ()))
+V5: (() () () () () () () () () () () () () () () () () ())
+HH: non-constructive
+
+BAD: Esterelv5 and Hiphop behave differently on ((trap (suspend (exit 0) SS)) (Sy Ss SS) (SD) ((SS) (SS) ()))
+V5: (() () ())
+HH: non-constructive
+
+running test 5500
+has been running for 13308 seconds
+running test 5600
+has been running for 13512 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((seq (suspend (emit S6) S2) (seq (loop (loop (suspend pause SGi))) (loop nothing))) (S2 SGi) (SaR SAq S6) (() () (S2 SGi) (SGi) () (S2 SGi) (S2 SGi) (S2 SGi)))
+V5: ((S6) () () () () () () ())
+HH: non-constructive
+
+running test 5700
+has been running for 13693 seconds
+running test 5800
+has been running for 13894 seconds
+running test 5900
+has been running for 14058 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((trap (shared s341820 := (+ 2 0 0 2 0 0 0 7 8 0) (suspend (exit 0) Sg))) (SL-n Sg) (Sb Sl) ((Sg) (Sg) () (Sg) (Sg) (Sg) () () () () () () ()))
+V5: (() () () () () () () () () () () () ())
+HH: non-constructive
+
+running test 6000
+has been running for 14230 seconds
+running test 6100
+has been running for 14564 seconds
+running test 6200
+has been running for 14746 seconds
+running test 6300
+has been running for 14927 seconds
+running test 6400
+has been running for 15164 seconds
+running test 6500
+has been running for 15336 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((par (signal S380906 (seq (shared s380907 := (+ 0 13) (loop (loop pause))) (loop nothing))) (suspend (shared s380908 := (+ 0) (emit S:=)) SU)) (SQ ST SU) (S:=) ((SU) () (SU) (SU) (SU) (SU)))
+V5: ((S:=) () () () () ())
+HH: non-constructive
+
+running test 6600
+has been running for 15550 seconds
+running test 6700
+has been running for 15745 seconds
+running test 6800
+has been running for 15926 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((present SR (emit S$6) (var x399336 := (+ 0 0) (seq (loop (signal S399337 nothing)) nothing))) (SR SY) (S$6) ((SR) (SR) () () (SR) () () (SR) (SR) (SR) (SR) (SR) (SR) (SR) (SR) () (SR) (SR)))
+V5: non-constructive
+HH: ((S$6) () () () () () () () () () () () () () () () () ())
+
+running test 6900
+has been running for 16140 seconds
+running test 7000
+has been running for 16594 seconds
+running test 7100
+has been running for 16736 seconds
+running test 7200
+has been running for 16883 seconds
+running test 7300
+has been running for 17018 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S1 (signal S2 (shared s1 := (+) (shared s2 := (+) (seq (seq (loop pause) (present S1 nothing pause)) (var xrandom-var436486 := (+ s2) (loop nothing))))))) (So ST) (SVRB) (() () () ()))
+V5: (() () () ())
+HH: non-constructive
+
+BAD: Esterelv5 and Hiphop behave differently on ((trap (suspend (seq nothing (loop (exit 0))) SH)) (S1 SH) (Sb Se) ((SH) () (SH) (SH) () (SH) ()))
+V5: (() () () () () () ())
+HH: non-constructive
+
+BAD: Esterelv5 and Hiphop behave differently on ((shared s440429 := (+ 0 6) (var x440430 := (+ 1 1 s440429 s440429 3) (trap (trap (if x440430 (<= s440429 (+)) (present SF nothing pause)))))) (SuM S'tB SF) (SA) (() (SF) (SF) (SF)))
+V5: non-constructive
+HH: (() () () ())
+
+running test 7400
+has been running for 17156 seconds
+running test 7500
+has been running for 17301 seconds
+running test 7600
+has been running for 17453 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((trap (par (suspend (exit 0) S3) (var x455503 := (+) (signal S455504 (par pause nothing))))) (Ss S+h S3) (Sc SS) ((S3) () () (S3) () () (S3) (S3) () (S3) () (S3) () (S3) () ()))
+V5: (() () () () () () () () () () () () () () () ())
+HH: non-constructive
+
+running test 7700
+has been running for 17594 seconds
+running test 7800
+has been running for 17744 seconds
+running test 7900
+has been running for 17886 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((trap (suspend (exit 0) S5)) (S5 So) (S;u) ((S5) () (S5)))
+V5: (() () ())
+HH: non-constructive
+
+running test 8000
+has been running for 18040 seconds
+running test 8100
+has been running for 18216 seconds
+running test 8200
+has been running for 18351 seconds
+running test 8300
+has been running for 18483 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S509175 (suspend (trap (loop (exit 0))) Sx)) (SZ Sx) (Sj) ((Sx) () (Sx) () () () (Sx) (Sx) () () () (Sx) (Sx) () (Sx) (Sx) () () (Sx)))
+V5: (() () () () () () () () () () () () () () () () () () ())
+HH: non-constructive
+
+running test 8400
+has been running for 18614 seconds
+running test 8500
+has been running for 18746 seconds
+running test 8600
+has been running for 18893 seconds
+running test 8700
+has been running for 19032 seconds
+running test 8800
+has been running for 19170 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S545400 (shared s545401 := (+ 0) (var x545402 := (+ s545401 0 s545401 4) (signal S545403 (<= s545401 (+)))))) (SY Sc) (Sj) (() () () () () () () () () () () ()))
+V5: non-constructive
+HH: (() () () () () () () () () () () ())
+
+running test 8900
+has been running for 19352 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((suspend (trap (exit 0)) SK) (SK SQ%) (Sp Sas) (() () (SK) () (SK) (SK) (SK) () (SK) (SK) () () () () (SK) (SK)))
+V5: (() () () () () () () () () () () () () () () ())
+HH: non-constructive
+
+running test 9000
+has been running for 19488 seconds
+running test 9100
+has been running for 19636 seconds
+running test 9200
+has been running for 19768 seconds
+running test 9300
+has been running for 19900 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((seq (suspend (signal S585796 (loop (shared s585797 := (+) (seq nothing pause)))) Sn) (var x585798 := (+) (loop (suspend (loop nothing) Sn)))) (Sn) (SX) ((Sn) () () () (Sn) () (Sn) () (Sn) (Sn) () (Sn)))
+V5: (() () () () () () () () () () () ())
+HH: non-constructive
+
+running test 9400
+has been running for 20054 seconds
+running test 9500
+has been running for 20230 seconds
+running test 9600
+has been running for 20380 seconds
+running test 9700
+has been running for 20530 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S5 (shared s1 := (+) (shared s2 := (+) (present S5 (par pause (par (<= s1 (+ 13 s2 0 0 s1)) nothing)) (var xrandom-var628891 := (+ 2 6) pause))))) (SR) (Si St) (() () () () () ()))
+V5: (() () () () () ())
+HH: non-constructive
+
+running test 9800
+has been running for 20694 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((trap (par (par (suspend (seq nothing nothing) Sk) pause) (suspend (var x638671 := (+ 9 1) (exit 0)) Spresent))) (SV* Spresent Sk) (StC Sw) ((Sk) () ()))
+V5: (() () ())
+HH: non-constructive
+
+running test 9900
+has been running for 20827 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((shared s647712 := (+ 4 0 0 0 0 0 3 4) (var x647713 := (+ s647712 s647712 s647712) (if x647713 (<= s647712 (+)) (if x647713 (signal S647714 pause) (shared s647715 := (+) nothing))))) (Smachine St) (Sn S*) (() () () () () () () () ()))
+V5: non-constructive
+HH: (() () () () () () () () ())
+
+running test 10000
+has been running for 20960 seconds
+running test 10100
+has been running for 21094 seconds
+running test 10200
+has been running for 21223 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((shared s663078 := (+ 0 9 0 0 0 0 0) (present Sh胾 (<= s663078 (+ 0 s663078 s663078 3 s663078 s663078)) (emit S?))) (SdXT SL Sh胾) (Sk SJ S?) (()))
+V5: ((S?))
+HH: non-constructive
+
+running test 10300
+has been running for 21408 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((var x669799 := (+ 0 0 0 0) (loop (shared s669800 := (+ x669799 2 x669799 3 14 6 x669799) (if x669799 (signal S669801 nothing) (var x669802 := (+) pause))))) (SK Sd) (So SY) (() () () () () () () () () () () () () ()))
+V5: non-constructive
+HH: (() () () () () () () () () () () () () ())
+
+BAD: Esterelv5 and Hiphop behave differently on ((suspend (trap (exit 0)) Sabsent) (Sabsent) (Sk S^vu) (() () () () ()))
+V5: (() () () () ())
+HH: non-constructive
+
+running test 10400
+has been running for 21556 seconds
+running test 10500
+has been running for 21699 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S684967 (seq (trap (suspend (exit 0) S684967)) nothing)) (Sy SU\N) (SS SIH) (() () () () () () () () () () () ()))
+V5: (() () () () () () () () () () () ())
+HH: non-constructive
+
+running test 10600
+has been running for 21842 seconds
+running test 10700
+has been running for 22210 seconds
+running test 10800
+has been running for 22369 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((present SF (seq (seq (loop (par nothing pause)) (loop (present SF pause nothing))) nothing) (var x706867 := (+) (:= x706867 (+)))) (SF) (Si Syh) ((SF) () () (SF) () () () (SF) (SF)))
+V5: (() () () () () () () () ())
+HH: non-constructive
+
+running test 10900
+has been running for 22508 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((shared s715234 := (+) (present SN (trap (<= s715234 (+ 4 s715234 6 2 1))) (var x715235 := (+) (emit Sq)))) (Sw+ Sw SN) (Sq S.) (() (SN) (SN) (SN) () () (SN)))
+V5: ((Sq) () () () () () ())
+HH: non-constructive
+
+running test 11000
+has been running for 22660 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S4 (shared s1 := (+) (shared s2 := (+) (trap (var xrandom-var726014 := (+) (suspend (seq (exit 0) nothing) S4)))))) (Su SE) (SS Spaus) (() ()))
+V5: (() ())
+HH: non-constructive
+
+running test 11100
+has been running for 22821 seconds
+first: contract violation
+  expected: (and/c list? (not/c empty?))
+  given: #f
+  context...:
+   <THIS-ARTIFACT>/redex/test/model-test.rkt:252:0: cos:done?
+   <THIS-ARTIFACT>/redex/test/model-test.rkt:134:2: for-loop
+   <THIS-ARTIFACT>/redex/test/model-test.rkt:124:0: relate61
+   .../more-scheme.rkt:261:28
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/generate-term.rkt:455:2: loop
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/generate-term.rkt:423:0: check-one
+   <THIS-ARTIFACT>/redex/test/long-tests/external.rkt: [running body]
+redex-check: <THIS-ARTIFACT>//redex/test/model-test.rkt:34
+counterexample found after 11143 attempts:
+((suspend
+  (par
+   (var
+    x731724
+    :=
+    (+ 0 6)
+    (par
+     (par (signal S731725 pause) (var x731726 := (+) nothing))
+     (var x731727 := (+) (trap pause))))
+   (var
+    x731728
+    :=
+    (+ 0)
+    (par (shared s731729 := (+) pause) (seq nothing (par pause pause)))))
+  Sli)
+ (Sli)
+ (SY Sk)
+ (() () () () () (Sli) () (Sli) ()))
+BAD: Esterelv5 and Hiphop behave differently on ((signal S1 (signal S2 (shared s1 := (+) (par (present S1 (var xrandom-var736296 := (+ s1 s1) (<= s1 (+ s1))) (trap (exit 0))) pause)))) (SC S擨) (SH Sw) (() ()))
+V5: (() ())
+HH: non-constructive
+
+BAD: Esterelv5 and Hiphop behave differently on ((shared s736648 := (+ 0 5 0 1) (suspend (trap (exit 0)) Szt)) (S\g Szt) (Sh SC) ((Szt) () (Szt) (Szt) () () () () (Szt) (Szt)))
+V5: (() () () () () () () () () ())
+HH: non-constructive
+
+running test 11200
+has been running for 24980 seconds
+running test 11300
+has been running for 25130 seconds
+running test 11400
+has been running for 25303 seconds
+running test 11500
+has been running for 25476 seconds
+running test 11600
+has been running for 25646 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S1 (signal S2 (shared s1 := (+) (shared s2 := (+) (trap (loop (suspend (exit 0) S2))))))) (SQ SFi) (SH) (() () () () () () () () () () () () ()))
+V5: (() () () () () () () () () () () () ())
+HH: non-constructive
+
+running test 11700
+has been running for 25847 seconds
+running test 11800
+has been running for 26018 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((present SE (emit Saiqd) (signal S783088 (loop (signal S783089 nothing)))) (SE) (Saiqd) ((SE)))
+V5: non-constructive
+HH: ((Saiqd))
+
+running test 11900
+has been running for 26215 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S1 (signal S2 (shared s1 := (+) (shared s2 := (+) (present S2 (var xrandom-var789471 := (+ s1 s1 4 7 s2) (<= s2 (+ s2))) (trap (emit S1))))))) (Sz S\) (Spw) (() () () () () () () () () () () ()))
+V5: (() () () () () () () () () () () ())
+HH: non-constructive
+
+running test 12000
+has been running for 26489 seconds
+running test 12100
+has been running for 26668 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((present SXk nothing (loop (shared s802681 := (+ 7 0) (seq (shared s802682 := (+) nothing) nothing)))) (SNb Sv SXk) (SD S>) ((SXk) (SXk) () (SXk) (SXk) (SXk) () () () (SXk) (SXk) () (SXk) (SXk) (SXk)))
+V5: non-constructive
+HH: (() () () () () () () () () () () () () () ())
+
+running test 12200
+has been running for 26845 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S4 (signal S5 (shared s1 := (+) (shared s2 := (+) (trap (trap (present S5 (<= s2 (+ s1 s2)) (emit S4)))))))) (STP! Sy) (S⊘ SK) (() () () () () ()))
+V5: (() () () () () ())
+HH: non-constructive
+
+running test 12300
+has been running for 26999 seconds
+running test 12400
+has been running for 27181 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S9 (shared s1 := (+) (shared s2 := (+) (loop (suspend (loop (par nothing (present S9 nothing (par pause pause)))) S9))))) (Su SM) (Sp SO) (() () () () () () () () () () () () ()))
+V5: non-constructive
+HH: (() () () () () () () () () () () () ())
+
+running test 12500
+has been running for 27357 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S1 (signal S2 (shared s1 := (+) (shared s2 := (+) (var xrandom-var833098 := (+ 8 s1 s2 s2 5 s1 s1 0 s1 s1 s1) (<= s2 (+ 7))))))) (SM Su) (Sa Ss) (() () () () () () () () () () () () ()))
+V5: non-constructive
+HH: (() () () () () () () () () () () () ())
+
+running test 12600
+has been running for 27567 seconds
+running test 12700
+has been running for 27737 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((suspend (trap (exit 0)) Sb) (Sb SA) (SJr Sf) (() ()))
+V5: (() ())
+HH: non-constructive
+
+running test 12800
+has been running for 28034 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((trap (loop (signal S853443 (present S853443 (emit Se) (shared s853444 := (+) (shared s853445 := (+) pause)))))) (SV St) (So Se) (() () () () () () () () () () () () () () () () ()))
+V5: non-constructive
+HH: (() () () () () () () () () () () () () () () () ())
+
+running test 12900
+has been running for 28288 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S1 (signal S2 (shared s1 := (+) (present S1 (<= s1 (+ 3 s1 19 7 s1 6 s1 s1 s1 6)) (par nothing (emit S2)))))) (SSucc) (Sm Sc) (() () () () () () () () () () () () () () () () ()))
+V5: (() () () () () () () () () () () () () () () () ())
+HH: non-constructive
+
+running test 13000
+has been running for 28477 seconds
+running test 13100
+has been running for 28632 seconds
+running test 13200
+has been running for 28812 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S879105 (trap (signal S879106 (suspend (exit 0) S879105)))) (Sρ) (SM SwW) (() () () () () () () ()))
+V5: (() () () () () () () ())
+HH: non-constructive
+
+running test 13300
+has been running for 28996 seconds
+running test 13400
+has been running for 29177 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((trap (suspend (seq (loop (loop pause)) (signal S894685 (loop nothing))) Ssn)) (ST Snone Ssn) (SG SDF) ((Ssn) (Ssn) (Ssn) (Ssn) (Ssn) (Ssn) () (Ssn) (Ssn) (Ssn) (Ssn) (Ssn) (Ssn) ()))
+V5: (() () () () () () () () () () () () () ())
+HH: non-constructive
+
+BAD: Esterelv5 and Hiphop behave differently on ((par nothing (shared s894786 := (+) (present S≡I (var x894787 := (+) nothing) (loop (par nothing nothing))))) (S≡I S`) (Shi Sx) ((S≡I) (S≡I) () () (S≡I) () () (S≡I) (S≡I)))
+V5: non-constructive
+HH: (() () () () () () () () ())
+
+BAD: Esterelv5 and Hiphop behave differently on ((signal S10 (shared s1 := (+) (shared s2 := (+) (var xrandom-var902057 := (+ s2 s2 s2 s2 s1 s2 2 s2 s2 5 s1 s1 s2) (<= s2 (+)))))) (SGx Sw) (Sa SD) (() () () () () () () () () () () ()))
+V5: non-constructive
+HH: (() () () () () () () () () () () ())
+
+running test 13500
+has been running for 29357 seconds
+running test 13600
+has been running for 29525 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S7 (signal S8 (shared s1 := (+) (trap (seq (var xrandom-var910612 := (+ 0 s1 s1 s1) (<= s1 (+))) (par (suspend (trap (trap pause)) S8) (present S7 (<= s1 (+)) (trap (exit 1))))))))) (SNf ShZ) (Sz) (() ()))
+V5: non-constructive
+HH: (() ())
+
+running test 13700
+has been running for 29702 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((trap (var x922211 := (+ 0) (suspend (trap (trap (exit 2))) Sa))) (SE Sa) (SL Sv) ((Sa) () () () () (Sa) (Sa) (Sa) () (Sa) ()))
+V5: (() () () () () () () () () () ())
+HH: non-constructive
+
+running test 13800
+has been running for 29867 seconds
+running test 13900
+has been running for 30205 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((seq (trap (emit Su)) (var x930562 := (+ 0 0 0) (present SA (loop (shared s930563 := (+) nothing)) (trap (par nothing pause))))) (Se Svar SA) (SPj Su) (() () () (SA) () (SA) ()))
+V5: non-constructive
+HH: ((Su) () () () () () ())
+
+BAD: Esterelv5 and Hiphop behave differently on ((trap (trap (loop (suspend (exit 1) S7)))) (SP ST S7) (Sp) ((S7) () () (S7) (S7) (S7) (S7) () ()))
+V5: (() () () () () () () () ())
+HH: non-constructive
+
+running test 14000
+has been running for 30403 seconds
+running test 14100
+has been running for 30567 seconds
+running test 14200
+has been running for 30745 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((shared s957601 := (+) (trap (par (emit SN) (suspend (exit 0) Sp)))) (Sp Sm) (S铭 SN) ((Sp)))
+V5: ((SN))
+HH: non-constructive
+
+running test 14300
+has been running for 30921 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((suspend (present St (present Sc0i (loop (signal S960546 nothing)) nothing) nothing) Sc0i) (SA S( Sc0i St) (S3 Ss\) (() () () (Sc0i St) () (Sc0i St) () () (Sc0i St) () (Sc0i) (Sc0i St) (Sc0i St) () (Sc0i St) (Sc0i) () (Sc0i St) (Sc0i St)))
+V5: non-constructive
+HH: (() () () () () () () () () () () () () () () () () () ())
+
+BAD: Esterelv5 and Hiphop behave differently on ((trap (seq (suspend (exit 0) SU) (suspend (shared s963638 := (+) nothing) S⊤))) (So SJ S⊤ SU) (SGrq SL) (() () () (S⊤) (SU) (S⊤ SU) (S⊤ SU) (S⊤) (S⊤ SU) () (S⊤) () () (S⊤ SU) () ()))
+V5: (() () () () () () () () () () () () () () () ())
+HH: non-constructive
+
+running test 14400
+has been running for 31559 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((present S$ (loop (par nothing nothing)) nothing) (Sr SY S$) (ST SN) (() (S$) (S$) () () () () (S$) () () () (S$) () () () () () (S$)))
+V5: non-constructive
+HH: (() () () () () () () () () () () () () () () () () ())
+
+BAD: Esterelv5 and Hiphop behave differently on ((signal S5 (signal S6 (shared s6 := (+) (var xrandom-var969989 := (+ s6 s6 1 s6 s6) (<= s6 (+ 6)))))) (SPmH S`) (SL) (() () ()))
+V5: non-constructive
+HH: (() () ())
+
+running test 14500
+has been running for 31724 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((present SQy pause (shared s974277 := (+) (present SQy (<= s974277 (+ s974277 1 s974277)) (present SQy (emit Sm) pause)))) (SQy) (Sm) ((SQy) () (SQy)))
+V5: (() () ())
+HH: non-constructive
+
+BAD: Esterelv5 and Hiphop behave differently on ((seq (suspend (trap (exit 0)) SP) (suspend (par (present SP (seq pause nothing) (par nothing pause)) (emit Snew)) SP)) (SP) (Sq Sl Snew) (() () () (SP) () () () (SP) () (SP)))
+V5: ((Snew) () () () () () () () () ())
+HH: non-constructive
+
+BAD: Esterelv5 and Hiphop behave differently on ((seq (loop pause) (seq pause (par (signal S977409 (shared s977410 := (+) nothing)) (loop nothing)))) (Sb Sshared) (Sn) (() () ()))
+V5: (() () ())
+HH: non-constructive
+
+running test 14600
+has been running for 31968 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((trap (suspend (exit 0) SI)) (SI) (Sl SqOF) (()))
+V5: (())
+HH: non-constructive
+
+running test 14700
+has been running for 32140 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((suspend (suspend (trap (exit 0)) Sf) SX) (Sf SPg SX) (SW`) ((Sf) (Sf) (Sf) (Sf SX) (Sf SX) (Sf)))
+V5: (() () () () () ())
+HH: non-constructive
+
+running test 14800
+has been running for 32377 seconds
+running test 14900
+has been running for 32577 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((par (suspend (var x1004387 := (+) (shared s1004388 := (+) pause)) SK) (suspend (trap (exit 0)) Sa)) (SK S# Sa) (Su) ((SK Sa) (SK Sa) (SK Sa) (SK) (SK Sa) (SK Sa) (SK Sa) () (SK Sa) () (SK Sa) (SK Sa) () (SK Sa) (SK Sa) () (SK Sa)))
+V5: (() () () () () () () () () () () () () () () () ())
+HH: non-constructive
+
+running test 15000
+has been running for 32763 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((suspend (present SSw (seq (trap (suspend (present Ss nothing pause) Sb)) nothing) (loop (par (var x1013483 := (+) nothing) (emit SK)))) Ss) (Sb SSw Ss) (ST SiWMd SK) ((Sb SSw) () (Sb SSw Ss) () (Sb SSw Ss) (Sb SSw Ss) () (Sb) (Sb SSw Ss) (Ss SSw) (Sb SSw Ss) (SSw) (Sb SSw Ss) () (Sb SSw Ss) ()))
+V5: non-constructive
+HH: (() () () () () () () () () () () () () () () ())
+
+running test 15100
+has been running for 33069 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S8 (shared s2 := (+) (present S8 (par (<= s2 (+ s2 s2 s2)) (trap (par (seq nothing (par pause nothing)) (loop pause)))) nothing))) (S{ Sb) (SA) (() () () () () () () () () () () () () () () () () ()))
+V5: (() () () () () () () () () () () () () () () () () ())
+HH: non-constructive
+
+BAD: Esterelv5 and Hiphop behave differently on ((signal S1 (signal S2 (shared s1 := (+) (shared s2 := (+) (var xrandom-var1030105 := (+ s2 s2 s2 s2 s1 s1) (present S2 (<= s2 (+ s2 s2)) (trap (exit 0)))))))) (Spresent) (ST) (() () () () () () () () () () () () () () () () () ()))
+V5: (() () () () () () () () () () () () () () () () () ())
+HH: non-constructive
+
+running test 15200
+has been running for 33244 seconds
+running test 15300
+has been running for 33416 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S4 (shared s1 := (+) (var xrandom-var1050315 := (+ s1) (<= s1 (+ 7 xrandom-var1050315 1 xrandom-var1050315))))) (SV SiV) (Sw S3) (()))
+V5: non-constructive
+HH: (())
+
+BAD: Esterelv5 and Hiphop behave differently on ((present Sk (suspend (trap (loop (signal S1054778 (suspend (exit 0) S1054778)))) Sk) nothing) (Sk) (SL SJl) ((Sk) () () (Sk) () (Sk) (Sk) ()))
+V5: (() () () () () () () ())
+HH: non-constructive
+
+running test 15400
+has been running for 33588 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((seq nothing (present S\ (emit SB) (shared s1057922 := (+ 0 0 1) (par pause (present S\ (loop (shared s1057923 := (+) nothing)) (var x1057924 := (+) (var x1057925 := (+) pause))))))) (Sd SCR S\) (Sj+ SB) (() (S\) (S\) () () (S\) (S\) () ()))
+V5: non-constructive
+HH: (() () () () () () () () ())
+
+BAD: Esterelv5 and Hiphop behave differently on ((signal S2 (signal S3 (shared s1 := (+) (present S3 nothing (trap (seq (suspend (loop (exit 0)) S2) (suspend (seq nothing nothing) S3))))))) (SZJ) (SmlD SK) (()))
+V5: (())
+HH: non-constructive
+
+running test 15500
+has been running for 34089 seconds
+running test 15600
+has been running for 34297 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((signal S1 (shared s1 := (+) (shared s2 := (+) (suspend (var xrandom-var1079173 := (+ s2 4) (trap (exit 0))) S1)))) (S` SN) (SLs S骄) (() () () () () () () () () () () () () () ()))
+V5: (() () () () () () () () () () () () () () ())
+HH: non-constructive
+
+BAD: Esterelv5 and Hiphop behave differently on ((seq (seq (present SH (par (loop (trap pause)) (seq nothing (shared s1085253 := (+) nothing))) nothing) (suspend (seq (par (par nothing nothing) (suspend nothing Sg)) (seq (shared s1085254 := (+) nothing) (trap pause))) SH)) (seq (present SH (var x1085255 := (+ 0) (var x1085256 := (+) nothing)) (par nothing (par (par pause nothing) nothing))) (loop (signal S1085257 nothing)))) (SH Sg) (Se Sz) (() (SH)))
+V5: non-constructive
+HH: (() ())
+
+running test 15700
+has been running for 34480 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((shared s1089522 := (+ 9 0 0 0 9 0 0 0) (present St (suspend nothing ScNYu) (par nothing (suspend (<= s1089522 (+ s1089522 s1089522)) SH)))) (SE SI St SH ScNYu) (Sl) SP) ((St SH ScNYu) () (St SH ScNYu) (St SH) (SH)))
+V5: (() () () () ())
+HH: non-constructive
+
+running test 15800
+has been running for 34685 seconds
+BAD: Esterelv5 and Hiphop behave differently on ((present Sh nothing (present Sg (trap (seq pause pause)) (present Sg (signal S1104796 (shared s1104797 := (+) (<= s1104797 (+)))) (loop (par (par nothing nothing) (present Sh nothing pause)))))) (Sh Sg) (SP Sf) ((Sg) (Sg) () (Sg) () (Sh) () () () () (Sg) (Sh Sg) (Sg)))
+V5: non-constructive
+HH: (() () () () () () () () () () () () ())

@@ -1,0 +1,190 @@
+#t
+running test 100
+has been running for 16 seconds
+running test 200
+has been running for 35 seconds
+running test 300
+has been running for 56 seconds
+running test 400
+has been running for 89 seconds
+running test 500
+has been running for 107 seconds
+running test 600
+has been running for 127 seconds
+running test 700
+has been running for 157 seconds
+running test 800
+has been running for 190 seconds
+running test 900
+has been running for 228 seconds
+running test 1000
+has been running for 264 seconds
+running test 1100
+has been running for 302 seconds
+running test 1200
+has been running for 349 seconds
+running test 1300
+has been running for 383 seconds
+running test 1400
+has been running for 413 seconds
+running test 1500
+has been running for 441 seconds
+running test 1600
+has been running for 483 seconds
+running test 1700
+has been running for 527 seconds
+running test 1800
+has been running for 570 seconds
+running test 1900
+has been running for 616 seconds
+running test 2000
+has been running for 660 seconds
+running test 2100
+has been running for 693 seconds
+running test 2200
+has been running for 744 seconds
+running test 2300
+has been running for 773 seconds
+running test 2400
+has been running for 809 seconds
+running test 2500
+has been running for 846 seconds
+running test 2600
+has been running for 884 seconds
+running test 2700
+has been running for 920 seconds
+running test 2800
+has been running for 942 seconds
+running test 2900
+has been running for 976 seconds
+running test 3000
+has been running for 1008 seconds
+running test 3100
+has been running for 1053 seconds
+running test 3200
+has been running for 1102 seconds
+running test 3300
+has been running for 1172 seconds
+running test 3400
+has been running for 1233 seconds
+running test 3500
+has been running for 1289 seconds
+running test 3600
+has been running for 1332 seconds
+running test 3700
+has been running for 1369 seconds
+running test 3800
+has been running for 1425 seconds
+running test 3900
+has been running for 1474 seconds
+running test 4000
+has been running for 1518 seconds
+running test 4100
+has been running for 1578 seconds
+running test 4200
+has been running for 1630 seconds
+running test 4300
+has been running for 1673 seconds
+running test 4400
+has been running for 1767 seconds
+running test 4500
+has been running for 1975 seconds
+running test 4600
+has been running for 2011 seconds
+running test 4700
+has been running for 2075 seconds
+running test 4800
+has been running for 2175 seconds
+running test 4900
+has been running for 2227 seconds
+running test 5000
+has been running for 2280 seconds
+running test 5100
+has been running for 2324 seconds
+running test 5200
+has been running for 2386 seconds
+running test 5300
+has been running for 2464 seconds
+running test 5400
+has been running for 2510 seconds
+running test 5500
+has been running for 2538 seconds
+running test 5600
+has been running for 2581 seconds
+running test 5700
+has been running for 2632 seconds
+running test 5800
+has been running for 2685 seconds
+running test 5900
+has been running for 2736 seconds
+running test 6000
+has been running for 2800 seconds
+running test 6100
+has been running for 2927 seconds
+running test 6200
+has been running for 2974 seconds
+running test 6300
+has been running for 3000 seconds
+running test 6400
+has been running for 3071 seconds
+running test 6500
+has been running for 3129 seconds
+running test 6600
+has been running for 3168 seconds
+running test 6700
+has been running for 3194 seconds
+running test 6800
+has been running for 3248 seconds
+running test 6900
+has been running for 5047 seconds
+running test 7000
+has been running for 5098 seconds
+running test 7100
+has been running for 5135 seconds
+running test 7200
+has been running for 5171 seconds
+running test 7300
+has been running for 5210 seconds
+running test 7400
+has been running for 5242 seconds
+running test 7500
+has been running for 5276 seconds
+running test 7600
+has been running for 5300 seconds
+running test 7700
+has been running for 5342 seconds
+running test 7800
+has been running for 5380 seconds
+running test 7900
+has been running for 5413 seconds
+running test 8000
+has been running for 5448 seconds
+running test 8100
+has been running for 5479 seconds
+running test 8200
+has been running for 5506 seconds
+running test 8300
+has been running for 5557 seconds
+running test 8400
+has been running for 5593 seconds
+running test 8500
+has been running for 5643 seconds
+terminate break
+  context...:
+   /Applications/Racket v6.12/collects/racket/contract/private/arrow-val-first.rkt:388:18
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/judgment-form.rkt:1235:0: check-judgment-form-contract
+   ...udgment-form.rkt:1174:18
+   ...udgment-form.rkt:1169:22
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/judgment-form.rkt:429:2: form-proc/cache
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/judgment-form.rkt:415:0: call-judgment-form
+   ...udgment-form.rkt:1123:23
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/judgment-form.rkt:1182:5: for-loop
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/judgment-form.rkt:1177:0: combine-judgment-rhses
+   ...udgment-form.rkt:1169:22
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/judgment-form.rkt:415:0: call-judgment-form
+   ...udgment-form.rkt:1123:23
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/judgment-form.rkt:1182:5: for-loop
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/judgment-form.rkt:1177:0: combine-judgment-rhses
+   ...udgment-form.rkt:1174:18
+   /Applications/Racket v6.12/share/pkgs/redex-lib/redex/private/judgment-form.rkt:429:2: form-proc/cache
+   ...
