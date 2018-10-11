@@ -11,3 +11,8 @@ here:
   hop/          Hop, installed by bin/install-hop.sh
 
   hiphop/       Hiphop.js, a Git submodule
+
+
+
+
+Bigloo should be installed before Hop,  Hop should be installed before Hiphop.
