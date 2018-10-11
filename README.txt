@@ -1,3 +1,7 @@
+This repository contains the software artifact for the paper "A Calculus for Esterel"
+
+It has the Redex and Agda implementations of the calculus, as well as the testing suites and proofs mentioned in the paper.
+
 External Dependencies:
 
 Agda version 2.5.2, and the Adga standard library version 0.13.
