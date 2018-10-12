@@ -16,3 +16,6 @@ here:
 
 
 Bigloo should be installed before Hop,  Hop should be installed before Hiphop.
+
+The scripts should generally work if esterel is not installed, but the
+others are assumed to be in place.

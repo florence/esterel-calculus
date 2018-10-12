@@ -7,25 +7,30 @@ External Dependencies:
 Agda version 2.5.2, and the Adga standard library version 0.13.
 Racket v7.0.
 The various dependencies of Bigloo Scheme and Hop.
-This directory must be installed as a racket package, and must be named `esterel-calculus`.
+
+This directory must be installed as a racket package, and must be
+named `esterel-calculus`. Achieve that with the command:
+  % raco pkg install esterel-calculus/
+run from the parent directory of the repo checkout. The `raco`
+command is included with Racket.
 
 Directory Structure:
 
 Makefile: targets are:
-          `beforecommit` basic test to run before any commit.
+          `beforecommit` basic tests to run before any commit.
           `racket-build` compile racket files and paper.
           `front-end`: test the compiler from racket to the redex model
           `redex`: test the redex code (which runs agains the agda code).
           `long`: run the long running tests.
           `agda`: typecheck all agda code, and ensure that there are no `postulate`s or `trustMe`s.
-          `paper`: build the paper and check its statements against agda.
+          `paper`: build the paper and check the statements of the proofs against the agda codebase.
           `no-agda-paper`: build the paper but skip checking against agda.
           `all`: run agda and the long running tests.
 
 
-agda: The agda implementation of the esterel calculus. See the readme in this directory for more details.
+agda: The agda implementation of the esterel calculus. See `agda/README.txt` for more details.
 
-redex: The redex implementation of the calculus and its tests. To run must be using Racket version 7.0 or later.
+redex: The redex implementation of the calculus and its tests.
        Some of these tests will be skipped because because Esterel V5 is not included here for licensing reasons.
 
        `pict.rkt` has a utility function for rendering the calculus as it shows up in the paper.
@@ -38,26 +43,26 @@ redex/model: The redex model.
              `shared.rkt` has shared language grammar and helper metafunctions.
              `concrete.rkt` has a translator from redex terms to esterel programs (used for testing).
              `potential-function.rkt` has the implementation of Can.
-             `instant.rkt` implements the inter-instant and evaluator used of testing.
+             `instant.rkt` implements the inter-instant and evaluator used for testing.
              `lset.rkt` has helpers for handling sets in redex.
 
 redex/test: contains the testing harness and redex tests
-            `binding.rkt`: redex implementation of correct binding: used to test property before proving in agda.
-            `church-rosser.rkt`: redex file to test the church-rosser property. used to test property before proving in agda.
+            `binding.rkt`: redex implementation of correct binding: used to test the property before it was proven in agda.
+            `church-rosser.rkt`: redex file to test the church-rosser property. used to test the property before it was proven in agda.
             `sound.rkt`: redex file to test overall soundness of the model.
             `external.rkt`: a bridge between redex and Esterel v5.
-            `generator.rkt`: a generator for redex esterel terms, plus a brigde to the COS model.
+            `generator.rkt`: a generator for redex esterel terms, plus a bridge to the COS model.
             `model-test.rkt`: the primary testing harness. runs a fixed set of tests and a small set of random tests.
 
 redex/test/long-test: contains harnesses for long running tests.
-                      `external.rkt`: run 100000000000000000 between COS, Redex, Esterel v5, and HipHop (if the latter two are avaible).
-                      `internal.rkt`: run 100000000000000000 between COS and Redex. These tests run much faster than the external ones.
+                      `external.rkt`: run 100000000000000000 tests between COS, Redex, Esterel v5, and HipHop (if the latter two are available).
+                      `internal.rkt`: run 100000000000000000 tests between COS and Redex. These tests run much faster than the external ones.
                       `run-test.rkt`: run 10000 tests between all four implementations. These run when `make` and `make redex` are run.
                       `forever.rkt`: like internal.rkt, but memory limits for the tests are disabled. This means some random tests will
                                        effectively never terminate.
 
 
-cross-tests: tests that check that the agda and redex models are defining the same calculus. See the readme in that directory for more information.
+cross-tests: tests that check that the agda and redex models are defining the same calculus. See `cross-tests/README.txt` for more information.
 
 final-tests: test harness and log files for major tests mentioned in the paper.
   logs/agda*.log : logs from the agda/redex cross tests
@@ -74,15 +79,13 @@ hiphop: compiler from the redex implementation of kernel esterel to HipHop.js, u
         `skip.txt`: the set of forms in hiphop we cannot compiler to the redex language.
         `to-hiphop.rkt`: the actual redex to hiphop compiler.
 
-install-prefix: install locations for hiphop.js (and its dependencies bigloo scheme and hop), and Esterel V5 (not included here, as it is not public). install-prefix/bin can be used to install bigloo and hop. hiphop can be installed by initializing the git submodule.
- The README in this folder describes more.
+install-prefix: install locations for hiphop.js (and its dependencies, bigloo scheme and hop), and Esterel V5 (not included here, as it is not public). install-prefix/bin can be used to install bigloo and hop. hiphop can be installed by initializing the git submodule. See `install-prefix/README.txt` for more information.
 
-paper: Source for the paper. Must have Racket 7.0.
+paper: Source for the paper.
 
 `cos-model.rkt` : Implementation of the COS semantics in redex.
 
-`front-end.rkt`, `front-end-tests.rkt`, `front-end-tester.rkt`: A racket compiler from a parenthesised version of surface esterel to the redex implementaiton of kernel esterel.
-                                                               Used for running the hiphop tests.
+`front-end.rkt`, `front-end-tests.rkt`, `front-end-tester.rkt`: A racket compiler from a parenthesised version of surface esterel to the redex implementaiton of kernel esterel. Used for running the hiphop tests.
 
 `agda-all.rkt: build harness for running all of the agda code.
 
@@ -112,7 +115,7 @@ Esterel v5.                    Agda.            HipHop.js.---------------------
 
 
 Note that `hiphop/parse.rkt` is not a total transforamtion because of embedded javascript code. In
-addition `front-end.rkt` may imbed racket code into the redex model. such programs cannot be
+addition `front-end.rkt` may embed racket code into the redex model. Such programs cannot be
 transformed into the other implementations.
 
 How To Use:
@@ -120,16 +123,15 @@ How To Use:
 Below follows some example changes you might make to this artifact, and some of what you may need to modify to do so.
 
 Add or modify rules in the calculus:
-  Assuming everything is setup and `make` works.
+  Assuming everything is set up and `make` works.
   1. change `redex/modex/shared.rkt` to update the language grammar
   2. change `redex/model/calculus.rkt` to update the rules.
   3. change `redex/model/standard.rkt` to make corrisponding changes to the std reduction.
-  4. update `front-end.rkt` to be able to compile to the new formms
+  4. update `front-end.rkt` to be able to compile to the new forms
   5. update `redex/test/binding.rkt` to handle correct binding of any new forms
   
   --- If you want to test against external implementation (say you are adding Esterel v7 features) ---
-  5a. follow below sets of instructions to update Esterel v5 and HipHop.
-  5b.
+  5. follow below sets of instructions to update Esterel v5 and HipHop.
   --- end if
 
   --- If you want to test against an updated COS model ---
@@ -143,13 +145,13 @@ Add or modify rules in the calculus:
      not testing against the COS, Esterel, and Hiphop, skip this step. Any other combination of
      tests against those three will require modifications to `model-test.rkt`.
   9. run `raco test` on `redex/test/binding.rkt` and `redex/test/church-rosser.rkt`. If all of these
-     passed, it appears that the redex model works, and has a non zero probability of being correct.
+     passed, it appears that the redex model works, and has a nonzero probability of being correct.
 
   10. Update the Agda proofs. See the README there for a sense of which files to modify.
   11. run `make agda` to make sure the proofs work.
   12. update the files in `cross-test/` to generate the new agda code.
   13. run `raco test` on all files in `cross-tests/` to sanity check redex model
-      against the redex model.
+      against the agda model.
   14. run `make` to sanity check that everything works.
   15. modify `final-tests/run.rkt` to run the whichever tests you want to run (against COS, agda, Esterel, or HipHop.js).
   16. clear out `final-tests/logs/`
@@ -157,7 +159,7 @@ Add or modify rules in the calculus:
   18. After you desired Long Amount Of Time has passed, check the logs in `final-tests/logs/` for any test failures.
   
 
-Update Agda to a new version: 
+To update Agda to a new version: 
   Assuming you already have agda installed, you will need to
   1. update agda.
   2. update the std library.
