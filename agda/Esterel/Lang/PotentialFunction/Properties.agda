@@ -1,19 +1,7 @@
 module Esterel.Lang.PotentialFunction.Properties where
 
 {-
-Note:
-(0) TOOD: fix comments (all are outdated)
-
-(1) CanThetaContinuation is excluded from the Properties file since it is not
-    considered as properties of the Can[θ] functions but rather tools for
-    reasoning about the Can[θ] functions. Perhaps at some point we will
-    replace Canθ with a call to Canθ' though.
-
-(2) SetSigMonotonic is re-exported through Base, not directly in this file.
--}
-
-{-
-Basic properties of the potential function and utilities used in the reasoning,
+Basic properties of the Can function and utilities used in the reasoning,
 such as Can does not look at shared variables and sequential variables; Can can
 only output free variables; Can will capture free emit S and s ⇐ e (and more).
 -}
@@ -29,25 +17,25 @@ are the main lemmas:
     Can q θ₁ ≡ Can q (θ₁ ← θ₂)
   can-irr θ₁ θ₂ q cbq FV≠Domθ₂
 
-  can-rho-irr : ∀ {BV FV} θ₁ θ₂ p E →
-    CorrectBinding (E ⟦ ρ θ₂ · p ⟧e) BV FV →
-    Canₖ (E ⟦ ρ θ₂ · p ⟧e) θ₁ ≡ Canₖ (E ⟦ p ⟧e) (θ₁ ← θ₂)
+  canθₛ-mergeˡ : ∀ {E θ' r p BV FV} sigs θ →
+    CorrectBinding p BV FV →
+    p ≐ E ⟦ ρ θ' · r ⟧e →
+    ∀ S' →
+      Signal.unwrap S' ∉ SigMap.keys (Env.sig θ') →
+      Signal.unwrap S' ∈ Canθₛ (SigMap.union sigs (Env.sig θ')) 0 (E ⟦ r ⟧e) θ →
+      Signal.unwrap S' ∈ Canθₛ sigs 0 p θ
 
-  canₛ-mergeˡ : ∀ {θ₁ r θ₂ p BV FV E} S →
-    r ≐ E ⟦ ρ θ₂ · p  ⟧e →
-    ¬ (Env.isSig∈ S θ₂) →
-    CorrectBinding r BV FV →
-    Signal.unwrap S ∈ Canₛ (E ⟦ p ⟧e) (θ₁ ← θ₂) →
-    (Signal.unwrap S ∈ Canₛ r θ₁)
+  canθₛ-mergeʳ : ∀ sigs θ' r θ →
+    distinct' (proj₁ (Dom θ)) (SigMap.keys sigs) →
+    ∀ S' →
+      Signal.unwrap S' ∈ Canθₛ (SigMap.union sigs (Env.sig θ')) 0 r θ →
+      Signal.unwrap S' ∈ Canθₛ (Env.sig θ') 0 r θ
 
-  canₛ-mergeʳ : ∀ θ θ' p →
-    ∀ S →
-      Signal.unwrap S ∈ Canₛ p (θ ← θ') →
-      Signal.unwrap S ∈ Canₛ p θ'
+These lemma says that when updating or extending the environent,
+if the program does not refer to the updated variables, then
+the Can function will not change and the Canθ function will
+have some sort of monotonicity.
 
-  (and similar ones for Canₛₕ)
-
-This file contains the lemma that uses "θ accumulating trick" in the proof.
 -}
 open import Esterel.Lang.PotentialFunction.MergePotentialRuleCan public
 open import Esterel.Lang.PotentialFunction.MergePotentialRuleTheta public
@@ -85,10 +73,3 @@ open import Function
   using (_∘_)
 open import Relation.Nullary
   using (¬_)
-
--- old lemmas; left here for backward compatibility
-CanₛₕAgreesWithE : ∀{θ s e E} → (p : Term) → SharedVar.unwrap s ∉ Canₛₕ p θ → ¬ (p ≐ E ⟦ s ⇐ e ⟧e)
-CanₛₕAgreesWithE {θ} p = (_∘ canₛₕ-capture-set-shared θ)
-
-CanₛAgreesWithE : ∀{θ S E} → (p : Term) → Signal.unwrap S ∉ Canₛ p θ → ¬ (p ≐ E ⟦ emit S ⟧e)
-CanₛAgreesWithE {θ} p = (_∘ canₛ-capture-emit-signal θ)

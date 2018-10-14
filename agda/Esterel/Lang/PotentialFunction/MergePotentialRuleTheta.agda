@@ -1,5 +1,23 @@
 {-
-The equivalent "goodness" of can w.r.t. the rmerge reduction.
+The equivalent "goodness" of can-θ w.r.t. the rmerge reduction.
+The main properties of the Can function proved in this file are:
+
+  canθₛ-mergeˡ : ∀ {E θ' r p BV FV} sigs θ →
+    CorrectBinding p BV FV →
+    p ≐ E ⟦ ρ θ' · r ⟧e →
+    ∀ S' →
+      Signal.unwrap S' ∉ SigMap.keys (Env.sig θ') →
+      Signal.unwrap S' ∈ Canθₛ (SigMap.union sigs (Env.sig θ')) 0 (E ⟦ r ⟧e) θ →
+      Signal.unwrap S' ∈ Canθₛ sigs 0 p θ
+
+  canθₛ-mergeʳ : ∀ sigs θ' r θ →
+    distinct' (proj₁ (Dom θ)) (SigMap.keys sigs) →
+    ∀ S' →
+      Signal.unwrap S' ∈ Canθₛ (SigMap.union sigs (Env.sig θ')) 0 r θ →
+      Signal.unwrap S' ∈ Canθₛ (Env.sig θ') 0 r θ
+
+and their corresponding counterparts for the shared variables.
+
 -}
 module Esterel.Lang.PotentialFunction.MergePotentialRuleTheta where
 

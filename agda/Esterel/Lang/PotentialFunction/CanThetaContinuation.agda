@@ -1,3 +1,35 @@
+{-
+
+The module CanThetaContinuation contains the continuation-passing
+variant of Canθ, which is used as a tool to simplify Canθ-Can
+expressions.
+
+The lemmas are mainly about the function Canθ' defined by the equation
+
+    unfold : ∀ sigs S'' p θ →
+         Canθ sigs S'' p θ ≡ Canθ' sigs S'' (Can p) θ
+
+The main property proved here is that the search function
+Canθ is distributive over the environment:
+
+    canθ'-←-distribute : ∀ sigs sigs' S'' r θ →
+      Canθ (SigMap.union sigs sigs') S'' r θ ≡
+      Canθ' sigs S'' (Canθ sigs' S'' r) θ
+
+Other properties about how the search is performed are:
+
+    canθ'-inner-shadowing-irr : ∀ sigs S'' sigs' p S status θ →
+      S ∈ SigMap.keys sigs' →
+        Canθ' sigs S'' (Canθ sigs' 0 p) (θ ← [ (S ₛ) ↦ status ]) ≡
+        Canθ' sigs S'' (Canθ sigs' 0 p) θ
+
+    canθ'-search-acc : ∀ sigs S κ θ →
+      ∀ S'' status →
+        S'' ∉ map (_+_ S)  (SigMap.keys sigs) →
+        Canθ' sigs S  κ  (θ ← [ (S'' ₛ) ↦ status ]) ≡
+        Canθ' sigs S (κ ∘ (_← [ (S'' ₛ) ↦ status ])) θ
+
+-}
 module Esterel.Lang.PotentialFunction.CanThetaContinuation where
 
 open import utility

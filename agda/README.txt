@@ -5,23 +5,27 @@ The proof structure for the proof of consistency works as follows:
 
 Define the caluclus.
   (`calculus.agda`)
-Break the calculus into two parts, one containing only [par-swap], and one without it.
+Break the calculus into two parts, one containing only
+the [par-swap] reduction rule and one containing the
+remaining reduction rules.
   (`par-swap.agda` and `sn-calculus.agda`)
-prove that this the second part is strongly normalizing.
+prove that the calculus without [par-swap] is strongly normalizing.
   (`sn-calculus-compatconf.agda` and `sn-calculus-confluence.agda`)
-prove that this second part is locally confluent.
+prove that the calculus without [par-swap] is locally confluent.
   (`noetherian.agda`)
-prove by Newmans lemma that the it is confluent.
+prove by Newmans lemma that the calculus without [par-swap] is confluent.
   (`sn-calculus-props.agda`)
-prove that the [par-swap] part is confluent.
+prove that the [par-swap] reduction rule itself is confluent.
   (`par-swap/confluent.agda`)
-prove by hindley-rossen that the union of the two is confluent.
+prove by Hindley-Rossen that the entire calculus is confluent.
   (`par-swap/union-confluent.agda`)
-prove that the union is equivent to the formulation in `calculus.agda.`
+prove that the union of the [par-swap] reduction rule
+and sn-calculus is equivalent to the formulation in `calculus.agda.`
   (`eval-props.agda`)
 define the evaluator induced by the reduction relation.
   (`eval.agda`)
-prove that the induced evaulator is consistent given confluence of the reduction relation.
+prove that the induced evaluator is consistent given
+confluence of the reduction relation.
   (`eval-props.agda`)
 
 
@@ -34,8 +38,12 @@ Other files:
 `eval-props.agda` proves that the calculus is consistent w.r.t. its evaluator.
 `stdlib013-fix.lagda` copies some proofs that are in the stdlib but private.
 
-Esterel/: definitions of the language grammar
-Esterel/Lang: defines the languages notion of Correct Binding and Can.
-Esterel/Lang/PotentialFunction: Lemmas concerning the Can.
-Data/: Implments finite maps (used for environments)
-
+Esterel/Lang.agda, Esterel/Variable/*:
+  definitions of the language syntax
+Esterel/CompletionCode.agda:
+  defines the exit codes
+Esterel/Context.agda, Esterel/Context/*:
+  defines the evaluation context, compatible closure and some properties.
+Esterel/Lang/*: defines the language's notion of CorrectBinding and Can.
+Esterel/Lang/PotentialFunction/*: Lemmas concerning the Can function.
+Data/: Implements finite maps (used for environments)

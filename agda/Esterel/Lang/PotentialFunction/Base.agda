@@ -1,8 +1,22 @@
 {-
-Basic properties of the potential function and utilities used in the reasoning.
+Basic properties of the Can function and utilities used in the reasoning.
 
 
-The basic properties of the potential function include
+The basic properties of the Can function include
+
+
+- Can-θ function shadows the environment
+
+
+    canθ-shadowing-irr' : ∀ sigs' S'' p S status θ θo →
+      S ∈ map (_+_ S'') (SigMap.keys sigs') →
+        Canθ sigs' S'' p ((θ ← [ (S ₛ) ↦ status ]) ← θo) ≡
+        Canθ sigs' S'' p (θ ← θo)
+
+    canθ-shadowing-irr : ∀ sigs' S'' p S status θ →
+      Signal.unwrap S ∈ map (_+_ S'') (SigMap.keys sigs') →
+        Canθ sigs' S'' p θ ≡
+        Canθ sigs' S'' p (θ ← [ S ↦ status ])
 
 
 - Can only look at signals in the environment. Actually, if we define Can on top
@@ -17,7 +31,7 @@ The basic properties of the potential function include
 
   canₖ-term-nothin : ∀ {r} θ → term-nothin r → Canₖ r θ ≡ (Code.nothin ∷ [])
 
-  So the result of the potential function will not change:
+  So the result of the Can function will not change:
 
   canₖ-term-nothin-lemma : ∀ {r₁ r₂} θ E →
     term-nothin r₁ → term-nothin r₂ →
@@ -87,6 +101,26 @@ The basic properties of the potential function include
       S' ∈ proj₁ (κ' (θ ← Θ SigMap.[ S ↦ status ] ShrMap.empty VarMap.empty)) →
       S' ∈ proj₁ (κ' (θ ← [S]-env S))) →
     ∀ S → S ∈ proj₁ (Canθ' sigs S'' κ θ) → S ∈ proj₁ (Canθ' sigs S'' κ' θ)
+
+
+- Certain type of mootonicity relationship between the Can-θ function
+  and the evaluation context
+
+    canθₛ-p⊆canθₛ-E₁⟦p⟧ : ∀ sigs S'' θ E₁ pin →
+      ∀ S' →
+        Signal.unwrap S' ∈ Canθₛ sigs S'' pin θ →
+        Signal.unwrap S' ∈ Canθₛ sigs S'' ((E₁ ∷ []) ⟦ pin ⟧e) θ
+
+    canθₛ-E₁⟦p⟧⊆canθₛ-p : ∀ {pin E₁ E₁⟦nothin⟧ BV FV} sigs S'' θ →
+      E₁⟦nothin⟧ ≐ (E₁ ∷ []) ⟦ nothin ⟧e →
+      CorrectBinding E₁⟦nothin⟧ BV FV →
+
+      distinct' (map (_+_ S'') (SigMap.keys sigs)) (proj₁ FV) →
+      ∀ S' →
+        Signal.unwrap S' ∉ proj₁ FV →
+        Signal.unwrap S' ∈ Canθₛ sigs S'' ((E₁ ∷ []) ⟦ pin ⟧e) θ →
+        Signal.unwrap S' ∈ Canθₛ sigs S'' pin θ
+
 -}
 module Esterel.Lang.PotentialFunction.Base where
 

@@ -1,8 +1,16 @@
 {-
-The equivalent "goodness" of can w.r.t. the rmerge reduction. The main lemmas
-are can-irr, can-rho-irr and canₛ-mergeˡ canₛₕ-mergeˡ canₛ-mergeʳ canₛₕ-mergeʳ.
+The equivalent "goodness" of can w.r.t. the rmerge reduction.
+The lemma proved in this file is
 
-can-new-irr is the lemma that uses "θ accumulating trick" in the proof.
+    can-irr : ∀ {BV} {FV} θ₁ θ₂ q →
+      CorrectBinding q BV FV →
+      (distinct' (proj₁ FV) (proj₁ (Dom θ₂))) →
+       Can q θ₁ ≡ Can q (θ₁ ← θ₂)
+
+That is, the result of the Can function will not change
+provided that the program does not refer to any variables
+in the new environment.
+
 -}
 module Esterel.Lang.PotentialFunction.MergePotentialRuleCan where
 
