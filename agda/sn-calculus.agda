@@ -5,7 +5,7 @@ open import utility
 open import Esterel.Lang
 open import Esterel.Lang.Binding
 open import Esterel.Lang.Properties
-open import Esterel.Lang.PotentialFunction
+open import Esterel.Lang.CanFunction
   using (Canθₛ ; Canθₛₕ ; [S]-env)
 open import Esterel.Environment as Env
   using (Env ; Θ ; _←_ ; sig ; []env ; module SigMap ; module ShrMap ; module VarMap)
@@ -49,7 +49,7 @@ infix 4 _sn⟶_
 infix 4 _sn⟶*_
 
 -- The environment created by rraise-signal rule
--- [S]-env, is defined in Esterel.Lang.PotentialFunction
+-- [S]-env, is defined in Esterel.Lang.CanFunction
 -- It's simply Θ SigMap.[ S ↦ Signal.unknown ] ShrMap.empty VarMap.empty
 
 -- The environment created by rraise-shared rule

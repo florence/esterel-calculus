@@ -21,16 +21,16 @@ using term-raise and term-nothing to capture the relevant esterel Terms
       Signal.unwrap S ∈ Canₛ (E ⟦ nothin ⟧e) θ' →
       Signal.unwrap S ∈ Canₛ r θ
 -}
-module Esterel.Lang.PotentialFunction.NonMergePotentialRules where
+module Esterel.Lang.CanFunction.NonMergePotentialRules where
 
 open import utility
 
 open import Esterel.Lang
-open import Esterel.Lang.PotentialFunction
-open import Esterel.Lang.PotentialFunction.Base
-open import Esterel.Lang.PotentialFunction.CanThetaContinuation
-open import Esterel.Lang.PotentialFunction.SetSigMonotonic
-open import Esterel.Lang.PotentialFunction.Plug
+open import Esterel.Lang.CanFunction
+open import Esterel.Lang.CanFunction.Base
+open import Esterel.Lang.CanFunction.CanThetaContinuation
+open import Esterel.Lang.CanFunction.SetSigMonotonic
+open import Esterel.Lang.CanFunction.Plug
 open import Esterel.Context
 open import Esterel.Context.Properties
 open import Esterel.Environment as Env

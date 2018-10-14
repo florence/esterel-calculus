@@ -10,9 +10,9 @@ open import context-properties
 
 open import Esterel.Lang
 open import Esterel.Lang.Binding
-open import Esterel.Lang.PotentialFunction
+open import Esterel.Lang.CanFunction
   using (Can ; Canₛ ; Canₛₕ ; Canₖ ; Canθ ; Canθₛ ; Canθₛₕ ; Canθₖ)
-open import Esterel.Lang.PotentialFunction.Properties
+open import Esterel.Lang.CanFunction.Properties
 open import Esterel.Environment as Env
   using (Env ; Θ ; _←_ ; Dom ; module SigMap ; module ShrMap ; module VarMap)
 open import Esterel.Context

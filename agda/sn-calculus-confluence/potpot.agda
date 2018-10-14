@@ -6,9 +6,9 @@ open import context-properties
   using (->pot-view)
 
 open import Esterel.Lang
-open import Esterel.Lang.PotentialFunction
+open import Esterel.Lang.CanFunction
   using (Can ; Canₛ ; Canₛₕ ; Canθ ; Canθₛ ; Canθₛₕ)
-open import Esterel.Lang.PotentialFunction.Properties
+open import Esterel.Lang.CanFunction.Properties
   using ( canθₛ-set-sig-monotonic-absence-lemma ; canθₛₕ-set-sig-monotonic-absence-lemma
         ; canθ-shr-var-irr
         )

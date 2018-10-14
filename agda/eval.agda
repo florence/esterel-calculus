@@ -5,7 +5,7 @@ open import utility
 open import Function using (_∘_)
 open import Esterel.Lang
 open import Esterel.Lang.Properties
-open import Esterel.Lang.PotentialFunction
+open import Esterel.Lang.CanFunction
   using (Canₛ ; Canₛₕ)
 open import Esterel.Environment as Env
   using (Env ; Θ ; _←_ ; module SigMap ; module ShrMap ; module VarMap ; []env ; sig-stats ; Dom)

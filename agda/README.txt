@@ -45,5 +45,5 @@ Esterel/CompletionCode.agda:
 Esterel/Context.agda, Esterel/Context/*:
   defines the evaluation context, compatible closure and some properties.
 Esterel/Lang/*: defines the language's notion of CorrectBinding and Can.
-Esterel/Lang/PotentialFunction/*: Lemmas concerning the Can function.
+Esterel/Lang/CanFunction/*: Lemmas concerning the Can function.
 Data/: Implements finite maps (used for environments)

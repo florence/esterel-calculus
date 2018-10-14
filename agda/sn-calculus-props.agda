@@ -2,7 +2,7 @@ module _ where
 
 open import Data.Nat using (ℕ ; _+_ ;  _≤′_ ; suc)
 open import Induction.Nat using (<-rec)
-open import Esterel.Lang.PotentialFunction
+open import Esterel.Lang.CanFunction
 open import Function using (_∋_ ; _∘_ ; id ; _$_)
 open import Data.Nat.Properties.Simple using ( +-comm ; +-assoc)
 open import utility
@@ -25,7 +25,7 @@ open import Data.Maybe using ( just )
 -- open import coherence
 open import Data.List.Any
 open import Data.List.Any.Properties
-open import Esterel.Lang.PotentialFunction.Base
+open import Esterel.Lang.CanFunction.Base
 open import eval
 open import blocked
 open import Data.List.All

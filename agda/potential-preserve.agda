@@ -38,8 +38,8 @@ open import utility
 open import Esterel.Lang
 open import Esterel.Lang.Binding
 open import Esterel.Lang.Properties
-open import Esterel.Lang.PotentialFunction
-open import Esterel.Lang.PotentialFunction.Properties
+open import Esterel.Lang.CanFunction
+open import Esterel.Lang.CanFunction.Properties
 open import Esterel.Context
   using (EvaluationContext1 ; EvaluationContext ; _⟦_⟧e ; _≐_⟦_⟧e)
 open import Esterel.Context.Properties

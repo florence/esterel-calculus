@@ -12,14 +12,14 @@ provided that the program does not refer to any variables
 in the new environment.
 
 -}
-module Esterel.Lang.PotentialFunction.MergePotentialRuleCan where
+module Esterel.Lang.CanFunction.MergePotentialRuleCan where
 
 open import utility
 
 open import Esterel.Lang
 open import Esterel.Lang.Binding
-open import Esterel.Lang.PotentialFunction
-open import Esterel.Lang.PotentialFunction.Base
+open import Esterel.Lang.CanFunction
+open import Esterel.Lang.CanFunction.Base
 open import Esterel.Context
 open import Esterel.Context.Properties
   using (plug ; unplug)

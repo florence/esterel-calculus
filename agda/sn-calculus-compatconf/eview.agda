@@ -16,7 +16,7 @@ open import sn-calculus-confluence
 open import Esterel.Lang
 open import Esterel.Lang.Properties
 open import Esterel.Lang.Binding
-open import Esterel.Lang.PotentialFunction
+open import Esterel.Lang.CanFunction
   using (Can ; Canₛ ; Canₛₕ ; Canₖ ; module CodeSet)
 open import Esterel.Environment as Env
   using (Env ; Θ ; _←_ ; Dom ; module SigMap ; module ShrMap ; module VarMap)

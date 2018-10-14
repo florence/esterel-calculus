@@ -30,7 +30,7 @@ Other properties about how the search is performed are:
         Canθ' sigs S (κ ∘ (_← [ (S'' ₛ) ↦ status ])) θ
 
 -}
-module Esterel.Lang.PotentialFunction.CanThetaContinuation where
+module Esterel.Lang.CanFunction.CanThetaContinuation where
 
 open import utility
 
@@ -39,8 +39,8 @@ open import utility
 
 open import Esterel.Lang
 open import Esterel.Lang.Binding
-open import Esterel.Lang.PotentialFunction
-open import Esterel.Lang.PotentialFunction.Base
+open import Esterel.Lang.CanFunction
+open import Esterel.Lang.CanFunction.Base
 open import Esterel.Context
   using (EvaluationContext1 ; EvaluationContext ; _⟦_⟧e ; _≐_⟦_⟧e)
 open import Esterel.Context.Properties

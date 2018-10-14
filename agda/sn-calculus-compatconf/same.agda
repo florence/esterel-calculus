@@ -14,9 +14,9 @@ open import context-properties
 open import Esterel.Lang
 open import Esterel.Lang.Properties
 open import Esterel.Lang.Binding
-open import Esterel.Lang.PotentialFunction
+open import Esterel.Lang.CanFunction
   using (Can ; Canₛ ; Canₛₕ ; Canₖ ; Canθ ; Canθₛ ; Canθₛₕ ; module CodeSet)
-open import Esterel.Lang.PotentialFunction.Properties
+open import Esterel.Lang.CanFunction.Properties
   using (canθₛ-mergeʳ ; canθₛₕ-mergeʳ)
 open import Esterel.Environment as Env
   using (Env ; Θ ; _←_ ; Dom ; module SigMap ; module ShrMap ; module VarMap)

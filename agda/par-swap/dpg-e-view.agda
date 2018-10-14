@@ -8,8 +8,8 @@ open import utility
 open import Esterel.Lang
 open import Esterel.Lang.Binding
 open import Esterel.Lang.Properties
-open import Esterel.Lang.PotentialFunction
-open import Esterel.Lang.PotentialFunction.Plug
+open import Esterel.Lang.CanFunction
+open import Esterel.Lang.CanFunction.Plug
 open import Esterel.Environment as Env
 open import Esterel.Context
 open import Data.Product

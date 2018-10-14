@@ -12,9 +12,9 @@ open import Esterel.Lang
 open import Esterel.Lang.Properties
 open import Esterel.Context
 open import Esterel.Environment as Env
-open import Esterel.Lang.PotentialFunction
+open import Esterel.Lang.CanFunction
   using (Canₖ ; module CodeSet ; Canₛ ; Canₛₕ ; Canθₛ ; Canθₛₕ)
-open import Esterel.Lang.PotentialFunction.Base
+open import Esterel.Lang.CanFunction.Base
   using (can-shr-var-irr)
 open import Esterel.CompletionCode as Code
   using () renaming (CompletionCode to Code)
@@ -25,7 +25,7 @@ open import Esterel.Variable.Shared as SharedVar
 open import Esterel.Variable.Sequential as SeqVar
   using (SeqVar ; _ᵥ)
 
-open import Esterel.Lang.PotentialFunction using (Canₖ)
+open import Esterel.Lang.CanFunction using (Canₖ)
 
 open import Data.Product using (_,_)
 open import Relation.Nullary using (Dec ; yes ; no ; ¬_)

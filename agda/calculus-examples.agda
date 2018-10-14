@@ -25,16 +25,16 @@ open import Esterel.Variable.Shared as SharedVar using (SharedVar)
 open import Esterel.Variable.Sequential as SeqVar using (SeqVar)
 
 open import Esterel.Lang
-open import Esterel.Lang.PotentialFunction
-open import Esterel.Lang.PotentialFunction.Properties
-open import Esterel.Lang.PotentialFunction.SetSigMonotonic using (canₛ-set-sig-monotonic)
+open import Esterel.Lang.CanFunction
+open import Esterel.Lang.CanFunction.Properties
+open import Esterel.Lang.CanFunction.SetSigMonotonic using (canₛ-set-sig-monotonic)
 open import Esterel.Lang.Properties
 open import Esterel.Lang.Binding
 open import Esterel.Context
 open import Esterel.CompletionCode as Code
   using () renaming (CompletionCode to Code)
 open import context-properties
-open import Esterel.Lang.PotentialFunction.Base using (canₛ-⊆-FV)
+open import Esterel.Lang.CanFunction.Base using (canₛ-⊆-FV)
 
 open import Data.Nat as Nat
   using (ℕ ; zero ; suc ; _+_) renaming (_⊔_ to _⊔ℕ_)

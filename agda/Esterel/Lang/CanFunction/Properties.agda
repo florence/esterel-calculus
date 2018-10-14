@@ -1,11 +1,11 @@
-module Esterel.Lang.PotentialFunction.Properties where
+module Esterel.Lang.CanFunction.Properties where
 
 {-
 Basic properties of the Can function and utilities used in the reasoning,
 such as Can does not look at shared variables and sequential variables; Can can
 only output free variables; Can will capture free emit S and s ⇐ e (and more).
 -}
-open import Esterel.Lang.PotentialFunction.Base hiding ([_↦_]) public
+open import Esterel.Lang.CanFunction.Base hiding ([_↦_]) public
 
 {-
 The equivalent "goodness" of can w.r.t. the rmerge reduction. Specifically, here
@@ -37,21 +37,21 @@ the Can function will not change and the Canθ function will
 have some sort of monotonicity.
 
 -}
-open import Esterel.Lang.PotentialFunction.MergePotentialRuleCan public
-open import Esterel.Lang.PotentialFunction.MergePotentialRuleTheta public
+open import Esterel.Lang.CanFunction.MergePotentialRuleCan public
+open import Esterel.Lang.CanFunction.MergePotentialRuleTheta public
 
 {-
 The subset "goodness" of can w.r.t. other ρθ-reductions. For each of the 7 non-merge
 ρθ-reductions, there are two corresponding Can subset lemmas.
 -}
-open import Esterel.Lang.PotentialFunction.NonMergePotentialRules public
+open import Esterel.Lang.CanFunction.NonMergePotentialRules public
 
 {-
 The compatible closure context C⟦_⟧c respects the monotonicity of the potential
 function. For example, Can is monotonic w.r.t. to _sn⟶₁_, hence also _sn⟶_ by the
 lemmas in this file.
 -}
-open import Esterel.Lang.PotentialFunction.Plug public
+open import Esterel.Lang.CanFunction.Plug public
 
 open import utility
 
@@ -61,7 +61,7 @@ open import Esterel.Context
   using (_≐_⟦_⟧e)
 open import Esterel.Environment as Env
   using (Env ; Θ ; _←_ ; Dom ; module SigMap ; module ShrMap ; module VarMap)
-open import Esterel.Lang.PotentialFunction
+open import Esterel.Lang.CanFunction
 open import Esterel.Variable.Signal as Signal
   using (Signal ; _ₛ)
 open import Esterel.Variable.Shared as SharedVar

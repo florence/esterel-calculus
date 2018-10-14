@@ -55,14 +55,14 @@ on the continuation. Specifically, this holds for using Canθ as the continuatio
       S'' ∈ proj₁ (Canθ' sigs S (Canθ sigs' S' p)
                     (θ ← [S]-env S'''))
 -}
-module Esterel.Lang.PotentialFunction.SetSigMonotonic where
+module Esterel.Lang.CanFunction.SetSigMonotonic where
 
 open import utility
 
 open import Esterel.Lang
 -- Note: the dependency is weird here; SetSigMonotonic should be basic
 -- and cannot import Base. Instead, Base relies on SetSigMonotonic.
-open import Esterel.Lang.PotentialFunction
+open import Esterel.Lang.CanFunction
 open import Esterel.Context
 open import Esterel.Environment as Env
   using (Env ; Θ ; _←_ ; Dom ; module SigMap ; module ShrMap ; module VarMap)

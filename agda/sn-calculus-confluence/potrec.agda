@@ -9,8 +9,8 @@ open import sn-calculus-confluence.helper
 open import Esterel.Lang
 open import Esterel.Lang.Binding
 open import Esterel.Lang.Properties
-open import Esterel.Lang.PotentialFunction
-open import Esterel.Lang.PotentialFunction.Properties
+open import Esterel.Lang.CanFunction
+open import Esterel.Lang.CanFunction.Properties
   using (canθₛ-subset ; canθₛₕ-subset ; canθₛ-membership ; canθₛₕ-membership
        ; canθₛ-mergeˡ ; canθₛₕ-mergeˡ
        ; canθ-is-present ; canθ-is-absent

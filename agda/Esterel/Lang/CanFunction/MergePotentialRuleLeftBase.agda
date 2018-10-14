@@ -1,14 +1,14 @@
-module Esterel.Lang.PotentialFunction.MergePotentialRuleLeftBase where
+module Esterel.Lang.CanFunction.MergePotentialRuleLeftBase where
 
 open import utility
   renaming (_U̬_ to _∪_ ; _|̌_ to _-_)
 
 open import Esterel.Lang
 open import Esterel.Lang.Binding
-open import Esterel.Lang.PotentialFunction
-open import Esterel.Lang.PotentialFunction.Base
-open import Esterel.Lang.PotentialFunction.CanThetaContinuation
-open import Esterel.Lang.PotentialFunction.MergePotentialRuleCan
+open import Esterel.Lang.CanFunction
+open import Esterel.Lang.CanFunction.Base
+open import Esterel.Lang.CanFunction.CanThetaContinuation
+open import Esterel.Lang.CanFunction.MergePotentialRuleCan
 open import Esterel.Context
   using (EvaluationContext1 ; EvaluationContext ; _⟦_⟧e ; _≐_⟦_⟧e)
 open import Esterel.Context.Properties

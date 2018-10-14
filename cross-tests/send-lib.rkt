@@ -267,7 +267,7 @@ open import blocked using (blocked-dec)
 open import Esterel.Lang
 open import Esterel.Lang.Properties
 open import Esterel.Lang.Binding
-open import Esterel.Lang.PotentialFunction
+open import Esterel.Lang.CanFunction
 open import Esterel.Context
 open import Esterel.Environment as Env
 open import Esterel.Variable.Signal as Signal using (Signal ; _ₛ)

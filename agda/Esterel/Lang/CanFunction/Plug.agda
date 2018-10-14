@@ -1,4 +1,4 @@
-module Esterel.Lang.PotentialFunction.Plug where
+module Esterel.Lang.CanFunction.Plug where
 
 open import Data.Nat using (_+_ ; suc)
 open import Function using (_∋_ ; _∘_ ; id ; _$_)
@@ -6,7 +6,7 @@ open import Data.Nat.Properties.Simple using ( +-comm ; +-assoc)
 open import utility
 open import Esterel.Lang
 open import Esterel.Lang.Properties
-open import Esterel.Lang.PotentialFunction
+open import Esterel.Lang.CanFunction
 open import Esterel.Environment as Env
 open import Esterel.Context
 open import Esterel.Context.Properties
@@ -21,7 +21,7 @@ open import Esterel.Lang.Binding
 open import Data.Maybe using ( nothing ; just )
 open import Data.List.Any
 open import Data.List.Any.Properties
-open import Esterel.Lang.PotentialFunction.SetSigMonotonic
+open import Esterel.Lang.CanFunction.SetSigMonotonic
 
 open ≡-Reasoning using (_≡⟨_⟩_ ; _≡⟨⟩_ ; _∎)
 

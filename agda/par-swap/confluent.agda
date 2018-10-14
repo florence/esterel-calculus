@@ -3,7 +3,7 @@ module par-swap.confluent where
 open import par-swap
 open import par-swap.properties
 open import Data.Nat using (_+_ ;  _≤′_ ; _<′_ ; suc ; zero ; ≤′-refl)
-open import Esterel.Lang.PotentialFunction
+open import Esterel.Lang.CanFunction
 open import utility
 open import Esterel.Lang
 open import Esterel.Context

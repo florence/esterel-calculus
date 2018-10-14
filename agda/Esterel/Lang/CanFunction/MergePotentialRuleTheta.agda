@@ -19,18 +19,18 @@ The main properties of the Can function proved in this file are:
 and their corresponding counterparts for the shared variables.
 
 -}
-module Esterel.Lang.PotentialFunction.MergePotentialRuleTheta where
+module Esterel.Lang.CanFunction.MergePotentialRuleTheta where
 
 open import utility
   renaming (_U̬_ to _∪_ ; _|̌_ to _-_)
 
 open import Esterel.Lang
 open import Esterel.Lang.Binding
-open import Esterel.Lang.PotentialFunction
-open import Esterel.Lang.PotentialFunction.Base
-open import Esterel.Lang.PotentialFunction.CanThetaContinuation
-open import Esterel.Lang.PotentialFunction.MergePotentialRuleLeftInductive
-open import Esterel.Lang.PotentialFunction.NonMergePotentialRules
+open import Esterel.Lang.CanFunction
+open import Esterel.Lang.CanFunction.Base
+open import Esterel.Lang.CanFunction.CanThetaContinuation
+open import Esterel.Lang.CanFunction.MergePotentialRuleLeftInductive
+open import Esterel.Lang.CanFunction.NonMergePotentialRules
 open import Esterel.Context
   using (EvaluationContext1 ; EvaluationContext ; _⟦_⟧e ; _≐_⟦_⟧e)
 open import Esterel.Context.Properties

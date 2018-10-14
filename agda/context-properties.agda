@@ -4,8 +4,8 @@ open import utility
 open import Esterel.Lang
 open import Esterel.Lang.Binding
 open import Esterel.Lang.Properties
-open import Esterel.Lang.PotentialFunction
-open import Esterel.Lang.PotentialFunction.Properties
+open import Esterel.Lang.CanFunction
+open import Esterel.Lang.CanFunction.Properties
   using (canₛ-⊆-FV ; canₛₕ-⊆-FV ; canθₛ-E₁⟦p⟧⊆canθₛ-p ; canθₛₕ-E₁⟦p⟧⊆canθₛₕ-p)
 open import Esterel.Environment
 open import Esterel.Context

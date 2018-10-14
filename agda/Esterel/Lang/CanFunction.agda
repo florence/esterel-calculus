@@ -1,4 +1,4 @@
-module Esterel.Lang.PotentialFunction where
+module Esterel.Lang.CanFunction where
 
 open import utility
   hiding (module ListSet)
@@ -45,7 +45,7 @@ module SigSet = utility.ListSet Nat._≟_
 module ShrSet = utility.ListSet Nat._≟_
 module CodeSet = utility.ListSet Code._≟_
 
--- hide this when importing PotentialFunction to avoid ambiguity from sn-calculus.agda
+-- hide this when importing CanFunction to avoid ambiguity from sn-calculus.agda
 [S]-env : (S : Signal) → Env
 [S]-env S = Θ SigMap.[ S ↦ Signal.unknown ] ShrMap.empty VarMap.empty
 

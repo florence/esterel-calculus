@@ -122,15 +122,15 @@ The basic properties of the Can function include
         Signal.unwrap S' ∈ Canθₛ sigs S'' pin θ
 
 -}
-module Esterel.Lang.PotentialFunction.Base where
+module Esterel.Lang.CanFunction.Base where
 
 open import utility
   renaming (_U̬_ to _∪_ ; _|̌_ to _-_)
 
 open import Esterel.Lang
 open import Esterel.Lang.Binding
-open import Esterel.Lang.PotentialFunction
-open import Esterel.Lang.PotentialFunction.SetSigMonotonic public -- weird dependency here
+open import Esterel.Lang.CanFunction
+open import Esterel.Lang.CanFunction.SetSigMonotonic public -- weird dependency here
 open import Esterel.Lang.Properties
   using (halted ; paused ; done)
 open import Esterel.Context
@@ -1209,7 +1209,7 @@ Canθₛunknown->Canₛunknown-help zero    S' p S+S'∈canθ-[S↦unknown]-S'
 ... | no  S'∉can-p-[S↦unknown] =
   Data.Empty.⊥-elim
     (S'∉can-p-[S↦unknown]
-      (Esterel.Lang.PotentialFunction.SetSigMonotonic.canθₛ-add-sig-monotonic
+      (Esterel.Lang.CanFunction.SetSigMonotonic.canθₛ-add-sig-monotonic
        [] 0 p Env.[]env (S' ₛ) Signal.absent S'
        S+S'∈canθ-[S↦unknown]-S'))
 Canθₛunknown->Canₛunknown-help (suc S) S' p S+S'∈canθ-[S↦unknown]-S'
