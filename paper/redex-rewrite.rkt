@@ -29,7 +29,9 @@
          (contract-out
           [rule (-> is-rule-label? pict?)])
          current-reduction-arrow
-         words bords) ;; bords = bold words 
+         indent
+         words bords ;; bords = bold words
+         leading-∀)
 
 (define (rule name)
   (define (t s) (text s Linux-Liberterine-name))
@@ -143,6 +145,7 @@
     (define x (list-ref lws 3))
     (define ev (list-ref lws 4))
     (list "" θ "(" x ") ≠ " ev ""))
+  #;
   (define (restriction θ S)
     ;; this should match Lset-sub 's typesetting
     (define θ-pict (nt-t (~a θ)))
@@ -156,7 +159,7 @@
               spacer)
              spacer)
             2 0)
-    (drop-below-ascent
+     (drop-below-ascent
       (hbl-append (def-t "dom(")
                   θ-pict
                   (def-t ") \\ { ")
@@ -274,6 +277,28 @@
            (- (pict-width ↬-pict) (pict-width x-pict))
            0))
 
+  (define (Can-θ-name-pict)
+    (define the-rho (scale (alt-ρ) .7))
+    (define too-much-space-below
+      (hbl-append
+       (mf-t "Can")
+       (lift-above-baseline the-rho
+                            (* -1/5 (pict-height the-rho)))))
+    (define x (mf-t "x"))
+    (inset (refocus (lbl-superimpose (ghost x) too-much-space-below)
+                    x)
+           0
+           0
+           (- (pict-width too-much-space-below) (pict-width x))
+           0))
+
+  (define (CB-judgment-pict)
+    (hbl-append
+     (text "⊢" (default-style) (default-font-size))
+     (text "CB" (cons 'subscript (default-style)) (default-font-size))))
+
+  (define (plus-equals) (hbl-append -1 (def-t "+") (def-t "=")))
+  
   (with-compound-rewriters
    (['≡e
      (λ (lws)
@@ -326,8 +351,7 @@
              ""))]
     ['CB
      (λ (lws)
-       (list (hbl-append (text "⊢" (default-style) (default-font-size))
-                         (text "CB" (cons 'subscript (default-style)) (default-font-size))
+       (list (hbl-append (CB-judgment-pict)
                          (text "  " (default-style) (default-font-size)))
              (list-ref lws 2)
              ""))]
@@ -356,18 +380,17 @@
              (hbl-append
               (def-t " blocked or ")
               (nt-t (~a (lw-e p)))
-              (def-t " ⊂ ")
+              (def-t " ∈ ")
               (nt-t "done")
               (def-t ")"))))]
     ['done
      (λ (lws)
        (define p (list-ref lws 2))
-       (list "("
+       (list ""
              p
              (hbl-append
-              (def-t " ⊂ ")
-              (nt-t "done")
-              (def-t ")"))))]
+              (def-t " ∈ ")
+              (nt-t "done"))))]
     ['blocked
      (λ (lws)
        (list ""
@@ -483,23 +506,11 @@
        (define S (list-ref lws 3))
        (assert-no-underscore "Lwithoutdom" "θ" (lw-e θ))
        (assert-no-underscore "Lwithoutdom" "S" (lw-e S))
-       (define the-restriction (restriction (lw-e θ) (lw-e S)))
-       (define (adjust-alignment s)
-         (define p (parameterize ([default-font-size (* (default-font-size) 2)])
-                     (def-t s)))
-         (define normal-x (ghost (def-t "x")))
-
-         ;; same width as `p`, but otherwise has spacing parameters like `x`
-         ;; (except height is tweaked, but importantly we keep the baseline)
-         (define spacer (inset normal-x 0 6 (- (pict-width p) (pict-width normal-x)) 0))
-
-         (refocus (ct-superimpose spacer p) spacer))
-         
-       (define open (adjust-alignment "("))
-       (define close (adjust-alignment ")"))
-       (list open
+       (list (def-t "(")
              θ
-             (htl-append 2 (restriction (lw-e θ) (lw-e S)) close)))]
+             (def-t " \\ {")
+             S
+             (def-t "})")))]
     ['LFV/e
      (λ (lws)
        (list "FV("
@@ -578,7 +589,15 @@
                 (define K (list-ref lws 2))
                 (define n (list-ref lws 3))
                 (list "" K " \\ { " n " }"))]
-    
+    ['Can-θ (λ (lws)
+              (define arg1 (list-ref lws 2))
+              (define arg2 (list-ref lws 3))
+              (list (hbl-append (Can-θ-name-pict)
+                                ((white-square-bracket) #t))
+                    arg1
+                    ", "
+                    arg2
+                    ((white-square-bracket) #f)))]
     ['θ-ref (λ (lws)
               (define θ (list-ref lws 2))
               (define arg (list-ref lws 3))
@@ -638,6 +657,11 @@
               (list ""
                     (list-ref lws 2)
                     "")]))]
+    ['∀ (λ (lws)
+          (define var (list-ref lws 2))
+          (define body (list-ref lws 3))
+          (list (hbl-append (words "(") (leading-∀))
+                var ". " body ")"))]
     ['sub1 (λ (lws)
              (define n (list-ref lws 2))
              (list "" n "-1"))]
@@ -667,12 +691,24 @@
     ['same (λ (lws) (binop "=" lws))]
     ['Σ (λ (lws) (binop "+" lws))]
     ['∧ (λ (lws) (binop "∧" lws))]
+    ['<= (λ (lws) (list (list-ref lws 0)
+                        (hbl-append (plus-equals) (def-t " "))
+                        (list-ref lws 2)
+                        (list-ref lws 3)
+                        (list-ref lws 4)))]
     )
    (with-atomic-rewriters
     (['ρ (λ () (alt-ρ))]
 
+     ;; bring this a bit more together
+     [':= (λ () (hbl-append -1 (def-t ":") (def-t "=")))]
+     
      ;; we don't want `n` to look like a non-terminal
+     ;; currently, ev in the redex model contains hooks
+     ;; to include external values in Racket. When presenting
+     ;; the calculus, we really want `ev` to be just `n`.
      ['n (λ () (text "n" (default-style) (default-font-size)))]
+     ['ev (λ () (text "n" (default-style) (default-font-size)))]
 
      ;; D is used as a convention to mean a deterministic `E` but
      ;; we forgo this for the typesetting
@@ -681,11 +717,7 @@
      ['max-mf (λ () (def-t "max"))]
      ['→ (λ () (def-t "→"))]
      ['<- (λ () (text "←" (default-style) (default-font-size)))]
-     ['<= (λ ()
-            (define arrow (text "⇐" (literal-style) (default-font-size)))
-            (define x (ghost (text "x" (literal-style) (default-font-size))))
-            (define xw (inset x (- (pict-width arrow) (pict-width x)) 0))
-            (refocus (cbl-superimpose arrow xw) xw))]
+     ['<= (λ () (plus-equals))]
      ['loop^stop (λ () (loop^stop-pict))]
 
      ;; we're using boldface for non-terminals now, so maybe this
@@ -704,12 +736,8 @@
      
      ['next-instant (λ () (sized-↬-pict))]
      ['par-⊓ (λ () (par-⊓-pict))]
-     ['Can-θ (λ ()
-               (define the-theta (mf-t "θ"))
-               (define spacer (blank (pict-width the-theta) 0))
-               (hbl-append
-                (mf-t "Can-")
-                (refocus (lbl-superimpose spacer the-theta) spacer)))]
+     ['Can-θ (λ () (Can-θ-name-pict))]
+     ['CB (λ () (CB-judgment-pict))]
      ['· (λ () (def-t "{}"))]
      ['L-S (λ () (L-S-pict))]
      ['L-s (λ () (L-s-pict))]
@@ -740,3 +768,7 @@
   (syntax-case stx ()
     [(_ () b ...) #'(let () b ...)]
     [(_ ([x e] . more) b ...) #'(with-atomic-rewriter x e (with-atomic-rewriters more b ...))]))
+
+(define (indent p) (hc-append (blank 10 0) p))
+
+(define (leading-∀) (hbl-append (term->pict esterel-eval ∀) (words " ")))

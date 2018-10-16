@@ -87,7 +87,10 @@ dist++b (a , b , c) =  (dist'++b a) , (dist'++b b) , (dist'++b c)
 dist:: : ∀{VL1 VL2 S} → (distinct VL1 (+S S VL2)) → (distinct VL1 VL2)
 dist::{VL1}{(Ss , s , v)}{S} (a , b , c) = dist':: a  , b , c
 
-data CorrectBinding : Term → VarList → VarList → Set where
+{- This definition of CorrectBinding accumulates the bound
+   and free variables to make it easier to work with.
+   The definition of `CB` (below) matches the one in the paper. -}
+data CorrectBinding : Term → (BV : VarList) → (FV : VarList) → Set where
   CBnothing : CorrectBinding nothin base base
   CBpause   : CorrectBinding pause base base
   CBsig     : ∀{p S BV FV} → CorrectBinding p BV FV

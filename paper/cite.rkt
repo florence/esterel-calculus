@@ -32,12 +32,12 @@
    #:date 1995
    #:location (proceedings-location "Static Analysis Symposium")))
 
-(define optimizations-for-esterel-programs
+(define optimizations-for-esterel-programs-thesis
   (make-bib
-   #:title "Optimizations for Faster Execution of Esterel Programs"
-   #:author (authors "Dumitru Potop-Butucaru" |Robert de Simone|)
-   #:date 2004
-   #:location (book-location #:publisher "Springer")))
+   #:title "Optimizations for Faster Simulation of Esterel Programs"
+   #:author (authors "Dumitru Potop-Butucaru")
+   #:date 2002
+   #:location (dissertation-location #:institution "Ecole des Mines de Paris")))
 
 (define pop-pl
   (make-bib
@@ -174,9 +174,33 @@
   (make-bib
    #:title "ESTEREL: A Formal Method Applied to Avionic Software Development"
    #:author (authors "Gérard Berry" "Amar Bouali" "Xavier Fornari"
-                     "Emmanuel Ledinot" "Eric Nassor" "Robert de Simone")
+                     "Emmanuel Ledinot" "Eric Nassor" |Robert de Simone|)
    #:date 2000
    #:location (journal-location "Science of Computer Programming"
                                 #:volume 36
                                 #:number 1
                                 #:pages (list 5 25))))
+
+(define constructive-boolean-circuits
+  (make-bib
+   #:title "Constructive Boolean circuits and the exactness of timed ternary simulation"
+   #:author (authors "Michael Mendler" "Thomas R. Shiple" "Gérard Berry")
+   #:date 2012
+   #:location (journal-location "Formal Methods in System Design"
+                                #:volume 40
+                                #:pages (list 283 329))))
+
+
+(define barendregt
+  (make-bib
+   #:author "H. Barendregt"
+   #:title "The Lambda Calculus: its Syntax and Semantics"
+   #:date 1984
+   #:location (book-location #:publisher "North Holland")))
+
+(define lvars
+  (make-bib
+   #:title "LVars: lattice-based data structures for deterministic parallelism"
+   #:author (authors "Lindsey Kuper" "Ryan R. Newton")
+   #:date 2013
+   #:location (proceedings-location "Workshop on Functional High-performance Computing (FHPC)")))

@@ -1,7 +1,5 @@
 #lang scribble/base
-@(require "calculus-figures.rkt"
-          "util.rkt"
-          "redex-rewrite.rkt"
+@(require "redex-rewrite.rkt"
           scriblib/figure
           rackunit
           racket/list

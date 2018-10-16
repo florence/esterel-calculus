@@ -30,7 +30,7 @@ In addition to the main lemmas, there are various random small propositions
 dealing with the computatin of the calculation of Can in the loop body
 (the big ρ-θ-emit-present term introduced by the loop-unroll rule).
 -}
-module potential-preserve where
+module can-function-preserve where
 
 open import sn-calculus
 open import utility

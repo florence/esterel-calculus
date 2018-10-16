@@ -1,5 +1,5 @@
 #lang scribble/base
-@(require "calculus-figures.rkt"
+@(require "misc-figures.rkt"
           "redex-rewrite.rkt"
           "cite.rkt"
           "util.rkt"
@@ -14,7 +14,7 @@
 
 @title[#:tag "sec:can"]{The Can Function}
 
-@figure["fig:can" "Potential Function"]{@Can-pict}
+@figure["fig:can" (list (es Can) " Function")]{@Can-pict}
 
 @figure["fig:can-theta"
         @elem{The @es[Can] Function for @es[ρ] Expressions
@@ -58,20 +58,16 @@ codes are @emph{not} in the result, then we know the
 expression does not have the corresponding behavior.
 
 The notation we use for the records in the definition of
-@es[Can] is borrowed from @citet[tapl]'s book
-@italic[tapl-title]. We write @es[Can]'s result as a record
-with three fields, “S” (the set of signals), “K” (the
-set of exit codes), and “sh” (the set of shared
-variables). Constructing a record uses curly braces
-surrounding the entire record with an equal sign separating
-a field names from their values and commas separating
-fields. For example, the @es[emit] case of @es[Can] returns
-a record with a singleton set of signals (containing
-@es[S]), a singleton set of exit codes (containing @es[nothin])
-and the empty set of shared variables. Selecting a field
-from a record uses dot notation. For example,
-@es[(->S (Can p θ))] selects the “S” field from a call to
-@es[Can].
+@es[Can] is similar to many record notations, but we use the
+precise one in @citet[tapl]'s book @italic[tapl-title]. We
+write @es[Can]'s result as a record with three fields, where
+curly braces construct records, e.g., the @es[emit] case of
+@es[Can] returns a record with a singleton set of signals
+(containing @es[S]), a singleton set of exit codes
+(containing @es[nothin]) and the empty set of shared
+variables. Selecting a field from a record uses dot
+notation. For example, @es[(->S (Can p θ))] selects the “S”
+field from a call to @es[Can].
 
 The three results from @es[Can] interact with each other in
 order to determine the overall result.
@@ -121,18 +117,18 @@ the corresponding branch of the @es[present] expression if
 so. The rule for @es[par] takes into account the same
 behavior that the four @es[par] rules in the reduction relation do when computing the codes for
 the entire expression out of the codes of the
-sub-expressions. The @es[trap] case uses the metafunction
+subexpressions. The @es[trap] case uses the metafunction
 @es[↓] to adjust the exit codes in a manner that mimics how
 @es[trap] expressions reduce. Since the @es[shared] form
-introduces a new variable, its case in @es[Can] removes that
-variable from the results, as the variable is lexically scoped.
+introduces a new signal, its case in @es[Can] removes that
+signal from the results, as the signal is lexically scoped.
 In each of these cases, @es[Can] ignores the @es[e] expressions,
 as it does not reason about the behavior of the host language.
 
 This leaves the @es[signal] and @es[ρ] cases. 
 Consider first the cases that handle @es[signal] expressions. The second
-signal case is the more straightforward one.
-It says that the result for the entire signal form is the same
+@es[signal] case is the more straightforward one.
+It says that the result for the entire @es[signal] form is the same
 as the result for the body of a @es[signal] form when it is
 analyzed with no knowledge about the signal. But there would be a problem
 with the @es[Can] function if that were the only case.
@@ -151,7 +147,7 @@ case. In particular, that case first calls @es[Can] with
 @es[S2] set to @es[unknown] and checks to see if @es[S2]
 is not present in the “S” portion of the result. It is not
 (because there are no @es[(emit S2)] expressions), so
-@es[Can] then sets @es[S2] to absent and reprocesses
+@es[Can] then sets @es[S2] to @es[absent] and reprocesses
 its body. This time, because @es[S2] is known to
 be @es[absent], @es[Can] considers only the last sub-expression
 of the @es[present], thereby ignoring
@@ -161,7 +157,7 @@ In isolation, analyzing the body twice seems like
 overkill, especially because it triggers exponential behavior
 in the number of nested @es[signal] forms.@note{This
  exponential behavior affected our testing of the
- various semantics against each other; see
+ semantics against each other; see
  @secref["sec:testing"] and @secref["sec:stdred"] for more.} But consider
 this call to @es[Can]:
 @(provide can-exp-example-d)

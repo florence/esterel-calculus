@@ -1,6 +1,6 @@
 module sn-calculus-compatconf.pot where
 
-open import potential-preserve
+open import can-function-preserve
   using (canₖ-monotonic ; canₛ-monotonic ; canₛₕ-monotonic)
 
 open import sn-calculus

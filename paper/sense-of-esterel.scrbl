@@ -1,5 +1,5 @@
 #lang scribble/base
-@(require "calculus-figures.rkt"
+@(require "misc-figures.rkt"
           "redex-rewrite.rkt"
           "cite.rkt"
           "util.rkt"
@@ -68,8 +68,8 @@ how Esterel programs evaluate. @Figure-ref["ex:first"]
 shows a first example.
 
 This program has no input signals and two output
-signals, @es[SO1] and @es[SO2]; we write signals as
-variables whose first letter is @tt{S}. The @es[signal] form
+signals, @es[SO1] and @es[SO2]; we prefix all signal
+names with an @tt{S}. The @es[signal] form
 is a binding form that introduces a local signal (here named @es[SL])
 available in its body. Signals that are free in the entire
 program are the ones that support communication
@@ -105,7 +105,7 @@ in @figure-ref["ex:first"] with parallel composition, as shown in
 @figure-ref["ex:second"], the program is
 guaranteed to behave identically. Specifically,
 the @es[present] form in the second arm of the @es[par]
-blocks until the signal @es[SL] is emitted or we
+(conceptually) blocks until the signal @es[SL] is emitted or we
 learn it cannot be emitted (in this instant). So
 the first arm of the @es[par] is the only part of the
 program that can progress, and once it performs the
@@ -149,8 +149,12 @@ since there is no way to emit @es[SL].
          #f
          (list)]}
 
+The way that @es[present] works helps guarantee Esterel's
+form of deterministic concurrency. Until a particular signal's
+value becomes known, the program simply refuses to
+make a choice about which branch to run.
 This style of conditional raises many interesting questions
-about how apparent cyclic references interact with each other.
+about how apparent cyclic references interact with each other, however.
 For example, what should the program in @figure-ref["ex:fourth"] do? (@es[nothing]
 is the Esterel equivalent of @tt{unit} or @tt{void} in other languages.)
 How such programs behave is well-studied
@@ -286,12 +290,6 @@ is explained in @secref["sec:can"].
  @es[suspend] is rewritten to a use of @es[present] as part of the
  transition between instants.})
 
-The style of instantaneous decision making in Esterel
-facilitated via the @es[Can] function leads to
-programs that have no meaning, even though they
-would in a traditional programming language. Such
-programs are called either @italic{logically incorrect} or
-@italic{non-constructive}.
 
 @right-figure[#:lines 5
  #:caption @elem{No possible value for @es[S1]}
@@ -300,6 +298,19 @@ programs are called either @italic{logically incorrect} or
 @esblock[(signal S1
            (present S1 nothing (emit S1)))]}
 
+The style of instantaneous decision making in Esterel
+facilitated via the @es[Can] function leads to
+programs that have no meaning, even though 
+a traditional programming language would given them meaning. Such
+programs are called @italic{logically incorrect}.
+
+
+@right-figure[#:lines 5
+ #:caption @elem{Too many values for @es[S1]}
+ #:tag "ex:stuck2"
+ #:wide? #f]{
+@esblock[(signal S1
+           (present S1 (emit S1) nothing))]}
 Logical correctness can be thought of as a consequence of
 the instantaneous nature of decision making in Esterel: if
 decisions about the value of a signal are communicated
@@ -317,13 +328,6 @@ emitting the signal. Both of these executions lead to a
 contradiction, therefore there are no valid assignments of
 signals in this program. This program is logically incorrect.
 
-@right-figure[#:lines 5
- #:caption @elem{Too many values for @es[S1]}
- #:tag "ex:stuck2"
- #:wide? #f]{
-@esblock[(signal S1
-           (present S1 (emit S1) nothing))]}
-
 The opposite is true for the program in @figure-ref["ex:stuck2"].
 Here, if @es[S1] is chosen to be present, the conditional
 will take the first branch and @es[S1] will be emitted,
@@ -335,11 +339,7 @@ program, and this program too is rejected as logically incorrect.
 
 @(define connote
 @note{The use of the name ``constructive'' arises from
- connections to constructive logic. The central
- result for constructive programs is that when they
- are compiled to a circuit,
- it is guaranteed to stabilize within some fixed
- delay@~cite[esterel02].})
+ connections to constructive logic@~cite[constructive-boolean-circuits].})
 
 @right-figure[#:lines 10
  #:caption @elem{Constructiveness examples}
@@ -353,14 +353,17 @@ program, and this program too is rejected as logically incorrect.
                           nothing)
                  (emit S1)))]}
 
-Constructiveness arises from the order of execution
+A related notion, @emph{constructiveness}, arises from the order of execution
 imposed by @es[seq] and
 @es[present]. All
 decisions in the first part of a @es[seq] must be made
 before decisions in the second part and the value of a signal
 being conditioned on by @es[present] must be determined before
 decisions within either branch of the @es[present] can be
-made. To ensure these ordering constraints, Esterel imposes an order on
+made. Decisions that may affect sibling branches in a @es[par]
+expression, however, may happen in any order.
+
+To ensure these ordering constraints, Esterel imposes an order on
 information propagation: decisions about the value of a
 signal can only be used by the portion of the program that is
 after (in the sense of the ordering imposed by @es[seq] and
@@ -368,22 +371,13 @@ after (in the sense of the ordering imposed by @es[seq] and
 correct may still be rejected because there is no
 order in which to run the program that will arrive at the
 single, valid assignment. Such programs are called
-non-constructive.@|connote| For example, the first program in
-@figure-ref["ex:stuck3"] has only one possible assignment for @es[S1], as
-it is emitted by both branches of the conditional. Because
-@es[present] requires that the value of @es[S1] be
-known before executing a sub-expression, there
-is no valid order in which to execute the code, and the
-program is rejected as non-constructive.
-A similar phenomena can be seen in the second program in
-@figure-ref["ex:stuck3"], but with @es[seq].
-All programs that are constructive are logically correct.
-
-Operationally, non-constructive programs usually get
-stuck. They are unable to make progress either because
-@es[Can] is unable to prove that a signal cannot be emitted or
-that a shared variable cannot be written too and yet
-that signal or shared variable's value is needed to make progress.
+non-constructive.@|connote| Accordingly, not all logically
+correct programs are constructive, but the converse is true: all
+constructive programs are logically correct.
+Put another way, making a guess
+about the value of a signal and backtracking if the guess
+turns out to be wrong is a match for logical correctness,
+but would admit programs that are non-constructive.
 
 @right-figure[#:lines 7
  #:caption @elem{Getting stuck}
@@ -399,39 +393,76 @@ that signal or shared variable's value is needed to make progress.
          #f
          (list)]}
 
-In our calculus, there are two@stuck-note main ways
-that @es[Can] is unable to determine a signal's value.
-First, the signal is emitted in the second part of a @es[seq]
-expression, where the first part may or may not @es[pause].
-Second, an emit is in one of the branches of a
-@es[present] where the value of the signal is not known. In
-the example in @figure-ref["ex:stuck4"],
-the @es[(emit SL1)] is in a @es[seq] that may or
-may not @es[pause], which prevents us from determining if
-@es[SL2] is emitted.
+Succinctly, a program is constructive if it is logically
+correct, and the values of signals can be determined without
+any speculation: a signal is present only after it has
+been emitted, and a signal is absent only after @es[Can]
+determines it cannot be emitted without speculating about the
+value of other signals.
+
+Example non-constructive programs are shown in
+@figure-ref["ex:stuck3"]. The first program has only one possible assignment for @es[S1], as
+it is emitted by both branches of the conditional. Because
+@es[present] requires that the value of @es[S1] be
+known before executing a sub-expression, however, there
+is no valid order in which to execute the code, and the
+program is rejected as non-constructive.
+A similar phenomena can be seen in the second program in
+@figure-ref["ex:stuck3"], but with @es[seq].
+
+The two ordering constraints can interact in complex ways.
+In the example in @figure-ref["ex:stuck4"], the
+@es[(emit SL1)] is in a @es[seq] that may or may not
+@es[pause], which prevents us from determining if @es[SL2]
+is emitted.
+
+Non-constructive programs are handled two different ways by
+Esterel implementations. Some approximate constructiveness 
+with a conservative static analysis and reject programs
+they cannot prove constructive on all inputs. This is the
+default behavior of @|Esterel\ v5|@~cite[esterel-v5]. Others treat
+non-constructivity as as runtime error, raising an error if,
+during an instant, the program cannot determine a value for
+all signals. This is the behavior of  HipHop.js@~cite[hiphop], and Esterel
+v5 when used with the @tt{-I} flag.
+
+In the circuit semantics for Esterel, a non-constructive programs is
+one that, when compiled to a circuit, will cause the circuit
+to misbehave, never settling because of cyclic dependencies
+between inputs and outputs of some of the gates. That is, a
+program is constructive if and only if its circuit
+stabilizes within some fixed delay@~cite[esterel02 constructive-boolean-circuits].
 
 Non-constructive programs usually get stuck in our calculus,
 but they do not always. The issues here are subtle and
 revisited in @secref["sec:constructiveness"].
 
-
 @section{Loops, @es[suspend], non-local exits, variables, and the host language}
 
-Our calculus also covers the rest of Kernel Esterel. As a quick overview,
-the @es[(trap p)] form plays the role of an exception handler and
-@es[(exit n)] raises an exception, giving a non-local exit. Roughly
-speaking, @es[(exit n)] will abort execution up the the @es[n+1]@superscript{th}
-enclosing @es[(trap p)], reducing it to @es[nothing].
+Our calculus also covers the rest of Kernel Esterel. The
+@es[(trap p)] and @es[(exit n)] forms allow non-local
+control. Roughly speaking, @es[(exit n)] will abort
+execution up the the @es[n+1]@superscript{th} enclosing
+@es[(trap p)], reducing it to @es[nothing]. These can be
+used for exception handling, but also for non-exceptional
+control flow. For example, it may be simpler to express some
+repeating task on the assumption it never terminates and
+then, in parallel to it, use @es[exit] to abort it (with a
+@es[trap] that is outside both). Kernel Esterel's trap is a
+simplified form of Esterel's trap where traps are named and
+escaping uses the names.
 
 The @es[loop] form is an infinite loop, running its body,
 @es[p], over and over, but with a constraint that the loop's
 body can be started at most once in any instant. This means
 that the body of a loop must either pause or exit at least once in every
-iteration. One subtle ramification of this point is that two
+iteration, thereby ensuring that instants always terminate.
+One subtle ramification of this point is that two
 separate iterations of a loop may run within a single instant,
 but only in the situation where we finish an iteration that
 was started in a previous instant and then start a new one
-in the current instant (which must then pause or exit).
+in the current instant (which must then pause or exit). We return
+to this point in @secref["sec:cb"].
 
 Loops that fail this condition are called @italic{
  instantaneous} and programs with such loops are not
@@ -447,32 +478,44 @@ the entire @es[suspend] is paused until the next instant. If it is not present,
 evaluation continues within the @es[suspend], picking up at
 the @es[pause].
 
+The @es[suspend] form is used to implement many useful,
+high-level behaviors. One straight-forward use is to
+implement a form of multiplexing, where some portion of the
+input signals are used directly by several different
+sub-pieces of the computation at once, and another portion
+of the input determines which of those computation is the
+desired output. For example, an ALU might, in parallel, both
+add and multiply its inputs and store the output in the same
+place. The @es[suspend] form can be used to control whether
+the addition or multiplication computation happens.
 
-@(define value-carrying-note
-   @note{
- Shared variables and signals can be combined into a single
- construct, the value carrying signal. In fact, this is the
- interface presented to Esterel programmers. We
- encode value carrying signals as combinations of a pure signal with a
- companion shared variable in order to remain close to
- @citet[compiling-esterel]'s syntax.
- })
+Another use of @es[suspend] is in task management. As a
+workflow is progressing there may be a task that runs at
+some interval, but where the interval may change over time.
+This repeating task is important, but there may be an
+occasional situation where some much more important task
+takes precedence. So, we wish to pause the subcomputation
+corresponding to the repeating task with the intention of
+resuming it with its current state, but at a later moment
+in time. This pattern is captured easily with @es[suspend].
 
 @(define |Esterel v5| @nonbreaking{Esterel v5})
 
-And finally, Esterel has two more forms of variables: shared
+And finally, Esterel has two forms of variables: shared
 variables (lowercase @es[s]) and sequential variables
 (@es[x]). Both of these variables refer to values and expressions in a host language,
 into which Esterel is embedded. For example, in @|Esterel\ v5|@~cite[esterel-v5] the host
 language is a subset of C, whereas in HipHop.js@~cite[hiphop] the host language is Javascript.
 
 Shared variables may be looked at or modified at by multiple
-branches of a @es[par] expression, but the variable may not
-be read until it can no longer be written in the current
-instant. Tracking if a shared variable is writable uses
-the same mechanism as tracking whether or not a signal
-has been emitted, and shared variables are subject to the
-logical correctness and constructivness constraints.@value-carrying-note
+branches of a @es[par] expression, but the program's
+execution cannot be influenced by the value of the variable
+until it can no longer be written in the current instant (in
+a manner reminiscent of, but simpler than,
+@citet[lvars]'s LVars). Tracking if a shared variable is
+writable uses the same mechanism as tracking whether or not
+a signal has been emitted, and shared variables are subject
+to the logical correctness and constructivness constraints.
 
 Multiple writes are allowed, but only via an associative and
 commutative combining operation, ensuring the order of

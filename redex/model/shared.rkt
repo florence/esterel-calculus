@@ -10,6 +10,7 @@
      (signal S p) (seq p q) (emit S) (present S p q) (par p q)
      nothing pause (loop p) (suspend p S) (trap p) (exit n)
      (shared s := e p) (<= s e) (var x := e p) (:= x e) (if x p q))
+  ;; (<= s e) renders as s += e in the paper
 
   (S ::= (variable-prefix S))
   (s ::= (variable-prefix s))

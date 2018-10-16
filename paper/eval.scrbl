@@ -1,6 +1,7 @@
 #lang scribble/base
 
-@(require "calculus-figures.rkt"
+@(require "misc-figures.rkt"
+          "jf-figures.rkt"
           "redex-rewrite.rkt"
           "cite.rkt"
           "util.rkt"
@@ -23,17 +24,22 @@ evaluator. It is shown on the top-left of
 and an initial environment (that captures what
 the host language sets the input signals to),
 and it returns the signals that were emitted
-at the end of the instant. It is defined by
-finding a complete expression that is @es[≡e]
-to the input and extracting the @es[present]
-signals from it.
+at the end of the instant.
+The output of the evaluator ignores shared variables.
+However, values of shared variables can be
+indirectly returned by introducing new signals
+whose presence depends on the values of shared variables.
 
 The @es[≡e] relation is the symmetric, transitive,
 reflexive closure of the @es[→] relation, which is
 the compatible closure of the @es[⇀] reduction relation.
+The symmetric case has an additional premise
+@es[(CB p)] to ensure that all of the intermediate terms
+used in @es[≡e] have correct binding.
 
-The central result of this paper is that @es[Eval]
-is a function:
+The definition of @es[Eval] is written using a notation
+that assumes the central result of this paper, namely that
+@es[Eval] is a (partial) function:
 
 @theorem[#:label "thm:evalconsistent" #:break? #t]{
 @(equiv
@@ -51,6 +57,9 @@ is a function:
   (same 𝕊_1 𝕊_2)
   "\\ ls₁ ls₂ -> eval≡ₑ-consistent")
 }
+The above theorem states that if @es[𝕊_1] and @es[𝕊_2] are
+both sets of signals satisfying the @es[Eval] judgment
+in @figure-ref["fig:eval"], then @es[𝕊_1] and @es[𝕊_2] must be equal.
 The proof is given as @tt{eval≡@|sub-e|-consistent} in the
 Agda code in the supplementary material.
 
@@ -81,7 +90,9 @@ transformation that prepares a complete expression for
 the next instant, @es[next-instant], shown in
 @figure-ref["fig:next-instant"]. It makes four modifications
 to the expression. First, it resets all signals to
-@es[unknown]. Second, it replaces the @es[pause] expressions
+@es[unknown] via @(with-normal-height @es[(reset-θ θ/c)])
+(also defined in @figure-ref["fig:supp"]).
+Second, it replaces the @es[pause] expressions
 where the program stopped with @es[nothing]. Third, it replaces
 each @es[loop^stop] expression with a @es[loop] and @es[seq]. Finally, it adds a
 @es[present] expression to @es[suspend] expressions that

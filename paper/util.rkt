@@ -5,6 +5,8 @@
          (only-in scribble/core style element nested-flow)
          scribble/decode
          scribble/latex-properties)
+(module+ test (require rackunit))
+
 (provide (rename-out [-note note])
          in-footnote?
          Linux-Liberterine-name
@@ -15,7 +17,10 @@
          get-the-font-size
          theorem theorem-ref Theorem-ref
          sub-e
-         why-do-i-need-this-spacer-thingy?!)
+         why-do-i-need-this-spacer-thingy?!
+         (contract-out
+          [format-number (-> natural? string?)])
+         with-normal-height)
 
 (define in-footnote? (make-parameter #f))
 (define (get-the-font-size) (if (in-footnote?) 10 13))
@@ -119,3 +124,34 @@
 (define (Theorem-ref str)
   (list (element (style "relax" '(exact-chars)) '("Theorem~"))
         (element (style "ref" '(exact-chars)) (list str))))
+
+(define (format-number n)
+  (apply
+   string-append
+   (reverse
+    (let loop ([chars (reverse (string->list (~a n)))]
+               [i 0])
+      (cond
+        [(null? chars) '()]
+        [else (cons (if (and (= (modulo i 3) 2)
+                             (pair? (cdr chars)))
+                        (~a "," (car chars))
+                        (~a (car chars)))
+                    (loop (cdr chars)
+                          (+ i 1)))])))))
+
+(module+ test
+  (check-equal? (format-number 0) "0")
+  (check-equal? (format-number 1) "1")
+  (check-equal? (format-number 12) "12")
+  (check-equal? (format-number 123) "123")
+  (check-equal? (format-number 1234) "1,234")
+  (check-equal? (format-number 12345) "12,345")
+  (check-equal? (format-number 123456) "123,456")
+  (check-equal? (format-number 1234567) "1,234,567")
+  (check-equal? (format-number 12345678) "12,345,678"))
+
+(define (with-normal-height p)
+  (define x (ghost (text "x" Linux-Liberterine-name (get-the-font-size))))
+  (inset (refocus (lbl-superimpose x p) x)
+         0 0 (- (pict-width p) (pict-width x)) 0))

@@ -120,12 +120,12 @@ Canₛpresent-fact S p q _ | no ¬p
   = ⊥-elim (¬p (SigMap.update-in-keys [] S unknown))
 
 {- rewriting a present to the false branch -}
-ex2 : ∀ S p q C -> CB (C ⟦ signl S q ⟧c) ->
+ex2b : ∀ S p q C -> CB (C ⟦ signl S q ⟧c) ->
    Signal.unwrap S ∉ (Canₛ p (Θ SigMap.[ S ↦ unknown ] [] [])) ->
    Signal.unwrap S ∉ (Canₛ q (Θ SigMap.[ S ↦ unknown ] [] [])) ->
    signl S (present S ∣⇒ p ∣⇒ q) ≡ₑ
    signl S q # C
-ex2 S p q C CBq s∉Canₛp s∉Canₛq = calc where
+ex2b S p q C CBq s∉Canₛp s∉Canₛq = calc where
 
  θS→unk : Env
  θS→unk = Θ SigMap.[ S ↦ Signal.unknown ] [] []
@@ -176,6 +176,14 @@ ex2 S p q C CBq s∉Canₛp s∉Canₛq = calc where
  calc :  signl S (present S ∣⇒ p ∣⇒ q) ≡ₑ
          signl S q # C
  calc = ≡ₑtran fwd (≡ₑsymm CBq bwd)
+
+ex2 : ∀ S p q C ->
+   CB (C ⟦ signl S q ⟧c) ->
+   (∀ status -> Signal.unwrap S ∉ (Canₛ p (Θ SigMap.[ S ↦ status ] [] []))) ->
+   (∀ status -> Signal.unwrap S ∉ (Canₛ q (Θ SigMap.[ S ↦ status ] [] []))) ->
+   signl S (present S ∣⇒ p ∣⇒ q) ≡ₑ
+   signl S q # C
+ex2 S p q C CB noSp noSq = ex2b S p q C CB (noSp unknown) (noSq unknown)
 
 {- lifting an emit out of a par -}
 ex3 : ∀ S p q -> CB (p ∥ q) ->
@@ -410,190 +418,38 @@ ex7 : ∀ S p q -> CB (p >> q) ->
 ex7 S p q CBp>>q =
   ex5 S p (signl S p >> q) (p >> q) ((eseq q) ∷ []) CBp>>q (deseq dehole) (deseq dehole)
 
-{- pushing a seq into the bottom of a present
+{- pushing a seq into a binding form (a signal in this case).
 
-   This is something that our calculus cannot handle
-   in general; this shows just a smaller case of
-   the general relationship we'd like to prove,
-   namely that, if we have correct binding:
-
-      (present S ∣⇒ p ∣⇒ q) >> r)
-      ≡ₑ
-      present S ∣⇒ (p >> r) ∣⇒ (q >> r)
+   this shows the need for the outer environment ρ [} · _
+   in order to manipulate the environment.
 -}
+ex8-worker : ∀ {BV FV} S p q ->
+      CorrectBinding ((signl S  p) >> q) BV FV ->
+      (ρ []env · (signl S  p) >> q) ≡ₑ
+      (ρ []env ·  signl S (p  >> q)) # []
+ex8-worker S p q (CBseq {BVp = BVsigS·p} {FVq = FVq} (CBsig {BV = BVp} CBp) CBq BVsigS·p≠FVq) =
+             ≡ₑtran {r = ρ []env · (ρ [S]-env S · p) >> q} {C = []}
+               (≡ₑctxt {C = []} {C′ = cenv []env ∷ ceval (eseq q) ∷ []}
+                 Crefl Crefl
+                 (≡ₑstep ([raise-signal] {p} {S})))
+            (≡ₑtran {r = ρ [S]-env S · p >> q} {C = []}
+               (≡ₑstep ([merge] (deseq dehole)))
+            (≡ₑsymm
+              (CBρ
+                (CBsig
+                  (CBseq CBp CBq
+                    (⊆-respect-distinct-left (∪ʳ (+S S base) ⊆-refl) BVsigS·p≠FVq))))
+            (≡ₑtran {r = ρ []env · (ρ [S]-env S · p >> q)} {C = []}
+              (≡ₑctxt {C = []} {C′ = cenv []env ∷ []}
+                Crefl Crefl
+                (≡ₑstep ([raise-signal] {p >> q} {S})))
+            (≡ₑstep ([merge] dehole)))))
 
-ex8 : ∀ S p q r ->
-    Signal.unwrap S ∉ (Canₛ p (Θ SigMap.[ S ↦ unknown ] [] [])) ->
-    Signal.unwrap S ∉ (Canₛ q (Θ SigMap.[ S ↦ unknown ] [] [])) ->
-            CB ((signl S (present S ∣⇒  p       ∣⇒  q)) >> r) ->
-    (ρ []env · ((signl S (present S ∣⇒  p       ∣⇒  q)) >> r)) ≡ₑ
-    (ρ []env ·  (signl S (present S ∣⇒ (p >> r) ∣⇒ (q  >> r)))) # []
-ex8 S p q r s∉Canₛp s∉Canₛq CBall = calc where
-
-  θS→unk : Env
-  θS→unk = Θ SigMap.[ S ↦ Signal.unknown ] [] []
-
-  S∈θS→unk : SigMap.∈Dom S (sig θS→unk)
-  S∈θS→unk = sig-∈-single S Signal.unknown
-
-  θS→unk[S]≡unk : sig-stats{S = S} θS→unk S∈θS→unk ≡ Signal.unknown
-  θS→unk[S]≡unk = sig-stats-1map' S Signal.unknown S∈θS→unk
-
-  θS→abs : Env
-  θS→abs = set-sig{S} θS→unk S∈θS→unk Signal.absent
-
-  S∈θS→abs : SigMap.∈Dom S (sig θS→abs)
-  S∈θS→abs = sig-set-mono' {S} {S} {θS→unk} {Signal.absent} {S∈θS→unk} S∈θS→unk
-
-  θS→abs[S]≡abs : sig-stats{S = S} θS→abs S∈θS→abs ≡ Signal.absent
-  θS→abs[S]≡abs = sig-putget{S} {θS→unk} {Signal.absent} S∈θS→unk S∈θS→abs
-
-  CB1 : ∀ {p q r BV FV} -> CorrectBinding ((signl S (present S ∣⇒ p ∣⇒ q)) >> r) BV FV ->
-             CB (signl S (present S ∣⇒ p ∣⇒ q))
-  CB1 {p} {q} {r} {.(BVp U̬ BVq)} {.(FVp U̬ FVq)}
-         (CBseq{ps}{qs}{BVp}{BVq}{FVp}{FVq} CBall₁ CBall₂ BVp≠FVq) with
-           BVFVcorrect (signl S (present S ∣⇒ p ∣⇒ q)) BVp FVp CBall₁
-  ... | refl , refl = CBall₁
-
-  CB2 : ∀ {p q BV FV} -> CorrectBinding (signl S (present S ∣⇒ p ∣⇒ q)) BV FV ->
-        CB (present S ∣⇒ p ∣⇒ q)
-  CB2 {p} {q} {.(+S S BV)} {.(FV |̌(+S S base))} (CBsig{p₁}{S}{BV}{FV} CBs) with
-       BVFVcorrect (present S ∣⇒ p ∣⇒ q) BV FV CBs
-  ... | refl , refl = CBs
-
-  CB3 : ∀ {p q BV FV} -> CorrectBinding (present S ∣⇒ p ∣⇒ q) BV FV -> CB q
-  CB3 {p} {q} {. (BVp U̬ BVq)} {.(+S S (FVp U̬ FVq))}
-      (CBpresent{S}{p'}{q'}{BVp}{FVp}{BVq}{FVq} CBp CBq) with
-      BVFVcorrect q BVq FVq CBq
-  ... | refl , refl = CBq
-
-  CB4 : ∀ {p q BV FV} -> CorrectBinding (present S ∣⇒ p ∣⇒ q) BV FV -> CB p
-  CB4 {p} {q} {. (BVp U̬ BVq)} {.(+S S (FVp U̬ FVq))}
-      (CBpresent{S}{p'}{q'}{BVp}{FVp}{BVq}{FVq} CBp CBq) with
-      BVFVcorrect p BVp FVp CBp
-  ... | refl , refl = CBp
-
-  CB5 : ∀ {p q r BV FV} -> CorrectBinding ((signl S (present S ∣⇒ p ∣⇒ q)) >> r) BV FV -> CB r
-  CB5 {p} {q} {r} {.(BVp U̬ BVq)} {.(FVp U̬ FVq)}
-         (CBseq{ps}{qs}{BVp}{BVq}{FVp}{FVq} CBall₁ CBall₂ BVp≠FVq) with
-           BVFVcorrect r BVq FVq CBall₂
-  ... | refl , refl = CBall₂
-
-  CB6 : ∀ {p q r BV FV} ->
-        CorrectBinding ((signl S (present S ∣⇒ p ∣⇒ q)) >> r) BV FV ->
-        (distinct (+S S ((BVars p) U̬ (BVars q))) (FVars r))
-  CB6 {p} {q} {r} {.(BVp U̬ BVq)} {.(FVp U̬ FVq)}
-         (CBseq{ps}{qs}{BVp}{BVq}{FVp}{FVq} CBall₁ CBall₂ BVp≠FVr) with
-           BVFVcorrect r BVq FVq CBall₂ | BVFVcorrect (signl S (present S ∣⇒ p ∣⇒ q)) BVp FVp CBall₁
-  ... | refl , refl | refl , refl = BVp≠FVr
-
-  CBp : CB p
-  CBp = (CB4 (CB2 (CB1 CBall)))
-
-  CBq : CB q
-  CBq = (CB3 (CB2 (CB1 CBall)))
-
-  CBr = CB5 CBall
-
-  S+BVp∪BVqdistinctFVr : distinct (+S S ((BVars p) U̬ (BVars q))) (FVars r)
-  S+BVp∪BVqdistinctFVr = CB6 CBall
-
-  BVp∪BVqdistinctFVr : distinct ((BVars p) U̬ (BVars q)) (FVars r)
-  BVp∪BVqdistinctFVr =
-    ⊆-respect-distinct-left ((λ x x₁ → there x₁) , (λ x x₁ → x₁) , (λ x z → z))
-                            S+BVp∪BVqdistinctFVr
-
-  S+BVqdistinctFVr : distinct (+S S (BVars q)) (FVars r)
-  S+BVqdistinctFVr =
-      ⊆-respect-distinct-left
-      (f (proj₁ (BVars p)) (proj₁ (BVars q)) ,
-       (λ x x₁ → ++⁺ʳ (proj₁ (proj₂ (BVars p))) x₁) ,
-       (λ x x₁ → ++⁺ʳ (proj₂ (proj₂ (BVars p))) x₁))
-      S+BVp∪BVqdistinctFVr where
-   f : ∀ l m x ->
-      Data.List.Any.Any (_≡_ x) ((Signal.unwrap S) ∷ m) →
-      Data.List.Any.Any (_≡_ x) ((Signal.unwrap S) ∷ (l ++ m))
-   f x l m (here px) = here px
-   f x l m (there x∈0::l) = there (++⁺ʳ x x∈0::l)
-
-  distinctBVpFVr : distinct (BVars p) (FVars r)
-  distinctBVpFVr = ⊆-respect-distinct-left (∪ˡ ⊆-refl) BVp∪BVqdistinctFVr
-  distinctBVqFVr : distinct (BVars q) (FVars r)
-  distinctBVqFVr = ⊆-respect-distinct-left (∪ʳ (BVars p) ⊆-refl) BVp∪BVqdistinctFVr
-
-  CBp>>r : CB (p >> r)
-  CBp>>r = (CBseq CBp CBr distinctBVpFVr)
-  CBq>>r : CB (q >> r)
-  CBq>>r = (CBseq CBq CBr distinctBVqFVr)
-
-  CBsym : CB (ρ []env · signl S (present S ∣⇒ p >> r ∣⇒ q >> r))
-  CBsym = CBρ (CBsig (CBpresent CBp>>r CBq>>r))
-
-  CBsignlSq>>r : CB (signl S q >> r)
-  CBsignlSq>>r = CBseq (CBsig {S = S} CBq) CBr S+BVqdistinctFVr
-
-  CBsignlS[q>>r] : CB (signl S (q >> r))
-  CBsignlS[q>>r] = CBsig {S = S} CBq>>r
-
-  CBseq->S∉Canₛr : ∀ {p q r} ->
-          (BV : VarList) -> (FV : VarList) ->
-          CorrectBinding ((signl S (present S ∣⇒  p       ∣⇒  q)) >> r) BV FV ->
-          Signal.unwrap S ∉ (Canₛ r θS→unk)
-  CBseq->S∉Canₛr {p} {q} {r} _ _
-      (CorrectBinding.CBseq {FVq = FVr}
-                            (CorrectBinding.CBsig CBpresentS∣⇒p∣⇒q)
-                            CBr (BVp≠FVq-S , _ , _)) =
-    λ s∈Canr → BVp≠FVq-S (Signal.unwrap S) (here refl) (canₛ-⊆-FV _ CBr S s∈Canr)
-
-
-  s∉Canₛr : Signal.unwrap S ∉ (Canₛ r θS→unk)
-  s∉Canₛr = CBseq->S∉Canₛr (BVars ((signl S (present S ∣⇒ p ∣⇒ q)) >> r))
-                          (FVars ((signl S (present S ∣⇒ p ∣⇒ q)) >> r))
-                          CBall
-
-  s∉Canₛp>>r : Signal.unwrap S ∉ (Canₛ (p >> r) θS→unk)
-  s∉Canₛp>>r with any (Code._≟_ Code.nothin) (Canₖ p θS→unk)
-  s∉Canₛp>>r | yes 0∈Canp++Canr = nocando where
-    nocando :  Data.List.Any.Any (_≡_ (Signal.unwrap S))
-                                 ((Canₛ p θS→unk) ++ (Canₛ r θS→unk)) → ⊥
-    nocando x with ++⁻ (Canₛ p θS→unk) x
-    nocando x | inj₁ x₁ = s∉Canₛp x₁
-    nocando x | inj₂ y =  s∉Canₛr y
-  s∉Canₛp>>r | no ¬p = s∉Canₛp
-
-  s∉Canₛq>>r : Signal.unwrap S ∉ (Canₛ (q >> r) θS→unk)
-  s∉Canₛq>>r with any (Code._≟_ Code.nothin) (Canₖ q θS→unk)
-  s∉Canₛq>>r | yes 0∈Canq++Canr = nocando where
-    nocando :  Data.List.Any.Any (_≡_ (Signal.unwrap S))
-                                 ((Canₛ q θS→unk) ++ (Canₛ r θS→unk)) → ⊥
-    nocando x with ++⁻ (Canₛ q θS→unk) x
-    nocando x | inj₁ x₁ = s∉Canₛq x₁
-    nocando x | inj₂ y =  s∉Canₛr y
-  s∉Canₛq>>r | no ¬p = s∉Canₛq
-
-  calc : (ρ []env · ((signl S (present S ∣⇒  p       ∣⇒  q)     ) >> r)) ≡ₑ
-         (ρ []env ·  (signl S (present S ∣⇒ (p >> r) ∣⇒ (q >> r)))) # []
-  calc = ≡ₑtran {r = ρ []env · (signl S q) >> r}
-                (≡ₑctxt (dcenv (dcseq₁ dchole)) (dcenv (dcseq₁ dchole))
-                        (ex2 S p q _ (CBρ CBsignlSq>>r) s∉Canₛp s∉Canₛq))
-                (≡ₑtran {r = ρ []env · (ρ θS→unk · q) >> r}
-                        (≡ₑctxt (dcenv (dcseq₁ dchole))
-                                       (dcenv (dcseq₁ dchole))
-                                       (≡ₑstep [raise-signal]))
-                (≡ₑtran {r = ρ θS→unk · (q >> r)}
-                        (≡ₑstep ([merge] (deseq dehole)))
-                (≡ₑsymm CBsym
-                        (≡ₑtran {r = ρ []env · signl S (q >> r)}
-                                (≡ₑctxt (dcenv dchole) (dcenv dchole)
-                                        (ex2 S (p >> r) (q >> r) _
-                                             (CBρ CBsignlS[q>>r])
-                                            s∉Canₛp>>r s∉Canₛq>>r))
-                       (≡ₑtran {r = ρ []env · (ρ θS→unk · q >> r)}
-                               (≡ₑctxt (dcenv dchole) (dcenv dchole)
-                                       (≡ₑstep [raise-signal]))
-                       (≡ₑtran {r = ρ θS→unk · q >> r}
-                               (≡ₑstep ([merge] dehole))
-                        ≡ₑrefl))))))
+ex8 : ∀ S p q ->
+             CB ((signl S  p) >> q) ->
+      (ρ []env · (signl S  p) >> q) ≡ₑ
+      (ρ []env ·  signl S (p  >> q)) # []
+ex8 S p q cb = ex8-worker S p q cb
 
 {- rearranging signal forms -}
 ex9 : ∀ S1 S2 p ->

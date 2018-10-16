@@ -64,10 +64,10 @@
             (var-prem q #:with-rewriters with-rewriters))
       (list (fact-prem (CB q) #:with-rewriters with-rewriters)
             (newline-prem)
-            (fact-prem (L¬∈ S (->S (Can p (mtθ+S S unknown))))
+            (fact-prem (∀ status (L¬∈ S (->S (Can p (mtθ+S S status)))))
                        #:with-rewriters with-rewriters)
             (newline-prem)
-            (fact-prem (L¬∈ S (->S (Can q (mtθ+S S unknown))))
+            (fact-prem (∀ status (L¬∈ S (->S (Can q (mtθ+S S status)))))
                        #:with-rewriters with-rewriters)
             (newline-prem))
       (≡e () () ()
@@ -133,33 +133,20 @@
      (equiv-6 with-rewriters)
      (equiv
       #:with-rewriters with-rewriters
-      (list (var-prem p_1 #:with-rewriters with-rewriters)
-            (var-prem p_2 #:with-rewriters with-rewriters)
-            (var-prem p_3 #:with-rewriters with-rewriters)
+      (list (var-prem p #:with-rewriters with-rewriters)
+            (var-prem q #:with-rewriters with-rewriters)
             (var-prem S #:with-rewriters with-rewriters))
       (list (newline-prem)
-            (fact-prem (L¬∈ S (->S (Can p_1 (mtθ+S S unknown))))
-                       #:with-rewriters with-rewriters)
-            (newline-prem)
-            (fact-prem (L¬∈ S (->S (Can p_2 (mtθ+S S unknown))))
-                       #:with-rewriters with-rewriters)
-            (newline-prem)
-            (fact-prem (CB (seq (signal S
-                                  (present S p_1 p_2))
-                                p_3))
+            (fact-prem (CB (seq (signal S p)
+                                q))
                        #:with-rewriters with-rewriters)
             (newline-prem))
       (≡e () () ()
-          (ρ · (seq (signal S
-                      (present S
-                               (∀x p_1 nothing)
-                               (∀x p_2 nothing)))
-                    (∀x p_3 nothing)))
+          (ρ · (seq (signal S (∀x p nothing))
+                    (∀x q nothing)))
           (ρ · (signal S
-                 (present S
-                          (seq (∀x p_1 nothing) (∀x p_3 nothing))
-                          (seq (∀x p_2 nothing) (∀x p_3 nothing))))))
-      "\\ { p q r S -> ex8 S p q r }")))
+                 (seq (∀x p nothing) (∀x q nothing)))))
+      "\\ { p q S -> ex8 S p q }")))
 
 @figure["fig:equivalences" "Equivalences Provable in our Calculus"]{
  @tabular[#:style (style #f (list (table-cells (list (list (style #f '(baseline))
@@ -203,18 +190,20 @@ always produce the same result in the evaluator:
         (fact-prem (≡e () () () (ρ θ_1 p) (ρ θ_2 q)))
         (newline-prem)
         (fact-prem (Eval () () () p θ_1 𝕊_1))
+        (newline-prem)
         (fact-prem (Eval () () () q θ_2 𝕊_2))
         (newline-prem))
   (same 𝕊_1 𝕊_2)
   "≡ₑ=>eval")
  }
-The proof of this is a straightforward consequence of @es[≡e]
+This theorem is a straightforward consequence of @es[≡e]
 being consistent; the proof is given as @tt{≡@|sub-e|=>eval}
 in the Agda code in the supplementary material.
 
 The remainder of this section explores various equivalences
 (shown in @figure-ref["fig:equivalences"])
-as well as some limitations of the calculus. Their proofs
+as well as some limitations of the calculus. The proofs of
+the equivalences
 are all given in @tt{calculus-examples.agda} in the
 supplementary material.
 
@@ -233,12 +222,12 @@ evaluation context surrounding the @es[seq] form.
 
 In a dual to @theorem-ref["thm:two"], @theorem-ref["thm:three"] shows that
 if we know that neither branch of the
-@es[present] expression can @es[emit] @es[S], we can replace
-it with the absent branch.
+@es[present] expression can emit @es[S], we can replace
+the @es[present] form with its second subexpression.
 
 @Theorem-ref["thm:four"] lets us lift a @es[seq] expression that starts
-with an @es[emit] out of a @es[par] branches. Intuitively,
-this is a consequence of Esterel's deterministic
+with an @es[emit] out of a @es[par] branch. Intuitively,
+this equivalence is a consequence of Esterel's deterministic
 parallelism. Because @es[emit] does not block, we can do it
 in parallel to @es[q] or before @es[q] starts, whichever
 is more convenient.
@@ -248,15 +237,16 @@ allows us to push the @es[trap] inside,
 in some situations. @Theorem-ref["thm:five"] is one such.
 This calculation requires @es[p] to be equivalent
 to some @es[done] expression @es[q], but that is a weakness
-of our calculus. In general, that is not required for the
-equivalence to be true.
+of our calculus. In fact, the two expressions are observably
+equivalent without any assumptions.
 
-@Theorem-ref["thm:six"] shows a restricted situation in which we
-can prove that we can push an @es[seq] expression inside
-a @es[present].
-In the general case, this equivalence is true, even without
-the @es[signal] form or the @es[ρ] expression outside. Our
-calculus cannot prove it, however, because it needs an outer
+@Theorem-ref["thm:six"] further generalizes @Theorem-ref["thm:one"]
+to rearrange binding forms across other expressions.
+In this example, the @es[signal] form is pulled out of
+the @es[seq] expression. In general, these
+two expressions are observably equivalent even without
+the @es[ρ] expression outside. Our
+calculus cannot prove it, however, because the calculus needs an outer
 @es[ρ] expression in order to perform a @rule["merge"] in
 the middle of the proof.
 
@@ -271,3 +261,24 @@ use of the lifting rule from one side of a @es[par] expression
 can block a use of the @rule["merge"] rule from the other side.
 We conjecture that a lifting rule would be confluent, but have
 not proven it.
+If we did have such a rule, then we believe we would be able to prove
+@theorem-ref["thm:six"] without the need for an enclosing
+empty @es[ρ] expression and even be able to relax one of the assumptions of
+@theorem-ref["thm:five"], assuming only that @es[q] is @es[complete].
+
+Our calculus also cannot reason effectively with expressions
+that span multiple instants. For example, the expression
+@es[(seq (loop pause) q)] is equivalent to
+@es[(loop pause)], but our calculus cannot prove it.
+Similarly, a common pattern is to emit a signal and pause in
+a loop, and also to run that loop in parallel with some code that looks
+at the signal. Our calculus would not be able to propagate
+the signal's presence because of the @es[pause].
+
+Another deep lack in our calculus is the ability to reason
+about input signals. In order for our calculus to work with
+a signal, it must be bound by @es[signal] so knowledge about
+it can be manipulated via the rules for @es[ρ] expressions.
+Input signals, in contrast, might or might not be set by the
+environment and our calculus cannot perform the required
+conditional reasoning.

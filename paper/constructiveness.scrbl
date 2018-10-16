@@ -17,11 +17,12 @@
 
 The properties of logical correctness and
 constructiveness are key for any correct semantics
-of Esterel. For examples of these properties we refer the reader to @secref["gettin stuck"]. We follow the definition of constructiveness given by the constructive operational semantics (COS) as
+of Esterel. For examples of these properties we refer the reader to @secref["gettin stuck"].
+We follow the definition of constructiveness given by the constructive operational semantics (COS) as
 referenced by @citet[esterel02] and described by
-@citet[optimizations-for-esterel-programs].
+@citet[optimizations-for-esterel-programs-thesis].
 Constructiveness is defined by the COS evaluator: non-constructive programs
-reduce stuck terms (that are not
+reduce to stuck terms (that are not
 @es[complete]).
 
 
@@ -44,7 +45,7 @@ stuck because @es[Can] is unable to prove that
 rule does not apply) and the @es[present] expression
 does not reduce (because @es[S1] is @es[unknown]).
 
-@right-figure[#:lines 11
+@right-figure[#:lines 8
  #:caption @elem{An expression equivalent to the expression in @figure-ref["ex:constructive1"]}
  #:tag "ex:constructive2"]{
 @extra-info-visible/block
@@ -67,9 +68,11 @@ Once those reductions happen, @es[Can] is able
 to determine that @es[S1] cannot be emitted and now
 the @rule["absence"] rule can fire, eventually reducing the
 original expression to
-@final-term/block
+@|final-term/block|.
 
 In sum, our calculus equates some non-constructive programs to
-constructive programs with the same logical behavior. Such a
+constructive programs with the same logical behavior. Although
+we are not satisfied with this aspect of our calculus and believe
+that it deserves further study, such a
 relaxation of constructiveness is not
 unprecedented@~cite[tardieu-deterministic].

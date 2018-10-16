@@ -17,7 +17,7 @@ our semantics captures Esterel or some other,
 subtly different language. In order to mitigate this
 concern, we tested our semantics against two Esterel
 implementations: @|Esterel\ v5|@~cite[esterel-v5] and
-Hiphop@~cite[hiphop], as well as an executable version of
+Hiphop.js@~cite[hiphop], as well as an executable version of
 @citet[compiling-esterel]'s COS semantics. Perhaps
 unsurprisingly, we also discovered bugs in both of the
 implementations during this process (as random testing can
@@ -55,13 +55,13 @@ libraries: @itemlist[@item{@itemlistheader{Redex COS model} We built a
                       reduction sequence. It produces a proof, which then is
                       submitted to the Agda compiler for verification.}
 
-                     @item{@itemlistheader{Redex/Hiphop bridge} We
+                     @item{@itemlistheader{Redex/Hiphop.js bridge} We
                       built a library that can translate Redex expressions into
-                      HipHop programs and then evaluate them. We also built a
-                      translator for a subset of HipHop programs that can
+                      Hiphop.js programs and then evaluate them. We also built a
+                      translator for a subset of Hiphop.js programs that can
                       translate them into Redex so they can be checked against the
                       calculus and the COS model. This translator does not accept
-                      all HipHop programs, because HipHop programs embed
+                      all Hiphop.js programs, because Hiphop.js programs embed
                       JavaScript code and our model cannot evaluate the
                       JavaScript.}
 
@@ -69,9 +69,9 @@ libraries: @itemlist[@item{@itemlistheader{Redex COS model} We built a
                       We also built a translator that produces @|Esterel\ v5| programs
                       from Redex terms in the COS model and in our calculus.}]
 
-Using these libraries we can now test all four
+Using these libraries we can test all four
 implementations of Esterel (the COS semantics, the @|Esterel\ v5|
-compiler, HipHop, and our calculus) against each other.
+compiler, Hiphop.js, and our calculus) against each other.
 
 There is one subtle point about testing our calculus.
 Because it is a calculus, we
@@ -80,7 +80,7 @@ possible reductions we should take in order to find an
 effective path to a @es[complete] state (if one exists). To do
 this, we identified a subset of the possible reductions in a
 way that acts like an standard reduction, guaranteeing that we
-find a @es[complete] if the program is constructive, and that reduction gets stuck if it is not.
+find a @es[complete] state if the program is constructive, and that reduction gets stuck if it is not.
 This reduction relation is
 given in @figure-ref["fig:standard"] with some supplementary
 definitions given in @figure-ref["fig:standard-aux"]; it is explained
@@ -96,14 +96,14 @@ program, determine if it produces the same signals across
 multiple instants. But we also need a source of Esterel
 programs to test. For that purpose, we used two approaches.
 
-First, we took the HipHop test suite, which consists of 130
-HipHop programs. Of those, four use @tt{pre}, a construct
+First, we took the Hiphop.js test suite, which consists of 130
+Hiphop.js programs. Of those, four use @tt{pre}, a construct
 that is not in Kernel Esterel, and were excluded from our tests. An
 additional 84 use JavaScript in some non-trivial way, and therefore could also not be
 run in our model. Our calculus produces the same results on the remaining 42 program
-as HipHop.
+as Hiphop.js.
 
-The translation of the HipHop tests into our model produces
+The translation of the Hiphop.js tests into our model produces
 programs that have a large number of signals, which causes
 problems for the process that finds reductions in the
 calculus. In short, the problem is that the exponential
@@ -114,7 +114,7 @@ disabled the exponential behavior of @es[Can] (by
 eliminating the first case in @es[Can-θ] and the first
 @es[signal] case) and then were able to use the standard
 reduction to simulate the calculus successfully, and got the
-same results as the HipHop implementation.
+same results as the Hiphop.js implementation.
 
 @(require racket/runtime-path racket/system racket/port racket/string racket/format)
 @(define-runtime-path loc "../final-tests/logs/")
@@ -137,24 +137,23 @@ Second, we used Redex's capability to generate random
 Esterel expressions and run them in all of the
 implementations to see if they agree. We have discovered
 (and fixed) errors in our calculus using this method, and we
-currently have no known bugs. We have run over @(~a test-count)
+currently have no known bugs. We have run over @(format-number test-count)
 random tests and they still do periodically find
 counterexamples, but they find only known bugs in the
 implementations.
 
-@; TODO can we pull this number directly from the long on build?
-
 This random testing process proved invaluable in debugging
-the calculus, catching several errors that proved difficult
-to find even through building the proofs in
-Agda. For example, late in the development process, the
-random tester found that an old version of the
+the calculus, catching several errors that cannot be found
+via the proofs in Agda. For example, late in the development
+process, the random tester found that an old version of the
 @rule["shared"] rule was incorrect. The old version
-initialized the shared variables status to @es[new], but
-the COS specifies that the initial status is
-@es[old]. Over a year of debugging, hand inspection, and
-theorem proving had failed what was, essentially, a typo in
-early versions of the calculus.
+initialized the shared variables status to @es[new], but the
+COS specifies that the initial status is @es[old]. This bug
+does not invalidate any of the theorems in Agda, but it does
+violate the property that our calculus and the other
+implementations agree. That is, the properties we can
+effectively check via random testing are stronger than those
+we can check via proof (in practice).
 
 @section{Bugs Discovered}
 
@@ -173,9 +172,9 @@ early versions of the calculus.
            (list)])}
 
 During the process of validating our calculus, we discovered
-four bugs in HipHop and one bug in the @|Esterel\ v5| compiler.
+four bugs in Hiphop.js and one bug in the @|Esterel\ v5| compiler.
 All of the bugs have been confirmed by the authors of the
-systems. All but one of the HipHop bugs have been fixed.
+systems. All but one of the Hiphop.js bugs have been fixed.
 
 The bug in @|Esterel\ v5| is exhibited by a translation
 of the program in @figure-ref["ex:vfivebug"],
@@ -185,18 +184,18 @@ where @es[e_0] evaluates to @es[0],
 
 This program is non-constructive and it gets stuck in our both our
 calculus and the COS semantics; it cannot reduce the inner @es[shared] because the
-initialization of the variable depends on @es[s-outer], but
+initialization of the signal depends on @es[s-outer], but
 @es[s-outer] cannot be read because there is a write
 pending. The @|Esterel\ v5| compiler runs the program,
 incorrectly setting @es[s-inner] to @es[0].
 
-This program also demonstrates one of the bugs we found in HipHop. Of the other three bugs,
-one of them was an internal error, crashing HipHop on this program
+This program also demonstrates one of the bugs we found in Hiphop.js. Of the other three bugs,
+one of them was an internal error, crashing Hiphop.js on this program
 @es[(trap (suspend (exit 0) S1))]. The next bug was
 triggered by this expression @es[(suspend nothing S1)], and produced an error
-in terms of HipHop's host language, Javascript's, @tt{undefined} value.
+in terms of the undefined value from Hiphop.js's host language, Javascript.
 
-@right-figure[#:wide? #t #:lines 9 #:caption "A Bug Found in HipHop" #:tag "ex:lastbug"]{
+@right-figure[#:wide? #t #:lines 9 #:caption "A Bug Found in Hiphop.js" #:tag "ex:lastbug"]{
 @esblock[(signal S-outer
            (signal S-inner
              (seq
@@ -207,11 +206,9 @@ in terms of HipHop's host language, Javascript's, @tt{undefined} value.
  }
 
 The final bug is exhibited by the program in @figure-ref["ex:lastbug"].
-Both in our calculus and in the COS semantics, the potential
+Both in our calculus and in the COS semantics, the @es[Can]
 function can determine that @es[S-inner] cannot be emitted,
 and that therefore @es[S-outer] cannot be emitted. Therefore
 the program is constructive, both signals are @es[absent],
 and the program reduces to @es[nothing]. However this
-program appeared to be non-constructive to HipHop. As of
-this writing, the bug is being actively worked on by the
-HipHop developers.
+program appeared to be non-constructive to Hiphop.js.

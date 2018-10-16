@@ -59,12 +59,14 @@
 (define (fact-prem-redex->agda exp)
   (let loop ([exp exp])
     (match exp
+      [`(∀ ,S ,p)
+       (~a "(∀ " S " -> " (loop p) ")")]
       [`(L¬∈ ,S ,set)
        (~a "(Signal.unwrap " S " utility.∉ " (loop set) ")")]
       [`(->S (Can ,p ,env))
        (~a "(Canₛ " (loop p) " " (loop env) ")")]
       [`(mtθ+S ,S ,signal)
-       (~a "(Θ SigMap.[ " S " ↦ Signal." signal " ] [] [])")]
+       (~a "(Θ SigMap.[ " S " ↦ " signal " ] [] [])")]
       [`(CB ,p)
        (~a "(CB " (loop p) ")")]
       [`(done ,p)
@@ -166,10 +168,6 @@
                         var-premises-x
                         fact-premises-x
                         (λ (t) (with-rewriters (t))))))]))
-
-(define (leading-∀)
-  (hbl-append (term->pict esterel-eval ∀)
-              (text " " (default-style) (default-font-size))))
 
 (define (layout-fact conclusion-pict var-premises fact-premises-with-newlines with-rewriters)
   (define premise-gap-space 6)

@@ -114,6 +114,10 @@ data all-ready : Expr → Env → Set where
   (r ≐ E ⟦ p ⟧e) → (something r sn⟶₁ something E ⟦ p'⟧)
 -}
 
+{- this relation is the strongly normalizing subset of
+   the calculus. It is just like _⟶₁_ in calculus.agda,
+   but without the [par-swap] constructor. -}
+
 data _sn⟶₁_ : Term → Term → Set where
   rpar-done-right : ∀{p q} →
     (p' : halted p) →

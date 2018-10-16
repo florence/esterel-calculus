@@ -270,7 +270,7 @@ open import Esterel.Lang.Binding
 open import Esterel.Lang.CanFunction
 open import Esterel.Context
 open import Esterel.Environment as Env
-open import Esterel.Variable.Signal as Signal using (Signal ; _ₛ)
+open import Esterel.Variable.Signal as Signal using (Signal ; _ₛ ; unknown)
 open import Esterel.Variable.Sequential as SeqVar using (SeqVar ; _ᵥ)
 open import Esterel.Variable.Shared as ShVar using (SharedVar ; _ₛₕ)
 open import Esterel.CompletionCode as Code using () renaming (CompletionCode to Code)

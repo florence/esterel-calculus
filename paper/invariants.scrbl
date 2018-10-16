@@ -1,11 +1,10 @@
 #lang scribble/base
-@(require "calculus-figures.rkt"
+@(require "jf-figures.rkt"
           "redex-rewrite.rkt"
           "cite.rkt"
           "util.rkt"
           "agda-fact.rkt"
           scriblib/figure
-          racket/set
           rackunit
           redex/reduction-semantics
           (except-in esterel-calculus/redex/model/shared quasiquote)
@@ -13,7 +12,7 @@
           (prefix-in standard: esterel-calculus/redex/model/reduction))
 
 
-@title[#:tag "sec:cb"]{Invariants of Reduction: Correct Binding}
+@title[#:tag "sec:cb"]{Reincarnation, Schizophrenia, and Correct Binding}
 
 
 @(define/esblock loop-term loop-term/block
@@ -22,6 +21,7 @@
       (seq pause
            (emit SZ)))))
 
+@;;; these are not used in the current version
 @(define/esblock loop-reduced loop-reduced/block
    (ρ (mtθ+S SZ absent)
       (loop^stop (seq pause (emit SZ))
@@ -34,105 +34,118 @@
            standard:R
            (term (ρ · ,loop-term)))))
 
-Our reduction relation does not rely on variable renaming,
-as there are no rules that involve substitution. More
-importantly, from the original Esterel use-case perspective,
-a signal variable in Esterel corresponds to a wire in a
-circuit, and wires are not changed during evaluation. Thus,
-if we did require an α rule, our calculus would not be
-faithful to Esterel.
+The @es[signal] form seems to be something close to a
+variable binding form, familiar from conventional λ-calculus
+based programming languages. It is, however, not the same
+and a significant source of subtlety in Esterel. The Esterel
+community has explored these issues in great detail and in
+this section, we try to bring across the basic points and
+then explain how our calculus handles them.
 
-@right-figure[#:lines 11 #:caption "A Schizophrenic Loop" #:tag "ex:schizophrenic"]{
+@right-figure[#:lines 6 #:caption "A Schizophrenic Loop" #:tag "ex:schizophrenic"]{
  @loop-term/block
- @loop-reduced/block
 }
 
-One apparent conflict with the signals-as-wires perspective
-is the @es[loop] rule. Because it duplicates the body of the
-loop, and because wires are not duplicated in a circuit, we
-must ensure that the variables in a loop body
-are treated properly. The main reason that this duplication
-is acceptable is the constraint that each loop must either
-pause or terminate in a single instant. In general, the
-issues surrounding signal variables in the body of a loop
-are well studied in Esterel and come with their own
-terminology. To understand the basic
-problem, consider the program in the top of @figure-ref["ex:schizophrenic"].
-It reduces to the one below it, which ends the instant.
-Note that the residual term has an @es[(emit SZ)] waiting
-in it, to be run in the next instant, but at the same time,
-@es[SZ] is marked as absent in the environment.
-When this program picks up in the next instant, that
-@es[(emit SZ)] happens, making @es[SZ] present in the second
-instant. But the loop body also unrolls again, just as it
-did in the first instant and it introduces a second
-@es[signal] form for @es[SZ] which, as in the first instant,
-is @emph{not} present (with no @es[emit]) and gets set to
-@es[absent]. This means that, in a single instant, the same
-wire might hold two different values.
+The two central issues are the phenomena of schizophrenic
+and reincarnated signals. To understand them, first recall the central tenant of Esterel signals: every signal must have exactly one value in a given instant. Now, consider the
+example program in @figure-ref["ex:schizophrenic"]. During
+the first instant of execution the signal @es[SZ] will be
+absent, as the program pauses before emitting it. In the
+next instant we pick up where we left off. The first thing
+that happens is that we emit @es[SZ]. Then the loop
+body restarts. Because we have re-entered the loop
+body and encountered the @es[signal] expression afresh, the
+@es[SZ] should now be absent. But this means that the signal
+@es[SZ] has two different values in a single instant! 
 
-@(define multiple-incarn-note
-   @note{
-         Nested loops can cause a variable to be reincarnated
-         more that once.
-         })
+In the literature, signals which are duplicated by a loop
+body in within one instant are called
+@italic{reincarnated}. If a reincarnated signal obtains
+different values in each of its incarnations, it is called
+@italic{schizophrenic}. Schizophrenic signals, however, merely appear
+to violate the single-value-per-instant rule. Because instantaneous loops are
+banned, the number of times a loop body can be entered is bounded.
+This means that the number of reincarnations of any signal is also bounded.
+Therefore we consider each incarnation to, in fact, be a separate signal,
+removing the apparent violation.
 
-Signals like @es[SZ] are called @italic{reincarnated},
-@italic{schizophrenic} signals. A reincarnated
-variable is one that is instantiated multiple times in the
-same instance.@multiple-incarn-note A schizophrenic
-variable is a reincarnated signal whose value changes
-between incarnations.
+This resolution shows up directly in Esterel
+compilers and circuit semantics. Naive treatment of schizophrenic
+signals can cause unstable loops in the corresponding
+circuit, breaking the guarantee that all constructive
+programs translate to stable circuits. Therefore, many Esterel compilers duplicate
+parts of loop bodies with schizophrenic signals to remove
+the apparent violation of the single-value-per-instant rule,
+avoiding cross-loop cycles@~cite[new-method-schizophrenic esterel02 compiling-esterel]. In short, each incarnation of a signal
+gets a separate wire.
 
-The implications of such variables are well-studied by the
-Esterel community and methods for compiling Esterel programs
-with them exist@~cite[new-method-schizophrenic esterel02].
-For our calculus, we must ensure that different
-incarnations of a variable cannot directly observe the
-values of different incarnations. While different
-incarnations cannot have a direct effect on each other,
-however, because different iterations of a loop can
-communicate via a variable in an outer scope, the values of
-different incarnations of a variable may indirectly affect
-each other.
+Esterel semantics such as the Constructive Operation
+Semantics (COS)@~cite[optimizations-for-esterel-programs-thesis]
+and the Constructive Behavioral Semantics
+(CBS)@~cite[esterel02] take a different approach, handling
+such signals by carefully arranging to ``forget'' a
+schizophrenic signal's first value when the second one is
+needed.
 
-To capture how variables are treated by our calculus, we use
-the @es[(CB p)] judgment, shown in @figure-ref["fig:cb"].
-Our calculus works only with programs that have correct
-binding, ensuring that variables cannot interfere with
-each other during reduction. It also ensures that
-sequential variables are used sequentially (as discussed in
-@secref["sec:reduction"]), i.e., that any given sequential
-variable appears in at most one side of any @es[par]
-expression.
-Also note that any Esterel program that uses its sequential
-variables correctly and has no @es[ρ] expressions either
-already has correct binding or can be α-renamed into one
-that has correct binding (possibly requiring more wires in
-the signals-as-wires analogy). Thus, the restriction that our
-calculus handles only programs with correct binding is not
-severe.
+Our semantics takes an approach inspired by the circuit
+perspective, meaning we do not treat signals in a
+conventional way. More precisely, we do not assume the
+variable convention@~cite[barendregt], nor do we include an
+α rule. Indeed, we think of signals as if they name wires.
 
-To understand correct binding, a good first rule to look at
-is the @es[seq] rule. It says that the bound variables of
-the first sub-expression must be distinct from the free
-variables of the second. The only rule that manipulates
-binders across a @es[seq] expression is the @rule["merge"]
-rule and, based on the definition of @es[E] (in
+This perspective means that schizophrenic and reincarnated
+signals are, at first glance, handled very simply. We just
+duplicate the bodies of loops in the @rule["loop"] rule, so
+each signal will end up in a different @es[ρ], potentially
+bound to a different value---akin to the strategy that circuit semantics employ.
+This approach, however, does raise a significant
+concern: what happens if the @rule["merge"] rule
+moves @es[ρ] expressions in such a way that causes incorrect
+capture? Our calculus avoids this problem by working only
+with programs that have @italic{correct binding}, as
+captured by the @es[CB] judgment form in
+@figure-ref["fig:cb"]. (The @es[CB] judgment also
+ensures that sequential variables are used in at most one
+branch of any @es[par], which is not related to the concerns
+of schizophrenia, but does ensure determinism and is
+convenient to include here.)
+
+To understand the correct binding judgment, first look at
+the @es[seq] rule. It says that the bound signals of the
+first sub-expression must be distinct from the free
+signals of the second. Since the @rule["merge"] rule moves
+binders based on the definition of @es[E] (in
 @figure-ref["fig:supp"]), it can move a @es[ρ] out from the
 first sub-expression only. Thus, in order to preserve the
 binding structure of the expression as we reduce, we need
 only make sure that a @es[ρ] that moves out of the first
-sub-expression of a @es[seq] does not capture a variable in
-the second sub-expression. The other rules all generally
-follow this reasoning process for their premises, where the
-case for @es[loop] takes into account the @rule["loop"]
-reduction, not the @rule["merge"] reduction.
+sub-expression of a @es[seq] does not capture a signal in
+the second sub-expression, which is precisely what the
+premise avoids.
+
+The other rules all generally follow this reasoning process
+for their premises. The @es[suspend] rule's premise follows
+exactly that reasoning, as binder may be lifted out past the
+@es[S]. The @es[par] rule's second and third premises also
+follow exactly the same reasoning. The first premise of
+@es[par] is necessary to avoid the situation where the same
+signal is bound in both branches and then is lifted out
+from both. The fourth premise ensures that sequential
+variables are used properly.
+
+The @es[loop] rule must ensure that the bound and free
+signals of its subexpression do not overlap, as it reduces
+by duplicating its first subexpression into a
+@es[loop^stop], which acts like a @es[seq] expression (so
+the intuition for @es[seq] applies, but with both
+subexpressions being the same one). Similarly, because
+@es[(loop^stop p q)] behaves like @es[(seq p (loop q))], the
+premises of its rule are just the premises of the @es[seq]
+and @es[loop] rules, combined.
 
 @figure["fig:cb" "Correct Binding"]{@CB-pict}
 
-@theorem[#:label "thm:cb"]{
-
+@theorem[#:label "thm:cb" #:break? #t]{
  @(equiv
   (list (var-prem p)
         (var-prem q)
@@ -145,9 +158,18 @@ reduction, not the @rule["merge"] reduction.
   "⟶₁-preserve-CB")
 }
 
-The main result is that reduction preserves correct binding,
-no matter where the reduction occurs.
-Here @es[C] stands for the compatible context
-detailed in @figure-ref["fig:eval"].
-The proof is given as @tt{CB-preservation} in the Agda code
-in the supplementary material.
+This theorem states that, no matter which context an
+expression reduces in (with @es[C] as given in
+@figure-ref["fig:eval"]), if the expression had correct
+binding before reduction, it does afterwards, too. The proof
+is given as @text{⟶₁}@tt{-preserve-CB} in the Agda code in
+the supplementary material.
+
+It should also be noted that any Esterel program that uses
+its sequential variables correctly either already has
+correct binding or can be renamed into one that has correct
+binding (introducing new wires, of course) before reducing
+the program. Thus, the restriction that our calculus handles
+only programs with correct binding is not severe, as any
+already correct program can be transformed into
+one which is well behaved in our calculus.

@@ -1,9 +1,9 @@
 #lang scribble/base
-@(require "calculus-figures.rkt"
+@(require "misc-figures.rkt"
+          "rule-figures.rkt"
           "redex-rewrite.rkt"
           scriblib/figure
           racket/set
-          redex/reduction-semantics
           (except-in esterel-calculus/redex/model/shared
                      quasiquote))
 
@@ -12,24 +12,8 @@
 @figure["fig:supp" "Supplemental Structures"]{@supp-lang}
 @figure["fig:reduction" "Reduction Rules"]{@reduction-relation-pict}
 
-@Figure-ref["fig:supp"] shows two extensions to @es[p] that
-the calculus needs track information about how a program
-has reduced so far. The @es[(loop^stop p q)] expression form is
-similar to a @es[(seq p (loop q))] and is used by
-the loop reduction rule, as discussed below.
-
-The other extension is the @es[(ρ θ p)] expression form, and is the heart of our calculus. It pairs
-an environment (@es[θ]) with an Esterel expression. The
-environment records what we have learned about the signals
-and variables in this instant and various rules either add
-information to the @es[θ] or exploit information recorded as
-the program reduces.
-
 The rules given in @figure-ref["fig:reduction"]
 govern how computation takes place within a single instant.
-This reduction does not directly enforce the constraints on sequential variables
-or handle transitioning between instants. These are discussed in sections
-@secref["sec:cb"] and @secref["sec:eval"].
 
 The first rule, @rule["signal"], reduces a @es[signal]
 expression to a @es[ρ] expression by introducing a singleton
@@ -39,7 +23,7 @@ Once a signal has an entry in a relevant @es[θ], the
 @rule["emit"] rule records that a signal is present (using
 the composition operator @es[<-] from
 @figure-ref["fig:supp"]) and eliminates the @es[emit]
-expression. The side-condition that ensures that the
+expression. The side-condition ensures that the
 environment @es[θ] does not already indicate that the signal
 is absent.
 
@@ -69,20 +53,28 @@ Once the status of a signal is recorded as either present
 or absent, the @rule["is-present"] and @rule["is-absent"] rules
 can reduce @es[present] expressions.
 
-The rules @rule["shared"], @rule["set-new"],
-@rule["set-old"], and @rule["readyness"] handle shared
+The rules @rule["shared"], @rule["set-old"],
+@rule["set-new"], and @rule["readyness"] handle shared
 variables in a manner similar to how the previous set of
-rules handled signals. The @rule["shared"] rule
+rules handle signals. The @rule["shared"] rule
 introduces a new environment that binds the shared variable
-using the @es[e] expression in the @es[shared] expression to
-determine the initial value of the variable using the host language's evaluation function. The rule
-@rule["set-new"] updates the environment with a new value,
-computed by adding the current value and the value in the
-@es[<=] expression. The @rule["set-old"] updates the value
-without using the combining operation because the value in
-the environment is marked as @es[old], which happens only
-when the value has not yet been
-modified in the current instant. Finally, the @rule["readyness"]
+using the @es[e] in the @es[shared] expression to
+determine the default value of the variable using
+the host language's evaluation function.
+The rules @rule["set-old"] and @rule["set-new"] modify a
+shared variable depending on whether it has been modified
+in the current instant or not.
+If the status of a shared variable in the environment
+is @es[old], it is being modified for the first time
+in the current instant and
+the rule @rule["set-old"] replaces the old value
+in the environment with the new value.
+If the status of a shared variable is @es[new], it has already been modified
+in the current instant and the rule
+@rule["set-new"] adds
+the current value and the new value in the
+@es[<=] expression and stores the result in the environment.
+Finally, the @rule["readyness"] rule
 makes a variable change from writable to readable.
 This occurs if @es[Can-θ]'s
 result does not contain the shared variable
@@ -121,8 +113,8 @@ first three refer to
 to the definitions of @es[stopped] and @es[done] in
 @figure-ref["fig:supp"] and handle
 the situations when both branches are finished for
-the instant. If one side has reduce to nothing,
-@rule["par-nothing"] rule reduces to the other
+the instant. If one side has reduced to nothing,
+the @rule["par-nothing"] rule reduces to the other
 one. If one side has @es[exit]ed and the other is @es[paused],
 the @rule["par-1exit"] rule preempts the other branch of the
 par by bubbling the @es[exit] up. If both sides have
@@ -155,3 +147,8 @@ rule that eliminates a @es[loop^stop] when the first
 sub-expression is @es[nothing] (unlike @es[seq], which has
 the @rule["seq-done"] rule). As such, programs get stuck
 when they contain instantaneous loops.
+
+One thing to note about these rules: with the exception of
+@rule["par-swap"], they are strongly normalizing. The proof
+is given as @tt{noetherian} in Agda code in the
+supplementary material.
