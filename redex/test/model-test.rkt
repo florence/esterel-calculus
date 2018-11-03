@@ -348,6 +348,14 @@
       standard:R
       `(ρ · (shared ss := (+) pause)))
      (list `(ρ · (ρ ((shar ss 0 old) ·) pause))))
+
+    (check-equal?
+     (apply-reduction-relation*
+      standard:R
+      `(ρ · (seq (shared s1 := (+) (var x1 := (+ s1) nothing))
+                 (ρ ((shar s1 0 old) ·) (<= s1 (+))))))
+     (list `(ρ ((shar s1 0 ready) ((var· x1 0) ·)) nothing)))
+    
     (check-equal?
      ;; merge
      (apply-reduction-relation
@@ -610,6 +618,8 @@
                      (suspend pause S4)))))
      (list `(ρ ((sig S absent) ((sig S2 absent) ((var· x 1232) ·)))
                (trap (par (suspend (present S2 nothing pause) S3) (suspend pause S4))))))
+
+
 
     
     (check-true

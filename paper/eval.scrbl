@@ -90,8 +90,8 @@ transformation that prepares a complete expression for
 the next instant, @es[next-instant], shown in
 @figure-ref["fig:next-instant"]. It makes four modifications
 to the expression. First, it resets all signals to
-@es[unknown] via @(with-normal-height @es[(reset-θ θ/c)])
-(also defined in @figure-ref["fig:supp"]).
+@es[unknown] and all shared variables to @es[old] via @(with-normal-height @es[(reset-θ θ/c)])
+(defined in @figure-ref["fig:supp"]).
 Second, it replaces the @es[pause] expressions
 where the program stopped with @es[nothing]. Third, it replaces
 each @es[loop^stop] expression with a @es[loop] and @es[seq]. Finally, it adds a

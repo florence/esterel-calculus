@@ -1,18 +1,15 @@
 #lang scribble/base
 @(require scriblib/figure
           "util.rkt"
-          "overview-figure.rkt"
           "redex-rewrite.rkt"
+          "overview-figure.rkt"
+          "misc-figures.rkt"
+          "rule-figures.rkt"
           "cite.rkt")
 @title[#:tag "sec:calculus"]{The Esterel Calculus}
 
-@figure["fig:overview" @list{An overview of the main definitions}]{
-@;@right-figure[#:lines 18 #:caption "An overview of the main definitions" #:tag "fig:overview"]{
- @overview-figure
-}
-
-We define a reduction relation on program expressions that
-corresponds to a single-step of computation. This relation
+The core of our calculus is a reduction relation on program expressions that
+corresponds to a single-step of computation within one instant. This relation
 captures a notion of simplification, where each
 computational step brings us closer to a final answer. Thus,
 the reduction induces an evaluator for the language.
@@ -28,8 +25,8 @@ the basic notion of reduction that our calculus supports and
 @secref["sec:can"] describes our our @es[Can] function. The
 judgment form @es[CB] captures how signals are to be used
 in Esterel programs, and is described in @secref["sec:cb"].
-Finally @secref["sec:eval"] gives the @es[Eval] and the
-@es[next-instant] functions and the central result of this
+Finally @secref["sec:eval"] gives the definitions of @es[Eval] and 
+@es[next-instant], and the central result of this
 work, namely that @es[Eval] is a function.
 
 Before diving into the rules, however, we need a to extend
@@ -39,14 +36,21 @@ extensions. First, the @es[(loop^stop p q)] expression form
 is similar to a @es[(seq p (loop q))] and is used by the
 loop reduction rule (discussed in @secref["sec:reduction"]).
 
-The other extension is the @es[(ρ θ p)] expression form, the
-heart of our calculus. It pairs an environment (@es[θ]) with
+The other extension is the @es[(ρ θ p)] expression form.
+It pairs an environment (@es[θ]) with
 an Esterel expression. The environment records what we have
 learned about the signals and variables in this instant for
 the contained subexpression, and various rules either add
 information to the @es[θ] or exploit information recorded as
 the program reduces. We keep the environments local to
 specific expressions in order to facilitate local reasoning.
+
+@figure["fig:overview" @list{An overview of the main definitions}]{
+@;@right-figure[#:lines 18 #:caption "An overview of the main definitions" #:tag "fig:overview"]{
+ @overview-figure
+}
+@figure["fig:supp" "Supplemental Structures"]{@supp-lang}
+@figure["fig:reduction" "Reduction Rules"]{@reduction-relation-pict}
 
 @include-section["reduction-rules.scrbl"]
 @include-section["potential-function.scrbl"]

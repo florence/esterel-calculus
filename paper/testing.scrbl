@@ -109,12 +109,11 @@ problems for the process that finds reductions in the
 calculus. In short, the problem is that the exponential
 behavior in @es[Can] triggers significant performance
 problems in the calculus, enough so that running these tests
-appears not to be feasible. To mitigate this issue, we
-disabled the exponential behavior of @es[Can] (by
-eliminating the first case in @es[Can-θ] and the first
-@es[signal] case) and then were able to use the standard
-reduction to simulate the calculus successfully, and got the
-same results as the Hiphop.js implementation.
+appears not to be feasible. To mitigate this issue these
+tests are run only against the standard reduction, which updates
+signal values in bulk in a single step, and does
+not preform the exponential analysis
+on the top most environment, greatly reducing evaluation time.
 
 @(require racket/runtime-path racket/system racket/port racket/string racket/format)
 @(define-runtime-path loc "../final-tests/logs/")
@@ -190,10 +189,10 @@ pending. The @|Esterel\ v5| compiler runs the program,
 incorrectly setting @es[s-inner] to @es[0].
 
 This program also demonstrates one of the bugs we found in Hiphop.js. Of the other three bugs,
-one of them was an internal error, crashing Hiphop.js on this program
+one of them was an internal error, crashing Hiphop.js on the program
 @es[(trap (suspend (exit 0) S1))]. The next bug was
-triggered by this expression @es[(suspend nothing S1)], and produced an error
-in terms of the undefined value from Hiphop.js's host language, Javascript.
+triggered by the expression @es[(suspend nothing S1)], and produced an error
+in terms of the undefined value from Hiphop.js's host language, JavaScript.
 
 @right-figure[#:wide? #t #:lines 9 #:caption "A Bug Found in Hiphop.js" #:tag "ex:lastbug"]{
 @esblock[(signal S-outer

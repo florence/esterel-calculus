@@ -1,5 +1,6 @@
-#lang scribble/acmart @acmsmall @review
+#lang scribble/acmart @acmsmall @screen
 @(require
+          (only-in scribble/core element style)
           "cite.rkt"
           "util.rkt"
           "agda-fact.rkt")
@@ -7,13 +8,27 @@
 
 @title[#:style paper-title-style]{A Calculus for Esterel}
 @subtitle{@subtitle-font-adjust{“If can, can. If no can, no can.”  —Hawaiian pidgin proverb}}
-@(define (ath email name)
-   @author[#:affiliation (affiliation #:institution "Northwestern University")
-           #:email (format "~a@eecs.northwestern.edu" email)]{@name})
+@(define (ath email name #:email-style [email-style '()])
+   (define address
+     (element
+      (style #f email-style)
+      (format "~a@eecs.northwestern.edu" email)))
+   @author[#:affiliation (affiliation #:institution "Northwestern University"
+                                      #:country "U.S.A.")
+           #:email address]{@name})
 @ath["spencer.florence"]{Spencer P. Florence}
-@ath["shu-hung.you"]{Shu-Hung You}
+@ath["shu-hung.you" #:email-style '(exact-chars)]{Shu-Hung You}
 @ath["jesse"]{Jesse A. Tov}
 @ath["robby"]{Robert Bruce Findler}
+
+@acmPrice{}
+@acmDOI{10.1145/3290374}
+@acmYear{2019}
+@acmJournal{PACMPL}
+@acmVolume{3}
+@acmNumber{POPL}
+@acmArticle{61}
+@acmMonth{1}
  
 @abstract{
           
@@ -38,6 +53,21 @@
  example equivalences and discuss how it enabled us to find bugs
  in Esterel implementations.
 }
+
+@; The blank lines are necessary
+@CCSXML|{
+
+<ccs2012>
+<concept>
+<concept_id>10003752.10010124.10010131.10010134</concept_id>
+<concept_desc>Theory of computation~Operational semantics</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+</ccs2012>
+
+}|
+@ccsdesc[#:number 300]{Theory of computation~Operational semantics}
+@keywords{Esterel, Synchronous Reactive Programming, Semantics}
 
 @include-section["intro.scrbl"]
 @include-section["sense-of-esterel.scrbl"]

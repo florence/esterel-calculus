@@ -44,6 +44,12 @@ Makefile: targets are:
 
 
 agda: The Agda implementation of the Esterel calculus.
+
+      The main theorem in the paper, Theorem 3.2, is
+      given as `eval≡ₑ-consistent` in `agda/eval-props.agda`
+      Theorem 3.3 is given as `≡ₑ-consistent` in
+      `agda/calculus/properties.agda`.
+
       See `agda/README.txt` for more details.
 
 redex: The Redex implementation of the calculus and its tests.
@@ -219,7 +225,7 @@ Add or modify rules in the calculus:
      to the new forms
   5. Update `redex/test/binding.rkt` to handle
      correct binding of any new forms
-  
+
   --- If you want to test against external implementation
                  (say you are adding Esterel v7 features) ---
   5. Follow below sets of instructions to update
@@ -263,9 +269,9 @@ Add or modify rules in the calculus:
   18. After you desired Long Amount Of Time has passed,
       check the logs in `final-tests/logs/` for any
       test failures.
-  
 
-To update Agda to a new version: 
+
+To update Agda to a new version:
   Assuming you already have Agda installed, you will need to
   1. update Agda.
   2. update the std library.

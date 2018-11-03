@@ -29,7 +29,7 @@ each instant is isolated from interference by
 the outside environment once the reaction begins. In
 addition, instants exhibit deterministic concurrency; 
 each reaction may contain concurrent
-threads without execution order effecting the
+threads without execution order affecting the
 result of the computation.
 
 This combination of synchronous reactions with
@@ -40,7 +40,7 @@ semantics that give meaning to programs through a
 translation to circuits. These semantics are excellent for
 compilation and optimization. However they are
 not ideal for programmers, who would rather reason in terms
-of the source-level program not its compiled form.
+of the source program, not its compiled form.
 
 The second form are operational semantics that eschew term
 rewriting in favor of decorating terms with various flavors
