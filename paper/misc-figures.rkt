@@ -160,9 +160,10 @@
                         (blank 0 10)
                         (vl-append 2 c-p rule-p)))])
        (vl-append
-        (ghost (text "a"))
+        (inset (ghost (text "a")) 0 (- (/ (pict-height (text "a")) 2) 0 0))
         (bords "Metafunctions:")
-        (render-metafunction harp #:contract? #t))))
+        (inset (render-metafunction harp #:contract? #t)
+               0 -5 0 0))))
     (vl-append
      10
      theta-stuff-1

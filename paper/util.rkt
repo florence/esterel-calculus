@@ -73,6 +73,8 @@
    #"\\newcommand{\\TheoremSpacer}[0]{\\hbox to .3in{}}\n"
    #"\\newcommand{\\SubE}[0]{$_{e}$}\n"
    #"\\newcommand{\\Whydoineedthisspacerthingy}{\\hbox to .1in{}}\n"
+   #"\\setcopyright{rightsretained}\n"
+   #"\\copyrightyear{2019}\n"
    (append
     (for/list ([i (in-list right-figure-sizes)])
       (mk-rightfigure i #f))

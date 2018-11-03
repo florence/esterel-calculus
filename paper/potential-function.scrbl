@@ -30,7 +30,6 @@ definition, generalized to support @es[ρ] expressions and
 modified to handle a reduction semantics rather than one
 based on annotating the program with program counters.
 
-
 This function computes a conservative approximation
 to the behavior of some given Esterel expression with
 respect to some knowledge about signals and shared variables
@@ -40,11 +39,11 @@ exit codes (@es[κ]), and a
 set of shared variables (@es[s]). Any @es[S] that is not in the result
 is guaranteed not to be emitted in the current instant
 (although if some @es[S] is in the result, it may or may not
-be emitted in the current instant). Ditto for any shared
+be emitted in the current instant). The same holds for any shared
 variable in the result: if an @es[s] is not the result, then
-it is guaranteed that @es[s] is not going to be updated
+it is guaranteed that @es[s] cannot be updated
 again in the current instant. If the @es[s] is in the
-result, then it may or may not be updated. The exit codes
+result, then it may or may not be written to. The exit codes
 capture whether or not the given expression pauses, reduces
 to @es[nothing], or exits.
 If the expression may reduce to @es[nothing], then the code
@@ -88,11 +87,11 @@ its result for the @es[p] expression. This means that
 is the empty set, since the @es[emit] must happen in
 the next instant.
 
-In the second @es[seq] case, we know that @es[nothin] was a
+In the second @es[seq] case, we know that @es[nothin] is a
 possible result code, and thus @es[p] might reduce to
 @es[nothing] so we have to combine the result of the @es[p]
-and @es[q] recursive calls. Mostly this amounts to simply
-unioning them, but note that the @es[K] case removes @es[nothin]
+and @es[q] recursive calls. Mostly this amounts to taking the
+union, but note that the @es[K] case removes @es[nothin]
 from the codes in the result of @es[p] before performing the
 union. This removal accounts for the fact that, even if @es[p]
 reduces to @es[nothing], @es[q] must also reduce to @es[nothing]
@@ -120,13 +119,13 @@ the entire expression out of the codes of the
 subexpressions. The @es[trap] case uses the metafunction
 @es[↓] to adjust the exit codes in a manner that mimics how
 @es[trap] expressions reduce. Since the @es[shared] form
-introduces a new signal, its case in @es[Can] removes that
-signal from the results, as the signal is lexically scoped.
+introduces a new variable, its case in @es[Can] removes that
+variable from the results, as it is lexically scoped.
 In each of these cases, @es[Can] ignores the @es[e] expressions,
 as it does not reason about the behavior of the host language.
 
 This leaves the @es[signal] and @es[ρ] cases. 
-Consider first the cases that handle @es[signal] expressions. The second
+Consider how @es[Can] handles @es[signal] expressions. The second
 @es[signal] case is the more straightforward one.
 It says that the result for the entire @es[signal] form is the same
 as the result for the body of a @es[signal] form when it is
@@ -135,15 +134,13 @@ with the @es[Can] function if that were the only case.
 
 To motivate the first @es[signal] case in @es[Can], 
 consider this call:
-@esblock[(->S (Can (signal S2 (present S2
-                                       (emit S1)
-                                       nothing)) ·))
+@esblock[(->S (Can (signal S2 (present S2  (emit S1) nothing)) ·))
          #:equal?
          (L0set)]
 If we took the second @es[signal] case in @es[Can],
 then this would return a set containing @es[S1]. It actually
-returns the empty set, however, because of that first
-case. In particular, that case first calls @es[Can] with
+returns the empty set.
+The first @es[signal] case calls @es[Can] with
 @es[S2] set to @es[unknown] and checks to see if @es[S2]
 is not present in the “S” portion of the result. It is not
 (because there are no @es[(emit S2)] expressions), so
@@ -156,8 +153,8 @@ the @es[(emit S1)] and returning the empty set of signals.
 In isolation, analyzing the body twice seems like
 overkill, especially because it triggers exponential behavior
 in the number of nested @es[signal] forms.@note{This
- exponential behavior affected our testing of the
- semantics against each other; see
+ exponential behavior affected the testing of our
+ semantics against existing Esterel semantics and implementations; see
  @secref["sec:testing"] and @secref["sec:stdred"] for more.} But consider
 this call to @es[Can]:
 @(provide can-exp-example-d)
@@ -180,10 +177,11 @@ so we know that @es[S1] is not going to be emitted.
 If @es[Can] did not have that first @es[signal] case, then
 it could not learn that @es[S1] cannot be emitted and thus we
 would not be able to use the @rule["absence"] rule on
-this expression.
+this expression, and the program would remain stuck, unable to
+reduce the first @es[present].
 
 Finally, for the @es[ρ] case, the @es[Can] function
-dispatches to @es[Can-θ]. The @es[Can-θ] function looks
+dispatches to @es[Can-θ] (@figure-ref["fig:can-theta"]). The @es[Can-θ] function looks
 complex, but it is essentially the same as the two
 @es[signal] cases. It is broken out into its own function
 because @es[ρ] binds multiple signals at once; so @es[Can-θ]
@@ -193,7 +191,7 @@ corresponds to the first @es[signal] case in @es[Can]; the
 second case in @es[Can-θ] corresponds to the second
 @es[signal] case, and the last case in @es[Can-θ]
 corresponds to the situation where there are no more signals
-bound in @es[θ] (and the remainder of the @es[θ_1] can be
+bound in @es[θ] (and @es[θ_1] can be
 dropped as it contains only information about @es[s] and
-@es[x] variables, which @es[Can] does not need, as it does
-not reason about host expressions).
+@es[x] variables, which @es[Can] does not need).
+

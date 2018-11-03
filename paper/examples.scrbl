@@ -3,6 +3,7 @@
 @(require "agda-fact.rkt"
           "util.rkt"
           "redex-rewrite.rkt"
+          "cite.rkt"
           pict
           scriblib/figure
           syntax/parse/define
@@ -148,27 +149,6 @@
                  (seq (∀x p nothing) (∀x q nothing)))))
       "\\ { p q S -> ex8 S p q }")))
 
-@figure["fig:equivalences" "Equivalences Provable in our Calculus"]{
- @tabular[#:style (style #f (list (table-cells (list (list (style #f '(baseline))
-                                                           (style #f '(baseline))
-                                                           (style #f '(baseline))
-                                                           (style #f '(baseline)))
-                                                     (list (style #f '(baseline))
-                                                           (style #f '(baseline))
-                                                           (style #f '(baseline))
-                                                           (style #f '(baseline)))))))
-          (list (list
-                 @theorem[#:label "thm:one" #:break? #t]{@(equiv-1 with-paper-rewriters)}
-                 @theorem[#:label "thm:two" #:break? #t]{@(equiv-2 with-paper-rewriters)}
-                 @theorem[#:label "thm:three" #:break? #t]{@(equiv-3 with-paper-rewriters)}
-                 'cont)
-                (list
-                 @theorem[#:label "thm:four" #:break? #t]{@(equiv-4 with-paper-rewriters)}
-                 @theorem[#:label "thm:five" #:break? #t]{@(equiv-5 with-paper-rewriters)}
-                 @theorem[#:label "thm:six" #:break? #t]{@(equiv-6 with-paper-rewriters)}
-                 'cont))]
-}
-
 @title[#:tag "sec:examples"]{What the Calculus Can and Cannot Prove}
 
 Our semantics lends itself to establishing
@@ -204,7 +184,7 @@ The remainder of this section explores various equivalences
 (shown in @figure-ref["fig:equivalences"])
 as well as some limitations of the calculus. The proofs of
 the equivalences
-are all given in @tt{calculus-examples.agda} in the
+are all given in @tt{agda/calculus-examples.agda} in the
 supplementary material.
 
 The first example, @theorem-ref["thm:one"], shows that we can rearrange signal forms.
@@ -225,12 +205,35 @@ if we know that neither branch of the
 @es[present] expression can emit @es[S], we can replace
 the @es[present] form with its second subexpression.
 
+
+@figure["fig:equivalences" "Equivalences Provable in our Calculus"]{
+ @tabular[#:style (style #f (list (table-cells (list (list (style #f '(baseline))
+                                                           (style #f '(baseline))
+                                                           (style #f '(baseline))
+                                                           (style #f '(baseline)))
+                                                     (list (style #f '(baseline))
+                                                           (style #f '(baseline))
+                                                           (style #f '(baseline))
+                                                           (style #f '(baseline)))))))
+          (list (list
+                 @theorem[#:label "thm:one" #:break? #t]{@(equiv-1 with-paper-rewriters)}
+                 @theorem[#:label "thm:two" #:break? #t]{@(equiv-2 with-paper-rewriters)}
+                 @theorem[#:label "thm:three" #:break? #t]{@(equiv-3 with-paper-rewriters)}
+                 'cont)
+                (list
+                 @theorem[#:label "thm:four" #:break? #t]{@(equiv-4 with-paper-rewriters)}
+                 @theorem[#:label "thm:five" #:break? #t]{@(equiv-5 with-paper-rewriters)}
+                 @theorem[#:label "thm:six" #:break? #t]{@(equiv-6 with-paper-rewriters)}
+                 'cont))]
+}
+
 @Theorem-ref["thm:four"] lets us lift a @es[seq] expression that starts
 with an @es[emit] out of a @es[par] branch. Intuitively,
 this equivalence is a consequence of Esterel's deterministic
-parallelism. Because @es[emit] does not block, we can do it
+parallelism. Because @es[emit] is instantaneous and does not depend on the status of any signal, we can do it
 in parallel to @es[q] or before @es[q] starts, whichever
-is more convenient.
+is more convenient.@note{This fact is crucial for many Esterel compilers,
+which attempt to generate static schedules for concurrent code@~cite[compiling-esterel].}
 
 When a @es[trap] is outside a @es[par], our calculus
 allows us to push the @es[trap] inside,

@@ -1,28 +1,12 @@
 #lang scribble/base
 @(require "cite.rkt"
           "redex-rewrite.rkt"
-          "rule-figures.rkt"
-          "jf-figures.rkt"
           scriblib/figure
           (only-in scribble/acmart/lang acks))
 
 @(define |Esterel v5| @nonbreaking{Esterel v5})
 
 @title[#:tag "sec:related"]{Related Work}
-
-@figure["fig:standard" @elem{Standard Reduction Rules}]{
- @standard-reduction-pict
-}
-
-@figure["fig:standard-aux"
-        @elem{Standard Reduction Auxiliary Judgments}]{
- @standard-reduction-aux-pict
-}
-
-@figure["fig:standard-aux2"
-        @elem{Standard Reduction Auxiliary Metafunctions}]{
- @standard-meta-pict
-}
 
 Three decades of work on Esterel have resulted in a
 diversity of semantic models. A fundamental difference of
@@ -55,7 +39,7 @@ Prior semantics of Esterel can be broadly categorized as follows:
 ]
 
 Semantics of Esterel are also classified as logical or
-constructive. Logical semantics is simpler, but gives
+constructive. Logical semantics are simpler, but give
 meaning to programs that are logically correct but non-constructive.
 Constructive semantics use constructive information
 propagation to enforce both@~cite[esterel02].
@@ -71,15 +55,15 @@ semantics. They have proved these equivalent and, for the latter, proved
 a confluence theorem.
 
 @citet[esterel02] gives an update to the logical behavioral (macrostep)
-semantics to make it constructive. The logical behavioral semantics requires existence and uniqueness of a behavior, without explaining how it could be computed, while the constructive semantics introduces @es[Can] to do it in an effective but restricted way.
+semantics to make it constructive. The logical behavioral semantics requires existence and uniqueness of a behavior, without explaining how it could be computed, while the constructive behavioral semantics introduces @es[Can] to do it in an effective but restricted way.
 @citet[esterel02] also gives the state behavioral
 semantics, another macrostep semantics.
 
 The constructive operational semantics (COS) first appears in
-@citet[optimizations-for-esterel-programs-thesis]'s thesis. It
-uses program decorations track control flow and avoid rewriting the program.
+@citet[optimizations-for-esterel-programs-thesis]'s thesis. It is a microstep
+semantics that uses program decorations track control flow and avoid rewriting the program.
 The COS model, like the constructive behavioral semantics, avoids giving
-meaning to logically incorrect programs, but unlike the
+meaning to non-constructive programs, but unlike the
 behavioral semantics, it provides a guide toward efficient implementation.
 
 Like some of those semantics, our semantics handles the

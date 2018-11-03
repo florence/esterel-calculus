@@ -79,10 +79,10 @@ the apparent violation of the single-value-per-instant rule,
 avoiding cross-loop cycles@~cite[new-method-schizophrenic esterel02 compiling-esterel]. In short, each incarnation of a signal
 gets a separate wire.
 
-Esterel semantics such as the Constructive Operation
-Semantics (COS)@~cite[optimizations-for-esterel-programs-thesis]
-and the Constructive Behavioral Semantics
-(CBS)@~cite[esterel02] take a different approach, handling
+Esterel semantics such as the Constructive Operational
+Semantics@~cite[optimizations-for-esterel-programs-thesis]
+and the Constructive Behavioral Semantics@~cite[esterel02]
+take a different approach, handling
 such signals by carefully arranging to ``forget'' a
 schizophrenic signal's first value when the second one is
 needed.
@@ -100,8 +100,8 @@ each signal will end up in a different @es[ρ], potentially
 bound to a different value---akin to the strategy that circuit semantics employ.
 This approach, however, does raise a significant
 concern: what happens if the @rule["merge"] rule
-moves @es[ρ] expressions in such a way that causes incorrect
-capture? Our calculus avoids this problem by working only
+moves @es[ρ] expressions in such a way that the environment
+captures variables it did not bind before? Our calculus avoids this problem by working only
 with programs that have @italic{correct binding}, as
 captured by the @es[CB] judgment form in
 @figure-ref["fig:cb"]. (The @es[CB] judgment also
@@ -163,7 +163,8 @@ expression reduces in (with @es[C] as given in
 @figure-ref["fig:eval"]), if the expression had correct
 binding before reduction, it does afterwards, too. The proof
 is given as @text{⟶₁}@tt{-preserve-CB} in the Agda code in
-the supplementary material.
+the supplementary material. From this we conclude that
+programs with correct binding cannot exhibit incorrect variable capture.
 
 It should also be noted that any Esterel program that uses
 its sequential variables correctly either already has

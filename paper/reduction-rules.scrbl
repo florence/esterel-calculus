@@ -1,16 +1,11 @@
 #lang scribble/base
-@(require "misc-figures.rkt"
-          "rule-figures.rkt"
-          "redex-rewrite.rkt"
+@(require "redex-rewrite.rkt"
           scriblib/figure
           racket/set
           (except-in esterel-calculus/redex/model/shared
                      quasiquote))
 
 @title[#:tag "sec:reduction"]{Reduction Rules}
-
-@figure["fig:supp" "Supplemental Structures"]{@supp-lang}
-@figure["fig:reduction" "Reduction Rules"]{@reduction-relation-pict}
 
 The rules given in @figure-ref["fig:reduction"]
 govern how computation takes place within a single instant.
@@ -74,6 +69,11 @@ in the current instant and the rule
 @rule["set-new"] adds
 the current value and the new value in the
 @es[<=] expression and stores the result in the environment.
+One subtlety of note here: the @rule["shared"] rule creates an environment
+which marks the shared variable as @es[old], not @es[new]. This is because
+the value initially given to a shared variable represents its default value
+rather than its initial value, and so acts as if this value was set in
+the previous instant.
 Finally, the @rule["readyness"] rule
 makes a variable change from writable to readable.
 This occurs if @es[Can-θ]'s
@@ -105,8 +105,8 @@ expression, however, then the entire sequence exits,
 discarding the second part of the @es[seq] expression.
 
 The next rule handles @es[trap]. Once the body of a @es[trap] has finished evaluating, it will
-either be an @es[exit] expression or @es[nothing], and the
-@es[harp] (@figure-ref["fig:supp"]) function handles them.
+either be an @es[exit] expression or @es[nothing], which the
+@es[harp] (@figure-ref["fig:supp"]) function handles.
 
 The @es[par] rules are a little more interesting. The
 first three refer to
@@ -121,8 +121,8 @@ par by bubbling the @es[exit] up. If both sides have
 @es[exit]ed the @rule["par-2exit"] rule reduces the
 expression to whichever @es[exit] will reach the farthest up
 @es[trap]. The @rule["par-swap"] rule switches the branches,
-allowing the @rule["par-nothing"] and @rule["par-1exit"]
-rule to match regardless of which branch is
+allowing @rule["par-nothing"] and @rule["par-1exit"]
+to match regardless of which branch is
 @es[exit] or @es[nothing].
 
 The @rule["suspend"] rule reduces to its body when its body

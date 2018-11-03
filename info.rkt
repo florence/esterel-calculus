@@ -1,6 +1,7 @@
 #lang info
 
 (define deps '("base"
+               "at-exp-lib"
                "parser-tools-lib"
                "pict-lib"
                "redex-lib"

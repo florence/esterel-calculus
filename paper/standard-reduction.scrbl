@@ -1,5 +1,7 @@
 #lang scribble/base
 @(require "redex-rewrite.rkt"
+          "rule-figures.rkt"
+          "jf-figures.rkt"
           scriblib/figure
           rackunit
           racket/list
@@ -11,6 +13,22 @@
                      quasiquote))
 
 @title[#:tag "sec:stdred"]{Standard Reduction}
+
+@figure["fig:standard-aux2"
+        @elem{Standard Reduction Auxiliary Metafunctions}]{
+ @standard-meta-pict
+}
+
+@figure["fig:standard" @elem{Standard Reduction Rules}]{
+ @standard-reduction-pict
+}
+
+@figure["fig:standard-aux"
+        @elem{Standard Reduction Auxiliary Judgments}]{
+ @standard-reduction-aux-pict
+}
+
+
 
 Our standard reduction exists only in Redex (not in Agda,
 unlike the rest of the semantics). We use it to

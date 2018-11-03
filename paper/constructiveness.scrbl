@@ -15,13 +15,13 @@
 @init-term/block
 }
 
-The properties of logical correctness and
+Logical correctness and
 constructiveness are key for any correct semantics
-of Esterel. For examples of these properties we refer the reader to @secref["gettin stuck"].
-We follow the definition of constructiveness given by the constructive operational semantics (COS) as
+of Esterel. For examples of these properties see @secref["gettin stuck"].
+We follow the definition of constructiveness given by the constructive operational semantics (COS) evaluator as
 referenced by @citet[esterel02] and described by
-@citet[optimizations-for-esterel-programs-thesis].
-Constructiveness is defined by the COS evaluator: non-constructive programs
+@citet[optimizations-for-esterel-programs-thesis]:
+non-constructive programs
 reduce to stuck terms (that are not
 @es[complete]).
 
@@ -32,20 +32,20 @@ reductions that occur in arbitrary program contexts sometimes
 give @es[Can] more information than it “should” have (more
 precisely, more information that it would get by running the
 program directly). This extra information means that
-reductions in our calculus can transform a non-constructive
-program into a constructive one that can still reduce.
+reductions in our calculus can transform some non-constructive
+programs into constructive ones that can still reduce.
 
 For an example, consider the expression in @figure-ref["ex:constructive1"].
 If we restrict our attention to the outside part of the
 term (the way that the COS semantics does), it reduces only
 by replacing the outer @es[signal] form with a @es[ρ] expression.
-At that point, the expression might appear to be
+At that point, the expression appears to be
 stuck because @es[Can] is unable to prove that
 @es[S1] is not emitted (and thus the @rule["absence"]
 rule does not apply) and the @es[present] expression
 does not reduce (because @es[S1] is @es[unknown]).
 
-@right-figure[#:lines 8
+@right-figure[#:lines 11
  #:caption @elem{An expression equivalent to the expression in @figure-ref["ex:constructive1"]}
  #:tag "ex:constructive2"]{
 @extra-info-visible/block
@@ -58,7 +58,7 @@ information to @es[Can], and enabling it to determine that
 
 Specifically, the calculus can reduce in this context:
 @the-context/block
-and thus it can turn the signal form into a @es[ρ] and
+and thus it can turn the inner signal form into a @es[ρ] and
 perform the @es[emit], resulting in the expression
 in @figure-ref["ex:constructive2"].
 Being able to reduce in that context is effectively “peeking” ahead

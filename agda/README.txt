@@ -1,5 +1,26 @@
 This directory contains the Agda proofs about the Esterel Calculus.
 
+Theorems in the paper reside in:
+
+  * Theorem 3.1, correct binding is preserved by reduction:
+    `⟶₁-preserve-CB` in `./calculus/properties.agda`.
+
+  * Theorem 3.2, `Eval` is a function:
+    `eval≡ₑ-consistent` in `./eval-props.agda`
+
+  * Theorem 3.3, `≡ₑ` is consistent:
+    `≡ₑ-consistent` in `./calculus/properties.agda`.
+
+  * Theorem 5.1, induced equivalences of program fragments:
+    `≡ₑ=>eval` in `./eval-props.agda`
+
+  * Theorem 5.2: `ex9` in `./calculus-examples.agda`
+  * Theorem 5.3: `ex1` in `./calculus-examples.agda`
+  * Theorem 5.4: `ex2` in `./calculus-examples.agda`
+  * Theorem 5.5: `ex3` in `./calculus-examples.agda`
+  * Theorem 5.6: `ex4` in `./calculus-examples.agda`
+  * Theorem 5.7: `ex8` in `./calculus-examples.agda`
+
 
 The proof structure for the proof of consistency works as follows:
 
