@@ -1,5 +1,27 @@
 This directory contains the Agda proofs about the Esterel Calculus.
 
+Definitions from the paper reside in:
+
+  * Figure 1. Esterel syntax: agda/Esterel/Lang.agda
+              (including extensions in figure 13)
+
+  * Figure 12. 
+     Eval (rule in figure 19): agda/eval.agda
+     ⇀ (rules in figure 14): agda/calculus.agda, called ⟶₁ 
+     ≡e (rule in figure 19): agda/calculus.agda
+     Can (rules in figure 15 and figure 16): agda/Esterel/Lang/CanFunction.agda
+     ⊢CB (rules in figure 18): agda/Esterel/Lang/Binding.agda
+        CB matches the shape in the figure, but the rules are
+        in CorrectBinding
+
+  * Figure 13:
+     Environments: agda/Esterel/Environment.agda
+     paused: agda/Esterel/Lang/Properties.agda 
+     E contexts: agda/Esterel/Context.agda
+     ↓p : agda/Esterel/Lang/Properties.agda, called ↓_
+
+  * Figure 19: C contexts: agda/Esterel/Context.agda
+
 Theorems in the paper reside in:
 
   * Theorem 3.1, correct binding is preserved by reduction:
