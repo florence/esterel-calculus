@@ -65,10 +65,12 @@
             (var-prem q #:with-rewriters with-rewriters))
       (list (fact-prem (CB q) #:with-rewriters with-rewriters)
             (newline-prem)
-            (fact-prem (∀ status (L¬∈ S (->S (Can p (mtθ+S S status)))))
+            (fact-prem (∀ status
+                          (L¬∈ S (->S (Can p (mtθ+S S status)))))
                        #:with-rewriters with-rewriters)
             (newline-prem)
-            (fact-prem (∀ status (L¬∈ S (->S (Can q (mtθ+S S status)))))
+            (fact-prem (∀ status
+                          (L¬∈ S (->S (Can q (mtθ+S S status)))))
                        #:with-rewriters with-rewriters)
             (newline-prem))
       (≡e () () ()

@@ -660,8 +660,18 @@
     ['∀ (λ (lws)
           (define var (list-ref lws 2))
           (define body (list-ref lws 3))
-          (list (hbl-append (words "(") (leading-∀))
-                var ". " body ")"))]
+          (cond
+            [(= (+ 1 (lw-line var)) (lw-line body))
+             (list (hbl-append (words "(") (leading-∀))
+                   var
+                   (build-lw "."
+                             (lw-line var) (lw-line-span var)
+                             (+ (lw-column var) (lw-column-span var))
+                             1)
+                   body ")")]
+            [else
+             (list (hbl-append (words "(") (leading-∀))
+                   var ". " body ")")]))]
     ['sub1 (λ (lws)
              (define n (list-ref lws 2))
              (list "" n "-1"))]

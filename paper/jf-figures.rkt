@@ -80,12 +80,12 @@
 
 (define CB-layout
   '(("nothing" "pause" "emit")
-    ("signal" "present" "ρ")
-    ("var" ":=" "if")
-    ("seq" "suspend")
-    ("par")
-    ("loop^stop" "loop")
-    ("trap" "exit" "shared" "<=")))
+    ("signal" "present")
+    ("shared" "<=")
+    ("seq" "suspend" "ρ")
+    ("par" ":=")
+    ("loop^stop" "var")
+    ("loop" "trap" "exit" "if")))
 
 (check-the-names 'CB
                  (collection-file-path "binding.rkt" "esterel-calculus" "redex" "test")
