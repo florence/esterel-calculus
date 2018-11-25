@@ -7,7 +7,7 @@
 
 
 @title[#:style paper-title-style]{A Calculus for Esterel}
-@subtitle{@subtitle-font-adjust{“If can, can. If no can, no can.”  —Hawaiian pidgin proverb}}
+@subtitle{@subtitle-font-adjust{If can, can. If no can, no can.}}
 @(define (ath email name #:email-style [email-style '()])
    (define address
      (element
