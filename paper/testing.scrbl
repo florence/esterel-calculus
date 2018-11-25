@@ -24,7 +24,7 @@ implementations during this process (as random testing can
 be extremely effective@~cite[csmith]). The remainder of this
 section describes the testing process and the bugs discovered.
 
-@section{Testing for conformance}
+@section{Testing for Conformance}
 
 @(define (itemlistheader . args)
    (element "textsf" (list (element "textbf" args)

@@ -6,7 +6,7 @@
           scriblib/figure
           racket/set)
 
-@title[#:tag "sec:gentle"]{A sense of Esterel}
+@title[#:tag "sec:gentle"]{A Sense of Esterel}
 
 @figure["fig:lang" "Esterel Syntax"]{@lang}
 
@@ -52,7 +52,7 @@ discrete, logical time. Each instant represents
 one tick of the clock, and the host language controls the ``clock speed''
 by explicitly starting instants.
 
-@section{Conditioning on signals: @es[present]}
+@section{Conditioning on Signals: @es[present]}
 
 @right-figure[#:lines 8 #:caption "A First Example" #:tag "ex:first"]{
 @esblock[(signal SL
@@ -166,7 +166,7 @@ How such programs behave is well-studied
 in the Esterel community and touches on the notions of logical correctness
 and constructiveness, which we return to in @secref["gettin stuck"].
 
-@section{Running for multiple instants: @es[pause]}
+@section{Running for Multiple Instants: @es[pause]}
 
 @right-figure[#:lines 8
  #:caption @elem{Multiple instants}
@@ -292,7 +292,7 @@ rule out any emissions in the second sub-expression.
 The full definition is given in @figure-ref["fig:can" "fig:can-theta"], and
 is explained in @secref["sec:can"].
 
-@section[#:tag "gettin stuck"]{Getting stuck: Logical Correctness and Constructivity}
+@section[#:tag "gettin stuck"]{Getting Stuck: Logical Correctness and Constructivity}
 
 @(define stuck-note
    @note{Conventionally, the
@@ -449,7 +449,7 @@ Non-constructive programs usually get stuck in our calculus,
 but they do not always. The issues here are subtle and
 revisited in @secref["sec:constructiveness"].
 
-@section{Loops, @es[suspend], non-local exits, variables, and the host language}
+@section{Loops, @es[suspend], Non-local Exits, Variables, and the Host Language}
 
 Our calculus also covers the rest of Kernel Esterel. The
 @es[(trap p)] and @es[(exit n)] forms allow non-local
