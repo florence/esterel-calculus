@@ -56,7 +56,7 @@
   (string->bytes/utf-8
    (format (string-append "\\newcommand{\\RightFigure~a~a}[1]"
                           "{\\begin{wrapfigure}[~a]{R}{~ain}"
-                          "\\fbox{\\begin{minipage}{~ain}#1\\end{minipage}}"
+                          "\\hspace*{-.08in}\\fbox{\\begin{minipage}{~ain}#1\\end{minipage}}"
                           "\\end{wrapfigure}}\n")
            (number->tag i)
            (if wide? "W" "")
