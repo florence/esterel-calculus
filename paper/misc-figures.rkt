@@ -150,7 +150,7 @@
 (define supp-lang
   (with-paper-rewriters
    (htl-append
-    20
+    16
     (vc-append
      supp-non-terminals
      
