@@ -571,8 +571,10 @@
      (λ (lws)
        (define arg1 (list-ref lws 2))
        (list
-        (hbl-append (def-t "{ ") (down-super-n) (def-t " x | x ∈ "))
-        arg1 " }"))]
+        (hbl-append (inset (def-t "{") 0 0 1 0)
+                    ;;                    v   space is already included in down-super-n
+                    (down-super-n) (def-t "x | x ∈ "))
+        arg1 (inset (def-t "}") 2 0 0 0)))]
     ['↓
      (λ (lws)
        (define arg1 (list-ref lws 2))
