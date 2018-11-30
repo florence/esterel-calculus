@@ -1,0 +1,14 @@
+(signal S1
+        (present S1
+                 (signal S2
+                         (seq (emit S2)
+                              (present S2 nothing (emit S1))))
+                 nothing))
+
+(shared s1 := (+ 0)
+        (var x1 := (+ s1)
+             (shared s2 := (+ 0)
+                     (var x2 := (+ s2)
+                          (if x2
+                              nothing
+                              (<= s1 0))))))
