@@ -96,7 +96,7 @@ sn≡ₑ-sn⟶* (rstep psn⟶q psn⟶*q) = rtrn (rstp psn⟶q) (sn≡ₑ-sn⟶* 
 
 
 θ-present-signals : Env → List Signal
-θ-present-signals θ = Data.List.gfilter (f ∘ _ₛ) DomS
+θ-present-signals θ = Data.List.mapMaybe (f ∘ _ₛ) DomS
   where
     DomS = (fst (Env.Dom θ))
     f : Signal → Maybe Signal
@@ -132,7 +132,7 @@ data eval-result : Set where
    output : List Signal → eval-result
 
 data non-constructive : Env → Term → Set where
-  nc : ∀{p θ} → (∃ λ {(θq , q) → (ρ θ · p) sn≡ₑ (ρ θq · q) × (manifests-as-non-constructive θq q)})
+  nc : ∀{p θ} → (Σ (Env × Term) λ {(θq , q) → (ρ θ · p) sn≡ₑ (ρ θq · q) × (manifests-as-non-constructive θq q)})
               → non-constructive θ p
 
 data evalsn≡ₑ : Term → Env → eval-result → Set where

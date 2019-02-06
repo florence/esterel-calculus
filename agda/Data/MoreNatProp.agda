@@ -6,7 +6,7 @@ open import Data.Nat as Nat
   using (ℕ ; suc ; zero ; _≤′_ ; _≤_ ; _+_ ; s≤s ; z≤n ; ≤′-refl ;
          ≤′-step ; _⊔_)
 open import Data.Nat.Properties as NatP
-  using (≤⇒≤′ ; ≤′⇒≤ ;  m≤m+n ; s≤′s ; ≤-steps ; ≤⇒pred≤)
+  using (≤⇒≤′ ; ≤′⇒≤ ;  m≤m+n ; s≤′s ; ≤-stepsˡ ; ≤⇒pred≤)
 open import Data.Nat.Properties.Simple as NatPS
   using (+-comm ; +-suc)
 
@@ -28,14 +28,15 @@ open import Data.Nat.Properties.Simple as NatPS
 ≡is≤′ p≡q rewrite p≡q = ≤′-refl
 
 ≤+b : ∀ x y z w -> x ≤ z -> y ≤ w -> x + y ≤ z + w
-≤+b .0 y z w Nat.z≤n y≤w = ≤-steps z y≤w
+≤+b .0 y z w Nat.z≤n y≤w = ≤-stepsˡ z y≤w
 ≤+b .(suc x) y .(suc z) w (Nat.s≤s{x}{z} x≤z) y≤w = s≤s (≤+b x y z w x≤z y≤w)
 
 ≤′+b : ∀ x y z w -> x ≤′ z -> y ≤′ w -> x + y ≤′ z + w
 ≤′+b x y z w x≤′z y≤′w = ≤⇒≤′ (≤+b x y z w (≤′⇒≤ x≤′z) (≤′⇒≤ y≤′w))
 
 suc≤′⇒≤′ : ∀ x y -> suc x ≤′ y -> x ≤′ y
-suc≤′⇒≤′ x y sucx≤′y = ≤⇒≤′ (≤⇒pred≤ (suc x) y (≤′⇒≤ sucx≤′y))
+suc≤′⇒≤′ x .(suc x) ≤′-refl = ≤′-step ≤′-refl
+suc≤′⇒≤′ x (suc n) (≤′-step sucx≤′y) = ≤′-step (suc≤′⇒≤′ x n sucx≤′y)
 
 ⊔-sym : ∀ n m -> n ⊔ m ≡ m ⊔ n
 ⊔-sym zero zero = refl

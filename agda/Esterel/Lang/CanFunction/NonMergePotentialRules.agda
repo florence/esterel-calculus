@@ -55,7 +55,8 @@ open import Data.List.Properties
 open import Data.List.Any
   using (Any ; any ; here ; there)
 open import Data.List.Any.Properties
-  using (++ˡ ; ++ʳ)
+  using (++⁻)
+  renaming (++⁺ˡ to ++ˡ ; ++⁺ʳ to ++ʳ)
 open import Data.Nat
   using (ℕ ; zero ; suc ; _≟_ ; _+_ ; _∸_ ; _<_ ; _≤_ ; _<′_ ; _≤′_)
 open import Data.Nat.Properties.Simple
@@ -93,10 +94,6 @@ open ≡-Reasoning using (begin_ ; _≡⟨_⟩_ ; _∎)
 open import Data.OrderedListMap Signal Signal.unwrap Signal.Status as SigM
 open import Data.OrderedListMap SharedVar SharedVar.unwrap (Σ SharedVar.Status (λ _ → ℕ)) as ShrM
 open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
-
-<⇒≢ : ∀ {m n} → m < n → m ≢ n
-<⇒≢ (s≤s m<n) refl = <⇒≢ m<n refl
-
 
 can-is-unknown-lemma : ∀ q θ S →
   ¬ (Env.isSig∈ S θ) →

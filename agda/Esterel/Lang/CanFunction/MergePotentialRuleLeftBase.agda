@@ -38,7 +38,8 @@ open import Data.List.Properties
 open import Data.List.Any
   using (Any ; any ; here ; there)
 open import Data.List.Any.Properties
-  using (++ˡ ; ++ʳ)
+  using (++⁻)
+  renaming (++⁺ˡ to ++ˡ ; ++⁺ʳ to ++ʳ)
 open import Data.Maybe
   using (Maybe ; maybe ; just ; nothing)
 open import Data.Nat

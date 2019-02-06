@@ -1,7 +1,7 @@
 module _ where
 
 open import Data.Nat using (ℕ ; _+_ ;  _≤′_ ; suc)
-open import Induction.Nat using (<-rec)
+open import Induction.Nat using (<′-rec)
 open import Esterel.Lang.CanFunction
 open import Function using (_∋_ ; _∘_ ; id ; _$_)
 open import Data.Nat.Properties.Simple using ( +-comm ; +-assoc)
@@ -85,7 +85,7 @@ sn⟶*-confluent {p} {q} {r} {BV} {FV} CB =
     CorrectBinding p BV FV ->
     p sn⟶* q ->
     p sn⟶* r ->
-    ∃ λ {z → (q sn⟶* z × r sn⟶* z)}
+    Σ[ z ∈ Term ] (q sn⟶* z × r sn⟶* z)
 
   step : ∀ (c : ℕ) ->
     ((c′ : ℕ) → suc c′ ≤′ c → newmantype c′)
@@ -105,7 +105,7 @@ sn⟶*-confluent {p} {q} {r} {BV} {FV} CB =
   ... | (t , s*vt , s*zt) = t , (sn⟶*+ s*yv s*vt) , s*zt
 
   newman : ∀ c -> newmantype c
-  newman = <-rec _ step
+  newman = <′-rec _ step 
 
 
 lift-sn⟶* : ∀ {p q} → (P : Term → Set) → (∀ {p q} → P p → p sn⟶ q → P q) → P p → p sn⟶* q → P q
@@ -113,7 +113,7 @@ lift-sn⟶* P P-respects-sn⟶ Pp rrefl = Pp
 lift-sn⟶* P P-respects-sn⟶ Pp (rstep psn⟶r rsn⟶*q) =
   lift-sn⟶* P P-respects-sn⟶ (P-respects-sn⟶ Pp psn⟶r) rsn⟶*q
 
-sn≡ₑ-preserve-cb : ∀{p q BV FV} → CorrectBinding p BV FV → p sn≡ₑ q → ∃ λ {(BVq , FVq) → CorrectBinding q BVq FVq}
+sn≡ₑ-preserve-cb : ∀{p q BV FV} → CorrectBinding p BV FV → p sn≡ₑ q → Σ (VarList × VarList) λ {(BVq , FVq) → CorrectBinding q BVq FVq}
 sn≡ₑ-preserve-cb cb (rstp x) with sn⟶-maintains-binding cb x
 ... | (bv,fv , cbq , _)= _ , cbq
 sn≡ₑ-preserve-cb cb (rsym psn≡ₑq x) = _ , x

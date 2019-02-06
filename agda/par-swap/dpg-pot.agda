@@ -9,6 +9,7 @@ open import Relation.Binary.PropositionalEquality
   using (_≡_ ; refl ; sym)
 open import Data.Maybe using ()
 open import Data.List.Any using (here ; there)
+open import Data.List.Any.Properties using ( ++-comm ; ++⁻ ; ++⁺ˡ ; ++⁺ʳ )
 open import Data.Nat as Nat using (ℕ)
 
 open import par-swap
@@ -22,7 +23,7 @@ open import Esterel.Environment as Env
 open import Esterel.Context
 
 open import utility
-open import stdlib013-fix public using (++-comm)
+-- open import stdlib013-fix public using (++-comm)
 
 open import sn-calculus
 open import context-properties -- get view, E-views

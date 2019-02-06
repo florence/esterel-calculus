@@ -21,6 +21,7 @@ open import Esterel.Lang.Binding
 open import Data.Maybe using ( nothing ; just )
 open import Data.List.Any
 open import Data.List.Any.Properties
+  renaming (++⁺ˡ to ++ˡ ; ++⁺ʳ to ++ʳ )
 open import Esterel.Lang.CanFunction.SetSigMonotonic
 
 open ≡-Reasoning using (_≡⟨_⟩_ ; _≡⟨⟩_ ; _∎)

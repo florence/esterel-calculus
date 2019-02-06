@@ -21,6 +21,7 @@ open import Esterel.Lang.Binding
 open import Data.Maybe using ( just )
 open import Data.List.Any
 open import Data.List.Any.Properties
+  renaming ( ++⁺ˡ to ++ˡ ; ++⁺ʳ to ++ʳ )
 
 open import Data.FiniteMap
 import Data.OrderedListMap as OMap
@@ -61,7 +62,7 @@ open import sn-calculus-confluence.helper
               ×
               (->E-view redr oorieq sireq)
               ×
-              (∃ λ { (Elo' , Ero' , a , b) → (Elo ≡ (epar₂ a ∷ Elo') × Ero ≡ (epar₁ b ∷ Ero'))})))
+              (Σ (EvaluationContext × EvaluationContext × Term × Term) λ { (Elo' , Ero' , a , b) → (Elo ≡ (epar₂ a ∷ Elo') × Ero ≡ (epar₁ b ∷ Ero'))})))
 ρ-conf-rec2 {θ} {(epar₂ p ∷ Er)} {(epar₁ q ∷ El)}{ql = ql}{qr = qr} {i = .(p ∥ q)} cb (depar₂ ieql) (depar₁ ieqr) par (ris-present{p = pr} a1 b1 .(depar₂ ieql)) (ris-present{p = pl} a2 b2 (depar₁ .ieqr)) olieq orieq vis-present vis-present refl refl
     = θ , (El ⟦ pl ⟧e) ∥ (Er ⟦ pr ⟧e) , (epar₂ (El ⟦ pl ⟧e) ∷ Er) , (epar₁ (Er ⟦ pr ⟧e) ∷ El) , depar₂ ieql , (depar₁ ieqr) , Erefl , Erefl , (ris-present a2 b2 (depar₁ ieqr)) , (ris-present a1 b1 (depar₂ ieql))
         , (vis-present , vis-present , (_ , refl , refl))
@@ -963,7 +964,9 @@ seq-set-comm : ∀ θ x1 x2 n1 n2 → (x1∈ : isVar∈ x1 θ) → (x2∈ : isVa
 
 ρ-conf-rec2 {θ} {(epar₂ p ∷ Er)} {(epar₁ q ∷ El)} {i = .(p ∥ q)} {qro = l} {qlo = r} cb (depar₂ ieqr) ieql@(depar₁ ieql') par (rset-shared-value-new{s = sr}{e = er} e'r sr∈ sr≡ .(depar₂ ieqr)) (rset-shared-value-new{s = sl}{e = el} e'l sl∈ sl≡ .ieql) olieq orieq vset-shared-value-new vset-shared-value-new refl refl
   with sl SharedVar.≟ sr
-... | yes sl≡sr rewrite sl≡sr | shr∈-eq{sr}{θ} sl∈ sr∈
+... | yes sl≡sr with sl≡sr 
+... | refl with shr∈-eq{sr}{θ} sl∈ sr∈
+... | refl
     = (θo
       , (( El ⟦ l ⟧e ) ∥ ( Er ⟦ r ⟧e ))
       , ((epar₂ (El ⟦ l ⟧e) ∷ Er)) , ((epar₁ (Er ⟦ r ⟧e) ∷ El)
@@ -1021,7 +1024,8 @@ seq-set-comm : ∀ θ x1 x2 n1 n2 → (x1∈ : isVar∈ x1 θ) → (x2∈ : isVa
 
       l-res = (getl e''l,δl≡)
 
-... | no ¬sl≡sr = (θo
+ρ-conf-rec2 {θ} {(epar₂ p ∷ Er)} {(epar₁ q ∷ El)} {i = .(p ∥ q)} {qro = l} {qlo = r} cb (depar₂ ieqr) ieql@(depar₁ ieql') par (rset-shared-value-new{s = sr}{e = er} e'r sr∈ sr≡ .(depar₂ ieqr)) (rset-shared-value-new{s = sl}{e = el} e'l sl∈ sl≡ .ieql) olieq orieq vset-shared-value-new vset-shared-value-new refl refl | no ¬sl≡sr
+   = (θo
       , (( El ⟦ l ⟧e ) ∥ ( Er ⟦ r ⟧e ))
       , ((epar₂ (El ⟦ l ⟧e) ∷ Er)) , ((epar₁ (Er ⟦ r ⟧e) ∷ El)
       , (depar₂ ieqr) , (depar₁ ieql')

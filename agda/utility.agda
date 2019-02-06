@@ -1,9 +1,4 @@
-{-# OPTIONS --without-K #-}
-
 module utility where
-
-open import stdlib013-fix public
-  using (++⁻; ++⁺ˡ ; ++⁺ʳ)
 
 open import Algebra
   using (Monoid)
@@ -26,7 +21,8 @@ open import Data.List.Properties
   using (map-id ; map-compose ; map-cong)
 open import Data.List.Any as ListAny
   using (Any ; any ; here ; there)
-open import Data.List.Any.Properties using (++ˡ ; ++ʳ ; ∷↔)
+open import Data.List.Any.Properties using ( ∷↔ ; ++⁻)
+  renaming (++⁺ˡ to ++ˡ ; ++⁺ʳ to ++ʳ)
 open import Data.Nat
   using (ℕ ; zero ; suc ; _≟_ ; _+_ ; _∸_)
 open import Data.Nat.Properties.Simple
@@ -39,20 +35,19 @@ open import Data.Sum
   using (_⊎_ ; inj₁ ; inj₂)
 open import Function
   using (_∘_ ; id)
-
-
+import Data.List.Membership.Setoid
 
 ++-assoc : ∀{A : Set} → (xs ys zs : List A) → (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
 ++-assoc {_} xs ys zs =
-  IsSemigroup.assoc (IsMonoid.isSemigroup (Monoid.isMonoid (Data.List.monoid _))) xs _ _
+  IsSemigroup.assoc (IsMonoid.isSemigroup (Monoid.isMonoid (Data.List.Properties.++-monoid _))) xs _ _
 
 
 
 _∈_ : {A : Set} → (x : A) → (xs : List A) → Set
-_∈_ {A} x xs = ListAny.Membership._∈_ (setoid A) x xs
+_∈_ {A} x xs = Data.List.Membership.Setoid._∈_ (setoid A) x xs
 
 _∉_ : {A : Set} → (x : A) → (xs : List A) → Set
-_∉_ {A} x xs = ListAny.Membership._∉_ (setoid A) x xs
+_∉_ {A} x xs = Data.List.Membership.Setoid._∉_ (setoid A) x xs
 
 
 
@@ -100,14 +95,16 @@ map-mono² {xs = x ∷ xs} {xs'} {ys} {ys'} f xs⊆xs' ys⊆ys' fuv fuv∈[[fuv|
 
 
 module ListSet {A : Set} (_≟_ : Decidable {A = A} _≡_) where
+  open import Relation.Nullary.Negation using (¬?)
   ST : Set
   ST = List A
 
+
   set-subtract : List A → List A → List A
-  set-subtract S T = filter (λ x → not ⌊ ListAny.any (_≟_ x) T ⌋) S
+  set-subtract S T = filter (λ x → ¬? (ListAny.any (_≟_ x) T)) S
 
   set-remove : List A → A → List A
-  set-remove S x = filter (not ∘ ⌊_⌋ ∘ _≟_ x) S
+  set-remove S x = filter (¬? ∘ _≟_ x) S
 
   set-remove-removed : ∀{S L} → S ∉ set-remove L S
   set-remove-removed {S} {[]} ()
@@ -149,8 +146,8 @@ module ListSet {A : Set} (_≟_ : Decidable {A = A} _≡_) where
     with x ≟ a | a ≟ x
   ... | yes refl | no  a≢x  = ⊥-elim (a≢x refl)
   ... | no  x≢a  | yes refl = ⊥-elim (x≢a refl)
-  ... | yes refl | yes a≡x = set-subtract-[a]≡set-remove xs x
-  ... | no  x≢a  | no  a≢x  rewrite set-subtract-[a]≡set-remove xs a = refl
+  ... | yes refl | yes a≡x =  set-subtract-[a]≡set-remove xs x 
+  ... | no  x≢a  | no  a≢x  rewrite set-subtract-[a]≡set-remove xs a =  refl 
 
   set-subtract-merge : ∀ {xs ys z} → z ∈ set-subtract xs ys → (z ∈ xs) × (z ∉ ys)
   set-subtract-merge {[]} ()
@@ -169,12 +166,12 @@ module ListSet {A : Set} (_≟_ : Decidable {A = A} _≡_) where
   set-subtract-split {[]}     ()
   set-subtract-split {x ∷ xs} {ys} (here refl) with ListAny.any (_≟_ x) ys
   ... | yes x∈ys = inj₂ x∈ys
-  ... | no  x∉ys = inj₁ (here refl)
+  ... | no  x∉ys = inj₁ ( (here refl) )
   set-subtract-split {x ∷ xs} {ys} (there x∈xs)
     with ListAny.any (_≟_ x) ys | set-subtract-split x∈xs
   ... | x∈ys⊎x∉ys | inj₂ z∈ys    = inj₂ z∈ys
-  ... | yes x∈ys  | inj₁ z∈xs-ys = inj₁ z∈xs-ys
-  ... | no  x∉ys  | inj₁ z∈xs-ys = inj₁ (there z∈xs-ys)
+  ... | yes x∈ys  | inj₁ z∈xs-ys = inj₁  z∈xs-ys 
+  ... | no  x∉ys  | inj₁ z∈xs-ys = inj₁ ( (there z∈xs-ys) )
 
   set-subtract-notin : ∀ {xs ys z} → z ∈ xs → z ∉ ys → z ∈ set-subtract xs ys
   set-subtract-notin{xs}{ys}{z} z∈ z∉ with set-subtract-split{xs}{ys}{z} z∈
@@ -211,7 +208,7 @@ _|̌_ : List ℕ × List ℕ × List ℕ → List ℕ × List ℕ × List ℕ �
 
 
 xs++[]≡xs : ∀{A : Set} → (xs : List A) → xs ++ [] ≡ xs
-xs++[]≡xs xs = proj₂ (Monoid.identity (Data.List.monoid _)) xs
+xs++[]≡xs xs = proj₂ (Monoid.identity (Data.List.Properties.++-monoid _)) xs
 
 x∈xs++[]→x∈xs : ∀{A} → {x : A} → {xs : List A} → x ∈ (xs ++ []) → x ∈ xs
 x∈xs++[]→x∈xs {xs = xs} x∈xs rewrite xs++[]≡xs xs = x∈xs

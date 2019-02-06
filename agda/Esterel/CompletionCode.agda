@@ -3,7 +3,7 @@ module Esterel.CompletionCode where
 open import Data.Nat
   using (ℕ ; zero ; suc) renaming (_≟_ to _≟ℕ_ ; _⊔_ to _⊔ℕ_ ; _≤_ to _≤N_ ; _≤?_ to _≤?N_)
 open import Data.Nat.Properties
-  using (⊔-⊓-0-isCommutativeSemiringWithoutOne)
+  using (⊔-⊓-isCommutativeSemiringWithoutOne)
 open import Function
   using (_∘_)
 open import Relation.Nullary
@@ -15,7 +15,8 @@ open import Relation.Binary.PropositionalEquality
 import Level
 import Relation.Binary
 open import Data.List using (List ; _∷_ ; [] ; _++_)
-open import Data.List.Any.Properties using (++ˡ ; ++ʳ)
+open import Data.List.Any.Properties using (++⁻)
+  renaming (++⁺ˡ to ++ˡ ; ++⁺ʳ to ++ʳ)
 open import Data.Sum using (_⊎_ ; inj₁ ; inj₂)
 open import Data.Empty using (⊥-elim)
 import Data.Bool
@@ -73,7 +74,7 @@ exit n ⊔ exit m = exit (n ⊔ℕ m)
 ⊔-comm (exit n) (exit m)
   rewrite IsCommutativeMonoid.comm
             (IsCommutativeSemiringWithoutOne.+-isCommutativeMonoid
-              ⊔-⊓-0-isCommutativeSemiringWithoutOne) n m
+              ⊔-⊓-isCommutativeSemiringWithoutOne) n m
   = refl
 
 data _≤_ : Relation.Binary.Rel CompletionCode Level.zero where

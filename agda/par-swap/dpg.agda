@@ -79,7 +79,7 @@ swap-paused-is-paused (ptrap pausedp) (dctrap dc)
 DPG : ∀ {a b c} ->
       a ∥R b ->
       a sn⟶ c ->
-      ∃ \ {(d , d₁) -> b sn⟶ d₁ × d₁ sn⟶* d × c ∥R* d}
+      Σ (Term × Term) λ {(d , d₁) -> b sn⟶ d₁ × d₁ sn⟶* d × c ∥R* d}
 
 DPG (∥Rstep dchole) (rcontext _ dchole psn⟶₁p')
   = DPG₁ psn⟶₁p'

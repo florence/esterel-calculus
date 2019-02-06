@@ -20,7 +20,7 @@ open import Esterel.Variable.Shared as SharedVar
 open import Esterel.Variable.Sequential as SeqVar
   using (SeqVar ; _ᵥ) renaming (unwrap to vunwrap)
 open import Data.Product
-  using (_×_ ; _,_ ; _,′_ ; proj₁ ; proj₂ ; ∃)
+  using (_×_ ; _,_ ; _,′_ ; proj₁ ; proj₂ ; ∃ ; Σ)
 open import Data.Sum
   using (_⊎_ ; inj₁ ; inj₂)
 open import Data.Maybe
@@ -42,7 +42,8 @@ open import Data.Bool
   using (not)
 open import Data.List.Any as ListAny
   using (Any ; any ; here ; there)
-open import Data.List.Any.Properties using (++ˡ ; ++ʳ ; ∷↔)
+open import Data.List.Any.Properties using (∷↔)
+  renaming (++⁺ˡ to ++ˡ ; ++⁺ʳ to ++ʳ)
 
 open ListSet Data.Nat._≟_
 open _≐_⟦_⟧e
@@ -352,7 +353,7 @@ binding-dec (ρ θ · p) | no ¬p = no (\ { (BV , FV , CBρ p ) -> ¬p (_ , _ , 
 binding-extract : ∀{p BV FV p' E} →
   CorrectBinding p BV FV →
   p ≐ E ⟦ p' ⟧e →
-  ∃ λ { (BV' , FV') → (BV' ⊆ BV × FV' ⊆ FV) × CorrectBinding p' BV' FV' }
+  Σ (VarList × VarList) λ { (BV' , FV') → (BV' ⊆ BV × FV' ⊆ FV) × CorrectBinding p' BV' FV' }
 binding-extract cb                      dehole =
   _ , (⊆-refl , ⊆-refl) , cb
 binding-extract (CBpar cbp cbq _ _ _ _) (depar₁ p≐E⟦p'⟧)
@@ -381,7 +382,7 @@ binding-subst : ∀{p BVp FVp q BVq FVq r BVr FVr E} →
   BVr ⊆ BVq →
   FVr ⊆ FVq →
   CorrectBinding r BVr FVr →
-  ∃ λ { (BV' , FV') → (BV' ⊆ BVp × FV' ⊆ FVp) × CorrectBinding (E ⟦ r ⟧e) BV' FV' }
+  Σ (VarList × VarList) λ { (BV' , FV') → (BV' ⊆ BVp × FV' ⊆ FVp) × CorrectBinding (E ⟦ r ⟧e) BV' FV' }
 binding-subst (CBpar {BVq = BVq'} {FVq = FVq'} cbp' cbq' BVp'≠BVq' FVp'≠BVq' BVp'≠FVq' Xp'≠Xq')
               (depar₁ p'≐E⟦q⟧) cbq BVr⊆BVq FVr⊆FVq cbr
   with binding-subst cbp' p'≐E⟦q⟧ cbq BVr⊆BVq FVr⊆FVq cbr
@@ -430,7 +431,7 @@ binding-subst cbp dehole cbq BVr⊆BVq FVr⊆FVq cbr
 binding-extractc' : ∀{p BV FV p' C} →
   CorrectBinding p BV FV →
   p ≐ C ⟦ p' ⟧c →
-  ∃ λ { (BV' , FV') → CorrectBinding p' BV' FV' }
+  Σ (VarList × VarList) λ { (BV' , FV') → CorrectBinding p' BV' FV' }
 binding-extractc' cbp dchole =
   _ , cbp
 binding-extractc' (CBsig cbp) (dcsignl p≐C⟦p'⟧) =
@@ -475,8 +476,7 @@ binding-substc' : ∀{p BVp FVp q BVq FVq r BVr FVr C} →
   BVr ⊆ BVq →
   FVr ⊆ FVq →
   CorrectBinding r BVr FVr →
-  ∃ λ { (BV' , FV') → (BV' ⊆ BVp × FV' ⊆ FVp) × CorrectBinding (C ⟦ r ⟧c) BV' FV' }
-
+  Σ (VarList × VarList) λ { (BV' , FV') → (BV' ⊆ BVp × FV' ⊆ FVp) × CorrectBinding (C ⟦ r ⟧c) BV' FV' }
 binding-substc' CBp dchole CBq BVr⊆BVq FVr⊆FVq CBr
   with binding-is-function CBp CBq
 ... | refl , refl = _ , (BVr⊆BVq , FVr⊆FVq) , CBr

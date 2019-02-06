@@ -11,7 +11,7 @@ open import Esterel.Lang.Properties
 open import Esterel.Context
 open import Esterel.Context.Properties
 open import Esterel.Environment as Env
-  using (Env ; Θ ; _←_ ; sig ; []env ;
+  using (Env ; Θ ; _←_ ; sig ; []env ; VarList ;
          module SigMap ; module ShrMap ; module VarMap)
 open import Data.List using ([] ; [_] ; _∷_ ; List ; _++_)
 open import Data.Product
@@ -24,7 +24,7 @@ open import binding-preserve
 ∥R∪sn≡ₑ-preserve-cb : ∀ {p BVp FVp q} ->
   CorrectBinding p BVp FVp ->
   p ∥R∪sn≡ₑ q ->
-  ∃ \ { (BVq , FVq) -> CorrectBinding q BVq FVq }
+  Σ (VarList × VarList) λ { (BVq , FVq) -> CorrectBinding q BVq FVq }
 ∥R∪sn≡ₑ-preserve-cb CBp (∪stpsn psn⟶q)
   with sn⟶-maintains-binding CBp psn⟶q
 ... | _ , CBq , _ = _ , CBq

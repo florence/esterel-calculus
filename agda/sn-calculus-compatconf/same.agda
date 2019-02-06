@@ -47,7 +47,8 @@ open import Data.List
 open import Data.List.Any
   using (Any ; any ; here ; there)
 open import Data.List.Any.Properties
-  using (++ˡ ; ++ʳ)
+  using ()
+  renaming ( ++⁺ˡ to ++ˡ ; ++⁺ʳ to ++ʳ )
 open import Data.Maybe
   using (Maybe ; just ; nothing)
 open import Data.Nat
@@ -209,7 +210,7 @@ Base case where (E, C) = ([], []).
   -- rinsn⟶₁ro can only be  (ρ θ' · qin) sn⟶₁ (ρ θr · ro)
   (rinsn⟶₁ro  :  rin sn⟶₁ ro) →
 
-  ∃ λ { ((θo , po) , E' , roin , poin) →
+  Σ ((Env × Term) × EvaluationContext × Term × Term) λ { ((θo , po) , E' , roin , poin) →
     ρ θ←θ' · q sn⟶₁ ρ θo · po ×
     Σ[ ρθ·rsn⟶₁ρθo·po  ∈  ρ θ ·    r sn⟶₁ ρ θo · po ]
     Σ[ r≐E'⟦roin⟧     ∈  r ≐ E' ⟦ roin ⟧e ]

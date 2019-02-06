@@ -41,7 +41,8 @@ open import Data.List
 open import Data.List.Any
   using (Any ; any ; here ; there)
 open import Data.List.Any.Properties
-  using (++ˡ ; ++ʳ)
+  using ()
+  renaming (++⁺ˡ to ++ˡ ; ++⁺ʳ to ++ʳ)
 open import Data.Maybe
   using (Maybe ; just ; nothing)
 open import Data.Nat
@@ -80,7 +81,8 @@ open _≐_⟦_⟧c
 1-steplρ-pot-lemma {C} {θ} {_} {pin} {qin}
   {ρθpsn⟶₁ρθ'p = .(rabsence {S = S} S∈ θS≡unknown S∉can-p-θ)}
   (vabsence S S∈ θS≡unknown S∉can-p-θ)
-  cb p≐C⟦pin⟧ pinsn⟶₁qin rewrite sym (unplugc p≐C⟦pin⟧)
+  cb p≐C⟦pin⟧ pinsn⟶₁qin with sym (unplugc p≐C⟦pin⟧)
+... | refl
   = rabsence {S = S} S∈ θS≡unknown
       (λ S∈can-q-θ →
         S∉can-p-θ
@@ -92,7 +94,8 @@ open _≐_⟦_⟧c
 1-steplρ-pot-lemma {C} {θ} {_} {pin} {qin}
   {ρθpsn⟶₁ρθ'p = .(rreadyness {s = s} s∈ θs≡old⊎θs≡new s∉can-p-θ)}
   (vreadyness {θ = .θ} s s∈ θs≡old⊎θs≡new s∉can-p-θ)
-  cb p≐C⟦pin⟧ pinsn⟶₁qin rewrite sym (unplugc p≐C⟦pin⟧)
+  cb p≐C⟦pin⟧ pinsn⟶₁qin with sym (unplugc p≐C⟦pin⟧)
+... | refl
   = rreadyness {s = s} s∈ θs≡old⊎θs≡new
       (λ s∈can-q-θ →
         s∉can-p-θ

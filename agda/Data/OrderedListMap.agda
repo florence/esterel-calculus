@@ -45,7 +45,8 @@ open import Data.Unit
 open import Relation.Nullary
   using (yes ; no ; ¬_)
 open import Data.List.Any using (here ; there)
-open import Data.List.Any.Properties using (++ˡ ; ++ʳ ; ∷↔ ; ⊥↔Any[])
+open import Data.List.Any.Properties using (∷↔ ; ⊥↔Any[])
+  renaming ( ++⁺ˡ  to ++ˡ ; ++⁺ʳ to ++ʳ ) 
 open import Function using (_∘_)
 open import Function.Inverse using (_↔_ ; Inverse)
 open import Function.Equality using (Π)

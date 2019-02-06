@@ -33,7 +33,8 @@ open import Data.List
 open import Data.List.Any
   using (Any ; any ; here ; there)
 open import Data.List.Any.Properties
-  using (++ˡ ; ++ʳ)
+  using (++⁻)
+  renaming ( ++⁺ˡ to ++ˡ ; ++⁺ʳ to ++ʳ )
 open import Data.Nat
   using (ℕ ; zero ; suc ; _≟_ ; _+_)
 open import Data.Product
@@ -181,9 +182,10 @@ R-maintain-lift-5 xs³ ys³ ys³∪zs³⊆ws³ with ∪-unjoin-⊆ ys³ ys³∪z
 R-maintain-lift-0 : ∀{p θ q BVp FVp E} →
   CorrectBinding p BVp FVp →
   p ≐ E  ⟦ ρ θ · q ⟧e →
-  ∃ λ { (BV' , FV') →
-    (BV' ⊆ BVp × FV' ⊆ FVp) ×
-    CorrectBinding (ρ θ · E ⟦ q ⟧e) BV' FV' }
+  Σ (VarList × VarList)
+    λ { (BV' , FV') →
+      (BV' ⊆ BVp × FV' ⊆ FVp) ×
+      CorrectBinding (ρ θ · E ⟦ q ⟧e) BV' FV' }
 R-maintain-lift-0 cbp dehole = _ , (⊆-refl , ⊆-refl) , cbp
 R-maintain-lift-0 (CBpar {BVq = BVq'} {FVq = FVq'} cbp' cbq'
                          BVp'≠BVq' FVp'≠BVq' BVp'≠FVq' Xp'≠Xq')
@@ -272,7 +274,7 @@ R-maintain-raise-var-1 ys x e' x' x'∈ys-[x]
   rewrite VarMap.keys-1map x (δ e')
   = x'∈ys-[x]
 
-R-maintains-binding : ∀{p q BV FV} → CorrectBinding p BV FV → p sn⟶₁ q → ∃ λ { (BV' , FV') → CorrectBinding q BV' FV' × BV' ⊆ BV × FV' ⊆ FV}
+R-maintains-binding : ∀{p q BV FV} → CorrectBinding p BV FV → p sn⟶₁ q → Σ (VarList × VarList) λ { (BV' , FV') → CorrectBinding q BV' FV' × BV' ⊆ BV × FV' ⊆ FV}
 R-maintains-binding (CBpar{BVp = BVp}{FVp = FVp} cbp cbq BVp≠BVq FVp≠BVq BVp≠FVq Xp≠Xq) (rpar-done-right hnothin (dhalted q')) = _ , cbq , ∪ʳ BVp ((λ x x₁ → x₁) , (λ x x₁ → x₁) , (λ x x₁ → x₁)) , ∪ʳ FVp ((λ x x₁ → x₁) , (λ x x₁ → x₁) , (λ x x₁ → x₁))
 R-maintains-binding (CBpar cbp cbq BVp≠BVq FVp≠BVq BVp≠FVq Xp≠Xq) (rpar-done-right (hexit _) (dhalted hnothin))
   = _ , CBexit , ((λ x → λ ()) , ((λ x → λ ()) , (λ x → λ ()))) , ((λ x → λ ()) , ((λ x → λ ()) , (λ x → λ ())))
@@ -462,8 +464,8 @@ R-maintains-binding (CBρ{θ = θo}{BV = BVo}{FV = FVo} cb) (rmerge{θ₂ = θi}
      bvsub : ((Dom (θo ← θi)) ∪ BVi) ⊆ ((Dom θo) ∪ BVo)
      bvsub = bvsubS , bvsubs , bvsubx
 
--- R-maintains-binding : ∀{p q BV FV} → CorrectBinding p BV FV → p sn⟶₁ q → ∃ λ { (BV' , FV') → CorrectBinding q BV' FV' }
-sn⟶-maintains-binding : ∀ {p BV FV q} → CorrectBinding p BV FV → p sn⟶ q → ∃ λ {(BVq , FVq) → CorrectBinding q BVq FVq × BVq ⊆ BV × FVq ⊆ FV }
+-- R-maintains-binding : ∀{p q BV FV} → CorrectBinding p BV FV → p sn⟶₁ q → Σ (VarList × VarList) λ { (BV' , FV') → CorrectBinding q BV' FV' }
+sn⟶-maintains-binding : ∀ {p BV FV q} → CorrectBinding p BV FV → p sn⟶ q → Σ (VarList × VarList) λ {(BVq , FVq) → CorrectBinding q BVq FVq × BVq ⊆ BV × FVq ⊆ FV }
 sn⟶-maintains-binding CBp (rcontext C dc p₁sn⟶₁q₁)
   with binding-extractc' CBp dc
 ... | (BVp₁ , FVp₁) , CBp₁
@@ -474,7 +476,7 @@ sn⟶-maintains-binding CBp (rcontext C dc p₁sn⟶₁q₁)
   (BVq , FVq) , (CBq , BVq⊆BVp , FVq⊆FVp)
 
 
-sn⟶*-maintains-binding : ∀ {p BV FV q} → CorrectBinding p BV FV → p sn⟶* q → ∃ λ {(BVq , FVq) → CorrectBinding q BVq FVq}
+sn⟶*-maintains-binding : ∀ {p BV FV q} → CorrectBinding p BV FV → p sn⟶* q → Σ (VarList × VarList) λ {(BVq , FVq) → CorrectBinding q BVq FVq}
 
 sn⟶*-maintains-binding cb rrefl = _ , cb
 sn⟶*-maintains-binding cb (rstep x psn⟶*q)

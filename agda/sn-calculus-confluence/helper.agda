@@ -21,6 +21,7 @@ open import sn-calculus
 open import context-properties
 open import Esterel.Lang.Binding
 open import Data.List.Any.Properties
+  renaming ( ++⁺ˡ to ++ˡ ; ++⁺ʳ to ++ʳ )
 
 open import Data.FiniteMap
 import Data.OrderedListMap as OMap
@@ -333,9 +334,10 @@ CBp⊆CBE⟦p⟧' E p p' peq cbp' cbp = CBp⊆CBE⟦p⟧ E p' cbp' (subst (λ x 
 inspecting-cb-distinct-double-unplug : ∀{p q Ep Eq p' q' BV FV} → CorrectBinding (p ∥ q) BV FV
                             → p ≐ Ep ⟦ p' ⟧e → q ≐ Eq ⟦ q' ⟧e
                             →
-                            ∃ λ {(o , BVo , FVo)
-                                   → CorrectBinding o BVo FVo
-                                     × o ≡ (p' ∥ q')}
+                            Σ (Term × VarList × VarList)
+                              λ {(o , BVo , FVo)
+                                → CorrectBinding o BVo FVo
+                                × o ≡ (p' ∥ q')}
 inspecting-cb-distinct-double-unplug{p' = p'}{q'} (CBpar CBp CBq BVp≠BVq FVp≠BVq BVp≠FVq Xp≠Xq) p=Ep⟦p'⟧ q=Eq⟦q'⟧
      with CBE⟦p⟧=>CBp' p=Ep⟦p'⟧ CBp | CBE⟦p⟧=>CBp' q=Eq⟦q'⟧ CBq
 ... | (BVp' , FVp' , CBp') | (BVq' , FVq' , CBq')

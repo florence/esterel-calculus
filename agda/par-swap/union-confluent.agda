@@ -89,13 +89,13 @@ module LexicographicLE {a b ℓ₁ ℓ₂} {A : Set a} {B : Set b}
   mutual
 
     accessibleLE : ∀ {x y} →
-                    Acc RelA x → Well-founded RelB →
+                    Acc RelA x → WellFounded RelB →
                     Acc _<_ (x , y)
     accessibleLE accA wfB = acc (accessibleLE′ accA (wfB _) wfB)
 
     accessibleLE′ :
       ∀ {x y} →
-      Acc RelA x → Acc RelB y →  Well-founded RelB →
+      Acc RelA x → Acc RelB y →  WellFounded RelB →
       WfRec _<_ (Acc _<_) (x , y)
     accessibleLE′ (acc rsA) _    wfB ._ (left  x′<x) = accessibleLE (rsA _ x′<x) wfB
     accessibleLE′ accA (acc rsB) wfB .(_ , _) (right y′<y (inj₁ refl)) =
@@ -103,20 +103,20 @@ module LexicographicLE {a b ℓ₁ ℓ₂} {A : Set a} {B : Set b}
     accessibleLE′ (acc rsA) (acc rsB) wfB .(_ , _) (right y′<y (inj₂ x′<x)) =
       acc (accessibleLE′ (rsA _ x′<x) (rsB _ y′<y) wfB)
 
-  well-founded : Well-founded RelA → Well-founded RelB →
-                 Well-founded _<_
-  well-founded wfA wfB p = accessibleLE (wfA (proj₁ p)) wfB
+  wellFounded : WellFounded RelA → WellFounded RelB →
+                 WellFounded _<_
+  wellFounded wfA wfB p = accessibleLE (wfA (proj₁ p)) wfB
 
 module _ where
   open LexicographicLE _<′_ _<′_ public
     renaming (_<_ to _<<′_;
-              well-founded to <<′-well-founded;
+              wellFounded to <<′-wellFounded;
               left to <<′-left;
               right to <<′-right)
 
 module _ {ℓ} where
   open Induction.WellFounded.All
-       (<<′-well-founded Induction.Nat.<-well-founded Induction.Nat.<-well-founded) ℓ public
+       (<<′-wellFounded Induction.Nat.<′-wellFounded Induction.Nat.<′-wellFounded) ℓ public
     renaming (wfRec-builder to <<′-rec-builder;
               wfRec to <<′-rec)
 

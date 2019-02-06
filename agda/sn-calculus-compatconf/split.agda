@@ -39,7 +39,8 @@ open import Data.List
 open import Data.List.Any
   using (Any ; any ; here ; there)
 open import Data.List.Any.Properties
-  using (++ˡ ; ++ʳ)
+  using ()
+  renaming (++⁺ˡ to ++ˡ ; ++⁺ʳ to ++ʳ)
 open import Data.Maybe
   using (Maybe ; just ; nothing)
 open import Data.Nat
@@ -92,7 +93,7 @@ Base case where (E, C) = ([], _∷_).
     (q ≡ po ⊎ q sn⟶ po)
     ×
     -- RHS: ρθ. E'⟦ro'⟧ sn⟶₁ ρθq. E'⟦por⟧
-    ∃ λ { (E' , ro' , por) →
+    Σ (EvaluationContext × Term × Term) λ { (E' , ro' , por) →
       Σ[ r≐E'⟦ro'⟧      ∈  r  ≐ E' ⟦ ro' ⟧e ]
       Σ[ po≐E'⟦por⟧     ∈  po ≐ E' ⟦ por ⟧e ]
       Σ[ ρθ·rsn⟶₁ρθq·po  ∈  ρ θ · r sn⟶₁ ρ θq · po ]
@@ -112,18 +113,18 @@ Base case where (E, C) = ([], _∷_).
   divout-disjoint dehole dehole vmerge
   ρθp≐C⟦rin⟧ ρθr≐C⟦ro⟧ rinsn⟶₁ro
   with ρθp≐C⟦rin⟧ | ρθr≐C⟦ro⟧
-... | dcenv p≐C⟦rin⟧ | dcenv r≐C⟦ro⟧
-  rewrite sym (unplugc r≐C⟦ro⟧)
-  = _ , inj₂ (rcontext _ p≐C⟦rin⟧ rinsn⟶₁ro) ,′
-    _ , dehole , dehole , rmerge dehole , vmerge
+... | dcenv p≐C⟦rin⟧ | dcenv r≐C⟦ro⟧  with sym (unplugc r≐C⟦ro⟧)
+... | refl
+ = _ , inj₂ (rcontext _ p≐C⟦rin⟧ rinsn⟶₁ro) ,′
+   _ , dehole , dehole , rmerge dehole , vmerge
 
 
 1-steplρ-E-view-ecsplit {ρθ·psn⟶₁ρθq·q = ris-present {_} {S} S∈ θS≡present dehole} cb
   divout-disjoint dehole dehole vis-present
-  (dcpresent₁ p≐C⟦rin⟧) (dcpresent₁ r≐C⟦ro⟧) rinsn⟶₁ro
-  rewrite sym (unplugc r≐C⟦ro⟧)
-  = _ , inj₂ (rcontext _ p≐C⟦rin⟧ rinsn⟶₁ro) ,′
-    _ , dehole , dehole , ris-present {_} {S} S∈ θS≡present dehole , vis-present
+  (dcpresent₁ p≐C⟦rin⟧) (dcpresent₁ r≐C⟦ro⟧) rinsn⟶₁ro with sym (unplugc r≐C⟦ro⟧)
+... | refl
+ = _ , inj₂ (rcontext _ p≐C⟦rin⟧ rinsn⟶₁ro) ,′
+   _ , dehole , dehole , ris-present {_} {S} S∈ θS≡present dehole , vis-present
 
 
 1-steplρ-E-view-ecsplit {ρθ·psn⟶₁ρθq·q = ris-present {_} {S} S∈ θS≡present dehole} cb
@@ -142,26 +143,26 @@ Base case where (E, C) = ([], _∷_).
 
 1-steplρ-E-view-ecsplit {ρθ·psn⟶₁ρθq·q = ris-absent {_} {S} S∈ θS≡absent dehole} cb
   divout-disjoint dehole dehole vis-absent
-  (dcpresent₂ p≐C⟦rin⟧) (dcpresent₂ r≐C⟦ro⟧) rinsn⟶₁ro
-  rewrite sym (unplugc r≐C⟦ro⟧)
-  = _ , inj₂ (rcontext _ p≐C⟦rin⟧ rinsn⟶₁ro) ,′
-    _ , dehole , dehole , ris-absent {_} {S} S∈ θS≡absent dehole , vis-absent
+  (dcpresent₂ p≐C⟦rin⟧) (dcpresent₂ r≐C⟦ro⟧) rinsn⟶₁ro with sym (unplugc r≐C⟦ro⟧)
+... | refl
+ = _ , inj₂ (rcontext _ p≐C⟦rin⟧ rinsn⟶₁ro) ,′
+   _ , dehole , dehole , ris-absent {_} {S} S∈ θS≡absent dehole , vis-absent
 
 
 1-steplρ-E-view-ecsplit {ρθ·psn⟶₁ρθq·q = rraise-shared {_} {_} {s} _ _} cb
   divout-disjoint dehole dehole vraise-shared
-  (dcshared p≐C⟦rin⟧) (dcshared r≐C⟦ro⟧) rinsn⟶₁ro
-  rewrite sym (unplugc r≐C⟦ro⟧)
-  = _ , inj₂ (rcontext _ (dcenv p≐C⟦rin⟧) rinsn⟶₁ro) ,′
-    _ , dehole , dehole , rraise-shared {_} {_} {s} _ _ , vraise-shared
+  (dcshared p≐C⟦rin⟧) (dcshared r≐C⟦ro⟧) rinsn⟶₁ro with sym (unplugc r≐C⟦ro⟧)
+... | refl
+ = _ , inj₂ (rcontext _ (dcenv p≐C⟦rin⟧) rinsn⟶₁ro) ,′
+   _ , dehole , dehole , rraise-shared {_} {_} {s} _ _ , vraise-shared
 
 
 1-steplρ-E-view-ecsplit {ρθ·psn⟶₁ρθq·q = rraise-var {_} {_} {x} _ _} cb
   divout-disjoint dehole dehole vraise-var
-  (dcvar p≐C⟦rin⟧) (dcvar r≐C⟦ro⟧) rinsn⟶₁ro
-  rewrite sym (unplugc r≐C⟦ro⟧)
-  = _ , inj₂ (rcontext _ (dcenv p≐C⟦rin⟧) rinsn⟶₁ro) ,′
-    _ , dehole , dehole , rraise-var {_} {_} {x} _ _ , vraise-var
+  (dcvar p≐C⟦rin⟧) (dcvar r≐C⟦ro⟧) rinsn⟶₁ro with sym (unplugc r≐C⟦ro⟧)
+... | refl
+ = _ , inj₂ (rcontext _ (dcenv p≐C⟦rin⟧) rinsn⟶₁ro) ,′
+   _ , dehole , dehole , rraise-var {_} {_} {x} _ _ , vraise-var
 
 
 1-steplρ-E-view-ecsplit {ρθ·psn⟶₁ρθq·q = rif-false {x = x} x∈ θx≡zero dehole} cb
@@ -173,18 +174,18 @@ Base case where (E, C) = ([], _∷_).
 
 1-steplρ-E-view-ecsplit {ρθ·psn⟶₁ρθq·q = rif-false {x = x} x∈ θx≡zero dehole} cb
   divout-disjoint dehole dehole vif-false
-  (dcif₂ p≐C⟦rin⟧) (dcif₂ r≐C⟦ro⟧) rinsn⟶₁ro
-  rewrite sym (unplugc r≐C⟦ro⟧)
-  = _ , inj₂ (rcontext _ p≐C⟦rin⟧ rinsn⟶₁ro) ,′
-    _ , dehole , dehole , rif-false {x = x} x∈ θx≡zero dehole , vif-false
+  (dcif₂ p≐C⟦rin⟧) (dcif₂ r≐C⟦ro⟧) rinsn⟶₁ro with sym (unplugc r≐C⟦ro⟧)
+... | refl
+ = _ , inj₂ (rcontext _ p≐C⟦rin⟧ rinsn⟶₁ro) ,′
+   _ , dehole , dehole , rif-false {x = x} x∈ θx≡zero dehole , vif-false
 
 
 1-steplρ-E-view-ecsplit {ρθ·psn⟶₁ρθq·q = rif-true {θ} {x = x} x∈ θx≡suc dehole} cb
   divout-disjoint dehole dehole vif-true
-  (dcif₁ p≐C⟦rin⟧) (dcif₁ r≐C⟦ro⟧) rinsn⟶₁ro
-  rewrite sym (unplugc r≐C⟦ro⟧)
-  = _ , inj₂ (rcontext _ p≐C⟦rin⟧ rinsn⟶₁ro) ,′
-    _ , dehole , dehole , rif-true {x = x} x∈ θx≡suc dehole , vif-true
+  (dcif₁ p≐C⟦rin⟧) (dcif₁ r≐C⟦ro⟧) rinsn⟶₁ro with sym (unplugc r≐C⟦ro⟧)
+... | refl
+ = _ , inj₂ (rcontext _ p≐C⟦rin⟧ rinsn⟶₁ro) ,′
+   _ , dehole , dehole , rif-true {x = x} x∈ θx≡suc dehole , vif-true
 
 
 1-steplρ-E-view-ecsplit {ρθ·psn⟶₁ρθq·q = rif-true {x = x} x∈ θx≡suc dehole} cb
@@ -200,28 +201,28 @@ Base case where (E, C) = ([], _∷_).
   (depar₁ p₁≐E⟦qin⟧) (depar₁ q≐E⟦qo⟧) e-view
   (dcpar₂ p≐C⟦rin⟧) (dcpar₂ r≐C⟦ro⟧) rinsn⟶₁ro
   with unwrap-rho _ _ _ p₁≐E⟦qin⟧ q≐E⟦qo⟧ e-view
-... | ρθ·p₁sn⟶₁ρθq·q , e-view'
-  rewrite sym (unplugc r≐C⟦ro⟧)
-  = _ , inj₂ (rcontext _ (dcpar₂ p≐C⟦rin⟧) rinsn⟶₁ro) ,′
-    _ , _ , _ , wrap-rho ρθ·p₁sn⟶₁ρθq·q _ _ e-view' _ (depar₁ p₁≐E⟦qin⟧) (depar₁ q≐E⟦qo⟧)
+... | ρθ·p₁sn⟶₁ρθq·q , e-view' with sym (unplugc r≐C⟦ro⟧)
+... | refl
+ = _ , inj₂ (rcontext _ (dcpar₂ p≐C⟦rin⟧) rinsn⟶₁ro) ,′
+   _ , _ , _ , wrap-rho ρθ·p₁sn⟶₁ρθq·q _ _ e-view' _ (depar₁ p₁≐E⟦qin⟧) (depar₁ q≐E⟦qo⟧)
 
 
 1-steplρ-E-view-ecsplit cb divpar-split₂
   (depar₂ p₂≐E⟦qin⟧) (depar₂ q≐E⟦qo⟧) e-view
   (dcpar₁ p≐C⟦rin⟧) (dcpar₁ r≐C⟦ro⟧) rinsn⟶₁ro
   with unwrap-rho _ _ _ p₂≐E⟦qin⟧ q≐E⟦qo⟧ e-view
-... | ρθ·p₂sn⟶₁ρθq·q , e-view'
-  rewrite sym (unplugc r≐C⟦ro⟧)
-  = _ , inj₂ (rcontext _ (dcpar₁ p≐C⟦rin⟧) rinsn⟶₁ro) ,′
-    _ , _ , _ , wrap-rho ρθ·p₂sn⟶₁ρθq·q _ _ e-view' _ (depar₂ p₂≐E⟦qin⟧) (depar₂ q≐E⟦qo⟧)
+... | ρθ·p₂sn⟶₁ρθq·q , e-view' with sym (unplugc r≐C⟦ro⟧)
+... | refl
+ = _ , inj₂ (rcontext _ (dcpar₁ p≐C⟦rin⟧) rinsn⟶₁ro) ,′
+   _ , _ , _ , wrap-rho ρθ·p₂sn⟶₁ρθq·q _ _ e-view' _ (depar₂ p₂≐E⟦qin⟧) (depar₂ q≐E⟦qo⟧)
 
 
 1-steplρ-E-view-ecsplit cb divseq-split
   (deseq p₁≐E⟦qin⟧) (deseq q≐E⟦qo⟧) e-view
   (dcseq₂ p≐C⟦rin⟧) (dcseq₂ r≐C⟦ro⟧) rinsn⟶₁ro
   with unwrap-rho _ _ _ p₁≐E⟦qin⟧ q≐E⟦qo⟧ e-view
-... | ρθ·p₁sn⟶₁ρθq·q , e-view'
-  rewrite sym (unplugc r≐C⟦ro⟧)
+... | ρθ·p₁sn⟶₁ρθq·q , e-view' with sym (unplugc r≐C⟦ro⟧)
+... | refl
   = _ , inj₂ (rcontext _ (dcseq₂ p≐C⟦rin⟧) rinsn⟶₁ro) ,′
     _ , _ , _ , wrap-rho ρθ·p₁sn⟶₁ρθq·q _ _ e-view' _ (deseq p₁≐E⟦qin⟧) (deseq q≐E⟦qo⟧)
 
@@ -230,10 +231,10 @@ Base case where (E, C) = ([], _∷_).
   (deloopˢ p₁≐E⟦qin⟧) (deloopˢ q≐E⟦qo⟧) e-view
   (dcloopˢ₂ p≐C⟦rin⟧) (dcloopˢ₂ r≐C⟦ro⟧) rinsn⟶₁ro
   with unwrap-rho _ _ _ p₁≐E⟦qin⟧ q≐E⟦qo⟧ e-view
-... | ρθ·p₁sn⟶₁ρθq·q , e-view'
-  rewrite sym (unplugc r≐C⟦ro⟧)
-  = _ , inj₂ (rcontext _ (dcloopˢ₂ p≐C⟦rin⟧) rinsn⟶₁ro) ,′
-    _ , _ , _ , wrap-rho ρθ·p₁sn⟶₁ρθq·q _ _ e-view' _ (deloopˢ p₁≐E⟦qin⟧) (deloopˢ q≐E⟦qo⟧)
+... | ρθ·p₁sn⟶₁ρθq·q , e-view' with sym (unplugc r≐C⟦ro⟧)
+... | refl
+ = _ , inj₂ (rcontext _ (dcloopˢ₂ p≐C⟦rin⟧) rinsn⟶₁ro) ,′
+   _ , _ , _ , wrap-rho ρθ·p₁sn⟶₁ρθq·q _ _ e-view' _ (deloopˢ p₁≐E⟦qin⟧) (deloopˢ q≐E⟦qo⟧)
 
 
 1-steplρ-E-view-ecsplit {ρθ·psn⟶₁ρθq·q = ρθ·E₁⟦p⟧sn⟶₁ρθq·E₁⟦q⟧}
