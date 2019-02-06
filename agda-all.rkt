@@ -22,6 +22,6 @@
 
 (define success?
   (parameterize ([current-directory agda])
-    (system "agda all.agda")))
+    (system "agda --safe all.agda")))
 (unless success?
   (raise-user-error 'agda-all.rkt "agda did not complete successfully"))
