@@ -23,7 +23,6 @@ open import Esterel.Environment as Env
 open import Esterel.Context
 
 open import utility
--- open import stdlib013-fix public using (++-comm)
 
 open import sn-calculus
 open import context-properties -- get view, E-views
