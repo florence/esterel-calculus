@@ -5,6 +5,29 @@
 
 (define-syntax quasiquote (make-rename-transformer #'term))
 
+
+;                                                                        
+;                                                                        
+;                                                                        
+;     ;;;;                                                               
+;    ;;   ;                                                              
+;   ;;                                                                   
+;   ;;         ;;  ;;    ;;;;;    ; ;; ;;   ; ;; ;;    ;;;;;     ;;  ;;  
+;   ;           ; ; ;        ;    ;; ;; ;;  ;; ;; ;;       ;      ; ; ;  
+;   ;           ;;  ;        ;;   ;  ;   ;  ;  ;   ;       ;;     ;;  ;  
+;   ;   ;;;;    ;;        ;;;;;   ;  ;   ;  ;  ;   ;    ;;;;;     ;;     
+;   ;     ;;    ;        ;   ;;   ;  ;   ;  ;  ;   ;   ;   ;;     ;      
+;   ;     ;;    ;       ;;   ;;   ;  ;   ;  ;  ;   ;  ;;   ;;     ;      
+;   ;;    ;;    ;       ;;   ;;   ;  ;   ;  ;  ;   ;  ;;   ;;     ;      
+;    ;;   ;;    ;       ;;  ;;;   ;  ;   ;  ;  ;   ;  ;;  ;;;     ;      
+;     ;;;;;    ;;;;      ;;;; ;   ;  ;   ;  ;  ;   ;   ;;;; ;    ;;;;    
+;                                                                        
+;                                                                        
+;                                                                        
+;                                                                        
+;                                                                        
+
+
 (define-language esterel
   (p q r ::=
      (signal S p) (seq p q) (emit S) (present S p q) (par p q)
@@ -102,6 +125,29 @@
   (L-s ::= () (s L-s))
   (K ::= L-n) ;; codes are lists of nats
   (Can-result ::= (S-code-s L-S L-κ L-s)))
+
+
+;                                                                        
+;                                                                        
+;                                                                        
+;   ;;    ;                ;                                             
+;   ;;    ;                ;                                             
+;   ;;    ;                ;                                             
+;   ;;    ;     ;;;;       ;       ; ;;;      ;;;;     ;;  ;;     ;;;;   
+;   ;;    ;    ;;  ;;      ;       ;;  ;;    ;;  ;;     ; ; ;    ;    ;  
+;   ;;;;;;;    ;    ;      ;       ;    ;    ;    ;     ;;  ;    ;       
+;   ;;    ;   ;;    ;      ;       ;    ;   ;;    ;     ;;       ;;      
+;   ;;    ;   ;;;;;;;      ;       ;    ;   ;;;;;;;     ;         ;;;;   
+;   ;;    ;   ;;           ;       ;    ;   ;;          ;            ;;  
+;   ;;    ;    ;           ;       ;    ;    ;          ;             ;  
+;   ;;    ;    ;;   ;      ;       ;;  ;;    ;;   ;     ;       ;;   ;;  
+;   ;;    ;     ;;;;        ;;;    ;;;;;      ;;;;     ;;;;      ;;;;;   
+;                                  ;                                     
+;                                  ;                                     
+;                                  ;                                     
+;                                                                        
+;                                                                        
+
 
 (define-metafunction esterel-eval
   par-⊓ : done done -> done
@@ -367,8 +413,6 @@
     {(shar s ev ready) ·})
    (where (shar s ev shared-status) (θ-ref θ s))])
 
-
-
 (module+ test
   (check-equal?
    `(set-all-ready ((shar srandom-shared934658 0 old) ·) (srandom-shared934658))
@@ -460,6 +504,29 @@
    (subset (any_2 ...) (any_3 ...))
    (judgment-holds (∈ any_1 (any_3 ...)))]
   [(subset any_1 any_2) #f])
+
+
+;                                
+;                                
+;                                
+;    ;;;;;;                      
+;    ;                           
+;    ;                           
+;    ;         ; ;;;    ;;    ;; 
+;    ;         ;;  ;;   ;;    ;  
+;    ;         ;    ;    ;   ;;  
+;    ;;;;;     ;    ;    ;;  ;   
+;    ;         ;    ;    ;;  ;   
+;    ;         ;    ;     ;  ;   
+;    ;         ;    ;     ; ;    
+;    ;         ;    ;      ;;    
+;    ;;;;;;    ;    ;      ;;    
+;                                
+;                                
+;                                
+;                                
+;                                
+
 
 (define-metafunction esterel-eval
   dom : θ -> {V ...}
