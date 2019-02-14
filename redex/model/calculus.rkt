@@ -7,6 +7,7 @@
          syntax/parse/define)
 (provide (all-defined-out))
 (module+ test (require rackunit
+                       rackunit/text-ui
                        esterel-calculus/redex/rackunit-adaptor))
 
 (define R-base
@@ -230,7 +231,7 @@
 
 (define-metafunction esterel-eval
   E-C : (in-hole C (ρ θ E)) V -> boolean
-  [(E-C (in-hole E (ρ θ E)) _)
+  [(E-C (in-hole E_1 (ρ θ E_2)) _)
    #t]
   [(E-C _ _)
    #f])
@@ -301,11 +302,13 @@
        #`(run-tests-as R (symbol->string 'R))]))
   (define-syntax test-constructive
     (syntax-parser
-      [(_ R:id bypasses?:expr)
-       #`(run-constructive-tests-for R (symbol->string 'R) (not bypasses?))]))
-    
+      [(_ R:id)
+       #`(run-constructive-tests-for R (symbol->string 'R))]))
+  (define (complete? p)
+    (redex-match? esterel-eval complete p))
+  (define incomplete? (negate complete?))
   (define (run-tests-as R name)
-    (test-case (format "basic tests for ~a" name)
+    (test-suite (format "basic tests for ~a" name)
       (test-->
        R
        (term
@@ -370,16 +373,66 @@
       (test-->>∃
        R
        (term (ρ {(sig Si unknown) {(sig So unknown) ·}} (present Si (emit So) nothing)))
-       (term (ρ {(sig Si unknown) {(sig So absent) ·}} (present Si (emit So) nothing))))))
-
-  (define (run-constructive-tests-for R name bypass?)
-    (test-case (format "Does ~a bypass constructiveness?" name)
-      (define (complete? p)
-        (redex-match? esterel-eval complete p))
-      (define not-complete? (negate complete?))
-      (define correct-terminus? (if bypass? complete? not-complete?))
-      (test--?>
+       (term (ρ {(sig Si unknown) {(sig So absent) ·}} (present Si (emit So) nothing))))
+     
+      (test-->>P
        R
+       (term
+        (signal S2
+          (seq (present S2 nothing nothing)
+               (trap
+                (seq (signal S1
+                       (seq
+                        (emit S1)
+                        (present S1 nothing (exit 0))))
+                     (emit S2))))))
+                     
+       incomplete?)
+      (test-case "In which we demonstrate seq is kind of a read of K_0"
+        ;; this test case demonstraits that, in a sense, seq acts as
+        ;; a `read` of K_0, which means that is absence gives us information
+        ;; without execution. However the only way to "Write" to K_0 is through
+        ;; signal propigation, meaning emissions are still the only way to
+        ;; expose information to Can.
+
+        ;; But this helps explain why Present and Seq are the only thing that can
+        ;; add control dependencies: they really are just data dependencies in the end
+        ;; (on propigating K_0).
+
+        ;; (Well its not that seq reads from p's K_0, that would be a cycle.
+        ;; Seq causes `q` to read `p`s K_0.
+
+        ;; Interestingly... does this mean that K_0 is the only K which can be
+        ;; 'read' in this sense?
+
+        ;; So yeah, Ferrante was right, control and data dependencies are unified.
+        (test-->>P
+         R
+         (term
+          (signal S2
+            (seq (present S2 nothing nothing)
+                 (trap
+                  (seq (signal S1
+                         (seq
+                          (emit S1)
+                          (present S1 (exit 0) (exit 0))))
+                       (emit S2))))))
+                     
+         complete?))))
+
+  (define (run-constructive-tests-for -> name)
+    
+    (define (correct-terminus? p)
+      (if (fail-on?)  incomplete? complete?))
+    (define fail-on? (make-parameter #f))
+    (define-syntax fail-on
+      (syntax-parser
+        [(fail-on (Rs:id ...) body ...)
+         #`(parameterize ([fail-on? (memq -> (list Rs ...))])
+             body ...)]))
+    (test-suite (format "Does ~a bypass constructiveness?" name)
+      (test--?>
+       ->
        (term (ρ (mtθ+S S1 unknown)
                 (present S1
                          (ρ (mtθ+S S2 unknown)
@@ -388,55 +441,136 @@
                                           nothing
                                           (emit S1))))
                          nothing)))
-       bypass?)
-      (test-->>P
-       R
-       (term
-        (signal S1
-          (present S1
-                   (signal S2
-                     (seq (emit S2)
-                          (present S2
-                                   nothing
-                                   (emit S1))))
-                   nothing)))
-       correct-terminus?)
-      (test-->>P
-       R
-       (term
-        (signal S1
-          (seq (present S1 pause nothing)
-               (signal S2
-                 (seq (emit S2)
-                      (present S2 nothing (emit S1)))))))
-       correct-terminus?)
-      (test-->>P
-       R
-       (term
-        (signal S1
-          ;; the `nothing nothing` here is meant to demonstrait that
-          ;; `Must` might prune a dependency edge from a seq it should not if one is not careful.
-          (seq (present S1 nothing nothing)
-               (signal S2
-                 (seq (emit S2)
-                      (present S2 nothing (emit S1)))))))
-       correct-terminus?)))
+       (eq? -> R))
+      (fail-on (R)
+               (test-->>P
+                ->
+                (term
+                 (signal S1
+                   (present S1
+                            (signal S2
+                              (seq (emit S2)
+                                   (present S2
+                                            nothing
+                                            (emit S1))))
+                            nothing)))
+                correct-terminus?)
+               (test-->>P
+                ->
+                (term
+                 (signal S1
+                   (present S1
+                            (signal S2
+                              ;; This demonstraits that `seq` isn't necessary
+                              ;; to trigger the constructivity issue.
+                              (par (emit S2)
+                                   (present S2
+                                            nothing
+                                            (emit S1))))
+                            nothing)))
+                correct-terminus?)
+               (test-case "in which we demonstrate that ignoring seq or present dependencies is unsound"
+                 (fail-on (R-no-seq R-no-present)
+                          (test-->>P
+                           ->
+                           ;; Like the previous test case, but the dependency
+                           ;; gets carried forward by a `seq`.
+                           (term
+                            (signal S1
+                              (seq (present S1 pause nothing)
+                                   (signal S2
+                                     (seq (emit S2)
+                                          (present S2 nothing (emit S1)))))))
+                           correct-terminus?)
+                          (test-->>P
+                           ->
+                           (term
+                            (signal S1
+                              ;; the `nothing nothing` here is meant to demonstrait that
+                              ;; `Must` might prune a dependency edge from a seq it should not if one is not careful.
+                              (seq (present S1 nothing nothing)
+                                   (signal S2
+                                     (seq (emit S2)
+                                          (present S2 nothing (emit S1)))))))
+                           correct-terminus?)))
 
-  (test-relation R)
-  (test-relation R-empty)
-  (test-relation R-closed)
-  (test-relation R-no-control)
-  (test-relation R-no-seq)
-  (test-relation R-no-present)
-  (test-relation R-E)
+      
+               ;;Does there exist some test case here where a data dependency isn't
+               ;;carried over a seq, but the seq is still important for a cycle?
 
-  (test-constructive R #f)
-  (test-constructive R-empty #t)
-  (test-constructive R-closed #t)
-  (test-constructive R-no-control #t)
-  ;; The failure of these two demonstrates that
-  ;; both seq and present control dependency checking
-  ;; is required to maintain constructiveness.
-  (expect-failures (test-constructive R-no-seq #t))
-  (expect-failures (test-constructive R-no-present #t))
-  (test-constructive R-E #t))
+               ;;also here is a crazy though: does there exist a context C
+               ;;where I can put a program P which has a *resolvable*
+               ;; cycle into the hole, where resolving the cycle is sound.
+               ;; Possible Ps:
+               (test-case "In which we demonstrate that closed is unsound"
+                 (fail-on (R-closed)
+                          #;(signal S1
+                              (signal S2
+                                (par
+                                 (par (present S1 nothing (emit S2))
+                                      (present S2 nothing (emit S1)))
+                                 (emit S1))))
+                          ;; or, without par
+                          #;(signal S1
+                              (signal S2
+                                (seq
+                                 (emit S1)
+                                 (seq
+                                  (present S1 nothing (emit S2))
+                                  (present S2 nothing (emit S1))))))
+                          ;; simpler
+                          #;(signal S1
+                              (seq
+                               (emit S1)
+                               (present S1 nothing (emit S1))))
+                          ;; with the emit outside of the branch
+                          #;(signal S1
+                              (seq
+                               (emit S1)
+                               (seq
+                                (present S1 nothing nothing)
+                                (emit S1))))
+      
+                          ;; hell maybe even something cycleless will do, like:
+                          #;(signal S1 (emit S1))
+
+                          ;; I'm starting to think this isn't possible without `trap`
+                          ;; but I don't understand the graph structure of that. But maybe
+                          #;(signal S1
+                              (seq
+                               (emit S1)
+                               (present S1 nothing (exit 0))))
+                          ;; since can can't determine the exit condition without
+                          ;; running the emit. Lets try.
+             
+      
+                          (test-->>P
+                           ->
+                           (term
+                            (signal S2
+                              (seq (present S2 nothing nothing)
+                                   (trap
+                                    (seq (signal S1
+                                           (seq
+                                            (emit S1)
+                                            (present S1 (exit 0) nothing)))
+                                         (emit S2))))))
+                     
+                           correct-terminus?)))
+               )))
+  
+  (void (run-tests (test-relation R)))
+  (void (run-tests (test-relation R-empty)))
+  (void (run-tests (test-relation R-closed)))
+  (void (run-tests (test-relation R-no-control)))
+  (void (run-tests (test-relation R-no-seq)))
+  (void (run-tests (test-relation R-no-present)))
+  (void (run-tests (test-relation R-E)))
+
+  (void (run-tests (test-constructive R)))
+  (void (run-tests (test-constructive R-empty)))
+  (void (run-tests (test-constructive R-closed)))
+  (void (run-tests (test-constructive R-no-control)))
+  (void (run-tests (test-constructive R-no-seq)))
+  (void (run-tests (test-constructive R-no-present)))
+  (void (run-tests (test-constructive R-E))))
