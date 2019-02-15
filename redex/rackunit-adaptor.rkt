@@ -2,28 +2,33 @@
 (provide
  (rename-out
   [in:test-->* test-->]
-  [in:test-->>* test-->>])
+  [in:test-->>* test-->>]
+  [in:test-judgment-holds test-judgment-holds]
+  [in:test-equal test-equal])
+ test-term-equal
+ test-judgment-does-not-hold
  test-->>∃
  test--/>
  test--?>
- test-->>P
- expect-failures)
+ test-->>P)
 (require redex/reduction-semantics
          rackunit
          (for-syntax syntax/parse)
-         syntax/parse/define)
+         syntax/parse/define
+         (for-syntax rackunit-abbrevs/error-reporting))
 
 (define (default-equiv-set-equal? a b)
   (for/and ([a (in-list a)])
     (for/or ([b (in-list b)])
       ((default-equiv) a b))))
-      
 
 (define-syntax in:test-->*
   (syntax-parser
     [(_ R term results ...)
      (syntax/loc this-syntax
        (test--> R term (list results ...)))]))
+
+
 (define-syntax in:test-->>*
   (syntax-parser
     [(_ R term results ...)
@@ -86,19 +91,81 @@
       ['failed failed])
      (fail-check "Some terminal reductions failed property"))))
 
-(define-syntax expect-failures
+
+
+(define-syntax test-term-equal
   (syntax-parser
-    [(_ body ...)
-     #`(let ()
-         (define something-failed? #f)
-         (define handle
-           (lambda (f)                   
-             (with-handlers ([(negate exn:break?)
-                              (lambda (_) (set! something-failed? #t))])
-               (f))))
-         (parameterize ([current-test-case-around handle]
-                        [current-check-around handle])
-           body ...)
-         #,(syntax/loc this-syntax
-             (check-true something-failed? "Expected something in this test case to fail")))]))
-                         
+    [(test-term-equal a b)
+     (syntax/loc this-syntax
+       (test-term-equal a b #:equiv (default-equiv)))]
+    [(test-term-equal a b #:equiv eq)
+     #`(with-default-check-info*
+        (list (make-check-name 'test-equial)
+              (make-check-location '#,(syntax->location this-syntax))
+              (make-check-expression
+               '(test-term-equal a b #:equiv eq)))
+        (lambda ()
+          ((current-check-around)
+           (lambda ()
+             (define a* (term a))
+             (define b* (term b))
+             (unless (eq a* b*)
+               (with-check-info
+                (['expected a*]
+                 ['actual b*])
+                (fail-check)))))))]))
+
+(define-syntax in:test-equal
+  (syntax-parser
+    [(test-equal a b)
+     (syntax/loc this-syntax
+       (test-equal a b #:equiv (default-equiv)))]
+    [(test-equal a b #:equiv eq)
+     #`(with-default-check-info*
+        (list (make-check-name 'test-equial)
+              (make-check-location '#,(syntax->location this-syntax))
+              (make-check-expression
+               '(test-equal a b #:equiv eq)))
+        (lambda ()
+          ((current-check-around)
+           (lambda ()
+             (define a* a)
+             (define b* b)
+             (unless (eq a* b*)
+               (with-check-info
+                (['expected a*]
+                 ['actual b*])
+                (fail-check)))))))]))
+
+(define-syntax test-judgment-does-not-hold
+  (syntax-parser
+    [(test-judgment-does-not-hold (judgment body ...))
+     #`(with-default-check-info*
+        (list (make-check-name 'test-judgment-does-not-hold)
+              (make-check-location '#,(syntax->location this-syntax))
+              (make-check-expression
+               '(test-judgment-doesnt-hold (judgment body ...))))
+        (lambda ()
+          ((current-check-around)
+           (lambda ()
+             (define r (judgment-holds (judgment body ...) (body ...)))
+             (with-check-info
+              (['|held at| (map (lambda (x) (cons 'judgment x)) r)])
+              (unless (not r)
+                (fail-check "judgment, in fact, held")))))))]))
+
+(define-syntax in:test-judgment-holds
+  (syntax-parser
+    [(test-judgment-doesnt-hold (judgment body ...))
+     #`(with-default-check-info*
+        (list (make-check-name 'test-judgment-doesnt-hold)
+              (make-check-location '#,(syntax->location this-syntax))
+              (make-check-expression
+               '(test-judgment-doesnt-hold (judgment body ...))))
+        (lambda ()
+          ((current-check-around)
+           (lambda ()
+             (define r (judgment-holds (judgment body ...)))
+             (when (not r)
+               (fail-check "judgment didn't hold"))))))]))
+

@@ -2,6 +2,7 @@
 (require redex/reduction-semantics
          esterel-calculus/redex/model/shared
          esterel-calculus/redex/model/lset
+         esterel-calculus/redex/model/lmap
          esterel-calculus/redex/model/potential-function
          racket/random
          syntax/parse/define)
@@ -164,20 +165,15 @@
 
 (define-metafunction esterel-eval
   closed-C : (in-hole C (ρ θ E)) V -> boolean
-  [(closed-C (in-hole C (ρ θ E)) S)
+  [(closed-C (in-hole C (ρ θ E)) V)
    #t
-   (where () (FV (ρ θ (in-hole E (emit S)))))]
-  [(closed-C (in-hole C (ρ θ E)) s)
-   #t
-   (where () (FV (ρ θ (in-hole E (<= s (+ 0))))))]
+   (where () (FV (reassemble (ρ θ E) V)))]
   [(closed-C _ _) #f])
 
 (define-metafunction esterel-eval
   control-closed-C : (in-hole C (ρ θ E)) V -> boolean
-  [(control-closed-C (in-hole C (ρ θ E)) S)
-   (control-closed (ρ θ (in-hole E (emit S))))]
-  [(control-closed-C (in-hole C (ρ θ E)) s)
-   (control-closed (ρ θ (in-hole E (<= s (+ 0)))))])
+  [(control-closed-C (in-hole C (ρ θ E)) V)
+   (control-closed (reassemble (ρ θ E) V))])
 
 (define-metafunction esterel-eval
   control-closed : p -> boolean
@@ -257,6 +253,150 @@
   [(E-C _ _)
    #f])
 
+(define-metafunction esterel-eval
+  safe-after-reduction-C : (in-hole C (ρ θ E)) V -> boolean
+  [(safe-after-reduction-C (in-hole C (ρ θ E)) V)
+   #t
+   (judgment-holds (safe-after-reduction (in-hole C (ρ θ E)) V))]
+  [(safe-after-reduction-C (in-hole C (ρ θ E)) V)
+   #f])
+
+(define-judgment-form esterel-eval
+  #:mode     (safe-after-reduction I                   I)
+  #:contract (safe-after-reduction (in-hole C (ρ θ E)) V)
+  [(where p_r (reassemble (ρ θ E) V))
+   ;; by making sure we look for E, we make sure we ran the "right"
+   ;; reduction.
+   (where (_ ... (ρ θ_* (in-hole E nothing)) _ ...)
+          ,(apply-reduction-relation R-empty (term p_r)))
+   (where L-S_changed
+          (Lset-sub (Can_S p_r ·)
+                    (Can_S (ρ θ_* (in-hole E nothing)) ·)))
+   (where L-S_deps (control-deps (in-hole C (ρ θ E))))
+   (distinct L-S_changed L-S_deps)
+   ----------------- "safe-after-reduction"
+   (safe-after-reduction (in-hole C (ρ θ E)) V)])
+
+(define-metafunction esterel-eval
+  control-deps : C -> L-S
+  [(control-deps C)
+    (Mdom
+     (Mrestrict-range-to
+      (control-deps* C)
+      nothin))])
+
+(define-metafunction esterel-eval
+  control-deps* : C -> M-S-κ
+  [(control-deps* hole) (M0)]
+  [(control-deps* (signal S C))
+   (Mrestrict-domain (control-deps* C) S)]
+  [(control-deps* (seq C q))
+   (MU (Mrestrict-range
+        (control-deps* C)
+        nothin)
+       (κ-deps q))]
+  [(control-deps* (seq p C))
+   (MU (Mrestrict-range
+        (κ-deps p)
+        nothin)
+       (control-deps* C))]
+  [(control-deps* (loop^stop C q))
+   (control-deps* C)]
+  [(control-deps* (loop^stop p C))
+   (κ-deps p)]
+  [(control-deps* (present S C q))
+   (MU
+    (M1* S (Can_K (present S (in-hole C nothing) q) ·))
+    (MU
+     (control-deps* C)
+     (κ-deps q)))]
+  [(control-deps* (present S p C))
+   (MU
+    (M1* S (Can_K (present S p (in-hole C nothing)) ·))
+    (MU
+     (κ-deps p)
+     (control-deps* C)))]
+  [(control-deps* (par C q))
+   (Mmax*
+    (control-deps* C)
+    (κ-deps q))]
+  [(control-deps* (par p C))
+   (Mmax*
+    (κ-deps p)
+    (control-deps* C))]
+  [(control-deps* (loop C))
+   (control-deps* C)]
+  [(control-deps* (suspend C S))
+   (control-deps* C)]
+  [(control-deps* (trap C))
+   (M---κ↓ (control-deps* C))]
+  [(control-deps* (shared s := e C))
+   (control-deps* C)]
+  [(control-deps* (var x := e C))
+   (control-deps* C)]
+  [(control-deps* (if x C q))
+   (MU
+    (control-deps* C)
+    (κ-deps q))]
+  [(control-deps* (if x p C))
+   (MU
+    (κ-deps p)
+    (control-deps* C))]
+  [(control-deps* (ρ θ C))
+   (Mrestrict-domain*
+    (control-deps* C)
+    (get-signals* θ))])
+
+(define-metafunction esterel-eval
+  κ-deps : p -> M-S-κ
+  [(κ-deps (signal S p))
+   (Mrestrict-domain (κ-deps p) S)]
+  [(κ-deps nothing) (M0)]
+  [(κ-deps pause) (M0)]
+  [(κ-deps (seq p q))
+   (MU (Mrestrict-range
+        (κ-deps p)
+        nothin)
+       (κ-deps q))]
+  [(κ-deps (emit S)) (M0)]
+  [(κ-deps (present S p q))
+   (MU
+    (M1* S (Can_K (present S p q) ·))
+    (MU
+     (κ-deps p)
+     (κ-deps q)))]
+  [(κ-deps (par p q))
+   (Mmax*
+    (κ-deps p)
+    (κ-deps q))]
+  [(κ-deps (loop p))
+   (κ-deps p)]
+  [(κ-deps (suspend p S))
+   (κ-deps p)]
+  [(κ-deps (trap p))
+   (M---κ↓ (κ-deps p))]
+  [(κ-deps (exit n)) (M0)]
+  [(κ-deps (shared s := e p))
+   (κ-deps p)]
+  [(κ-deps (var x := e p))
+   (κ-deps p)]
+  [(κ-deps (<= s e)) (M0)]
+  [(κ-deps (:= x e)) (M0)]
+  [(κ-deps (if x p q))
+   (MU (κ-deps p) (κ-deps q))]
+  [(κ-deps (ρ θ p))
+   (Mrestrict-domain*
+    (κ-deps p)
+    (get-signals* θ))]
+  [(κ-deps (loop p q))
+   (κ-deps p)])
+  
+
+(define-metafunction esterel-eval
+  reassemble : C V -> p
+  [(reassemble C S) (in-hole C (emit S))]
+  [(reassemble C S) (in-hole C (<= s (+ 1)))])
+
 ;                                                                                                      
 ;                                                                                                      
 ;                                                                  ;;                                  
@@ -287,14 +427,12 @@
    (compatible-closure R-base esterel-eval p)
    (R-write P)))
 
-;; TODO Idea for new relation:
-;; run can on the ρ, see if that changes in coming deps from C.
-
 ;; these relations are known to work.
 (define R-empty (MR empty-C))
 (define R-no-control (MR no-control-C))
 (define R-E (MR E-C))
 (define R-control-closed (MR control-closed-C))
+(define R-safe-after-reduction (MR safe-after-reduction-C))
 
 ;; these are what seem like reasonable attempts at
 ;; a valid relation which don't work
@@ -597,6 +735,7 @@
   (void (run-tests (test-relation R-no-present)))
   (void (run-tests (test-relation R-E)))
   (void (run-tests (test-relation R-control-closed)))
+  (void (run-tests (test-relation R-safe-after-reduction)))
 
   (void (run-tests (test-constructive R)))
   (void (run-tests (test-constructive R-empty)))
@@ -605,4 +744,5 @@
   (void (run-tests (test-constructive R-no-seq)))
   (void (run-tests (test-constructive R-no-present)))
   (void (run-tests (test-constructive R-E)))
-  (void (run-tests (test-constructive R-control-closed))))
+  (void (run-tests (test-constructive R-control-closed)))
+  (void (run-tests (test-constructive R-safe-after-reduction))))

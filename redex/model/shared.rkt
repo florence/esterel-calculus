@@ -124,6 +124,10 @@
   (L-κ ::= () (κ L-κ))
   (L-s ::= () (s L-s))
   (K ::= L-n) ;; codes are lists of nats
+  ;; list as maps
+  ;; no duplicate keys are allowed
+  (M ::= () ((variable L) M))
+  (M-S-κ ::= () ((S L-κ) M-S-κ))
   (Can-result ::= (S-code-s L-S L-κ L-s)))
 
 
