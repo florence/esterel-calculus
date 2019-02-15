@@ -587,146 +587,161 @@
          complete?))))
 
   (define (run-constructive-tests-for -> name)
+    (parameterize ([current-cache-all? #t])
     
-    (define (correct-terminus? p)
-      (if (fail-on?)  incomplete? complete?))
-    (define fail-on? (make-parameter #f))
-    (define-syntax fail-on
-      (syntax-parser
-        [(fail-on (Rs:id ...) body ...)
-         #`(parameterize ([fail-on? (memq -> (list Rs ...))])
-             body ...)]))
-    (test-suite (format "Does ~a bypass constructiveness?" name)
-      (test--?>
-       ->
-       (term (ρ (mtθ+S S1 unknown)
-                (present S1
-                         (ρ (mtθ+S S2 unknown)
-                            (seq (emit S2)
-                                 (present S2
-                                          nothing
-                                          (emit S1))))
-                         nothing)))
-       (eq? -> R))
-      (fail-on
-       (R)
-       (test-->>P
-        ->
-        (term
-         (signal S1
-           (present S1
-                    (signal S2
-                      (seq (emit S2)
-                           (present S2
-                                    nothing
-                                    (emit S1))))
-                    nothing)))
-        correct-terminus?)
-       (test-->>P
-        ->
-        (term
-         (signal S1
-           (present S1
-                    (signal S2
-                      ;; This demonstraits that `seq` isn't necessary
-                      ;; to trigger the constructivity issue.
-                      (par (emit S2)
-                           (present S2
-                                    nothing
-                                    (emit S1))))
-                    nothing)))
-        correct-terminus?)
-       (test-case "in which we demonstrate that ignoring seq dependencies is unsound"
-         (fail-on
-          (R-no-seq R-no-present)
-          (test-->>P
-           ->
-           ;; Like the previous test case, but the dependency
-           ;; gets carried forward by a `seq`.
-           (term
-            (signal S1
-              (seq (present S1 pause nothing)
-                   (signal S2
-                     (seq (emit S2)
-                          (present S2 nothing (emit S1)))))))
-           correct-terminus?)
-          (test-->>P
-           ->
-           (term
-            (signal S1
-              ;; the `nothing nothing` here is meant to demonstrait that
-              ;; `Must` might prune a dependency edge from a seq it should not if one is not careful.
-              (seq (present S1 nothing nothing)
-                   (signal S2
-                     (seq (emit S2)
-                          (present S2 nothing (emit S1)))))))
-           correct-terminus?)))
+      (define (correct-terminus? p)
+        (if (fail-on?)  incomplete? complete?))
+      (define fail-on? (make-parameter #f))
+      (define-syntax fail-on
+        (syntax-parser
+          [(fail-on (Rs:id ...) body ...)
+           #`(parameterize ([fail-on? (memq -> (list Rs ...))])
+               body ...)]))
+      (test-suite (format "Does ~a bypass constructiveness?" name)
+        (test--?>
+         ->
+         (term (ρ (mtθ+S S1 unknown)
+                  (present S1
+                           (ρ (mtθ+S S2 unknown)
+                              (seq (emit S2)
+                                   (present S2
+                                            nothing
+                                            (emit S1))))
+                           nothing)))
+         (eq? -> R))
+        (fail-on
+         (R)
+         (test-->>P
+          ->
+          (term
+           (signal S1
+             (present S1
+                      (signal S2
+                        (seq (emit S2)
+                             (present S2
+                                      nothing
+                                      (emit S1))))
+                      nothing)))
+          correct-terminus?)
+         (test-->>P
+          ->
+          (term
+           (signal S1
+             (present S1
+                      (signal S2
+                        ;; This demonstraits that `seq` isn't necessary
+                        ;; to trigger the constructivity issue.
+                        (par (emit S2)
+                             (present S2
+                                      nothing
+                                      (emit S1))))
+                      nothing)))
+          correct-terminus?)
+         (test-case "in which we demonstrate that ignoring seq dependencies is unsound"
+           (fail-on
+            (R-no-seq R-no-present)
+            (test-->>P
+             ->
+             ;; Like the previous test case, but the dependency
+             ;; gets carried forward by a `seq`.
+             (term
+              (signal S1
+                (seq (present S1 pause nothing)
+                     (signal S2
+                       (seq (emit S2)
+                            (present S2 nothing (emit S1)))))))
+             correct-terminus?)
+            (test-->>P
+             ->
+             (term
+              (signal S1
+                ;; the `nothing nothing` here is meant to demonstrait that
+                ;; `Must` might prune a dependency edge from a seq it should not if one is not careful.
+                (seq (present S1 nothing nothing)
+                     (signal S2
+                       (seq (emit S2)
+                            (present S2 nothing (emit S1)))))))
+             correct-terminus?)))
 
       
-       ;;Does there exist some test case here where a data dependency isn't
-       ;;carried over a seq, but the seq is still important for a cycle?
+         ;;Does there exist some test case here where a data dependency isn't
+         ;;carried over a seq, but the seq is still important for a cycle?
 
-       ;;also here is a crazy though: does there exist a context C
-       ;;where I can put a program P which has a *resolvable*
-       ;; cycle into the hole, where resolving the cycle is sound.
-       ;; Possible Ps:
-       (test-case "In which we demonstrate that closed is unsound"
-         (fail-on
-          (R-closed)
-          #;(signal S1
-              (signal S2
-                (par
-                 (par (present S1 nothing (emit S2))
-                      (present S2 nothing (emit S1)))
-                 (emit S1))))
-          ;; or, without par
-          #;(signal S1
-              (signal S2
+         ;;also here is a crazy though: does there exist a context C
+         ;;where I can put a program P which has a *resolvable*
+         ;; cycle into the hole, where resolving the cycle is sound.
+         ;; Possible Ps:
+         (test-case "In which we demonstrate that closed is unsound"
+           (fail-on
+            (R-closed)
+            #;(signal S1
+                (signal S2
+                  (par
+                   (par (present S1 nothing (emit S2))
+                        (present S2 nothing (emit S1)))
+                   (emit S1))))
+            ;; or, without par
+            #;(signal S1
+                (signal S2
+                  (seq
+                   (emit S1)
+                   (seq
+                    (present S1 nothing (emit S2))
+                    (present S2 nothing (emit S1))))))
+            ;; simpler
+            #;(signal S1
+                (seq
+                 (emit S1)
+                 (present S1 nothing (emit S1))))
+            ;; with the emit outside of the branch
+            #;(signal S1
                 (seq
                  (emit S1)
                  (seq
-                  (present S1 nothing (emit S2))
-                  (present S2 nothing (emit S1))))))
-          ;; simpler
-          #;(signal S1
-              (seq
-               (emit S1)
-               (present S1 nothing (emit S1))))
-          ;; with the emit outside of the branch
-          #;(signal S1
-              (seq
-               (emit S1)
-               (seq
-                (present S1 nothing nothing)
-                (emit S1))))
+                  (present S1 nothing nothing)
+                  (emit S1))))
       
-          ;; hell maybe even something cycleless will do, like:
-          #;(signal S1 (emit S1))
+            ;; hell maybe even something cycleless will do, like:
+            #;(signal S1 (emit S1))
 
-          ;; I'm starting to think this isn't possible without `trap`
-          ;; but I don't understand the graph structure of that. But maybe
-          #;(signal S1
-              (seq
-               (emit S1)
-               (present S1 nothing (exit 0))))
-          ;; since can can't determine the exit condition without
-          ;; running the emit. Lets try.
+            ;; I'm starting to think this isn't possible without `trap`
+            ;; but I don't understand the graph structure of that. But maybe
+            #;(signal S1
+                (seq
+                 (emit S1)
+                 (present S1 nothing (exit 0))))
+            ;; since can can't determine the exit condition without
+            ;; running the emit. Lets try.
              
       
-          (test-->>P
-           ->
-           (term
-            (signal S2
-              (seq (present S2 nothing nothing)
-                   (trap
-                    (seq (signal S1
-                           (seq
-                            (emit S1)
-                            (present S1 (exit 0) nothing)))
-                         (emit S2))))))
+            (test-->>P
+             ->
+             (term
+              (signal S2
+                (seq (present S2 nothing nothing)
+                     (trap
+                      (seq (signal S1
+                             (seq
+                              (emit S1)
+                              (present S1 (exit 0) nothing)))
+                           (emit S2))))))
                      
-           correct-terminus?)))
-       )))
+             correct-terminus?)))
+         (test-case "looking at par"
+           (test-->>P
+            ->
+            (term
+             (signal S2
+               (seq (present S2 nothing nothing)
+                    (trap
+                     (seq (signal S1
+                            (par
+                             (emit S1)
+                             (present S1 (exit 0) nothing)))
+                          (emit S2))))))
+                     
+            correct-terminus?))
+         ))))
   (void (run-tests (test-relation R)))
   (void (run-tests (test-relation R-empty)))
   (void (run-tests (test-relation R-closed)))
