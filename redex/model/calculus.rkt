@@ -280,10 +280,10 @@
 (define-metafunction esterel-eval
   control-deps : C -> L-S
   [(control-deps C)
-    (Mdom
-     (Mrestrict-range-to
-      (control-deps* C)
-      nothin))])
+   (Mdom
+    (Mrestrict-range-to
+     (control-deps* C)
+     nothin))])
 
 (define-metafunction esterel-eval
   control-deps* : C -> M-S-κ
@@ -432,13 +432,15 @@
 (define R-no-control (MR no-control-C))
 (define R-E (MR E-C))
 (define R-control-closed (MR control-closed-C))
-(define R-safe-after-reduction (MR safe-after-reduction-C))
+
 
 ;; these are what seem like reasonable attempts at
 ;; a valid relation which don't work
 (define R-closed (MR closed-C))
 (define R-no-present (MR no-present-C))
 (define R-no-seq (MR no-seq-C))
+(define R-safe-after-reduction (MR safe-after-reduction-C))
+
 ;                                                    
 ;                                                    
 ;                                                    
@@ -473,6 +475,28 @@
   (define (complete? p)
     (redex-match? esterel-eval complete p))
   (define incomplete? (negate complete?))
+  
+  ;                                                                                                                
+  ;                                                                                                                
+  ;                                    ;;                                                                          
+  ;    ;;;;;                           ;;                         ;;;;;;;;                                         
+  ;    ;   ;;                                                        ;                            ;;               
+  ;    ;    ;                                                        ;                            ;;               
+  ;    ;    ;    ;;;;;      ;;;;     ;;;;        ;;;                 ;        ;;;;      ;;;;    ;;;;;;      ;;;;   
+  ;    ;   ;;        ;     ;    ;       ;      ;;   ;                ;       ;;  ;;    ;    ;     ;;       ;    ;  
+  ;    ;;;;          ;;    ;            ;      ;                     ;       ;    ;    ;          ;;       ;       
+  ;    ;   ;;     ;;;;;    ;;           ;      ;                     ;      ;;    ;    ;;         ;;       ;;      
+  ;    ;    ;    ;   ;;     ;;;;        ;     ;;                     ;      ;;;;;;;     ;;;;      ;;        ;;;;   
+  ;    ;    ;;  ;;   ;;        ;;       ;      ;                     ;      ;;             ;;     ;;           ;;  
+  ;    ;    ;;  ;;   ;;         ;       ;      ;                     ;       ;              ;     ;;            ;  
+  ;    ;   ;;   ;;  ;;;   ;;   ;;       ;      ;;   ;                ;       ;;   ;   ;;   ;;     ;;  ;   ;;   ;;  
+  ;    ;;;;;     ;;;; ;    ;;;;;     ;;;;;;     ;;;;                 ;        ;;;;     ;;;;;       ;;;;    ;;;;;   
+  ;                                                                                                                
+  ;                                                                                                                
+  ;                                                                                                                
+  ;                                                                                                                
+  ;                                                                                                                
+
   (define (run-tests-as R name)
     (test-suite (format "basic tests for ~a" name)
       (test-->
@@ -585,6 +609,27 @@
                        (emit S2))))))
                      
          complete?))))
+
+  ;                                                                                                                          
+  ;                                                                                                                          
+  ;                                                                                                ;;                        
+  ;      ;;;;                                                                                      ;;                        
+  ;    ;;   ;;                                  ;;                                      ;;                                   
+  ;    ;                                        ;;                                      ;;                                   
+  ;   ;;          ;;;;     ; ;;;      ;;;;    ;;;;;;     ;;  ;;    ;    ;      ;;;    ;;;;;;     ;;;;     ;;    ;;    ;;;;   
+  ;   ;;         ;;  ;;    ;;  ;;    ;    ;     ;;        ; ; ;    ;    ;    ;;   ;     ;;          ;     ;;    ;    ;;  ;;  
+  ;   ;         ;;    ;    ;    ;    ;          ;;        ;;  ;    ;    ;    ;          ;;          ;      ;   ;;    ;    ;  
+  ;   ;         ;;    ;    ;    ;    ;;         ;;        ;;       ;    ;    ;          ;;          ;      ;;  ;    ;;    ;  
+  ;   ;;        ;;    ;    ;    ;     ;;;;      ;;        ;        ;    ;   ;;          ;;          ;      ;;  ;    ;;;;;;;  
+  ;   ;;        ;;    ;    ;    ;        ;;     ;;        ;        ;    ;    ;          ;;          ;       ;  ;    ;;       
+  ;    ;        ;;    ;    ;    ;         ;     ;;        ;        ;    ;    ;          ;;          ;       ; ;      ;       
+  ;    ;;   ;;   ;;  ;;    ;    ;   ;;   ;;     ;;  ;     ;        ;   ;;    ;;   ;     ;;  ;       ;        ;;      ;;   ;  
+  ;      ;;;;     ;;;;     ;    ;    ;;;;;       ;;;;    ;;;;      ;;;; ;     ;;;;       ;;;;    ;;;;;;      ;;       ;;;;   
+  ;                                                                                                                          
+  ;                                                                                                                          
+  ;                                                                                                                          
+  ;                                                                                                                          
+  ;                                                                                                                          
 
   (define (run-constructive-tests-for -> name)
     (parameterize ([current-cache-all? #t])
@@ -739,9 +784,46 @@
                              (emit S1)
                              (present S1 (exit 0) nothing)))
                           (emit S2))))))
-                     
             correct-terminus?))
+         (test-case "in which we show cycles can be broken indirectly"
+           (fail-on
+            (R-safe-after-reduction)
+            (test-->>P
+             ->
+             (term
+              (signal SO
+                (signal SB   
+                  (present S2
+                           (signal SE
+                             (seq
+                              (seq (emit SE)
+                                   (present SE nothing (emit SB)))
+                              (present SB (emit S2) nothing)))
+                           nothing))))
+             correct-terminus?)))
          ))))
+  
+  ;                                                                        
+  ;                                                                        
+  ;                                                                        
+  ;    ;;;;;;                                                              
+  ;    ;                                                  ;;               
+  ;    ;                                                  ;;               
+  ;    ;        ;;   ;;     ;;;;       ;;;     ;    ;   ;;;;;;      ;;;;   
+  ;    ;         ;;  ;     ;;  ;;    ;;   ;    ;    ;     ;;       ;;  ;;  
+  ;    ;          ; ;;     ;    ;    ;         ;    ;     ;;       ;    ;  
+  ;    ;;;;;       ;;     ;;    ;    ;         ;    ;     ;;      ;;    ;  
+  ;    ;           ;;     ;;;;;;;   ;;         ;    ;     ;;      ;;;;;;;  
+  ;    ;          ;;;     ;;         ;         ;    ;     ;;      ;;       
+  ;    ;          ;  ;     ;         ;         ;    ;     ;;       ;       
+  ;    ;         ;   ;;    ;;   ;    ;;   ;    ;   ;;     ;;  ;    ;;   ;  
+  ;    ;;;;;;   ;;    ;;    ;;;;      ;;;;     ;;;; ;      ;;;;     ;;;;   
+  ;                                                                        
+  ;                                                                        
+  ;                                                                        
+  ;                                                                        
+  ;                                                                        
+
   (void (run-tests (test-relation R)))
   (void (run-tests (test-relation R-empty)))
   (void (run-tests (test-relation R-closed)))
@@ -752,9 +834,9 @@
   (void (run-tests (test-relation R-control-closed)))
   (void (run-tests (test-relation R-safe-after-reduction)))
 
-  (void (run-tests (test-constructive R)))
-  (void (run-tests (test-constructive R-empty)))
-  (void (run-tests (test-constructive R-closed)))
+  (void (run-tests (test-constructive R) 'verbose))
+  (void (run-tests (test-constructive R-empty) 'verbose))
+  (void (run-tests (test-constructive R-closed) 'verbose))
   (void (run-tests (test-constructive R-no-control)))
   (void (run-tests (test-constructive R-no-seq)))
   (void (run-tests (test-constructive R-no-present)))
