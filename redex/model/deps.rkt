@@ -143,7 +143,7 @@
 
 
 (define (cfg term)
-  (define-values (_head graph tails)
+  (define-values (head graph tails)
     (let loop ([term term])
       (match term
         [(or `(emit ,_) `(nothing))
@@ -187,7 +187,7 @@
                      ([p (in-list p)])
              (define-values (ph pg pt) (loop p))
              (values (cons ph heads)
-                     (hash-union/append graph)
+                     (hash-union/append graph pg)
                      (append pt tails))))
          (define j '(join))
          (values
@@ -227,7 +227,10 @@
   (for/fold ([graph graph])
             ([l (in-list tails)])
     (define-values (n r) (swap-term 'exit l))
-    (hash-set graph n (list r))))
+     (hash-set* graph
+                n (list r)
+                'entry (list (true-flow head)
+                             (false-flow 'exit)))))
 
 
 ;                                
@@ -310,8 +313,11 @@
 ;; Data Dependence graphs here are just adding write-after-read
 ;; deps to the data-flow graph.
 (define (ddg term)
+  (ddg-from-dfg (dfg term)))
+
+(define (ddg-from-dfg dfg)
   ;; TODO actually implement
-  (dfg term))
+  dfg)
 
 ;                                
 ;                                
@@ -335,10 +341,16 @@
 ;                                
 
 (define (cdg term)
-  (cdg-from-postdominator-tree-traversal
+  (cdg-from-cfg
    (cfg term)))
 
-(define (cdg-from-postdominator-tree-traversal cfg)
+(define (postdominator-tree-from-cfg cfg)
+  (define rcfg (reverse-cfg cfg))
+  (define idom (immediate-postdominators-from-rcfg-and-cfg cfg rcfg))
+  (define-values (pdt pdtt) (postdominator-tree+traversal cfg idom))
+  pdt)
+
+(define (cdg-from-cfg cfg)
   (define rcfg (reverse-cfg cfg))
   (define idom (immediate-postdominators-from-rcfg-and-cfg cfg rcfg))
   (define-values (pdt pdtt) (postdominator-tree+traversal cfg idom))
@@ -375,7 +387,7 @@
   
 (define (immediate-postdominators-from-rcfg-and-cfg cfg rcfg)
   (define pd
-     (postdominators-from-reverse-cfg-and-cfg cfg rcfg))
+     (postdominators-from-reverse-cfg-and-rcfg cfg rcfg))
   (define (immediate-dominator n)
     (define ds (hash-ref pd n))
     (define l
@@ -426,51 +438,56 @@
     (values d
             (set-remove s d))))
 
-(define (postdominators-from-reverse-cfg-and-cfg cfg rcfg)
+(define (postdominators-from-reverse-cfg-and-rcfg cfg rcfg)
   
   ;; Dominator dataflow equations:
   ;; out[B] = FB(in[B]), for all B
   ;; in[B] = ∩{out[B’] | B’∈pred(B)}, for all B
   ;; in[Bs] = {}
   ;; where FB(X) = X ⋃ {B}
+  ;; and the top of the latice is all nodes
 
   ;; This simplifies to:
   ;;  dom(n0)= {n0}
   ;;  dom(n) = ∩{ dom(m) | m ∈ pred(n) } ∪ {n}
-  ;; (see http://www.cs.cornell.edu/courses/cs412/2008sp/lectures/lec29.pdf)
+  ;; (see http://pages.cs.wisc.edu/~fischer/cs701.f08/lectures/Lecture19.4up.pdf)
   
   ;; We don't have cycles so we could do this
   ;; in a single pass with the right traversal order
   ;; but im lazy and the fixed point should only need a
   ;; constant number of passes so whatever
-  
+
   (define start 'exit)
-  (let outer ([dom (hasheq start (seteq start))])
-    (define q (make-queue))
-    (enqueue! q start)
-    (define dom*
-      (let loop ([dom dom])
-        (cond
-          [(queue-empty? q) dom]
-          [else
-           (define B (dequeue! q))
-           (define preds (map flow-term (hash-ref cfg B empty)))
-           (define succs (map flow-term (hash-ref rcfg B empty)))
-           (for ([x (in-list succs)])
-             (enqueue! q x))
-           (loop
-            (hash-set
-             dom B
-             (set-add
-              (let ([all (for/list ([p (in-list preds)])
-                           (list->seteq (hash-ref dom p empty)))])
-                (if (empty? all)
-                    (seteq)
-                    (apply set-intersect all)))
-              B)))])))
-    (if (equal? dom* dom)
-        dom
-        (outer dom*))))
+  (define nodes (set->list (list->seteq (append (hash-keys cfg) (hash-keys rcfg)))))
+  (let loop ([todo nodes]
+             [in (hasheq start empty)]
+             [out (hasheq)])
+    (cond
+      [(empty? todo) out]
+      [else
+       (define B (first todo))
+       (define preds (map flow-term (hash-ref cfg B empty)))
+       (define succs (map flow-term (hash-ref rcfg B empty)))
+       (define B-in
+         (let ([all (for/list ([p (in-list preds)])
+                      (list->seteq (hash-ref out p nodes)))])
+           (if (empty? all)
+               (seteq)
+               (apply set-intersect all))))
+       (define new-in
+         (hash-set in B B-in))
+       (define new-out
+         (hash-set out B (set-union B-in (seteq B))))
+       
+       (loop
+        (append
+         (if (and (equal? in new-in)
+                  (equal? out new-out))
+             empty
+             succs)
+         (rest todo))
+        new-in
+        new-out)])))
          
 (define (reverse-cfg cfg)
   (for*/fold ([r (hasheq)])
@@ -589,22 +606,40 @@
     [`(present ,S ,p ,q) (~a `(? ,S))]
     ['(join) "join"]
     [`(par ,p ...) "par"]
-    ['exit "exit"]))
+    ['exit "exit"]
+    [_ (~a c)]))
 
 (define (graph-from-mapping ac control data)
   (define terms
-    (for*/seteq ([(c fs) (in-hash (hash-union/append control data))]
-                 [t (in-list (cons c (map flow-term fs)))])
-      t))
-  (define snips
-    (for/hasheq ([c (in-set terms)])
+    (sort
+     (set->list
+      (for*/seteq ([(c fs) (in-hash (hash-union/append control data))]
+                   [t (in-list (cons c (map flow-term fs)))])
+        t))
+     ;; there is still a slight non-deterministic
+     ;; ordering here for when the same term
+     ;; shows up twice. Could use a
+     ;; program-traversal order instead
+     ;; if this is ever annoying.
+     string<?
+     #:key ~a
+     #:cache-keys? #t))
+  (define-values (snips snips-ordering)
+    (for/fold ([h (hasheq)]
+               [ordering empty])
+              
+              ([c (in-list terms)])
       (define t (new text%))
       (send t insert
             (term->node-string c)
             0)
-      (values c
-              (new graph-editor-snip%
-                   [editor t]))))
+      (values
+       (hash-set
+        h
+        c
+        (new graph-editor-snip%
+             [editor t]))
+       (cons c ordering))))
   (define (add-links* map)
     (for* ([(c links) (in-hash map)]
            [l (in-list links)])
@@ -620,21 +655,17 @@
                  (send the-brush-list find-or-create-brush color 'solid)
                  (flow->label l))))
   (add-links* control)
-  (define p (new (graph-pasteboard-mixin pasteboard%)
-                 #;
-                 [edge-label-font
-                  (send the-font-list
-                        find-or-create-font
-                        12 'modern 'normal 'bold)]))
+  (define p (new (graph-pasteboard-mixin pasteboard%)))
   (define ec
     (new editor-canvas%
          [parent ac]
          [editor p]))
   (send p begin-edit-sequence)
   (send p set-draw-arrow-heads? #t)
-  (for ([(_ s) (in-hash snips)])
+  (for ([k (in-list snips-ordering)])
+    (define s (hash-ref snips k))
     (send p insert s)
-    (send s set-margin 30 30 30 30))
+    (send s set-margin 15 15 15 15))
   (dot-positioning p)
   (for ([(_ s) (in-hash snips)])
     (send s set-margin 5 5 5 5))
@@ -653,12 +684,7 @@
   (send f show #t))
 
 (define (dependence-graph c)
-  (define f (new (frame:basic-mixin frame%)
-                 [label ""]
-                 [min-width 800]
-                 [min-height 600]))
-  (graph-from-mapping (send f get-area-container) (cdg c) (ddg c))
-  (send f show #t))
+  (dependence-graph-from-pfg (cfg c) (dfg c)))
 
 (define (graph c)
   (define f (new (frame:basic-mixin frame%)
@@ -666,8 +692,50 @@
                  [min-width 800]
                  [min-height 600]))
   (define h (new horizontal-panel% [parent (send f get-area-container)]))
+  (define t
+    (new racket:text%))
+  (send t insert
+        (with-output-to-string
+          (lambda ()
+            (parameterize ([pretty-print-columns 40])
+              (pretty-display c)))))
+  (define ec
+    (new editor-canvas%
+         [parent h]
+         [editor t]))
+  (graph-from-mapping h (hash-remove (cfg c) 'entry) (dfg c))
   (graph-from-mapping h (cdg c) (ddg c))
-  (graph-from-mapping h (cfg c) (dfg c))
+  (queue-callback (lambda ()
+                    (send t freeze-colorer)
+                    (send t lock #t)
+                    (send f show #t))
+                  #f))
+
+(define (graph-from-pfg cfg dfg)
+  (define f (new (frame:basic-mixin frame%)
+                 [label ""]
+                 [min-width 800]
+                 [min-height 600]))
+  (define h (new horizontal-panel%
+                 [parent (send f get-area-container)]))
+  (graph-from-mapping h (hash-remove cfg 'entry) dfg)
+  (graph-from-mapping h (cdg-from-cfg cfg) (ddg-from-dfg dfg))
+  (send f show #t))
+
+(define (flow-graph-from-pfg cfg dfg)
+  (define f (new (frame:basic-mixin frame%)
+                 [label ""]
+                 [min-width 800]
+                 [min-height 600]))
+  (graph-from-mapping (send f get-area-container) cfg dfg)
+  (send f show #t))
+
+(define (dependence-graph-from-pfg cfg dfg)
+  (define f (new (frame:basic-mixin frame%)
+                 [label ""]
+                 [min-width 800]
+                 [min-height 600]))
+  (graph-from-mapping (send f get-area-container) (cdg-from-cfg cfg) (ddg-from-dfg dfg))
   (send f show #t))
        
 
@@ -855,7 +923,7 @@ c
                        (present SE (emit SB) (nothing)))
                   (present SB (nothing) (emit S2))))
                (nothing)))))
-
+#;
 (graph
  '(signal SO
     (signal SB   
@@ -866,3 +934,36 @@ c
                        (present SE (emit SB) (nothing)))
                   (present SB (nothing) (emit S2))))
                (nothing)))))
+
+(define h
+  (hasheq
+   'entry (list (true-flow 'start) (false-flow 'exit))
+   'start (list (K-flow 1 0))
+   1 (list (true-flow 2) (false-flow 3))
+   2 (list (true-flow 4) (false-flow 5))
+   3 (list (true-flow 5) (false-flow 7))
+   4 (list (K-flow 6 0))
+   5 (list (K-flow 6 0))
+   6 (list (K-flow 7 0))
+   7 (list (K-flow 'exit 0))))
+
+(define h2
+  (hasheq
+   'entry (list (true-flow 'start) (false-flow 'exit))
+   'start (list (K-flow 1 0))
+   1 (list (K-flow 2 0))
+   2 (list (true-flow 3) (false-flow 4)
+           (K-flow 1 0)
+           (K-flow 7 0))
+   3 (list (K-flow 5 0))
+   4 (list (K-flow 5 0))
+   5 (list (true-flow 4) (false-flow 6))
+   6 (list (K-flow 2 0))
+   7 (list (K-flow 'exit 0))))
+
+#;(graph-from-pfg h (hasheq))
+#;(graph-from-pfg h2 (hasheq))
+
+(define idom (immediate-postdominators-from-rcfg-and-cfg h (reverse-cfg h)))
+(define-values (a b) (postdominator-tree+traversal h idom))
+             
