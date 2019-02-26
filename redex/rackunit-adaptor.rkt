@@ -10,7 +10,8 @@
  test-->>∃
  test--/>
  test--?>
- test-->>P)
+ test-->>P
+ test-->>P*)
 (require redex/reduction-semantics
          rackunit
          (for-syntax syntax/parse)
@@ -91,7 +92,13 @@
       ['failed failed])
      (fail-check "Some terminal reductions failed property"))))
 
-
+(define-check (test-->>P* R term P)
+  (define res (apply-reduction-relation* R term))
+  (define failed (P res))
+  (unless failed
+    (with-check-info
+     (['all-results res])
+     (fail-check "Some terminal reductions failed property"))))
 
 (define-syntax test-term-equal
   (syntax-parser
