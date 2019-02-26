@@ -11,10 +11,23 @@
                        rackunit/text-ui
                        esterel-calculus/redex/rackunit-adaptor))
 
+(define-metafunction esterel-eval
+  done<? : p p -> boolean
+  [(done<? (exit n) nothing) #t]
+  [(done<? paused nothing) #t]
+  [(done<? paused (exit n)) #t]
+  [(done<? _ _) #f])
+
+(define use-fast-par-swap? (make-parameter #f))
+
 (define R-base
   (reduction-relation
    esterel-eval #:domain p
-   (--> (par p q) (par q p) par-swap)
+   (--> (par p q) (par q p)
+        (side-condition/hidden
+         (implies (use-fast-par-swap?)
+                  #R(term (done<? p q))))
+        par-swap)
    (--> (par nothing done) done par-nothing)
    (--> (par (exit n) paused) (exit n) par-1exit)
    (--> (par (exit n_1) (exit n_2)) (exit (max-mf n_1 n_2)) par-2exit)
@@ -286,91 +299,95 @@
      nothin))])
 
 (define-metafunction esterel-eval
-  control-deps* : C -> M-S-κ
-  [(control-deps* hole) (M0)]
-  [(control-deps* (signal S C))
-   (Mrestrict-domain (control-deps* C) S)]
-  [(control-deps* (seq C q))
+  control-deps* : C θ -> M-S-κ
+  [(control-deps* hole θ) (M0)]
+  [(control-deps* (seq C q) θ)
    (MU (Mrestrict-range
-        (control-deps* C)
+        (control-deps* C θ)
         nothin)
        (κ-deps q))]
-  [(control-deps* (seq p C))
+  [(control-deps* (seq p C) θ)
    (MU (Mrestrict-range
         (κ-deps p)
         nothin)
-       (control-deps* C))]
-  [(control-deps* (loop^stop C q))
-   (control-deps* C)]
-  [(control-deps* (loop^stop p C))
-   (κ-deps p)]
-  [(control-deps* (present S C q))
+       (control-deps* C θ))]
+  [(control-deps* (loop^stop C q) θ)
+   (control-deps* C θ)]
+  [(control-deps* (loop^stop p C) θ)
+   (κ-deps p θ)]
+  [(control-deps* (present S C q) θ)
    (MU
-    (M1* S (Can_K (present S (in-hole C nothing) q) ·))
+    (M1* S (Can_K (present S (in-hole C nothing) q) θ))
     (MU
-     (control-deps* C)
-     (κ-deps q)))]
-  [(control-deps* (present S p C))
+     (control-deps* C θ)
+     (κ-deps q θ)))]
+  [(control-deps* (present S p C) θ)
    (MU
-    (M1* S (Can_K (present S p (in-hole C nothing)) ·))
+    (M1* S (Can_K (present S p (in-hole C nothing)) θ))
     (MU
-     (κ-deps p)
-     (control-deps* C)))]
-  [(control-deps* (par C q))
+     (κ-deps p θ)
+     (control-deps* C θ)))]
+  [(control-deps* (par C q) θ)
    (Mmax*
-    (control-deps* C)
-    (κ-deps q))]
-  [(control-deps* (par p C))
+    (control-deps* C θ)
+    (κ-deps q θ))]
+  [(control-deps* (par p C) θ)
    (Mmax*
-    (κ-deps p)
-    (control-deps* C))]
-  [(control-deps* (loop C))
-   (control-deps* C)]
-  [(control-deps* (suspend C S))
-   (control-deps* C)]
-  [(control-deps* (trap C))
-   (M---κ↓ (control-deps* C))]
-  [(control-deps* (shared s := e C))
-   (control-deps* C)]
-  [(control-deps* (var x := e C))
-   (control-deps* C)]
-  [(control-deps* (if x C q))
+    (κ-deps p θ)
+    (control-deps* C θ))]
+  [(control-deps* (loop C) θ)
+   (control-deps* C θ)]
+  [(control-deps* (suspend C S) θ)
+   (control-deps* C θ)]
+  [(control-deps* (trap C) θ)
+   (M---κ↓ (control-deps* C θ))]
+  [(control-deps* (shared s := e C) θ)
+   (control-deps* C θ)]
+  [(control-deps* (var x := e C) θ)
+   (control-deps* C θ)]
+  [(control-deps* (if x C q) θ)
    (MU
-    (control-deps* C)
-    (κ-deps q))]
-  [(control-deps* (if x p C))
+    (control-deps* C θ)
+    (κ-deps q θ))]
+  [(control-deps* (if x p C) θ)
    (MU
-    (κ-deps p)
-    (control-deps* C))]
-  [(control-deps* (ρ θ C))
+    (κ-deps p θ)
+    (control-deps* C θ))]
+  [(control-deps* (signal S C) θ)
+   (Mrestrict-domain (control-deps* C θ) S)]
+  [(control-deps* (ρ θ E) θ_1)
    (Mrestrict-domain*
-    (control-deps* C)
-    (get-signals* θ))])
+    (control-deps* C (<- θ θ_1))
+    (get-unknown-signals θ))]
+  [(control-deps* (ρ θ C) θ_1)
+   (Mrestrict-domain*
+    (control-deps* C θ_1)
+    (get-unknown-signals θ))])
 
 (define-metafunction esterel-eval
-  κ-deps : p -> M-S-κ
-  [(κ-deps (signal S p))
-   (Mrestrict-domain (κ-deps p) S)]
-  [(κ-deps nothing) (M0)]
-  [(κ-deps pause) (M0)]
-  [(κ-deps (seq p q))
+  κ-deps : p θ -> M-S-κ
+  [(κ-deps (signal S p) θ)
+   (Mrestrict-domain (κ-deps p (<- θ TODO) S)]
+  [(κ-deps nothing θ) (M0)]
+  [(κ-deps pause θ) (M0)]
+  [(κ-deps (seq p q) θ)
    (MU (Mrestrict-range
-        (κ-deps p)
+        (κ-deps p θ)
         nothin)
-       (κ-deps q))]
+       (κ-deps q θ))]
   [(κ-deps (emit S)) (M0)]
-  [(κ-deps (present S p q))
+  [(κ-deps (present S p q) θ)
    (MU
-    (M1* S (Can_K (present S p q) ·))
+    (M1* S (Can_K (present S p q) θ))
     (MU
-     (κ-deps p)
-     (κ-deps q)))]
-  [(κ-deps (par p q))
+     (κ-deps p θ)
+     (κ-deps q θ)))]
+  [(κ-deps (par p q) θ)
    (Mmax*
-    (κ-deps p)
-    (κ-deps q))]
-  [(κ-deps (loop p))
-   (κ-deps p)]
+    (κ-deps p θ)
+    (κ-deps q θ))]
+  [(κ-deps (loop p) θ)
+   (κ-deps p θ)]
   [(κ-deps (suspend p S))
    (κ-deps p)]
   [(κ-deps (trap p))
@@ -387,7 +404,7 @@
   [(κ-deps (ρ θ p))
    (Mrestrict-domain*
     (κ-deps p)
-    (get-signals* θ))]
+    (get-unknown-signals θ))]
   [(κ-deps (loop p q))
    (κ-deps p)])
   
@@ -475,6 +492,13 @@
   (define (complete? p)
     (redex-match? esterel-eval complete p))
   (define incomplete? (negate complete?))
+  (require (prefix-in ru: rackunit))
+
+  #;
+  (define-syntax test-case
+    (syntax-parser
+      [(_ x body ...)
+       #'(ru:test-case x (displayln x) body ...)]))
   
   ;                                                                                                                
   ;                                                                                                                
@@ -632,10 +656,11 @@
   ;                                                                                                                          
 
   (define (run-constructive-tests-for -> name)
-    (parameterize ([current-cache-all? #t])
+    (parameterize ([current-cache-all? #f]
+                   [use-fast-par-swap? #t])
     
       (define (correct-terminus? p)
-        (if (fail-on?)  incomplete? complete?))
+        ((if (fail-on?) complete? incomplete?) p))
       (define fail-on? (make-parameter #f))
       (define-syntax fail-on
         (syntax-parser
@@ -643,136 +668,143 @@
            #`(parameterize ([fail-on? (memq -> (list Rs ...))])
                body ...)]))
       (test-suite (format "Does ~a bypass constructiveness?" name)
-        (test--?>
-         ->
-         (term (ρ (mtθ+S S1 unknown)
-                  (present S1
-                           (ρ (mtθ+S S2 unknown)
-                              (seq (emit S2)
-                                   (present S2
-                                            nothing
-                                            (emit S1))))
-                           nothing)))
-         (eq? -> R))
-        (fail-on
-         (R)
-         (test-->>P
-          ->
-          (term
-           (signal S1
-             (present S1
-                      (signal S2
-                        (seq (emit S2)
-                             (present S2
-                                      nothing
-                                      (emit S1))))
-                      nothing)))
-          correct-terminus?)
-         (test-->>P
-          ->
-          (term
-           (signal S1
-             (present S1
-                      (signal S2
-                        ;; This demonstraits that `seq` isn't necessary
-                        ;; to trigger the constructivity issue.
-                        (par (emit S2)
-                             (present S2
-                                      nothing
-                                      (emit S1))))
-                      nothing)))
-          correct-terminus?)
-         (test-case "in which we demonstrate that ignoring seq dependencies is unsound"
-           (fail-on
-            (R-no-seq R-no-present)
-            (test-->>P
-             ->
-             ;; Like the previous test case, but the dependency
-             ;; gets carried forward by a `seq`.
-             (term
-              (signal S1
-                (seq (present S1 pause nothing)
-                     (signal S2
-                       (seq (emit S2)
-                            (present S2 nothing (emit S1)))))))
-             correct-terminus?)
-            (test-->>P
-             ->
-             (term
-              (signal S1
-                ;; the `nothing nothing` here is meant to demonstrait that
-                ;; `Must` might prune a dependency edge from a seq it should not if one is not careful.
-                (seq (present S1 nothing nothing)
-                     (signal S2
-                       (seq (emit S2)
-                            (present S2 nothing (emit S1)))))))
-             correct-terminus?)))
+        (test-case "original test, one step"
+          (test--?>
+           ->
+           (term (ρ (mtθ+S S1 unknown)
+                    (present S1
+                             (ρ (mtθ+S S2 unknown)
+                                (seq (emit S2)
+                                     (present S2
+                                              nothing
+                                              (emit S1))))
+                             nothing)))
+           (eq? -> R)))
+        (test-case "the original case"
+          (fail-on
+           (R)
+           (test-->>P
+            ->
+            (term
+             (signal S1
+               (present S1
+                        (signal S2
+                          (seq (emit S2)
+                               (present S2
+                                        nothing
+                                        (emit S1))))
+                        nothing)))
+            correct-terminus?)))
+        (test-case "in which we demonstrate that `seq` isn't necessary to have the issue"
+          (fail-on
+           (R R-no-seq R-no-present)
+           (test-->>P
+            ->
+            (term
+             (signal S1
+               (present S1
+                        (signal S2
+                          ;; This demonstraits that `seq` isn't necessary
+                          ;; to trigger the constructivity issue.
+                          (par (emit S2)
+                               (present S2
+                                        nothing
+                                        (emit S1))))
+                        nothing)))
+            correct-terminus?)))
+        (test-case "in which we demonstrate that ignoring seq dependencies is unsound"
+          (fail-on
+           (R R-no-seq R-no-present)
+           (test-->>P
+            ->
+            ;; Like the previous test case, but the dependency
+            ;; gets carried forward by a `seq`.
+            (term
+             (signal S1
+               (seq (present S1 pause nothing)
+                    (signal S2
+                      (seq (emit S2)
+                           (present S2 nothing (emit S1)))))))
+            correct-terminus?)
+           (test-->>P
+            ->
+            (term
+             (signal S1
+               ;; the `nothing nothing` here is meant to demonstrait that
+               ;; `Must` might prune a dependency edge from a seq it should not if one is not careful.
+               (seq (present S1 nothing nothing)
+                    (signal S2
+                      (seq (emit S2)
+                           (present S2 nothing (emit S1)))))))
+            correct-terminus?)))
 
       
-         ;;Does there exist some test case here where a data dependency isn't
-         ;;carried over a seq, but the seq is still important for a cycle?
+        ;;Does there exist some test case here where a data dependency isn't
+        ;;carried over a seq, but the seq is still important for a cycle?
 
-         ;;also here is a crazy though: does there exist a context C
-         ;;where I can put a program P which has a *resolvable*
-         ;; cycle into the hole, where resolving the cycle is sound.
-         ;; Possible Ps:
-         (test-case "In which we demonstrate that closed is unsound"
-           (fail-on
-            (R-closed)
-            #;(signal S1
-                (signal S2
-                  (par
-                   (par (present S1 nothing (emit S2))
-                        (present S2 nothing (emit S1)))
-                   (emit S1))))
-            ;; or, without par
-            #;(signal S1
-                (signal S2
-                  (seq
-                   (emit S1)
-                   (seq
-                    (present S1 nothing (emit S2))
-                    (present S2 nothing (emit S1))))))
-            ;; simpler
-            #;(signal S1
-                (seq
-                 (emit S1)
-                 (present S1 nothing (emit S1))))
-            ;; with the emit outside of the branch
-            #;(signal S1
-                (seq
-                 (emit S1)
-                 (seq
-                  (present S1 nothing nothing)
+        ;;also here is a crazy though: does there exist a context C
+        ;;where I can put a program P which has a *resolvable*
+        ;; cycle into the hole, where resolving the cycle is sound.
+        ;; Possible Ps:
+        (test-case "In which we demonstrate that closed is unsound"
+          (fail-on
+           (R R-closed R-no-present R-no-seq)
+           #;(signal S1
+               (signal S2
+                 (par
+                  (par (present S1 nothing (emit S2))
+                       (present S2 nothing (emit S1)))
                   (emit S1))))
-      
-            ;; hell maybe even something cycleless will do, like:
-            #;(signal S1 (emit S1))
-
-            ;; I'm starting to think this isn't possible without `trap`
-            ;; but I don't understand the graph structure of that. But maybe
-            #;(signal S1
+           ;; or, without par
+           #;(signal S1
+               (signal S2
+                 (seq
+                  (emit S1)
+                  (seq
+                   (present S1 nothing (emit S2))
+                   (present S2 nothing (emit S1))))))
+           ;; simpler
+           #;(signal S1
+               (seq
+                (emit S1)
+                (present S1 nothing (emit S1))))
+           ;; with the emit outside of the branch
+           #;(signal S1
+               (seq
+                (emit S1)
                 (seq
-                 (emit S1)
-                 (present S1 nothing (exit 0))))
-            ;; since can can't determine the exit condition without
-            ;; running the emit. Lets try.
+                 (present S1 nothing nothing)
+                 (emit S1))))
+      
+           ;; hell maybe even something cycleless will do, like:
+           #;(signal S1 (emit S1))
+
+           ;; I'm starting to think this isn't possible without `trap`
+           ;; but I don't understand the graph structure of that. But maybe
+           #;(signal S1
+               (seq
+                (emit S1)
+                (present S1 nothing (exit 0))))
+           ;; since can can't determine the exit condition without
+           ;; running the emit. Lets try.
              
       
-            (test-->>P
-             ->
-             (term
-              (signal S2
-                (seq (present S2 nothing nothing)
-                     (trap
-                      (seq (signal S1
-                             (seq
-                              (emit S1)
-                              (present S1 (exit 0) nothing)))
-                           (emit S2))))))
+           (test-->>P
+            ->
+            (term
+             (signal S2
+               (seq (present S2 nothing nothing)
+                    (trap
+                     (seq (signal S1
+                            (seq
+                             (emit S1)
+                             (present S1 (exit 0) nothing)))
+                          (emit S2))))))
                      
-             correct-terminus?)))
-         (test-case "looking at par"
+            correct-terminus?)))
+        (test-case "looking at par"
+          (fail-on
+           (R R-no-present R-closed R-no-seq)
            (test-->>P
             ->
             (term
@@ -784,24 +816,69 @@
                              (emit S1)
                              (present S1 (exit 0) nothing)))
                           (emit S2))))))
-            correct-terminus?))
-         (test-case "in which we show cycles can be broken indirectly"
-           (fail-on
-            (R-safe-after-reduction)
-            (test-->>P
-             ->
-             (term
-              (signal SO
-                (signal SB   
-                  (present S2
-                           (signal SE
-                             (seq
-                              (seq (emit SE)
-                                   (present SE nothing (emit SB)))
-                              (present SB (emit S2) nothing)))
-                           nothing))))
-             correct-terminus?)))
-         ))))
+            correct-terminus?)))
+        (test-case "in which we show cycles can be broken indirectly"
+          (fail-on
+           (R R-safe-after-reduction)
+           (test-->>P
+            ->
+            (term
+             (signal SO
+               (signal SB   
+                 (present SO
+                          (signal SE
+                            (seq
+                             (seq (emit SE)
+                                  (present SE nothing (emit SB)))
+                             (present SB (emit SO) nothing)))
+                          nothing))))
+            correct-terminus?)))
+        (test-case "in which we show that you can't fix things by just lifting signals
+(Because its not sound to lift a signal out of a loop, even with renaming)"
+          (fail-on
+           (R)
+           (test-->>P
+            ->
+            (term
+             (signal S1
+               (present S1
+                        (loop
+                         (seq
+                          (signal S2
+                            (seq (emit S2)
+                                 (present S2
+                                          nothing
+                                          (emit S1))))
+                          pause))
+                        nothing)))
+            correct-terminus?)))
+#;
+        (test-case "could we have confluence issues?"
+          (fail-on
+           (R)
+           (parameterize ([current-cache-all? #t])
+             (test-->>P*
+              ->
+              (term
+               (signal S1
+                 (present S1
+                          (par
+                           (signal S2
+                             (seq (emit S2)
+                                  (present S2
+                                           nothing
+                                           (emit S1))))
+                           (signal S3
+                             (seq (emit S3)
+                                  (present S3
+                                           nothing
+                                           (emit S1)))))
+                          nothing)))
+              (lambda (x)
+                (and
+                 (= (length x) 1)
+                 (correct-terminus? (first x))))))))
+        )))
   
   ;                                                                        
   ;                                                                        
@@ -823,23 +900,44 @@
   ;                                                                        
   ;                                                                        
   ;                                                                        
-
-  (void (run-tests (test-relation R)))
-  (void (run-tests (test-relation R-empty)))
-  (void (run-tests (test-relation R-closed)))
-  (void (run-tests (test-relation R-no-control)))
-  (void (run-tests (test-relation R-no-seq)))
-  (void (run-tests (test-relation R-no-present)))
-  (void (run-tests (test-relation R-E)))
-  (void (run-tests (test-relation R-control-closed)))
-  (void (run-tests (test-relation R-safe-after-reduction)))
-
-  (void (run-tests (test-constructive R) 'verbose))
-  (void (run-tests (test-constructive R-empty) 'verbose))
-  (void (run-tests (test-constructive R-closed) 'verbose))
-  (void (run-tests (test-constructive R-no-control)))
-  (void (run-tests (test-constructive R-no-seq)))
-  (void (run-tests (test-constructive R-no-present)))
-  (void (run-tests (test-constructive R-E)))
-  (void (run-tests (test-constructive R-control-closed)))
-  (void (run-tests (test-constructive R-safe-after-reduction))))
+  (define all-relations
+    (list
+     R
+     R-empty
+     R-closed
+     R-no-control
+     R-no-seq
+     R-no-present
+     R-E
+     R-control-closed
+     R-safe-after-reduction))
+    
+  (void
+   (run-tests
+    (make-test-suite
+     "all"
+     (list
+      (make-test-suite
+       "test-relation"
+       (list
+        (test-relation R)
+        (test-relation R-empty)
+        (test-relation R-closed)
+        (test-relation R-no-control)
+        (test-relation R-no-seq)
+        (test-relation R-no-present)
+        (test-relation R-E)
+        (test-relation R-control-closed)
+        (test-relation R-safe-after-reduction)))
+      (make-test-suite
+       "test-constructive"
+       (list
+        (test-constructive R)
+        (test-constructive R-empty)
+        (test-constructive R-closed)
+        (test-constructive R-no-control)
+        (test-constructive R-no-seq)
+        (test-constructive R-no-present)
+        (test-constructive R-E)
+        (test-constructive R-control-closed)
+        (test-constructive R-safe-after-reduction))))))))
