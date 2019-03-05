@@ -37,7 +37,7 @@ open import Data.List.All as All
   using (All)
 
 open import Data.Product
-  using (Σ ; Σ-syntax ; _,_ ; proj₁ ; proj₂ ; _×_ ; _,′_)
+  using (Σ ; Σ-syntax ; _,_ ; proj₁ ; proj₂ ; _×_ ; _,′_ ; ∃-syntax)
 open import Data.Sum
   using (inj₁ ; inj₂ ; _⊎_)
 open import Data.Unit
@@ -926,3 +926,11 @@ ocount-merge≤′sum-ocount = f where
               (s≤′s R) (≡is≤′ (sym (+-suc (ocount p m1) (ocount p m2)))) 
   f (nothing ∷ m1) (nothing ∷ m2) p with f m1 m2 p
   ... | R = R
+
+
+Dom'+∈ : (L : LMap) → List (∃[ n ] (n ∈ (Dom' L)))
+Dom'+∈ L = help (Dom' L)
+ where
+  help : (x : List ℕ) → (List (∃[ y ] (y ∈ x)))
+  help [] = []
+  help (x ∷ x₁) = (x , here refl) ∷ map (λ {(a , b) → a , there b}) (help x₁)

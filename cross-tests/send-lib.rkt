@@ -174,7 +174,7 @@
                  (thing-to-send port)
                  (apply fprintf port stuff)))))
      (recur-over thing spew)
-     (set-box! (current-things-to-send)
+     (set-box! (get-things-to-send)
                (cons
                 (λ (port)
                   (send-indent port)
@@ -183,7 +183,7 @@
                   (fprintf port "~a = " name)
                   (thing-to-send port)
                   (fprintf port "\n"))
-                (unbox (current-things-to-send))))
+                (unbox (get-things-to-send))))
      (hash-set! (current-things-sent-cache) key name)
      name]))
 (define (reset-things-to-send)

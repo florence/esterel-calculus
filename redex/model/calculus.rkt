@@ -26,7 +26,7 @@
    (--> (par p q) (par q p)
         (side-condition/hidden
          (implies (use-fast-par-swap?)
-                  #R(term (done<? p q))))
+                  (term (done<? p q))))
         par-swap)
    (--> (par nothing done) done par-nothing)
    (--> (par (exit n) paused) (exit n) par-1exit)
@@ -367,7 +367,7 @@
 (define-metafunction esterel-eval
   κ-deps : p θ -> M-S-κ
   [(κ-deps (signal S p) θ)
-   (Mrestrict-domain (κ-deps p (<- θ TODO) S)]
+   (Mrestrict-domain (κ-deps p (<- θ TODO) S))]
   [(κ-deps nothing θ) (M0)]
   [(κ-deps pause θ) (M0)]
   [(κ-deps (seq p q) θ)

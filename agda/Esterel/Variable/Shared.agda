@@ -27,6 +27,14 @@ unwrap-injective s'≡t' = trans (sym unwrap-inverse) (trans (cong _ₛₕ s'≡
 unwrap-neq : ∀{k1 : SharedVar} → ∀{k2 : SharedVar} → ¬ k1 ≡ k2 → ¬ (unwrap k1) ≡ (unwrap k2)
 unwrap-neq = (_∘ unwrap-injective)
 
+wrap : ℕ → SharedVar
+wrap = _ₛₕ
+
+bijective : ∀{x} → unwrap (wrap x) ≡ x
+bijective = refl
+
+
+
 _≟_ : Decidable {A = SharedVar} _≡_
 (s ₛₕ) ≟ (t ₛₕ) with s ≟ℕ t
 ... | yes p = yes (cong _ₛₕ p)

@@ -83,7 +83,8 @@
    (if x p-check p-check))
 
   (e-check ::= (+ s/l-check ...))
-  (s/l-check ::= s x n))
+  (s/l-check ::= s x n)
+  (status-check ::= present unknown))
 
 
 (define (setup-*-env ins in)

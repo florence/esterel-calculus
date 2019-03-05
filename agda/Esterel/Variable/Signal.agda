@@ -23,6 +23,12 @@ unwrap-inverse {_ ₛ} = refl
 unwrap-injective : ∀ {s t} → unwrap s ≡ unwrap t → s ≡ t
 unwrap-injective s'≡t' = trans (sym unwrap-inverse) (trans (cong _ₛ s'≡t') unwrap-inverse)
 
+wrap : ℕ → Signal
+wrap = _ₛ
+
+bijective : ∀{x} → unwrap (wrap x) ≡ x
+bijective = refl
+
 -- for backward compatibility
 unwrap-neq : ∀{k1 : Signal} → ∀{k2 : Signal} → ¬ k1 ≡ k2 → ¬ (unwrap k1) ≡ (unwrap k2)
 unwrap-neq = (_∘ unwrap-injective)

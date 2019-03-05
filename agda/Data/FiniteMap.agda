@@ -16,7 +16,9 @@ open import Relation.Nullary
 module Data.FiniteMap
   {Key : Set}
   (inject : Key → ℕ)
+  (surject : ℕ → Key)
   (inject-injective : ∀ {k1 k2} → inject k1 ≡ inject k2 → k1 ≡ k2)
+  (surject-inject : ∀ {k} → inject (surject k) ≡ k)
   where
 
 open import utility
@@ -33,9 +35,9 @@ open import Data.Nat
 open import Data.Sum
   using (inj₁ ; inj₂ ; _⊎_)
 open import Data.Product
-  using (Σ ; Σ-syntax ; ∃ ; proj₁ ; proj₂ ; _×_ ; _,_)
+  using (Σ ; Σ-syntax ; ∃ ; proj₁ ; proj₂ ; _×_ ; _,_ ; ∃-syntax ; uncurry ; map)
 open import Function
-  using (id)
+  using (id ; _$_)
 open import Relation.Nullary
   using (yes ; no)
 open import Data.OrderedListMap(Key)(inject) as OMap hiding (insert-mono ; U-mono)
@@ -51,11 +53,23 @@ Map = LMap
 keys : ∀{Value} → Map Value → List ℕ
 keys{Value} l = (Dom' Value l)
 
+keys+∈ : ∀{Value} → (l : Map Value) → List (∃[ n ] (n ∈ (Dom' Value l)))
+keys+∈{Value} l = (Dom'+∈ Value l)
+
+
 inj= : Key → ℕ → Set
 inj= = _≡_ ∘ inject
 
 ∈Dom : ∀{Value} → Key → Map Value → Set
 ∈Dom{Value} k m = (inject k) ∈ (Dom' Value m)
+
+in-inject : ∀ {Value}{x : ℕ} → (l : Map Value) → x ∈ Dom' Value l → ∈Dom (surject x) l
+in-inject{x = x} l ∈ rewrite surject-inject{x} = ∈
+
+key-map : ∀{Value}{a}{L : Set a} → (l : Map Value) → (f : (k : Key) → (∈Dom k l) → L) → List L
+key-map{L = L} l f
+  = Data.List.map ((uncurry f) ∘ (map surject (in-inject l)))
+                   (keys+∈ l)
 
 ∈Check : ∀{Value}
          → (k : Key)

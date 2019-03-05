@@ -115,6 +115,13 @@
      (suspend E S)
      (trap E)
      hole)
+  (E1 ::=
+      (seq hole q)
+      (loop^stop hole q)
+      (par hole q)
+      (par p hole)
+      (suspend hole S)
+      (trap hole))
 
   (κ ::= nothin paus n)
 

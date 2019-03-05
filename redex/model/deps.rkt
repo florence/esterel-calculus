@@ -149,7 +149,7 @@
         [(or `(emit ,_) `(nothing))
          (values term (hasheq) (list (K-flow term 0)))]
         [`(pause)
-         (values term (hasheq) (list (K-flow term 1)))]
+         (values 'exit (hasheq) (list (K-flow 'start 0)))]
         [`(exit ,n)
          (values term (hasheq) (list (K-flow term (+ n 2))))]
         [`(present ,S ,p ,q)
@@ -177,7 +177,7 @@
           p-head
           (for/fold ([inner inner])
                     ([pK0 (in-list pK0)])
-            (hash-set inner pK0 (list (K-flow q-head 0))))
+            (hash-cons inner pK0 (K-flow q-head 0)))
           (append p-tails* q-tails))]
         [`(par ,p ...)
          (define-values (heads graph tails)
@@ -188,19 +188,50 @@
              (define-values (ph pg pt) (loop p))
              (values (cons ph heads)
                      (hash-union/append graph pg)
-                     (append pt tails))))
+                     (cons pt tails))))
+         #|
+We handle join by creating one join
+ node for each possible set of return codes,
+and passing *those* on. This encodes the control dependencies
+between an par an its future children based on its return codes
+|#
          (define j '(join))
+         ;; Step 1, add the edges from the fork node
+         (define graph+fork (hash-append graph term (map (lambda (x) (K-flow x 0)) heads)))
+         ;; step 2, compute possible return codes
+         ;; from a static approx of the equasion from Can, K = {max(k_i ...) | k_i ∈ Can_K(p_i) ... }
+         (define kodes
+           (for/fold ([current (map K-flow-index (first tails))])
+                     ([a (in-list (rest tails))])
+             (for*/list ([t1 (in-list a)]
+                         [k2 (in-list current)])
+               (max (K-flow-index t1) k2))))
+         ;; step 3: map each flow to any kode it might help result in
+         ;; (which are all kodes >= its kode).
+         (define parents+flows
+           (for*/fold ([mapping (apply hash (append-map (lambda (x) (list x empty)) kodes))])
+                      ([ts (in-list tails)]
+                       [t (in-list ts)]
+                       [(k l) (in-hash mapping)]
+                       #:when (>= k (K-flow-index t)))
+             (hash-set mapping k (cons t l))))
+         ;; step 4: build the actual nodes
+         (define k-nodes
+           (for/hash ([(k _) (in-hash parents+flows)])
+             (values k `(join ,k))))
+         ;; step 5: add the connections to the graph
+         (define graph+fork+join
+           (for*/fold ([g graph+fork])
+                      ([(k ls) (in-hash parents+flows)]
+                       [l (in-list ls)])
+             (define-values (in out)
+               (swap-term (hash-ref k-nodes k) l))
+             (hash-cons g in out)))
          (values
           term
-          (apply
-           hash-set* graph
-           (append
-            (list term (map (lambda (x) (K-flow x 0)) heads))
-            (append-map (lambda (x)
-                          (define-values (t l) (swap-term j x))
-                          (list t (list l)))
-                        tails)))
-          (list j))]
+          graph+fork+join
+          (for/list ([(K node) (in-hash k-nodes)])
+            (K-flow node K)))]
         [`(trap ,p)
          (define-values (head graph tails)
            (loop p))
@@ -227,10 +258,11 @@
   (for/fold ([graph graph])
             ([l (in-list tails)])
     (define-values (n r) (swap-term 'exit l))
-     (hash-set* graph
-                n (list r)
-                'entry (list (true-flow head)
-                             (false-flow 'exit)))))
+    (hash-append* graph
+                  'start (list (K-flow head 0))
+                  n (list r)
+                  'entry (list (true-flow 'start)
+                               (false-flow 'exit)))))
 
 
 ;                                
@@ -355,6 +387,7 @@
   (define idom (immediate-postdominators-from-rcfg-and-cfg cfg rcfg))
   (define-values (pdt pdtt) (postdominator-tree+traversal cfg idom))
   (define rdf (dominance-frontier-from-postdominator-tree-traversal rcfg pdt pdtt idom))
+  (pretty-print rdf)
   (cdg-from-reverse-dominance-frontier rdf))
 
 (define (cdg-from-reverse-dominance-frontier rdf)
@@ -387,7 +420,7 @@
   
 (define (immediate-postdominators-from-rcfg-and-cfg cfg rcfg)
   (define pd
-     (postdominators-from-reverse-cfg-and-rcfg cfg rcfg))
+    (postdominators-from-reverse-cfg-and-rcfg cfg rcfg))
   (define (immediate-dominator n)
     (define ds (hash-ref pd n))
     (define l
@@ -540,6 +573,15 @@
                k
                (lambda (l) (append v l))
                empty))
+(define (hash-append* h . r)
+  (let loop ([r r]
+             [h h])
+    (match r
+      [(list) h]
+      [(list* a b r)
+       (loop
+        r
+        (hash-append h a b))])))
 
 (define (hash-union/append h1 h2)
   (hash-union h1 h2 #:combine append))
@@ -703,8 +745,9 @@
     (new editor-canvas%
          [parent h]
          [editor t]))
-  (graph-from-mapping h (hash-remove (cfg c) 'entry) (dfg c))
-  (graph-from-mapping h (cdg c) (ddg c))
+  (define c-cfg (cfg c))
+  (graph-from-mapping h (hash-remove c-cfg 'entry) (dfg c))
+  (graph-from-mapping h (cdg-from-cfg c-cfg) (ddg c))
   (queue-callback (lambda ()
                     (send t freeze-colorer)
                     (send t lock #t)
@@ -961,9 +1004,63 @@ c
    6 (list (K-flow 2 0))
    7 (list (K-flow 'exit 0))))
 
+(define h3
+  (hasheq
+   'entry (list (true-flow 'P) (false-flow 'exit))
+   'P (list (true-flow 'X=T) (false-flow 'X=F))
+   'X=T (list (K-flow 'A 0))
+   'X=F (list (K-flow 'A 0))
+   'A (list (K-flow 'B 0))
+   'B (list (K-flow 'C 0))
+   'C (list (K-flow 'X 0))
+   'X (list (true-flow 'D) (false-flow 'E))
+   'D (list (K-flow 'F 0))
+   'E (list (K-flow 'F 0))
+   'F (list (K-flow 'exit 0))))
+
+(define h4
+  (hasheq
+   'entry (list (true-flow 'start)
+                (false-flow 'exit))
+   'start (list (K-flow 1 0))
+   1 (list (K-flow 2 0))
+   2 (list (true-flow 1) (false-flow 'exit))))
+
+(define h5
+  (hasheq
+   'entry (list (true-flow 1) (false-flow 'exit))
+   1 (list (true-flow 1) (false-flow 2))
+   2 (list (K-flow 'exit 0))))
+
 #;(graph-from-pfg h (hasheq))
 #;(graph-from-pfg h2 (hasheq))
-
-(define idom (immediate-postdominators-from-rcfg-and-cfg h (reverse-cfg h)))
-(define-values (a b) (postdominator-tree+traversal h idom))
-             
+#;
+(graph '(signal S1
+          (present S1
+                   (par
+                    (signal S2
+                      (seq (emit S2)
+                           (present S2
+                                    (nothing)
+                                    (emit S1))))
+                    (signal S3
+                      (seq (emit S3)
+                           (present S3
+                                    (nothing)
+                                    (emit S1)))))
+                   (nothing))))
+#;
+(graph '(signal S1
+          (present S1
+                   (par
+                    (signal S2
+                      (seq (emit S2)
+                           (present S2
+                                    (nothing)
+                                    (emit S1))))
+                    (signal S3
+                      (seq (pause)
+                           (present S3
+                                    (nothing)
+                                    (emit S1)))))
+                   (nothing))))

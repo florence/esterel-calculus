@@ -7,6 +7,7 @@
          (only-in "../redex/model/shared.rkt" #;quasiquote) ;; don't import quasiquote!
          "send-lib.rkt"
          "send-steps.rkt"
+         "send-std.rkt"
          "send-can.rkt"
          "send-cb.rkt"
          "send-complete.rkt"
@@ -298,6 +299,7 @@
 (define (test-p/no-context _p #:can-θ can-θ)
   (define p (clean-up-p _p))
   (send-steps p)
+  (send-std p)
   (send-can p can-θ)
   (send-CB p)
   ;(send-complete p)

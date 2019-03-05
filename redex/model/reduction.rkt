@@ -194,10 +194,10 @@
 (define-judgment-form esterel-standard
   #:mode     (blocked-or-done I I)
   #:contract (blocked-or-done θ p)
-  [----------
+  [---------- "done"
    (blocked-or-done θ done)]
   [(blocked θ p)
-   ---------
+   --------- "blocked"
    (blocked-or-done θ p)])
 
 (define-judgment-form esterel-standard

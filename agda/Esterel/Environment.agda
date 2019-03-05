@@ -33,9 +33,9 @@ open import Data.List.Any
 open ≡-Reasoning using (_≡⟨_⟩_ ; _≡⟨⟩_ ; _∎ ; begin_)
 
 
-module SigMap = Data.FiniteMap Signal.unwrap    Signal.unwrap-injective
-module ShrMap = Data.FiniteMap SharedVar.unwrap SharedVar.unwrap-injective
-module VarMap = Data.FiniteMap SeqVar.unwrap    SeqVar.unwrap-injective
+module SigMap = Data.FiniteMap Signal.unwrap    Signal.wrap Signal.unwrap-injective Signal.bijective
+module ShrMap = Data.FiniteMap SharedVar.unwrap SharedVar.wrap SharedVar.unwrap-injective SharedVar.bijective
+module VarMap = Data.FiniteMap SeqVar.unwrap    SeqVar.wrap SeqVar.unwrap-injective SeqVar.bijective
 
 record Env : Set where
   constructor Θ
@@ -84,6 +84,11 @@ isShr∈ s e = ShrMap.∈Dom s (shr e)
 isVar∈ : SeqVar → Env → Set
 isVar∈ x e = VarMap.∈Dom x (var e)
 
+SigDomMap : ∀{a}{L : Set a} →  (θ : Env) → (f : (S : Signal) → isSig∈ S θ → L) → List L
+SigDomMap = SigMap.key-map ∘ sig
+
+ShrDomMap : ∀{a}{L : Set a} →  (θ : Env) → (f : (S : SharedVar) → isShr∈ S θ → L) → List L
+ShrDomMap = ShrMap.key-map ∘ shr
 
 
 SigDom : Env → List ℕ

@@ -102,11 +102,6 @@ data all-ready : Expr → Env → Set where
 
 
 {-
-  Except for signl S p , shared_≔_in:_ and var_≔_in:_ , other rules should
-  not use _←_ to update the environment, but should instead use a different
-  'update' function on finite maps. Otherwise, the _←_ function will extend
-  the domain to (s ∷ _) (though when viewed as a set, the domain doesn't change).
-
   In the current formalization, for reduction rules involving evaluation
   contexts, we will write them in the following form to enable pattern
   matching on p:
@@ -240,10 +235,6 @@ data _sn⟶₁_ : Term → Term → Set where
       for simplicity. Instead of being more 'computative', the definition here is
       more 'declarative'. Keep an eye on the original definition to make sure that
       they are equivalent.
-    * The readyness rule is splited into two constructors, one for old and one for new.
-      Since SharedVar.Status is decidable, we can as well just have the rule
-      ¬ (Env.shr-stats θ s∈ ≡ SharedVar.ready). Using which one depends on later uses
-      of the reduction rules (like which one can save us one extra function call).
   -}
   rabsence : ∀{θ p S} →
     (S∈ : (Env.isSig∈ S θ)) →

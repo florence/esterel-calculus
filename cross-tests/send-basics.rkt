@@ -3,14 +3,27 @@
 ;; WARNING! QUASIQUOTE IS ACTUALLY QUASIQUOTE IN THIS FILE
 
 (require "send-lib.rkt"
-         redex/reduction-semantics)
+         redex/reduction-semantics
+         (only-in esterel-calculus/redex/model/shared
+                  esterel-eval))
 
 (module+ test (require rackunit))
 
 (provide send-p send-e send-θ send-set
          send-E-decomposition send-E
          send-nat-not-in-nat-list
-         θ-to-hash)
+         θ-to-hash
+         
+         
+         send-blocked-or-done
+         send-leftmost
+         send-all-ready
+         send-done
+         send-stopped
+         send-paused
+         send-isSigϵ
+         send-isShrϵ
+         send-isVar∈)
 
 (define/contract (send-p p)
   (-> p? string?)
@@ -468,3 +481,239 @@
      (spew " ] ")
      (do-stuff a-set)
      (spew ")")]))
+
+(define/contract (send-stopped p)
+  (-> p? string?)
+  (send-thing p "H" (~a "halted " (send-p p)) recur-over-stopped))
+
+(define (recur-over-stopped p spew)
+  (match p
+    [`nothing (spew "hnothin")]
+    [`(exit ,n) (spew "hexit ~a" n)]))
+
+(define/contract (send-paused p)
+  (-> p? string?)
+  (send-thing p "P" (~a "paused " (send-p p)) recur-over-paused))
+
+(define (recur-over-paused p spew)
+  (let loop ([p p])
+    (match p
+      [`pause (spew "ppause")]
+      [`(seq ,paused ,q)
+       (spew "(pseq ")
+       (loop paused)
+       (spew ")")]
+      [`(par ,paused1 ,paused2)
+       (spew "(ppar ")
+       (loop paused1)
+       (spew " ")
+       (loop paused2)
+       (spew ")")]
+      [`(suspend ,paused ,S)
+       (spew "(psuspend ")
+       (loop paused)
+       (spew ")")]
+      [`(trap ,paused)
+       (spew "(ptrap ")
+       (loop paused)
+       (spew ")")]
+      [`(loop^stop ,p1 ,p2)
+       (spew "(ploopˢ ")
+       (loop p1)
+       (spew ")")])))
+
+(define/contract (send-done p)
+  (-> p? string?)
+  (send-thing p "D" (~a "done " (send-p p)) recur-over-done))
+
+(define (recur-over-done p spew)
+  (match p
+    [(? stopped?) (spew "dhalted ~a" (send-stopped p))]
+    [(? paused?) (spew "dpaused ~a" (send-paused p))]))
+
+
+(define/contract (send-isSigϵ S θ)
+  (-> S? θ? string?)
+  (send-thing (list S θ 'Sig) "isS"
+              (~a "Env.isSig∈ " S " " (send-θ θ)) spew-isSig/isShr/isVar))
+
+(define/contract (send-isShrϵ s θ)
+  (-> s? θ? string?)
+  (send-thing (list s θ 'Shr) "isS"
+              (~a "Env.isShr∈ " s " " (send-θ θ)) spew-isSig/isShr/isVar))
+
+(define/contract (send-isVar∈ x θ)
+  (-> x? θ? string?)
+  (send-thing (list x θ 'Var) "isS"
+              (~a "Env.isVar∈ " x " " (send-θ θ)) spew-isSig/isShr/isVar))
+
+(define (spew-isSig/isShr/isVar id+θ+Sig/Shr/Var spew)
+  (match-define (list id θ Sig/Shr/Var) id+θ+Sig/Shr/Var)
+  (spew
+   "~s"
+   (for/fold ([expr `(here Prop.refl)])
+             ([i (in-list (sort (get-var-indicies Sig/Shr/Var θ) <))]
+              #:when (< i (var->index id)))
+     `(there ,expr))))
+
+(define/contract (get-var-indicies Sig/Shr/Var θ)
+  (-> (or/c 'Sig 'Shr 'Var) θ? (listof natural?))
+  (let loop ([θ θ])
+    (match θ
+      [`· '()]
+      [`{,env-v ,θ}
+       (define i/f
+         (match env-v
+           [`(sig ,S ,status)
+            (and (equal? Sig/Shr/Var 'Sig) (var->index S))]
+           [`(shar ,s ,ev ,shared-status)
+            (and (equal? Sig/Shr/Var 'Shr) (var->index s))]
+           [`(var· ,x ,ev)
+            (and (equal? Sig/Shr/Var 'Var) (var->index x))]))
+       (if i/f
+           (cons i/f (loop θ))
+           (loop θ))])))
+
+(define/contract (send-all-ready e θ)
+  (-> e? θ? string?)
+  (send-thing (list e θ)
+              "allready"
+              (~a "all-ready " (send-e e) " " (send-θ θ))
+              recur-over-e-for-all-ready))
+
+(define (recur-over-e-for-all-ready e+θ spew)
+  (match-define (list e θ) e+θ)
+  (match e
+    [`(+ ,sxns ...)
+     (spew "aplus (")
+     (for ([sxn (in-list sxns)]
+           [i (in-naturals)])
+       (match sxn
+         [(? natural?) (spew "brnum")]
+         [(? x?) (spew "(brseq ~a)" (send-isVar∈ sxn θ))]
+         [(? s?) (spew "(brshr ~a Prop.refl)" (send-isShrϵ sxn θ))])
+       (spew " All.∷ "))
+     (spew "All.[])")]))
+
+
+(define (send-leftmost θ E deriv)
+  (send-thing (list θ E)
+              "leftmost"
+              (~a #:separator " " "left-most" (send-θ θ) (send-E E))
+              recur-over-good))
+
+(define (recur-over-good deriv spew)
+  (define (send-inner)
+    (match deriv
+      [(derivation `(good ,theta ,E) _ (cons a r))
+       (redex-let
+        esterel-eval
+        ([(in-hole E1 E) E])
+        (send-leftmost theta (term E) a))]))
+  (match deriv
+    [(derivation `(good ,theta ,E) "hole" (list))
+     (spew "lhole")]
+    [(derivation `(good ,theta ,E) "seq" (list a))
+     (spew "lseq ~a" (send-inner))]
+    [(derivation `(good ,theta ,E) "loop^stop" (list a))
+     (spew "lloopˢ ~a" (send-leftmost theta E a))]
+    [(derivation `(good ,theta ,E) "parl" (list a))
+     (spew "lparl ~a" (send-inner))]
+    [(derivation `(good ,theta (par ,E ,p)) "par-done" subs)
+     (spew "lparrdone" (send-done p) (send-inner))]
+    [(derivation `(good ,theta (par ,E ,p)) "par-blocked" (list g blk))
+     (spew "lparrblocked ~a ~a" (send-blocked theta p blk) (send-inner))]
+    [(derivation `(good ,theta ,E) "suspend" (list a))
+     (spew "lsuspend ~a" (send-inner))]
+    [(derivation `(good ,theta ,E) "trap" (list a))
+     (spew "ltrap ~a" (send-inner))]))
+
+(define (send-blocked-or-done θ p deriv)
+  (send-thing (list θ p)
+              "blockedordone"
+              (~a #:separator " " "blocked-or-done" (send-θ θ) (send-p p))
+              (lambda (deriv spew)
+                (match deriv
+                  [(derivation _ "done" (list))
+                   (spew "inj₁ ~a" (send-done p))]
+                  [(derivation _ "blocked" (list a))
+                   (send-blocked θ p a)]))))
+
+(define (send-blocked θ p blk)
+  (send-thing (list θ p)
+              "isblocked"
+              (~a #:separator " "
+                  "blocked" (send-θ θ) (send-p p))
+              recur-over-blocked))
+
+(define (recur-over-blocked deriv spew)
+  (match deriv
+    [(derivation `(blocked ,theta (present ,S ,_ ,_)) "present" _)
+     (spew "bsig-exists ~a ~a ~a"
+           (get-signal S)
+           (send-isSigϵ theta S)
+           "Prop.refl")]
+    [(derivation `(blocked ,theta (par ,p ,q)) "par-both" (list b1 b2))
+     (spew "bpar-both ~a ~a"
+           (send-blocked theta p b1)
+           (send-blocked theta q b2))]
+    [(derivation `(blocked ,theta (par ,p ,q)) "parl" (list b))
+     (spew "bpar-left ~a ~a"
+           (send-done p)
+           (send-blocked theta q b))]
+    [(derivation `(blocked ,theta (par ,p ,q)) "parr" (list b))
+     (spew "bpar-left ~a ~a"
+           (send-blocked theta p b)
+           (send-done q))]
+    [(derivation `(blocked ,theta (seq ,p ,q)) "seq" (list b))
+     (spew "bseq ~a"
+           (send-blocked theta p b))]
+    [(derivation `(blocked ,theta (loop^stop ,p ,q)) "loop^stop" (list b))
+     (spew "bloopˢ ~a"
+           (send-blocked theta p b))]
+    [(derivation `(blocked ,theta (suspend ,p ,S)) "suspend" (list b))
+     (spew "bsusp ~a"
+           (send-blocked theta p b))]
+    [(derivation `(blocked ,theta (trap ,p)) "trap" (list b))
+     (spew "btrap ~a"
+           (send-blocked theta p b))]
+    [(derivation `(blocked ,theta (shared ,s := ,e ,p)) "shared" (list be))
+     (spew "bshared ~a"
+           (send-blocked-e theta e be))]
+    [(derivation `(blocked ,theta (<= ,s ,e)) "set-shared" (list be))
+     (spew "bsset ~a"
+           (send-blocked-e theta e be))]
+    [(derivation `(blocked ,theta (var ,x := ,e ,p)) "var" (list be))
+     (spew "bvar ~a"
+           (send-blocked-e theta e be))]
+    [(derivation `(blocked ,theta (:= ,x ,e)) "set-seq" (list be))
+     (spew "bxset ~a"
+           (send-blocked-e theta e be))]))
+
+(define (send-blocked-e θ e be)
+  (send-thing (list θ e)
+              "blockede"
+              (~a #:separator " "
+                  "blocked-e" (send-θ θ) (send-e e))
+              recure-over-blocked-e))
+(define (recure-over-blocked-e deriv spew)
+  (match deriv
+    [(derivation `(blocked-e ,θ (+ ,args ...)) _ _)
+     (let loop ([args args])
+       (define (there l)
+         (spew "(there ")
+         (loop l)
+         (spew ")"))
+       (match args
+         [(cons a b)
+          #:when (s? a)
+          (match (term (θ-ref ,θ ,a))
+            [`(shar ,_ ,_ ,st)
+             #:when (not (eq? st 'ready))
+             (define ctor (if (eq? a 'new) "bbshr-new" "bbshr-old"))
+             (spew "(here (~a ~a ~a))"
+                   ctor
+                   (send-isShrϵ θ a)
+                   "Prop.refl")]
+            [_ (there b)])]
+         [(cons _ b) (there b)]))]))
