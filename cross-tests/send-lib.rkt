@@ -274,6 +274,8 @@ open import Esterel.Variable.Signal as Signal using (Signal ; _ₛ ; unknown)
 open import Esterel.Variable.Sequential as SeqVar using (SeqVar ; _ᵥ)
 open import Esterel.Variable.Shared as ShVar using (SharedVar ; _ₛₕ)
 open import Esterel.CompletionCode as Code using () renaming (CompletionCode to Code)
+open import std-reduction
+open import std-reduction.Base
 
 --
   )

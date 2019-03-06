@@ -597,7 +597,7 @@
 
 
 (define (send-leftmost θ E deriv)
-  (send-thing (list θ E)
+  (send-thing deriv
               "leftmost"
               (~a #:separator " " "left-most" (send-θ θ) (send-E E))
               recur-over-good))
@@ -616,7 +616,7 @@
     [(derivation `(good ,theta ,E) "seq" (list a))
      (spew "lseq ~a" (send-inner))]
     [(derivation `(good ,theta ,E) "loop^stop" (list a))
-     (spew "lloopˢ ~a" (send-leftmost theta E a))]
+     (spew "lloopˢ ~a" (send-inner))]
     [(derivation `(good ,theta ,E) "parl" (list a))
      (spew "lparl ~a" (send-inner))]
     [(derivation `(good ,theta (par ,E ,p)) "par-done" subs)
@@ -629,7 +629,7 @@
      (spew "ltrap ~a" (send-inner))]))
 
 (define (send-blocked-or-done θ p deriv)
-  (send-thing (list θ p)
+  (send-thing deriv
               "blockedordone"
               (~a #:separator " " "blocked-or-done" (send-θ θ) (send-p p))
               (lambda (deriv spew)
@@ -640,7 +640,7 @@
                    (send-blocked θ p a)]))))
 
 (define (send-blocked θ p blk)
-  (send-thing (list θ p)
+  (send-thing blk
               "isblocked"
               (~a #:separator " "
                   "blocked" (send-θ θ) (send-p p))
@@ -691,7 +691,7 @@
            (send-blocked-e theta e be))]))
 
 (define (send-blocked-e θ e be)
-  (send-thing (list θ e)
+  (send-thing be
               "blockede"
               (~a #:separator " "
                   "blocked-e" (send-θ θ) (send-e e))

@@ -43,20 +43,23 @@ data _⇁_ : Term → Term → Set where
     (q' :  halted q) →
     r ≐ E ⟦ (p ∥ q) ⟧e →
     (ρ θ · r) ⇁ (ρ θ · E ⟦ (value-max (dpaused p') (dhalted q') (inj₂ q')) ⟧e)
-  std-is-present : ∀ {p q r E θ} → ∀ S →
+  std-is-present : ∀ {p q r E θ} →
     left-most θ E →
+     ∀ S →
     (S∈ : Env.isSig∈ S θ) →
     Env.sig-stats{S} θ S∈ ≡ Signal.present →
     r ≐ E ⟦ present S ∣⇒ p ∣⇒ q ⟧e →
     (ρ θ · r) ⇁ (ρ θ · E ⟦ p ⟧e)
-  std-is-absent : ∀ {p q r E θ} → ∀ S →
+  std-is-absent : ∀ {p q r E θ} →
     left-most θ E →
+    ∀ S →
     (S∈ : Env.isSig∈ S θ) →
     Env.sig-stats{S} θ S∈ ≡ Signal.absent →
     r ≐ E ⟦ present S ∣⇒ p ∣⇒ q ⟧e →
     (ρ θ · r) ⇁ (ρ θ · E ⟦ q ⟧e)   
-  std-emit : ∀{θ E r} → ∀ S →
+  std-emit : ∀{θ E r} →
     left-most θ E →
+    ∀ S →
     (S∈ : (Env.isSig∈ S θ)) →
     (¬S≡a : ¬ (Env.sig-stats{S} θ S∈) ≡ Signal.absent) →
     r ≐ E ⟦ emit S ⟧e → 
@@ -81,7 +84,7 @@ data _⇁_ : Term → Term → Set where
     left-most θ E →
     (p' : halted p) →
     r ≐ E ⟦ (suspend p S) ⟧e →
-    (ρ θ · r) ⇁ (ρ θ · E ⟦ (↓ p') ⟧e)
+    (ρ θ · r) ⇁ (ρ θ · E ⟦ p ⟧e)
   std-trap-done : ∀{θ E r p} →
     left-most θ E →
     (p' : halted p) →
@@ -164,7 +167,7 @@ data _⇁_ : Term → Term → Set where
     ¬ (can-set-absent θ p ≡ []) →
     ρ θ · p ⇁ ρ (set-all-absent θ (can-set-absent θ p)) · p
 
-  std-ready : ∀{θ p} →
+  std-readyness : ∀{θ p} →
     blocked-or-done θ p →
     (can-set-absent θ p ≡ []) →
     ¬ (can-set-ready θ p ≡ []) →

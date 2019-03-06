@@ -110,7 +110,7 @@ Various lists-as-sets utility functions
 (define-metafunction esterel-eval
   LU : L L -> L
   [(LU {} L) L]
-  [(LU (any L_1) L) (any (Lremove (LU L_1 L) any))])
+  [(LU (any L_1) L) (any (LU L_1 L))])
 
 (define-metafunction esterel-eval
   Lset-sub : L L -> L

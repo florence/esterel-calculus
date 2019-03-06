@@ -10,7 +10,7 @@
 
 (provide
  (contract-out
-  [send-std (-> p? void?)]))
+  [send-std (-> p? any)]))
 
 (define (send-std p)
   (define p-run (term (wrap ,p)))
@@ -28,6 +28,8 @@
 
 (define (send-no-steps p-run)
   (-> p? void?)
+  (void "TODO")
+  #;
   (error "TODO"))
 
 (define (send-single-step lhs #:to rhs #:by rule)
@@ -52,7 +54,8 @@
 (define refl "Prop.refl")
 (define ¬p "(λ ())")
 (define (spew-decomp-rule lhs rhs rule spew*)
-  (define-values (E-decomp-label E-leftmost-label inner θ) (get-decomp-labels lhs rhs))
+  (define-values (E-decomp-label E-leftmost-label inner θ)
+    (get-decomp-labels lhs rhs))
   (define spew (decomp-rule-spewer E-decomp-label E-leftmost-label spew*))
   (define in
     (term-match/single
@@ -75,10 +78,11 @@
             (term S)
             (send-isSigϵ (term S) θ)
             refl)] 
-     ["emit"
+     [("emit" (emit S))
       (spew "std-emit"
             (term S)
-            (send-isSigϵ (term S) θ))]
+            (send-isSigϵ (term S) θ)
+            ¬p)]
      [("loop" _)
       (spew "std-loop-unroll")]
      [("seq-done" _)
@@ -86,7 +90,7 @@
      [("seq-exit" _)
       (spew "std-seq-exit")]
      [("loop^stop-exit" _)
-      (spew "loopˢ-exit")]
+      (spew "std-loopˢ-exit")]
      [("suspend" (suspend p S))
       (spew "std-suspend-done"
             (send-stopped (term p)))]
@@ -99,12 +103,12 @@
       (spew "std-raise-shared"
             (send-all-ready (term e) θ))]
      [("set-old" (<= s e))
-      (spew "std-set-shared-old"
+      (spew "std-set-shared-value-old"
             (send-all-ready (term e) θ)
             (send-isShrϵ (term s) θ)
             refl)]
      [("set-new" (<= s e))
-      (spew "std-set-shared-old"
+      (spew "std-set-shared-value-new"
             (send-all-ready (term e) θ)
             (send-isShrϵ (term s) θ)
             refl)]
@@ -116,11 +120,11 @@
             (send-isVar∈ (term x) θ)
             (send-all-ready (term e) θ))]
      [("if-false" (if x p q))
-      (spew "std-is-false"
+      (spew "std-if-false"
             (send-isVar∈ (term x) θ)
             refl)]
      [("if-true" (if x p q))
-      (spew "std-is-true"
+      (spew "std-if-true"
             (send-isVar∈ (term x) θ)
             refl)]
      [("merge" _)
@@ -132,12 +136,18 @@
     (term-match/single
      esterel-L
      [("absence" (ρ θ p))
-      (spew "std-absence"
-            (send-blocked-or-done lhs)
+      (spew "std-absence ~a ~a ~a"
+            (send-blocked-or-done (term θ) (term p)
+                                  (first
+                                   (build-derivations
+                                    (blocked-or-done θ p))))
             ¬p)]
      [("readyness" (ρ θ p))
-      (spew "std-readyness"
-            (send-blocked-or-done lhs)
+      (spew "std-readyness ~a ~a ~a"
+            (send-blocked-or-done (term θ) (term p)
+                                  (first
+                                   (build-derivations
+                                    (blocked-or-done θ p))))
             refl
             ¬p)]))
   (in (list rule lhs)))
@@ -147,7 +157,7 @@
    spew
    (apply ~a
           #:separator " "
-          name (build-list (length extras) (const "~a")))
+          name (build-list (+ 2 (length extras)) (const "~a")))
    E-leftmost-label
    (append extras (list E-decomp-label))))
         
@@ -161,16 +171,16 @@
               [((ρ θ (in-hole E p))
                 (ρ θ_2 (in-hole E p_!_1)))
                (let ()
-                 (define d (build-derivations (good E θ)))
+                 (define d (build-derivations (good θ E)))
                  (if (pair? d)
                      (list (term E) (first d) (term p) (term θ))
                      #f))])
              (list lhs rhs))))
   (match-define (list E E-deriv inner θ)
-    (argmax (lambda (x) (term (E-size ,x)))
+    (argmax (lambda (x) (term (E-size ,(first x))))
             decomps))
-  (values (send-E-decomposition E (term (in-hole ,E ,inner)))
-          (send-leftmost E-deriv)
+  (values (send-E-decomposition E inner)
+          (send-leftmost θ E E-deriv)
           inner
           θ))
 
