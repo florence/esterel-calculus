@@ -1,6 +1,8 @@
 #lang info
 
-(define deps '("base"
+(define deps '("ppict"
+               "rackunit-abbrevs"
+               "base"
                "at-exp-lib"
                "parser-tools-lib"
                "pict-lib"
@@ -17,3 +19,4 @@
                "pict-snip-lib"))
 
 (define collection "esterel-calculus")
+(define build-deps '("debug"))

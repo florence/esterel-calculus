@@ -5,12 +5,14 @@
                     test-->>∃
                     test-judgment-holds
                     test-equal)
+         racket/require
          rackunit
          syntax/parse/define
          (for-syntax syntax/parse)
          esterel-calculus/redex/rackunit-adaptor
          esterel-calculus/redex/model/shared
-         esterel-calculus/redex/model/calculus
+         (multi-in esterel-calculus/redex/model/calculus/variants
+                   (base closed-and-control graph))
          (rename-in esterel-calculus/redex/model/reduction
                     [R std->])
          esterel-calculus/redex/test/generator)
