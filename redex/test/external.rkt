@@ -177,9 +177,7 @@ It depends on two parameters:
   (define esterel-compiler (build-path (esterel-root) "bin" "esterel"))
   (define esterel-lib      (build-path (esterel-root) "lib" "libcoresim.a"))
 
-  ; The ESTEREL environment variable needs to be set to the esterel root
-  (putenv "ESTEREL" (path->string (esterel-root)))
-  
+
   ; To compile the file, we write the Esterel concrete syntax to a temporary
   ; .strl file, and then use the Esterel compiler to translate it to C. We
   ; capture stderr of the Esterel compiler, so that we can look at the error
@@ -194,6 +192,8 @@ It depends on two parameters:
   (define esterel-success?
     (parameterize ([current-directory (find-system-path 'temp-dir)]
                    [current-error-port error-out])
+      ; The ESTEREL environment variable needs to be set to the esterel root
+      (putenv "ESTEREL" (path->string (setup-symlink-dance (esterel-root))))
       (system* esterel-compiler "-simul" "-I" src-file-name)))
   (delete-file src-file-name)
   (define esterel-error-output (get-output-string error-out))
@@ -218,6 +218,19 @@ It depends on two parameters:
      (displayln program)
      'other-esterel-error]))
 
+(define (setup-symlink-dance path)
+  (cond
+    [(eq? (system-path-convention-type) 'unix)
+     (define loc (make-temporary-file "esterel-shim~a" 'directory))
+     (define result-path (build-path loc "esterel"))
+     (unless (system* (find-executable-path "ln")
+                      "-s"
+                      path
+                      result-path)
+       (error "error while creating temporary symlink to esterel root"))
+     result-path]
+    [else path]))
+  
 
 (define (warn-about-uninstalled-esterel)
   (printf "\n\nWARNING: Esterel is not installed; skipping some tests\n\n\n")
