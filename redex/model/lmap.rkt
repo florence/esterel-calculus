@@ -49,8 +49,8 @@
   (test-term-equal
    (M<-* (M1 S1 nothin)
          S1
-         (L1set nothin))
-   (M1 S1 nothin))
+         (L2set nothin nothin))
+   (M<- (M2 S1 nothin nothin) S1 nothin))
   (test-term-equal
    (M<-*
     (M<-* (M1 S1 nothin)
@@ -58,7 +58,7 @@
           (L1set nothin))
     S2
     (L1set nothin))
-   (M<- (M1 S1 nothin) S2 nothin)))
+   (M<- (M2 S1 nothin nothin) S2 nothin)))
 
 (define-metafunction esterel-eval
   M0 : -> M
@@ -67,6 +67,10 @@
   M1 : variable any -> M
   [(M1 any_1 any_2)
    ((any_1 (L1set any_2)) (M0))])
+(define-metafunction esterel-eval
+  M2 : variable any any -> M
+  [(M2 any_1 any_2 any_3)
+   ((any_1 (L2set any_2 any_3)) (M0))])
 
 (define-metafunction esterel-eval
   M1* : variable L -> M
@@ -190,7 +194,7 @@
           S1
           (L1set nothin))
     (M0))
-   (M1 S1 nothin))
+   (M2 S1 nothin nothin))
   (test-term-equal
    (MU
     (M<-* (M1 S1 nothin)
@@ -199,7 +203,7 @@
     (M<-* (M1 S1 nothin)
           S1
           (L1set nothin)))
-   (M1 S1 nothin))
+   (M<- (M<- (M2 S1 nothin nothin) S1 nothin) S1 nothin))
   (test-term-equal
    (MU
     (M<-* (M1 S1 nothin)
@@ -208,8 +212,11 @@
     (M<-* (M1 S2 nothin)
           S2
           (L1set nothin)))
-   (M<- (M1 S2 nothin)
-        S1 nothin)))
+
+   (M<-
+    (M<- (M2 S2 nothin nothin)
+         S1 nothin)
+    S1 nothin)))
 
 (define-metafunction esterel-eval
   Mdom : M -> L
