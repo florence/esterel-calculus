@@ -922,7 +922,7 @@ between an par an its future children based on its return codes
                  (inset
                   (text (term->node-string t))
                   5)))
-      (define links (hash-ref all t empty))
+      (define links (hash-ref control t empty))
       (values 
        id
        (list p
@@ -959,7 +959,8 @@ between an par an its future children based on its return codes
   (define with-arrows
     (for*/fold ([p with-images])
                ([(id l) (in-hash info)]
-                [child-id (in-list (list-ref l 3))]
+                [flow (in-list (hash-ref all (hash-ref revids id) empty))]
+                [child-id (in-value (hash-ref ids (flow-term flow)))]
                 #:unless (= id child-id))
       (define f (hash-ref tags id))
       (define t (hash-ref tags child-id))
@@ -991,10 +992,6 @@ between an par an its future children based on its return codes
                                   rt tt rt bt)))
       (define term1 (hash-ref revids id))
       (define term2 (hash-ref revids child-id))
-      (define flow
-        (for/first ([x (in-list (hash-ref all term1))]
-                    #:when (eq? term2 (flow-term x)))
-          x))
       (define color
         (if (data-flow? flow)
             "red"
