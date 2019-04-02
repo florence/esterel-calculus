@@ -287,56 +287,9 @@
           correct-terminus?)))
 
       
-      ;;Does there exist some test case here where a data dependency isn't
-      ;;carried over a seq, but the seq is still important for a cycle?
-
-      ;;also here is a crazy though: does there exist a context C
-      ;;where I can put a program P which has a *resolvable*
-      ;; cycle into the hole, where resolving the cycle is sound.
-      ;; Possible Ps:
       (test-case "In which we demonstrate that closed is unsound"
         (fail-on
          (R R-closed R-no-present R-no-seq)
-         #;(signal S1
-             (signal S2
-               (par
-                (par (present S1 nothing (emit S2))
-                     (present S2 nothing (emit S1)))
-                (emit S1))))
-         ;; or, without par
-         #;(signal S1
-             (signal S2
-               (seq
-                (emit S1)
-                (seq
-                 (present S1 nothing (emit S2))
-                 (present S2 nothing (emit S1))))))
-         ;; simpler
-         #;(signal S1
-             (seq
-              (emit S1)
-              (present S1 nothing (emit S1))))
-         ;; with the emit outside of the branch
-         #;(signal S1
-             (seq
-              (emit S1)
-              (seq
-               (present S1 nothing nothing)
-               (emit S1))))
-      
-         ;; hell maybe even something cycleless will do, like:
-         #;(signal S1 (emit S1))
-
-         ;; I'm starting to think this isn't possible without `trap`
-         ;; but I don't understand the graph structure of that. But maybe
-         #;(signal S1
-             (seq
-              (emit S1)
-              (present S1 nothing (exit 0))))
-         ;; since can can't determine the exit condition without
-         ;; running the emit. Lets try.
-             
-      
          (test-->>P
           ->
           (term
@@ -348,7 +301,6 @@
                            (emit S1)
                            (present S1 (exit 0) nothing)))
                         (emit S2))))))
-                     
           correct-terminus?)))
       (test-case "looking at par"
         (fail-on
