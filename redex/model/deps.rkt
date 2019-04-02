@@ -1,4 +1,5 @@
 #lang racket
+(provide deps flow/pict)
 (require pict
          pict/code
          ppict/tag
@@ -28,6 +29,25 @@
 ;                                                                                            
 ;                                                                                            
 
+(define prog/c
+  (let ([e/c (recursive-contract prog/c #:flat)])
+    (or/c
+     (and/c symbol?
+            (not/c symbol-interned?)
+            (or/c (compose (curry string=? "pause") symbol->string)
+                  (compose (curry string=? "nothing") symbol->string)))
+     (list/c 'nothing)
+     (list/c 'pause)
+     (list/c 'present symbol? e/c e/c)
+     (list/c 'signal symbol? e/c)
+     (list/c 'seq e/c e/c)
+     (list/c 'par e/c e/c)
+     (list/c 'emit symbol?)
+     (list/c 'exit natural?)
+     (list/c 'trap e/c)
+     (list/c 'loop e/c))))
+     
+   
 
 (define-syntax taged-code
   (syntax-parser
@@ -37,7 +57,7 @@
                   [hash #'(hasheq)]
                   [defs null])
          (syntax-parse x
-           #:datum-literals (present emit)
+           #:datum-literals (present emit nothing pause)
            [((~and P present) S p q)
             #:with tag (generate-temporary)
             #:with term (generate-temporary)
@@ -65,6 +85,19 @@
                      #'(define tag (gensym))
                      #`(define term `(emit S))
                      defs))]
+           [(~and (~or pause nothing) x)
+            #:with tag (generate-temporary)
+            #:with term (generate-temporary)
+            #:with E* (quasisyntax/loc #'x (#,#'unsyntax (tag-pict (code x) tag)))
+            (values (quasisyntax/loc this-syntax E*)
+                    #',term
+                    #`(hash-set #,hash term tag)
+                    (list*
+                     #'(define tag (gensym))
+                     #`(define term
+                         (string->uninterned-symbol
+                          #,(symbol->string (syntax-e #'x))))
+                     defs))]
            [(any ...)
             (define-values (inpict interm inhash indefs)
               (for/fold ([pict null]
@@ -80,12 +113,57 @@
              inhash
              indefs)]
            [atom
-            (values #'atom #'atom hash defs)])))
+            (values this-syntax this-syntax hash defs)])))
      #`(let ()
          #,@(reverse defs)
          (values (code #,pict)
                  `#,term
                  #,hash))]))
+
+(define (draw-deps pict code map)
+  (for*/fold ([p pict])
+             ([(from* tos) (in-hash (hash-union/append (cfg code) (dfg code)))]
+              [to* (in-list tos)]
+              [to (in-value (hash-ref map (flow-term to*) #f))]
+              [from (in-value (hash-ref map from* #f))]
+              #:when (and from to))
+    (pin-arrow-line
+     10
+     p
+     (find-tag* p from)
+     lc-find
+     (find-tag* p to)
+     lc-find)))
+
+(define-syntax deps
+  (syntax-parser
+    [(_ code)
+     #'(let-values ([(a b c) (taged-code code)])
+         (draw-deps a b c))]))
+
+
+
+;                                
+;                                
+;                                
+;      ;;;;    ;;;;;;;    ;;;;   
+;    ;;   ;;   ;;        ;;   ;  
+;    ;         ;;       ;;       
+;   ;;         ;;       ;;       
+;   ;;         ;;       ;        
+;   ;          ;;       ;        
+;   ;          ;;;;;;   ;   ;;;; 
+;   ;;         ;;       ;     ;; 
+;   ;;         ;;       ;     ;; 
+;    ;         ;;       ;;    ;; 
+;    ;;   ;;   ;;        ;;   ;; 
+;      ;;;;    ;;         ;;;;;  
+;                                
+;                                
+;                                
+;                                
+;                                
+
 
 (struct flow (term)
   #:transparent)
@@ -119,33 +197,17 @@
      [(true-flow _) (true-flow t)]
      [(false-flow _) (false-flow t)])))
 
-
-;                                
-;                                
-;                                
-;      ;;;;    ;;;;;;;    ;;;;   
-;    ;;   ;;   ;;        ;;   ;  
-;    ;         ;;       ;;       
-;   ;;         ;;       ;;       
-;   ;;         ;;       ;        
-;   ;          ;;       ;        
-;   ;          ;;;;;;   ;   ;;;; 
-;   ;;         ;;       ;     ;; 
-;   ;;         ;;       ;     ;; 
-;    ;         ;;       ;;    ;; 
-;    ;;   ;;   ;;        ;;   ;; 
-;      ;;;;    ;;         ;;;;;  
-;                                
-;                                
-;                                
-;                                
-;                                
-
-
-(define (cfg term)
+(define/contract (cfg term)
+  (-> prog/c (and/c hash? hash-eq? immutable?))
   (define-values (head graph tails)
     (let loop ([term term])
       (match term
+        [(? (lambda (x) (and (symbol? x)
+                             (not (symbol-interned? x))
+                             (or
+                              (string=? (symbol->string x) "pause")
+                              (string=? (symbol->string x) "nothing")))))
+         (values term (hasheq) (list (K-flow term 0)))]
         [(or `(emit ,_) `(nothing))
          (values term (hasheq) (list (K-flow term 0)))]
         [`(pause)
@@ -387,7 +449,6 @@ between an par an its future children based on its return codes
   (define idom (immediate-postdominators-from-rcfg-and-cfg cfg rcfg))
   (define-values (pdt pdtt) (postdominator-tree+traversal cfg idom))
   (define rdf (dominance-frontier-from-postdominator-tree-traversal rcfg pdt pdtt idom))
-  (pretty-print rdf)
   (cdg-from-reverse-dominance-frontier rdf))
 
 (define (cdg-from-reverse-dominance-frontier rdf)
@@ -591,25 +652,6 @@ between an par an its future children based on its return codes
   (unless x (error 'find-tag "could not find tag ~a" t))
   x)
 
-(define (draw-deps pict code map)
-  (for*/fold ([p pict])
-             ([(from tos) (in-hash (flow-graph code))]
-              [to (in-list tos)])
-    (pin-arrow-line
-     10
-     p
-     (find-tag* p (hash-ref map to))
-     lc-find
-     (find-tag* p (hash-ref map from))
-     lc-find)))
-
-(define-syntax deps
-  (syntax-parser
-    [(_ code)
-     #'(let-values ([(a b c) (taged-code code)])
-         (draw-deps a b c))]))
-
-
 ;                                          
 ;                                          
 ;                          ;;              
@@ -631,7 +673,6 @@ between an par an its future children based on its return codes
 ;                                          
 ;                                          
 (require racket/gui mrlib/graph
-         redex/private/size-snip
          framework)
 
 (define (flow->label l)
@@ -643,7 +684,12 @@ between an par an its future children based on its return codes
 (define (term->node-string c)
   (match c
     [`(emit ,S) (~a `(emit ,S))]
-    [(or `(nothing) `(exit ,_) `(pause))
+    [(or `(nothing) `(exit ,_) `(pause)
+         (? (lambda (x) (and (symbol? x)
+                             (not (symbol-interned? x))
+                             (or
+                              (string=? (symbol->string x) "pause")
+                              (string=? (symbol->string x) "nothing"))))))
      ""]
     [`(present ,S ,p ,q) (~a `(? ,S))]
     ['(join) "join"]
@@ -651,7 +697,8 @@ between an par an its future children based on its return codes
     ['exit "exit"]
     [_ (~a c)]))
 
-(define (graph-from-mapping ac control data)
+(define (graph-pastboard-from-map make-admin! control data
+                                  #:position? [position? #t])
   (define terms
     (sort
      (set->list
@@ -698,31 +745,37 @@ between an par an its future children based on its return codes
                  (flow->label l))))
   (add-links* control)
   (define p (new (graph-pasteboard-mixin pasteboard%)))
-  (define ec
-    (new editor-canvas%
-         [parent ac]
-         [editor p]))
+  (make-admin! p)
   (send p begin-edit-sequence)
   (send p set-draw-arrow-heads? #t)
   (for ([k (in-list snips-ordering)])
     (define s (hash-ref snips k))
     (send p insert s)
     (send s set-margin 15 15 15 15))
-  (dot-positioning p)
+  (when position? (dot-positioning p))
   (for ([(_ s) (in-hash snips)])
     (send s set-margin 5 5 5 5))
   (send p end-edit-sequence)
-  (add-links* data))
+  (add-links* data)
+  p)
+
+(define (graph-gui-from-mapping! ac control data)
+  (graph-pastboard-from-map
+   (lambda (p)
+     (new editor-canvas%
+          [parent ac]
+          [editor p]))
+   control data)
+  (void))
 
 (define graph-editor-snip% (graph-snip-mixin editor-snip%))
-(define graph-pasteboard% (graph-pasteboard-mixin pasteboard%))
 
 (define (flow-graph c)
   (define f (new (frame:basic-mixin frame%)
                  [label ""]
                  [min-width 800]
                  [min-height 600]))
-  (graph-from-mapping (send f get-area-container) (cfg c) (dfg c))
+  (graph-gui-from-mapping! (send f get-area-container) (cfg c) (dfg c))
   (send f show #t))
 
 (define (dependence-graph c)
@@ -746,8 +799,8 @@ between an par an its future children based on its return codes
          [parent h]
          [editor t]))
   (define c-cfg (cfg c))
-  (graph-from-mapping h (hash-remove c-cfg 'entry) (dfg c))
-  (graph-from-mapping h (cdg-from-cfg c-cfg) (ddg c))
+  (graph-gui-from-mapping! h (hash-remove c-cfg 'entry) (dfg c))
+  (graph-gui-from-mapping! h (cdg-from-cfg c-cfg) (ddg c))
   (queue-callback (lambda ()
                     (send t freeze-colorer)
                     (send t lock #t)
@@ -761,8 +814,8 @@ between an par an its future children based on its return codes
                  [min-height 600]))
   (define h (new horizontal-panel%
                  [parent (send f get-area-container)]))
-  (graph-from-mapping h (hash-remove cfg 'entry) dfg)
-  (graph-from-mapping h (cdg-from-cfg cfg) (ddg-from-dfg dfg))
+  (graph-gui-from-mapping! h (hash-remove cfg 'entry) dfg)
+  (graph-gui-from-mapping! h (cdg-from-cfg cfg) (ddg-from-dfg dfg))
   (send f show #t))
 
 (define (flow-graph-from-pfg cfg dfg)
@@ -770,7 +823,7 @@ between an par an its future children based on its return codes
                  [label ""]
                  [min-width 800]
                  [min-height 600]))
-  (graph-from-mapping (send f get-area-container) cfg dfg)
+  (graph-gui-from-mapping! (send f get-area-container) cfg dfg)
   (send f show #t))
 
 (define (dependence-graph-from-pfg cfg dfg)
@@ -778,9 +831,250 @@ between an par an its future children based on its return codes
                  [label ""]
                  [min-width 800]
                  [min-height 600]))
-  (graph-from-mapping (send f get-area-container) (cdg-from-cfg cfg) (ddg-from-dfg dfg))
+  (graph-gui-from-mapping! (send f get-area-container) (cdg-from-cfg cfg) (ddg-from-dfg dfg))
   (send f show #t))
-       
+
+
+;                                                    
+;                                                    
+;                                                    
+;                ;;                                  
+;    ;;;;;       ;;                                  
+;    ;    ;;                        ;;               
+;    ;     ;                        ;;               
+;    ;     ;   ;;;;        ;;;;   ;;;;;;;     ;;;;;  
+;    ;     ;      ;       ;   ;;    ;;       ;;   ;  
+;    ;     ;      ;      ;;         ;;       ;       
+;    ;    ;;      ;      ;          ;;       ;;;     
+;    ;;;;;;       ;      ;          ;;         ;;;   
+;    ;            ;      ;          ;;            ;  
+;    ;            ;      ;          ;;            ;; 
+;    ;            ;      ;;   ;      ;  ;    ;   ;;  
+;    ;         ;;;;;;;     ;;;;;      ;;;;  ;;;;;;   
+;                                                    
+;                                                    
+;                                                    
+;                                                    
+;                                                    
+
+(define (flow/pict code)
+  (define code* (uniquify code))
+  (pict-from-mapping (hash-remove (cfg code*) 'entry) (dfg code*)))
+
+(define (uniquify code)
+  (match code
+    ['nothing (string->uninterned-symbol "nothing")]
+    ['pause (string->uninterned-symbol "pause")]
+    [(list x ...) (map uniquify x)]
+    [atom atom]))
+
+(require (only-in rackunit require/expose))
+
+(require/expose
+ mrlib/private/dot
+ (snip-info run-dot))
+
+(define (for-snips pb f)
+  (let loop ([n #f])
+    (match (send pb find-next-selected-snip n)
+      [#f (void)]
+      [p (f p) (loop p)])))
+(define-syntax (or-2v stx)
+  (syntax-case stx ()
+    [(_ arg)
+     (syntax arg)]
+    [(_ arg args ...)
+     (syntax
+      (let-values ([(one two) arg])
+        (if (and one two)
+            (values one two)
+            (or-2v args ...))))]))
+(define (pict-from-mapping control data)
+  (local-require pict ppict/tag)
+  (define all (hash-union/append control data))
+  (define terms
+    (sort
+     (set->list
+      (for*/seteq ([(c fs) (in-hash all)]
+                   [t (in-list (cons c (map flow-term fs)))])
+        t))
+     ;; there is still a slight non-deterministic
+     ;; ordering here for when the same term
+     ;; shows up twice. Could use a
+     ;; program-traversal order instead
+     ;; if this is ever annoying.
+     string<?
+     #:key ~a
+     #:cache-keys? #t))
+  (define-values (ids revids)
+    (for/fold ([id 0]
+               [h1 (hasheq)]
+               [h2 (hasheq)]
+               #:result (values h1 h2))
+              ([t (in-list (reverse terms))])
+      (values (add1 id)
+              (hash-set h1 t id)
+              (hash-set h2 id t))))
+  (define info
+    (for/hash ([t (in-list terms)])
+      (define id (hash-ref ids t))
+      (define p (frame
+                 (inset
+                  (text (term->node-string t))
+                  5)))
+      (define links (hash-ref all t empty))
+      (values 
+       id
+       (list p
+             (+ 30 (pict-width p))
+             (+ 30 (pict-height p))
+             (map (compose (lambda (x) (hash-ref ids x))
+                           flow-term)
+                  links)))))       
+  (define max-width
+    (for/fold ([m 0])
+              ([(_ l) (in-hash info)])
+      (match-define (list _ w _ _) l)
+      (max m w)))
+  (define-values (positions max-y) (run-dot (find-dot #f) info dot-label #f))
+  (define max-x
+    (for/fold ([m 0])
+              ([l (in-list positions)])
+      (match-define (list id x y) l)
+      (max m (+ x max-width))))
+  (define base (blank max-x max-y))
+  (define tags
+    (for/hash ([(id _) (in-hash info)])
+      (values id (gensym))))
+  (define with-images
+    (for/fold ([p base])
+              ([item (in-list positions)])
+      (match-define (list id x y) item)
+      (match-define (list p* _ _ _) (hash-ref info id))
+      (define tag (hash-ref tags id))
+      (pin-over
+       p
+       x (- max-y y)
+       (tag-pict p* tag))))
+  (define with-arrows
+    (for*/fold ([p with-images])
+               ([(id l) (in-hash info)]
+                [child-id (in-list (list-ref l 3))]
+                #:unless (= id child-id))
+      (define f (hash-ref tags id))
+      (define t (hash-ref tags child-id))
+      (define pf (find-tag p f))
+      (define pt (find-tag p t))
+      (define-values (lf tf) (lt-find p pf))
+      (define-values (lt tt) (lt-find p pt))
+      (define-values (rf bf) (rb-find p pf))
+      (define-values (rt bt) (rb-find p pt))
+      (define-values (x1 y1) (cc-find p pf))
+      (define-values (x2 y2) (cc-find p pt))
+      (define-values (from-x from-y)
+        (or-2v (find-intersection x1 y1 x2 y2 
+                                  lf tf rf tf)
+               (find-intersection x1 y1 x2 y2 
+                                  lf bf rf bf)
+               (find-intersection x1 y1 x2 y2 
+                                  lf tf lf bf)
+               (find-intersection x1 y1 x2 y2 
+                                  rf tf rf bf)))
+      (define-values (to-x to-y)
+        (or-2v (find-intersection x1 y1 x2 y2 
+                                  lt tt rt tt)
+               (find-intersection x1 y1 x2 y2 
+                                  lt bt rt bt)
+               (find-intersection x1 y1 x2 y2 
+                                  lt tt lt bt)
+               (find-intersection x1 y1 x2 y2 
+                                  rt tt rt bt)))
+      (define term1 (hash-ref revids id))
+      (define term2 (hash-ref revids child-id))
+      (define flow
+        (for/first ([x (in-list (hash-ref all term1))]
+                    #:when (eq? term2 (flow-term x)))
+          x))
+      (define color
+        (if (data-flow? flow)
+            "red"
+            "blue"))
+      (if (not (and from-x from-y to-x to-y))
+          p
+          (pin-arrow-line
+           5
+           p
+           pf
+           (lambda (a b) (values from-x from-y))
+           pt
+           (lambda (a b) (values to-x to-y))
+           #:start-angle (and (data-flow? flow) (degrees->radians 15))
+           #:end-angle (and (data-flow? flow) (degrees->radians (- 180 15)))
+           #:color color
+           #:line-width 1
+           #:under? #t
+           #:label (text (flow->label flow))))))
+  with-arrows)
+
+;; find-intersection : number^8 -> (values (or/c #f number) (or/c #f number))
+;; calculates the intersection between two line segments, 
+;; described as pairs of points. Returns #f if they do not intersect
+(define (find-intersection x1 y1 x2 y2 x3 y3 x4 y4)
+  (let-values ([(m1 b1) (find-mb x1 y1 x2 y2)]
+               [(m2 b2) (find-mb x3 y3 x4 y4)])
+    (let-values ([(int-x int-y)
+                  (cond
+                    [(and m1 m2 b1 b2
+                          (= m1 0)
+                          (= m2 0))
+                     (values #f #f)]
+                    [(and m1 m2 b1 b2
+                          (= m1 0))
+                     (let* ([y y1]
+                            [x (/ (- y b2) m2)])
+                       (values x y))]
+                    [(and m1 m2 b1 b2
+                          (= m2 0))
+                     (let* ([y y3]
+                            [x (/ (- y b1) m1)])
+                       (values x y))]
+                    [(and m1 m2 b1 b2
+                          (not (= m1 m2)))
+                     (let* ([y (/ (- b2 b1) (- m1 m2))]
+                            [x (/ (- y b1) m1)])
+                       (values x y))]
+                    [(and m1 b1)
+                     (let* ([x x3]
+                            [y (+ (* m1 x) b1)])
+                       (values x y))]
+                    [(and m2 b2)
+                     (let* ([x x1]
+                            [y (+ (* m2 x) b2)])
+                       (values x y))]
+                    [else 
+                     (values #f #f)])])
+        
+      (if (and int-x
+               int-y
+               (<= (min x1 x2) int-x (max x1 x2))
+               (<= (min y1 y2) int-y (max y1 y2))
+               (<= (min x3 x4) int-x (max x3 x4))
+               (<= (min y3 y4) int-y (max y3 y4)))
+          (values int-x int-y)
+          (values #f #f)))))
+  ;; find-mb : number number number number -> (values (or/c #f number) (or/c #f number))
+  ;; finds the "m" and "b" constants that describe the
+  ;; lines from (x1, y1) to (x2, y2)
+  (define (find-mb x1 y1 x2 y2)
+    (if (= x1 x2)
+        (values #f #f)
+        (let-values ([(xl yl xr yr)
+                      (if (x1 . <= . x2)
+                          (values x1 y1 x2 y2)
+                          (values x2 y2 x1 y1))])
+          (let* ([m (/ (- yr yl) (- xr xl))]
+                 [b (- y1 (* m x1))])
+            (values m b)))))
 
 #|
 (deps (seq (emit S)
