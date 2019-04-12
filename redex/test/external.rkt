@@ -28,6 +28,8 @@ It depends on two parameters:
          output-string->signals
          warn-about-uninstalled-esterel)
 
+(define-logger esterelv5)
+
 (module+ test (require rackunit))
 
 (define-runtime-path esterel-root-path "../../install-prefix/esterel")
@@ -145,8 +147,7 @@ It depends on two parameters:
 ; executable, returning the name of the executable.
 (define (compile/redex program #:debug? [debug? #f])
   (define prog (redex->concrete program))
-  (when debug?
-    (displayln prog))
+  (log-esterelv5-debug prog)
   (compile/concrete prog))
 
 (module+ test
@@ -197,6 +198,7 @@ It depends on two parameters:
       (system* esterel-compiler "-simul" "-I" src-file-name)))
   (delete-file src-file-name)
   (define esterel-error-output (get-output-string error-out))
+  (log-esterelv5-debug esterel-error-output)
 
   ; Now we check for errors. If (system* esterel-compiler ...) returned #true,
   ; then the translation to C succeeded, and it's time to run the C compiler.
