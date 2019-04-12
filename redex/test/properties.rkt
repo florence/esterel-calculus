@@ -28,6 +28,7 @@
 
 (define (complete? p)
     (redex-match? esterel-eval complete p))
+#;
 (parameterize ([current-cache-all? #t])
   (redex-check
    esterel-check

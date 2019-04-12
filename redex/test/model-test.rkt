@@ -5,8 +5,7 @@
          esterel-calculus/redex/model/instant
          (prefix-in calculus: esterel-calculus/redex/model/calculus)
          (prefix-in standard: esterel-calculus/redex/model/reduction)
-         (only-in (submod esterel-calculus/cos-model test) cc->>)
-         (prefix-in cos: esterel-calculus/cos-model)
+         (prefix-in cos: esterel-calculus/redex/cos/model)
          "generator.rkt"
          racket/sandbox
          unstable/error

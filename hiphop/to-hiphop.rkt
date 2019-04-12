@@ -1,6 +1,7 @@
 #lang racket
 (require redex/reduction-semantics net/base64)
 (provide redex->hiphop redex->hiphop/port id->hiphop hiphop->id)
+(define-logger hiphop)
 
 ; redex->hiphop : Esterel-module -> string?
 ; Converts a whole Esteral module to hiphop syntax.
@@ -14,7 +15,8 @@
                  "let inSig = {accessibility: hh.IN};\n"
                  "let outSig = {accessibility: hh.OUT};\n"))
 
-(define (redex->hiphop/port port program)
+(define (redex->hiphop/port output program)
+  (define port (open-output-string))
   (match program
     [`(,name ,isigs ,osigs ,body)
       (define-values (body-str obj-vars)
@@ -27,7 +29,10 @@
                (signals->hiphop-attributes "outSig" osigs)
                body-str)
       (fprintf port "let machine = new hh.ReactiveMachine(prg, \"~a\");\n"
-               name)]))
+               name)])
+  (define s (get-output-string port))
+  (log-hiphop-debug s)
+  (fprintf output s))
 
 ; signals->hiphop-attributes : string? [List-of symbol?] -> string?
 ; Turns a list of signals into a list of signal attributes with the

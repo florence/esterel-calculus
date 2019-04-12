@@ -24,7 +24,7 @@
          esterel-calculus/hiphop/run-hiphop
          (prefix-in calculus: esterel-calculus/redex/model/calculus)
          (prefix-in standard: esterel-calculus/redex/model/reduction)
-         (prefix-in cos: esterel-calculus/cos-model)
+         (prefix-in cos: esterel-calculus/redex/cos/model)
          racket/random
          (prefix-in r: racket))
 (provide (all-defined-out)

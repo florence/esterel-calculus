@@ -5,6 +5,7 @@
          esterel-calculus/hiphop/parse
          esterel-calculus/redex/test/external)
 (provide run-hiphop-with-signals)
+(define-logger hiphop)
 
 ; run-hiphop : Esterel-module Signal-sequence -> Signal-sequence or #f or 'not-installed
 ; Runs the given hiphop program, sending it the given sequence of
@@ -25,33 +26,25 @@
          (displayln "  process.exit(1);" port)
          (displayln "}" port))
        #:exists 'truncate)
-     (when debug?
-       (redex->hiphop/port (current-output-port) program)
-       (displayln "try {")
-       (displayln "  hh.batch(machine);")
-       (displayln "} catch (e) {")
-       (displayln "  console.log(e.message);")
-       (displayln "  process.exit(1);")
-       (displayln "}"))
      (call-with-output-file input-file
        (λ (port) (display (signals->input-string insigs) port)))
      (define out (open-output-string))
      (define err (open-output-string))
-     (parameterize ([current-output-port out]
-                    [current-error-port err])
-       (system
-        (format "~a --no-server --no-sofile -q -I '~a' ~a < ~a"
-                (hop-binary-path)
-                (hiphop-lib-directory)
-                batch-file
-                input-file)))
+     (with-input-from-file input-file
+       (lambda ()
+         (parameterize ([current-output-port out]
+                        [current-error-port err])
+           (system*
+            (hop-binary-path)
+            "--no-server" "--no-sofile" "-q" "-I"
+            (hiphop-lib-directory)
+            batch-file))))
      (delete-file batch-file)
      (delete-file input-file)
      (define outs (get-output-string out))
      (define errs (get-output-string err))
-     (when debug?
-       (displayln outs)
-       (displayln errs))
+     (log-hiphop-debug (format "output: ~a" outs))
+     (log-hiphop-debug (format "output: ~a" errs))
      (cond
        [(or (regexp-match? #rx".*RUNTIME ERROR" outs)
             (regexp-match? #rx".*CAUSALITY ERROR" outs)

@@ -8,7 +8,8 @@ front-end: redex
 	raco test front-end*rkt
 
 redex: always racket-build
-	raco test cos-model.rkt
+	raco test redex/cos/model.rkt
+	raco test redex/cos/test/main.rkt
 	./redex/test-short.sh redex
 
 long: redex cross front-end
