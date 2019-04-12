@@ -11,11 +11,13 @@
          unstable/error
          rackunit
          racket/random
-         (prefix-in r: racket))
+         (prefix-in r: racket)
+         racket/logging)
 
 (module+ test
   (require (submod esterel-calculus/redex/model/reduction test)))
 
+(define-logger eval-test)
 
 (define-syntax quasiquote (make-rename-transformer #'term))
 
@@ -30,30 +32,34 @@
                  #:memory-limits? [memory-limits? #f])
   (define test-count 0)
   (define start-time (current-seconds))
-  (redex-check
-   esterel-check
-   (p-check (name i (S_!_g S_!_g ...)) (name o (S_!_g S_!_g ...)) ((S_1 ...) (S ...) ...))
-   (redex-let
-    esterel-eval
-    ([(S_i ...) `i]
-     [(S_o ...) `o])
-    (begin
-      (set! test-count (add1 test-count))
-      (when (zero? (modulo test-count 100))
-        (printf "running test ~a\n" test-count)
-        (printf "has been running for ~a seconds\n" (- (current-seconds) start-time))
-        (flush-output))
-      (when d
-        (displayln "")
-        (displayln (list `test-reduction ``p-check ``i ``o ``((S_1 ...) (S ...) ...) '#:limits? limits? '#:memory-limits? memory-limits?)))
-      (with-handlers ([exn:fail?
-                       (lambda (e)
-                         (error-display e)
-                         #f)])
-        (execute-test `p-check `i `o `((S_1 ...) (S ...) ...) #:limits? limits? #:debug? d #:external? external #:memory-limits? memory-limits?))))
-   #:prepare fixup
-   #:attempts attempts
-   #:keep-going? c?))
+  (with-logging-to-port
+   (current-output-port)
+   (lambda ()
+     (redex-check
+      esterel-check
+      (p-check (name i (S_!_g S_!_g ...)) (name o (S_!_g S_!_g ...)) ((S_1 ...) (S ...) ...))
+      (redex-let
+       esterel-eval
+       ([(S_i ...) `i]
+        [(S_o ...) `o])
+       (begin
+         (set! test-count (add1 test-count))
+         (when (zero? (modulo test-count 100))
+           (printf "running test ~a\n" test-count)
+           (printf "has been running for ~a seconds\n" (- (current-seconds) start-time))
+           (flush-output))
+         (log-eval-test-debug (list `test-reduction ``p-check ``i ``o ``((S_1 ...) (S ...) ...) '#:limits? limits? '#:memory-limits? memory-limits?))
+         (with-handlers ([exn:fail?
+                          (lambda (e)
+                            (error-display e)
+                            #f)])
+           (execute-test `p-check `i `o `((S_1 ...) (S ...) ...) #:limits? limits? #:debug? d #:external? external #:memory-limits? memory-limits?))))
+      #:prepare fixup
+      #:attempts attempts
+      #:keep-going? c?))
+   #:logger (if d (current-logger) (make-logger))
+   'debug
+   'eval-test))
 
 (define (warn-about-uninstalled-hiphop)
   (printf "\n\nWARNING: hiphop is not installed; skipping some tests\n\n\n")
@@ -103,8 +109,8 @@
               ,p*
               ,(append i o)))
   (define r  `((convert ,p-check) ()))
-  (when debug?
-    (printf "testing: ~a\n derived from ~a\n"
+  (log-eval-test-debug
+    (format "testing: ~a\n derived from ~a\n"
             `(relate `,r
                      `,p
                      `,s
@@ -131,9 +137,8 @@
     (filter (lambda (x) (member x out)) l))
   ;;TODO update to check which instant had the non-constructive behavior
   (define olist (if (list? oracle) oracle (build-list (length ins) (lambda (_) #f))))
-  (when debug?
-    (printf "using oracle: ~a\n" olist)
-    (printf "using ins: ~a\n" ins))
+  (log-eval-test-debug (format "using oracle: ~a\n" olist))
+  (log-eval-test-debug "using ins: ~a\n" ins)
   (for/fold ([p pp]
              [q qp])
             ([i (in-list ins)]
@@ -142,38 +147,37 @@
              (or
               ;; program was non constructive
               (and (not p) (not q) (implies oracle (symbol? oracle))
-                   (when debug? (displayln "breaking due to non-constructiveness")))
+                   (log-eval-test-debug (displayln "breaking due to non-constructiveness")))
               ;; the COS model is done and we have no oracle data
               (and (cos:done? p)
                    (not oracle)
                    (standard:done? q)
-                   (when debug? (displayln "breaking due to program completion and lack of oracle")))))
-    (when debug?
-      (printf "running:\np:")
-      (pretty-print p)
-      (printf "q:")
-      (pretty-print q)
-      (printf "i:")
-      (pretty-print i))
+                   (log-eval-test-debug (displayln "breaking due to program completion and lack of oracle")))))
+    (log-eval-test-debug "running:\np:")
+    (log-eval-test-debug (pretty-format p))
+    (log-eval-test-debug  "q:")
+    (log-eval-test-debug (pretty-format q))
+    (log-eval-test-debug "i:")
+    (log-eval-test-debug (pretty-format i))
     (with-handlers ([(lambda (x) (and (exn:fail:resource? x)
                                       (memq (exn:fail:resource-resource x)
                                             '(time memory))))
                      (lambda (_)
-                       (when debug? (displayln 'timeout))
+                       (log-eval-test-debug (displayln 'timeout))
                        (values #f #f))])
       (with-limits (and limits? 120) (and memory-limits? 512)
-        (when debug?
-          (printf "running instant\n")
-          (pretty-print (list 'instant q (setup-r-env i in))))
+                   (log-eval-test-debug "running instant\n")
+                   (log-eval-test-debug (pretty-format (list 'instant q (setup-r-env i in))))
 
         (define new-reduction/standard `(instant ,q ,(setup-r-env i in)))
 
-        (when debug?
-          (printf "running c->>\n")
-          (pretty-print
-           (list 'c->> `(machine ,(first p) ,(second p))
-                 (setup-*-env i in)
-                 '(machine pbar data_*) '(S ...) 'k)))
+       
+        (log-eval-test-debug "running c->>\n")
+        (log-eval-test-debug
+         (pretty-format
+          (list 'c->> `(machine ,(first p) ,(second p))
+                (setup-*-env i in)
+                '(machine pbar data_*) '(S ...) 'k)))
 
         (define constructive-reduction
           (cond [(and (cos:done? p) (standard:done? q))
