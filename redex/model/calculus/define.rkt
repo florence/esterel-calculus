@@ -121,32 +121,36 @@
     (ρ (id-but-typeset-some-parens (<- θ_1 θ_2)) (in-hole E p))
     merge)))
 
-(define-simple-macro (R-write P)
-  (reduction-relation
-   esterel-eval #:domain p
+(define-syntax R-write
+  (syntax-parser
+    [(_ P*)
+     #:with P (datum->syntax #'P* 'P #f)
+     #`(let-syntax ([P (make-rename-transformer #'P*)])
+         (reduction-relation
+          esterel-eval #:domain p
    
-   (--> (in-hole C (ρ θ (in-hole E (emit S))))
-        (in-hole C (ρ (id-but-typeset-some-parens (<- θ (mtθ+S S present))) (in-hole E nothing)))
-        (judgment-holds (θ-ref-S-∈ θ S (L2set present unknown)))
-        (side-condition (term (P (in-hole C (ρ θ E)) S)))
-        emit)
-   (-->
-    (in-hole C (ρ θ (in-hole E (<= s e))))
-    (in-hole C (ρ (id-but-typeset-some-parens (<- θ (mtθ+s s (δ e θ) new))) (in-hole E nothing)))
-    (judgment-holds (θ-ref-s θ s _ old))
-    (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
-    (side-condition (term (all-ready? (LFV/e e) θ)))
-    (side-condition (term (P (in-hole C (ρ θ E)) s)))
-    set-old)
+          (--> (in-hole C (ρ θ (in-hole E (emit S))))
+               (in-hole C (ρ (id-but-typeset-some-parens (<- θ (mtθ+S S present))) (in-hole E nothing)))
+               (judgment-holds (θ-ref-S-∈ θ S (L2set present unknown)))
+               (side-condition (term (P (in-hole C (ρ θ E)) S)))
+               emit)
+          (-->
+           (in-hole C (ρ θ (in-hole E (<= s e))))
+           (in-hole C (ρ (id-but-typeset-some-parens (<- θ (mtθ+s s (δ e θ) new))) (in-hole E nothing)))
+           (judgment-holds (θ-ref-s θ s _ old))
+           (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
+           (side-condition (term (all-ready? (LFV/e e) θ)))
+           (side-condition (term (P (in-hole C (ρ θ E)) s)))
+           set-old)
 
-   (-->
-    (in-hole C (ρ θ (in-hole E (<= s e))))
-    (in-hole C (ρ (id-but-typeset-some-parens (<- θ (mtθ+s s (Σ ev (δ e θ)) new))) (in-hole E nothing)))
-    (judgment-holds (θ-ref-s θ s ev new))
-    (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
-    (side-condition (term (all-ready? (LFV/e e) θ)))
-    (side-condition (term (P (in-hole C (ρ θ E)) S)))
-    set-new)))
+          (-->
+           (in-hole C (ρ θ (in-hole E (<= s e))))
+           (in-hole C (ρ (id-but-typeset-some-parens (<- θ (mtθ+s s (Σ ev (δ e θ)) new))) (in-hole E nothing)))
+           (judgment-holds (θ-ref-s θ s ev new))
+           (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
+           (side-condition (term (all-ready? (LFV/e e) θ)))
+           (side-condition (term (P (in-hole C (ρ θ E)) S)))
+           set-new)))]))
 
 (define-metafunction esterel-eval
   reassemble : C V -> p
