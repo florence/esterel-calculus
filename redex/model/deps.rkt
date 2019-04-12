@@ -677,7 +677,9 @@ between an par an its future children based on its return codes
 
 (define (flow->label l)
   (match l
-    [(K-flow _ n) (~a n)]
+    [(K-flow _ 0) "n"]
+    [(K-flow _ 1) "p"]
+    [(K-flow _ n) (~a (- n 2))]
     [(true-flow _) "T"]
     [(false-flow _) "F"]
     [(data-flow _) ""]))
@@ -857,9 +859,12 @@ between an par an its future children based on its return codes
 ;                                                    
 ;                                                    
 
-(define (flow/pict code)
+(define (flow/pict code #:ignore-start? [ignore-start? #t])
   (define code* (uniquify code))
-  (pict-from-mapping (hash-remove (cfg code*) 'entry) (dfg code*)))
+  (pict-from-mapping (hash-remove
+                      (hash-remove (cfg code*) 'entry)
+                      'start)
+                     (dfg code*)))
 
 (define (uniquify code)
   (match code
@@ -994,12 +999,12 @@ between an par an its future children based on its return codes
       (define term2 (hash-ref revids child-id))
       (define color
         (if (data-flow? flow)
-            "red"
-            "blue"))
+            "Fuchsia"
+            "DarkBlue"))
       (if (not (and from-x from-y to-x to-y))
           p
           (pin-arrow-line
-           5
+           10
            p
            pf
            (lambda (a b) (values from-x from-y))
@@ -1008,7 +1013,7 @@ between an par an its future children based on its return codes
            #:start-angle (and (data-flow? flow) (degrees->radians 15))
            #:end-angle (and (data-flow? flow) (degrees->radians (- 180 15)))
            #:color color
-           #:line-width 1
+           #:line-width 2
            #:under? #t
            #:label (text (flow->label flow))))))
   with-arrows)
