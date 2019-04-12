@@ -10,7 +10,8 @@
          calculus-rule-groups
          standard-rule-groups
          reduction-relation-pict
-         standard-reduction-pict)
+         standard-reduction-pict
+         render-rules)
 
 ;; approximate, determined by experimentation via `frame`
 ;; and running latex and eyeballing the output
