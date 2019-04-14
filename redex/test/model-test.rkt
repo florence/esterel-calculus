@@ -32,9 +32,7 @@
                  #:memory-limits? [memory-limits? #f])
   (define test-count 0)
   (define start-time (current-seconds))
-  (with-logging-to-port
-   (current-output-port)
-   (lambda ()
+
      (redex-check
       esterel-check
       (p-check (name i (S_!_g S_!_g ...)) (name o (S_!_g S_!_g ...)) ((S_1 ...) (S ...) ...))
@@ -57,9 +55,6 @@
       #:prepare fixup
       #:attempts attempts
       #:keep-going? c?))
-   #:logger (if d (current-logger) (make-logger))
-   'debug
-   'eval-test))
 
 (define (warn-about-uninstalled-hiphop)
   (printf "\n\nWARNING: hiphop is not installed; skipping some tests\n\n\n")
@@ -86,15 +81,21 @@
 
 (define (test-reduction p-check i o s #:limits? limits? #:debug? [debug? #f] #:oracle [oracle #f]
                         #:memory-limits? memory-limits?)
-  (relate `((convert ,p-check) ())
-          `(add-extra-syms ,p-check ,(append i o))
-          s
-          i
-          o
-          #:limits? limits?
-          #:memory-limits? memory-limits?
-          #:debug? debug?
-          #:oracle oracle))
+  (with-logging-to-port
+   (current-output-port)
+   (lambda ()
+     (relate `((convert ,p-check) ())
+             `(add-extra-syms ,p-check ,(append i o))
+             s
+             i
+             o
+             #:limits? limits?
+             #:memory-limits? memory-limits?
+             #:debug? debug?
+             #:oracle oracle))
+   #:logger (if debug? (current-logger) (make-logger))
+   'debug
+   'eval-test))
 
 ;; disabled because of known disconnect between calculus and 
 ;; COS semantics mentioned in the paper: specifically that using the
@@ -137,7 +138,7 @@
     (filter (lambda (x) (member x out)) l))
   ;;TODO update to check which instant had the non-constructive behavior
   (define olist (if (list? oracle) oracle (build-list (length ins) (lambda (_) #f))))
-  (log-eval-test-debug (format "using oracle: ~a\n" olist))
+  (log-eval-test-debug "using oracle: ~a\n" olist)
   (log-eval-test-debug "using ins: ~a\n" ins)
   (for/fold ([p pp]
              [q qp])
@@ -147,12 +148,12 @@
              (or
               ;; program was non constructive
               (and (not p) (not q) (implies oracle (symbol? oracle))
-                   (log-eval-test-debug (displayln "breaking due to non-constructiveness")))
+                   (log-eval-test-debug "breaking due to non-constructiveness"))
               ;; the COS model is done and we have no oracle data
               (and (cos:done? p)
                    (not oracle)
                    (standard:done? q)
-                   (log-eval-test-debug (displayln "breaking due to program completion and lack of oracle")))))
+                   (log-eval-test-debug "breaking due to program completion and lack of oracle"))))
     (log-eval-test-debug "running:\np:")
     (log-eval-test-debug (pretty-format p))
     (log-eval-test-debug  "q:")
@@ -163,7 +164,8 @@
                                       (memq (exn:fail:resource-resource x)
                                             '(time memory))))
                      (lambda (_)
-                       (log-eval-test-debug (displayln 'timeout))
+                       (log-eval-test-warning "timeout")
+                       (log-eval-test-debug "program was: ~a" p)
                        (values #f #f))])
       (with-limits (and limits? 120) (and memory-limits? 512)
                    (log-eval-test-debug "running instant\n")
@@ -294,6 +296,31 @@
   (for/list ([p progs]
              [s signals])
     (list p s)))
+
+
+;                                                         
+;                                                         
+;                                                         
+;                                                         
+;   ;;;;;;;;;                                             
+;       ;                               ;                 
+;       ;                               ;                 
+;       ;         ;;;;      ;;;;;    ;;;;;;;      ;;;;;   
+;       ;       ;;   ;;    ;;   ;;      ;        ;;   ;;  
+;       ;       ;     ;    ;            ;        ;        
+;       ;       ;     ;    ;;           ;        ;;       
+;       ;      ;;;;;;;;     ;;;;        ;         ;;;;    
+;       ;      ;;             ;;;       ;           ;;;   
+;       ;       ;               ;;      ;             ;;  
+;       ;       ;;              ;;      ;             ;;  
+;       ;       ;;;  ;;    ;;  ;;;      ;;  ;    ;;  ;;;  
+;       ;         ;;;;    ; ;;;;         ;;;;   ; ;;;;    
+;                                                         
+;                                                         
+;                                                         
+;                                                         
+;                                                         
+
 
 (module+ test
   (test-case "negative tests"
