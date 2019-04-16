@@ -1,5 +1,5 @@
 #lang racket
-(provide deps flow/pict)
+(provide deps flow/pict pict-from-mapping K-flow)
 (require pict
          pict/code
          ppict/tag
@@ -197,20 +197,19 @@
      [(true-flow _) (true-flow t)]
      [(false-flow _) (false-flow t)])))
 
+(define ((uninterned-symbol=? str) sym)
+  (and (symbol? sym)
+       (not (symbol-interned? sym))
+       (string=? str (symbol->string sym))))
+
 (define/contract (cfg term)
   (-> prog/c (and/c hash? hash-eq? immutable?))
   (define-values (head graph tails)
     (let loop ([term term])
       (match term
-        [(? (lambda (x) (and (symbol? x)
-                             (not (symbol-interned? x))
-                             (or
-                              (string=? (symbol->string x) "pause")
-                              (string=? (symbol->string x) "nothing")))))
+        [(or `(emit ,_) `(nothing) (? (uninterned-symbol=? "nothing")))
          (values term (hasheq) (list (K-flow term 0)))]
-        [(or `(emit ,_) `(nothing))
-         (values term (hasheq) (list (K-flow term 0)))]
-        [`(pause)
+        [(or `(pause) (? (uninterned-symbol=? "pause")))
          (values 'exit (hasheq) (list (K-flow 'start 0)))]
         [`(exit ,n)
          (values term (hasheq) (list (K-flow term (+ n 2))))]
@@ -673,12 +672,14 @@ between an par an its future children based on its return codes
 ;                                          
 ;                                          
 (require racket/gui mrlib/graph
-         framework)
+         framework
+         (only-in pict pict?))
 
 (define (flow->label l)
   (match l
     [(K-flow _ 0) "n"]
     [(K-flow _ 1) "p"]
+    [(K-flow _ (? string? p)) p]
     [(K-flow _ n) (~a (- n 2))]
     [(true-flow _) "T"]
     [(false-flow _) "F"]
@@ -697,6 +698,7 @@ between an par an its future children based on its return codes
     ['(join) "join"]
     [`(par ,p ...) "par"]
     ['exit "exit"]
+    [(? pict? p) p]
     [_ (~a c)]))
 
 (define (graph-pastboard-from-map make-admin! control data
@@ -863,7 +865,7 @@ between an par an its future children based on its return codes
   (define code* (uniquify code))
   (pict-from-mapping (hash-remove
                       (hash-remove (cfg code*) 'entry)
-                      'start)
+                      (if ignore-start? 'start #f))
                      (dfg code*)))
 
 (define (uniquify code)
@@ -923,9 +925,12 @@ between an par an its future children based on its return codes
   (define info
     (for/hash ([t (in-list terms)])
       (define id (hash-ref ids t))
+      (define txt (term->node-string t))
       (define p (frame
                  (inset
-                  (text (term->node-string t))
+                  (if (pict? txt)
+                      txt
+                      (text txt))
                   5)))
       (define links (hash-ref control t empty))
       (values 
