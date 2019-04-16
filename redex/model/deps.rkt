@@ -210,7 +210,7 @@
         [(or `(emit ,_) `(nothing) (? (uninterned-symbol=? "nothing")))
          (values term (hasheq) (list (K-flow term 0)))]
         [(or `(pause) (? (uninterned-symbol=? "pause")))
-         (values 'exit (hasheq) (list (K-flow 'start 0)))]
+         (values term (hasheq term (list (K-flow 'exit 1))) (list (K-flow 'start 0)))]
         [`(exit ,n)
          (values term (hasheq) (list (K-flow term (+ n 2))))]
         [`(present ,S ,p ,q)
