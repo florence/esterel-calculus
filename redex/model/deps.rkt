@@ -40,8 +40,8 @@
      (list/c 'pause)
      (list/c 'present symbol? e/c e/c)
      (list/c 'signal symbol? e/c)
-     (list/c 'seq e/c e/c)
-     (list/c 'par e/c e/c)
+     (cons/c 'seq (listof e/c))
+     (cons/c 'par (listof e/c))
      (list/c 'emit symbol?)
      (list/c 'exit natural?)
      (list/c 'trap e/c)
@@ -120,15 +120,25 @@
                  `#,term
                  #,hash))]))
 
-(define (draw-deps pict code map)
+(define (draw-deps pict code map arrow line-width
+                   #:ignore? [ignore? #f])
   (for*/fold ([p pict])
              ([(from* tos) (in-hash (hash-union/append (cfg code) (dfg code)))]
               [to* (in-list tos)]
               [to (in-value (hash-ref map (flow-term to*) #f))]
               [from (in-value (hash-ref map from* #f))]
-              #:when (and from to))
+              #:when (and from to
+                          (implies ignore?
+                                   (and
+                                    (implies (symbol? (flow-term to*))
+                                             (not (string=? "nothing"
+                                                            (symbol->string (flow-term to*)))))
+                                    (implies (symbol? from*)        
+                                             (not (string=? "nothing"
+                                                            (symbol->string from*))))))))
     (pin-arrow-line
-     10
+     (or arrow 10)
+     #:line-width (or line-width 1)
      p
      (find-tag* p from)
      lc-find
@@ -137,9 +147,17 @@
 
 (define-syntax deps
   (syntax-parser
-    [(_ code)
+    [(_ {~alt {~once code}
+              {~once {~optional
+                      {~seq #:line-width l}}}
+              {~once {~optional
+                      {~seq #:arrow ar}}}
+              {~once {~optional
+                      {~seq #:ignore-nothing {~bind [ignore? #'#t]}}}}}
+        ...)
      #'(let-values ([(a b c) (taged-code code)])
-         (draw-deps a b c))]))
+         (draw-deps a b c (~? ar #f) (~? l #f)
+                    #:ignore? (~? ignore? #f)))]))
 
 
 
@@ -861,12 +879,15 @@ between an par an its future children based on its return codes
 ;                                                    
 ;                                                    
 
-(define (flow/pict code #:ignore-start? [ignore-start? #t])
+(define (flow/pict code
+                   #:ignore-start? [ignore-start? #t]
+                   #:t->b? [t->b? #t])
   (define code* (uniquify code))
   (pict-from-mapping (hash-remove
                       (hash-remove (cfg code*) 'entry)
                       (if ignore-start? 'start #f))
-                     (dfg code*)))
+                     (dfg code*)
+                     #:overlap? (not t->b?)))
 
 (define (uniquify code)
   (match code
@@ -896,7 +917,8 @@ between an par an its future children based on its return codes
         (if (and one two)
             (values one two)
             (or-2v args ...))))]))
-(define (pict-from-mapping control data)
+(define (pict-from-mapping control data
+                           #:overlap? [overlap? #f])
   (local-require pict ppict/tag)
   (define all (hash-union/append control data))
   (define terms
@@ -946,7 +968,7 @@ between an par an its future children based on its return codes
               ([(_ l) (in-hash info)])
       (match-define (list _ w _ _) l)
       (max m w)))
-  (define-values (positions max-y) (run-dot (find-dot #f) info dot-label #f))
+  (define-values (positions max-y) (run-dot (find-dot #f) info dot-label overlap?))
   (define max-x
     (for/fold ([m 0])
               ([l (in-list positions)])
@@ -1015,8 +1037,12 @@ between an par an its future children based on its return codes
            (lambda (a b) (values from-x from-y))
            pt
            (lambda (a b) (values to-x to-y))
-           #:start-angle (and (data-flow? flow) (degrees->radians 15))
-           #:end-angle (and (data-flow? flow) (degrees->radians (- 180 15)))
+           #:start-angle (and (data-flow? flow)
+                              (if overlap? (degrees->radians (+ 180 90 5)) (degrees->radians 15)))
+           #:end-angle (and (data-flow? flow)
+                            (if overlap?
+                                (degrees->radians (+ 90 5))
+                                (degrees->radians (- 180 15))))
            #:color color
            #:line-width 2
            #:under? #t
