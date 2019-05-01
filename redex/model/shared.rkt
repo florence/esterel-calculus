@@ -48,6 +48,9 @@
 
 (define-extended-language esterel-eval esterel
   (p q r ::= ....
+     ;; control records the control info for this term.
+     ;; the first p is the current term we are reasoning about.
+     ;; the second p records any lost (or gained) information for the orig term.
      (ρ θ p)
      (loop^stop p q))
 
@@ -61,8 +64,12 @@
           absent
           unknown)
   (Sdat ::= (sig S status))
+  ;; go is lionel's `green`. It means control must reach here
+  ;; wait is lionel's `gray`. It means control may or may not reach here.
+  (control ::= go wait)
 
   (C ::=
+     (ctrl control C p)
      (signal S C)
      (seq C q)
      (seq p C)
@@ -108,6 +115,7 @@
 
   ;; evaluation contexts
   (E ::=
+     (ctrl control E p)
      (seq E q)
      (loop^stop E q)
      (par E q)
@@ -116,6 +124,7 @@
      (trap E)
      hole)
   (E1 ::=
+      (ctrl control hole p)
       (seq hole q)
       (loop^stop hole q)
       (par hole q)
