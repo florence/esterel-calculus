@@ -3,7 +3,7 @@
          esterel-calculus/redex/model/shared
          esterel-calculus/redex/model/potential-function
          esterel-calculus/redex/model/instant
-         (prefix-in calculus: esterel-calculus/redex/model/calculus)
+         esterel-calculus/redex/model/calculus/variants/control
          (prefix-in standard: esterel-calculus/redex/model/reduction)
          (prefix-in cos: esterel-calculus/redex/cos/model)
          "generator.rkt"
@@ -212,10 +212,8 @@
                     i
                     (list 'relate pp qp ins in out)))
            (values p q2)]
-          [(`((,p2 ,data ,(and pouts b1 #;(list-no-order b ...)
-                               ))
-              (,_ ,_ ,b2s #;(list-no-order b ...)
-                  ) ...)
+          [(`((,p2 ,data ,(and pouts b1))
+              (,_ ,_ ,b2s) ...)
             (list q2 qouts)
             _)
            #:when (andmap (lambda (x) (equal? (list->set b1) (list->set x)))
@@ -263,7 +261,7 @@
 
 (define (standard:done? q)
   (or (redex-match? standard:esterel-standard nothing q)
-      (redex-match? standard:esterel-standard (ρ θ nothing) q)))
+      (redex-match? standard:esterel-standard (ρ θ A nothing) q)))
 
 
 
@@ -271,7 +269,7 @@
   (define-values (app p*)
     (for/fold ([applied empty] [p p])
               ([i (in-range times)])
-      (define-values (t p-next) (apply-reduction-relation/pick calculus:R p))
+      (define-values (t p-next) (apply-reduction-relation/pick ⟶ p))
       (values (cons (list t p-next) applied)
               p-next)))
   (values p* (format "calculus equasions applied: ~a\n" (reverse app))))
@@ -347,7 +345,7 @@
      #rx"programs were (?!<terminated>)"
      (lambda ()
        (relate (list '(loop pause) '())
-               '(ρ {(sig S unknown) ·} (emit S))
+               '(ρ {(sig S unknown) ·} GO (emit S))
                '(())
                '()
                '(S))))
@@ -355,7 +353,7 @@
      #rx"inconsistent output states"
      (lambda ()
        (relate (list '(loop nothing) '())
-               '(ρ · (loop pause))
+               '(ρ · GO (loop pause))
                '(())
                '()
                '(S)))))
@@ -365,135 +363,138 @@
      ;; absence
      (apply-reduction-relation
       standard:R
-      `(ρ ((sig SS present) ((sig SA unknown) ·))
+      `(ρ ((sig SS present) ((sig SA unknown) ·)) GO
           (par (suspend (seq pause nothing) SS)
                (present SA pause pause))))
      (list
       `(ρ ((sig SA absent) ((sig SS present) ·))
+          GO
           (par (suspend (seq pause nothing) SS)
                (present SA pause pause)))))
     (check-equal?
      ;; raise-shared
      (apply-reduction-relation
       standard:R
-      `(ρ · (shared ss := (+) pause)))
-     (list `(ρ · (ρ ((shar ss 0 old) ·) pause))))
+      `(ρ · GO (shared ss := (+) pause)))
+     (list `(ρ · GO (ρ ((shar ss 0 old) ·) WAIT pause))))
 
     (check-equal?
      (apply-reduction-relation*
       standard:R
-      `(ρ · (seq (shared s1 := (+) (var x1 := (+ s1) nothing))
-                 (ρ ((shar s1 0 old) ·) (<= s1 (+))))))
-     (list `(ρ ((shar s1 0 ready) ((var· x1 0) ·)) nothing)))
+      `(ρ · GO
+          (seq (shared s1 := (+) (var x1 := (+ s1) nothing))
+               (ρ ((shar s1 0 old) ·) WAIT (<= s1 (+))))))
+     (list `(ρ ((shar s1 0 ready) ((var· x1 0) ·)) GO nothing)))
     
     (check-equal?
      ;; merge
      (apply-reduction-relation
       standard:R
-      `(ρ · (ρ ((shar ss 1 new) ·) pause)))
-     (list `(ρ ((shar ss 1 new) ·) pause)))
+      `(ρ · GO (ρ ((shar ss 1 new) ·) WAIT pause)))
+     (list `(ρ ((shar ss 1 new) ·) GO pause)))
     (check-equal?
      ;; merge
      (apply-reduction-relation
       standard:R
-      `(ρ ((shar ss 2 old) ·) (ρ ((shar ss 1 new) ·) pause)))
-     (list `(ρ ((shar ss 1 new) ·) pause)))
+      `(ρ ((shar ss 2 old) ·) GO (ρ ((shar ss 1 new) ·) WAIT pause)))
+     (list `(ρ ((shar ss 1 new) ·) GO pause)))
     (check-equal?
      ;; set-old
      (apply-reduction-relation
       standard:R
-      `(ρ ((shar ss 1 old) ·) (<= ss (+ 5))))
-     (list `(ρ ((shar ss 5 new) ·) nothing)))
+      `(ρ ((shar ss 1 old) ·) GO (<= ss (+ 5))))
+     (list `(ρ ((shar ss 5 new) ·) GO nothing)))
 
     (check-equal?
      ;; set-new
      (apply-reduction-relation
       standard:R
-      `(ρ ((shar ss 1 new) ·) (<= ss (+ 5))))
-     (list `(ρ ((shar ss 6 new) ·) nothing)))
+      `(ρ ((shar ss 1 new) ·) GO (<= ss (+ 5))))
+     (list `(ρ ((shar ss 6 new) ·) GO nothing)))
 
     (check-equal?
      ;; readyness
      (apply-reduction-relation
       standard:R
-      `(ρ ((shar ss 1 new) ·) (shared s2 := (+ ss) pause)))
-     (list `(ρ ((shar ss 1 ready) ·) (shared s2 := (+ ss) pause))))
+      `(ρ ((shar ss 1 new) ·) GO (shared s2 := (+ ss) pause)))
+     (list `(ρ ((shar ss 1 ready) ·) GO (shared s2 := (+ ss) pause))))
 
     (check-equal?
      ;; raise-shared
      (apply-reduction-relation
       standard:R
-      `(ρ ((shar ss 1 ready) ·) (shared s2 := (+ ss) pause)))
-     (list `(ρ ((shar ss 1 ready) ·) (ρ ((shar s2 1 old) ·) pause))))
+      `(ρ ((shar ss 1 ready) ·) GO (shared s2 := (+ ss) pause)))
+     (list `(ρ ((shar ss 1 ready) ·) GO (ρ ((shar s2 1 old) ·) WAIT pause))))
     (check-equal?
      ;; raise-shared
      (apply-reduction-relation
       standard:R
-      `(ρ ((shar ss 1 ready) ·) (shared s2 := (+ 1) pause)))
-     (list `(ρ ((shar ss 1 ready) ·) (ρ ((shar s2 1 old) ·) pause))))
+      `(ρ ((shar ss 1 ready) ·) GO (shared s2 := (+ 1) pause)))
+     (list `(ρ ((shar ss 1 ready) ·) GO (ρ ((shar s2 1 old) ·) WAIT pause))))
 
 
     (check-equal?
      ;; raise-shared
      (apply-reduction-relation
       standard:R
-      `(ρ ·
+      `(ρ · GO
           (shared s2 := (+ 1 0)
                   pause)))
-     (list `(ρ ·
+     (list `(ρ · GO
                (ρ ((shar s2 1 old) ·)
+                  WAIT
                   pause))))
 
     (check-equal?
      ;; par-right
      (apply-reduction-relation
       standard:R
-      `(ρ · (seq (par (exit 3) (seq pause nothing)) nothing)))
-     (list `(ρ · (seq (exit 3) nothing))))
+      `(ρ · GO (seq (par (exit 3) (seq pause nothing)) nothing)))
+     (list `(ρ · GO (seq (exit 3) nothing))))
 
     (check-equal?
      ;; par-left
      (apply-reduction-relation
       standard:R
-      `(ρ · (par nothing (par (seq pause nothing) nothing))))
-     (list `(ρ · (par nothing (seq pause nothing)))))
+      `(ρ · GO (par nothing (par (seq pause nothing) nothing))))
+     (list `(ρ · GO (par nothing (seq pause nothing)))))
 
     (check-equal?
      ;; is-present
      (apply-reduction-relation
       standard:R
-      `(ρ ((sig S present) ·) (present S nothing pause)))
-     (list `(ρ ((sig S present) ·) nothing)))
+      `(ρ ((sig S present) ·) GO (present S nothing pause)))
+     (list `(ρ ((sig S present) ·) GO nothing)))
 
     (check-equal?
      ;; is-absent
      (apply-reduction-relation
       standard:R
-      `(ρ ((sig S absent) ·) (par (seq (present S nothing pause) nothing)
+      `(ρ ((sig S absent) ·) GO (par (seq (present S nothing pause) nothing)
                                   nothing)))
-     (list `(ρ ((sig S absent) ·) (par (seq pause nothing) nothing))))
+     (list `(ρ ((sig S absent) ·) GO (par (seq pause nothing) nothing))))
 
     (check-equal?
      ;; emit unknown
      (apply-reduction-relation
       standard:R
-      `(ρ ((sig S unknown) ·) (trap (emit S))))
-     (list `(ρ ((sig S present) ·) (trap nothing))))
+      `(ρ ((sig S unknown) ·) GO (trap (emit S))))
+     (list `(ρ ((sig S present) ·) GO (trap nothing))))
 
     (check-equal?
      ;; emit present
      (apply-reduction-relation
       standard:R
-      `(ρ ((sig S present) ·) (trap (emit S))))
-     (list `(ρ ((sig S present) ·) (trap nothing))))
+      `(ρ ((sig S present) ·) GO (trap (emit S))))
+     (list `(ρ ((sig S present) ·) GO (trap nothing))))
 
     (check-equal?
      ;; loop
      (apply-reduction-relation
       standard:R
-      `(ρ · (trap (loop pause))))
+      `(ρ · GO (trap (loop pause))))
      (list `(ρ
-             ·
+             · GO
              (trap
               (loop^stop
                pause
@@ -503,56 +504,56 @@
      ;; seq-done
      (apply-reduction-relation
       standard:R
-      `(ρ · (suspend (suspend (seq nothing (par (exit 33) (exit 44))) S1) S2)))
-     (list `(ρ · (suspend (suspend (par (exit 33) (exit 44)) S1) S2))))
+      `(ρ · GO (suspend (suspend (seq nothing (par (exit 33) (exit 44))) S1) S2)))
+     (list `(ρ · GO (suspend (suspend (par (exit 33) (exit 44)) S1) S2))))
 
     (check-equal?
      ;; seq-exit
      (apply-reduction-relation
       standard:R
-      `(ρ · (suspend (suspend (seq (exit 55) (par (exit 33) (exit 44))) S1) S2)))
-     (list `(ρ · (suspend (suspend (exit 55) S1) S2))))
+      `(ρ · GO (suspend (suspend (seq (exit 55) (par (exit 33) (exit 44))) S1) S2)))
+     (list `(ρ · GO (suspend (suspend (exit 55) S1) S2))))
 
     (check-equal?
      ;; suspend
      (apply-reduction-relation
       standard:R
-      `(ρ · (seq (suspend (suspend nothing S) S) (emit S2))))
-     (list `(ρ · (seq (suspend nothing S) (emit S2)))))
+      `(ρ · GO (seq (suspend (suspend nothing S) S) (emit S2))))
+     (list `(ρ · GO (seq (suspend nothing S) (emit S2)))))
 
     (check-equal?
      ;; trap
      (apply-reduction-relation
       standard:R
-      `(ρ · (trap (exit 0))))
-     (list `(ρ · nothing)))
+      `(ρ · GO (trap (exit 0))))
+     (list `(ρ · GO nothing)))
 
     (check-equal?
      ;; trap
      (apply-reduction-relation
       standard:R
-      `(ρ · (trap (exit 1))))
-     (list `(ρ · (exit 0))))
+      `(ρ · GO (trap (exit 1))))
+     (list `(ρ · GO (exit 0))))
 
     (check-equal?
      ;; trap
      (apply-reduction-relation
       standard:R
-      `(ρ · (trap (exit 11))))
-     (list `(ρ · (exit 10))))
+      `(ρ · GO (trap (exit 11))))
+     (list `(ρ · GO (exit 10))))
 
     (check-equal?
      ;; trap
      (apply-reduction-relation
       standard:R
-      `(ρ · (trap nothing)))
-     (list `(ρ · nothing)))
+      `(ρ · GO (trap nothing)))
+     (list `(ρ · GO nothing)))
 
     (check-equal?
      ;; trap
      (apply-reduction-relation
       standard:R
-      `(ρ · (trap pause)))
+      `(ρ · GO (trap pause)))
      ;; no reductions
      (list))
 
@@ -560,45 +561,52 @@
      ;; signal
      (apply-reduction-relation
       standard:R
-      `(ρ ((sig S absent) ·) (trap (signal S2 (emit S2)))))
-     (list `(ρ ((sig S absent) ·) (trap (ρ ((sig S2 unknown) ·) (emit S2))))))
+      `(ρ ((sig S absent) ·) GO (trap (signal S2 (emit S2)))))
+     (list `(ρ ((sig S absent) ·) GO (trap (ρ ((sig S2 unknown) ·) WAIT (emit S2))))))
 
     (check-equal?
      ;; raise-var
      (apply-reduction-relation
       standard:R
-      `(ρ · (seq (var x := (+ 0) (if x pause nothing)) nothing)))
-     (list `(ρ · (seq (ρ ((var· x 0) ·) (if x pause nothing)) nothing))))
+      `(ρ · GO (seq (var x := (+ 0) (if x pause nothing)) nothing)))
+     (list `(ρ · GO (seq (ρ ((var· x 0) ·) WAIT (if x pause nothing)) nothing))))
 
     (check-equal?
      ;; set-var
      (apply-reduction-relation
       standard:R
       `(ρ ((sig S absent) ((var· x 0) ((sig S2 present) ·)))
+           GO
           (trap (:= x (+ x 2)))))
      (list `(ρ ((sig S absent) ((sig S2 present) ((var· x 2) ·)))
+                GO
                (trap nothing))))
     (check-equal?
      ;; set-var
      (apply-reduction-relation
       standard:R
       `(ρ ((sig S absent) ((var· x 2) ((sig S2 present) ·)))
+           GO
           (trap (:= x (dec x)))))
      (list `(ρ ((sig S absent) ((sig S2 present) ((var· x 1) ·)))
+               GO
                (trap nothing))))
     (check-equal?
      ;; set-var
      (apply-reduction-relation
       standard:R
       `(ρ ((sig S absent) ((var· x 0) ((sig S2 present) ·)))
+          GO
           (trap (:= x (dec x)))))
      (list `(ρ ((sig S absent) ((sig S2 present) ((var· x 0) ·)))
+               GO
                (trap nothing))))
     (check-equal?
      ;; set-var
      (apply-reduction-relation
       standard:R
       `(ρ ((sig S absent) ((var· x 0) ((sig S2 present) ·)))
+          GO
           (:= x (+ s 2))))
      ;; doesn't reduce because `s` isn't in the environment
      (list))
@@ -608,45 +616,51 @@
      (apply-reduction-relation
       standard:R
       `(ρ ((sig S absent) ((var· x 0) ((sig S2 present) ·)))
+          GO
           (trap (par (suspend (if x pause nothing) S3)
                      (suspend (if x pause nothing) S4)))))
      (list `(ρ
              ((sig S absent) ((var· x 0) ((sig S2 present) ·)))
+             GO
              (trap (par (suspend nothing S3) (suspend (if x pause nothing) S4))))))
 
     (check-equal?
      ;; if-false
      (apply-reduction-relation
       standard:R
-      `(ρ ((var· x (rvalue #f)) ·) (if x pause nothing)))
-     (list `(ρ ((var· x (rvalue #f)) ·) nothing)))
+      `(ρ ((var· x (rvalue #f)) ·) GO (if x pause nothing)))
+     (list `(ρ ((var· x (rvalue #f)) ·) GO nothing)))
 
     (check-equal?
      ;; if-true
      (apply-reduction-relation
       standard:R
       `(ρ ((sig S absent) ((var· x 1232) ((sig S2 present) ·)))
+          GO
           (trap (par (suspend (if x pause nothing) S3)
                      (suspend (if x pause nothing) S4)))))
      (list `(ρ
              ((sig S absent) ((var· x 1232) ((sig S2 present) ·)))
+             GO
              (trap (par (suspend pause S3) (suspend (if x pause nothing) S4))))))
 
     (check-equal?
      ;; if-true
      (apply-reduction-relation
       standard:R
-      `(ρ ((var· x (rvalue "this is some random thing that is not #f")) ·) (if x pause nothing)))
-     (list `(ρ ((var· x (rvalue "this is some random thing that is not #f")) ·) pause)))
+      `(ρ ((var· x (rvalue "this is some random thing that is not #f")) ·) GO (if x pause nothing)))
+     (list `(ρ ((var· x (rvalue "this is some random thing that is not #f")) ·) GO pause)))
 
     (check-equal?
      ;; absence
      (apply-reduction-relation
       standard:R
       `(ρ ((sig S absent) ((var· x 1232) ((sig S2 unknown) ·)))
+          GO
           (trap (par (suspend (present S2 nothing pause) S3)
                      (suspend pause S4)))))
      (list `(ρ ((sig S absent) ((sig S2 absent) ((var· x 1232) ·)))
+               GO
                (trap (par (suspend (present S2 nothing pause) S3) (suspend pause S4))))))
 
 
@@ -691,6 +705,7 @@
                ((sig Sb unknown)
                 ((sig S- unknown)
                  ((sig SDI unknown) ·)))))))
+           GO
            (seq (par nothing
                      (trap (par (trap (suspend (seq (present SE pause nothing) nothing) SE)) nothing)))
                 (loop
@@ -708,12 +723,14 @@
       standard:R
       `(ρ
         ((var· x 1) ·)
+        GO
         (seq
          (seq nothing (:= x (+ x)))
          (loop (var x := (+ 0) (seq (:= x (+ 1)) (seq pause (:= x (+ x)))))))))
      `((ρ
         ((var· x 1)
            ·)
+        GO
         (loop^stop
          (seq pause (:= x (+ x)))
          (var x := (+ 0) (seq (:= x (+ 1)) (seq pause (:= x (+ x)))))))))

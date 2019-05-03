@@ -1,7 +1,7 @@
 #lang racket
 (require redex/reduction-semantics
          (except-in esterel-calculus/redex/model/shared quasiquote)
-         (prefix-in calculus: esterel-calculus/redex/model/calculus)
+         esterel-calculus/redex/model/calculus/variants/control
          esterel-calculus/redex/model/instant
          (only-in esterel-calculus/redex/test/binding CB esterel-L)
          esterel-calculus/cross-tests/send-lib)
@@ -31,7 +31,7 @@
 (define (same-as-sets? a b) (and (subset? a b) (subset? b a)))
 
 (define (=e1 p q)
-  (member q (apply-reduction-relation calculus:R p)))
+  (member q (apply-reduction-relation ⟶ p)))
 
 ;; eval_std : p (listof S)^3 -> (listof S) or #f
 ;; evaluates `p` for one instant with:
@@ -49,7 +49,7 @@
                   [(member S S_i_on) 'present]
                   [else 'unknown]))
               `{(sig S ,status) ,θ}))
-  (define res (term (instant (ρ ,θ ,p) ())))
+  (define res (term (instant (ρ ,θ WAIT ,p) ())))
   (cond
     [res
      (redex-let
@@ -67,11 +67,11 @@
 (define (try-for-unsoundness)
   (define _p
     (case (random 2)
-      [(0) (list 'R (generate-term #:source calculus:R* 5))]
+      [(0) (list 'R (generate-term #:source ⇀ 5))]
       [(1) (generate-term esterel-L #:satisfying (CB p) 5)]))
   (when _p
     (define p (clean-up-p (list-ref _p 1)))
-    (define p+1s (apply-reduction-relation calculus:R p))
+    (define p+1s (apply-reduction-relation ⟶ p))
     (unless (null? p+1s)
       (define qs (random-next-steps (pick-one p+1s)))
       (define Ss (shuffle (term (FV ,p))))
@@ -88,7 +88,7 @@
     (cond
       [(zero? (random 4)) (list p)]
       [else
-       (define qs (apply-reduction-relation calculus:R p))
+       (define qs (apply-reduction-relation ⟶ p))
        (cond
          [(null? qs) (list p)]
          [else (cons p (loop (pick-one qs)))])])))

@@ -2,7 +2,7 @@
 (require
   racket/require
   (multi-in esterel-calculus/redex/model/calculus/variants
-            (base closed-and-control graph))
+            (base closed-and-control graph control))
   esterel-calculus/redex/model/calculus/define
   esterel-calculus/redex/rackunit-adaptor
   esterel-calculus/redex/model/shared
@@ -58,38 +58,40 @@
      (term
       (ρ
        ((sig S1 unknown) ·)
+        WAIT
        (loop^stop
         (present S1 pause pause)
         (present S1 pause pause))))
      (term
       (ρ
        ((sig S1 absent) ·)
+       WAIT
        (loop^stop
         (present S1 pause pause)
         (present S1 pause pause)))))
     (test-->
-     R*
-     (term (ρ {(sig S present) ·} pause)))
+     R
+     (term (ρ {(sig S present) ·} WAIT pause)))
     (test-->
-     R*
+     R
      (term (signal S pause))
-     (term (ρ {(sig S unknown) ·} pause)))
+     (term (ρ {(sig S unknown) ·} WAIT pause)))
     (test-->
      R
-     (term (ρ · (signal S pause)))
-     (term (ρ · (ρ {(sig S unknown) ·} pause))))
-    (test-->
-     R*
-     (term (ρ ((sig S unknown) ·) pause))
-     (term (ρ ((sig S absent) ·) pause)))
+     (term (ρ · WAIT (signal S pause)))
+     (term (ρ · WAIT (ρ {(sig S unknown) ·} WAIT pause))))
     (test-->
      R
-     (term (ρ ((sig S unknown) ·) pause))
-     (term (ρ ((sig S absent) ·) pause)))
+     (term (ρ ((sig S unknown) ·) WAIT pause))
+     (term (ρ ((sig S absent) ·) WAIT pause)))
+    (test-->
+     R
+     (term (ρ ((sig S unknown) ·) WAIT pause))
+     (term (ρ ((sig S absent) ·) WAIT pause)))
     (test-->>∃
      R
-     (term (ρ {(sig So unknown) ·} (ρ {(sig Si unknown) ·} (present Si (emit So) nothing))))
-     (term (ρ {(sig So absent) ·} (ρ {(sig Si unknown) ·} (present Si (emit So) nothing)))))
+     (term (ρ {(sig So unknown) ·} WAIT (ρ {(sig Si unknown) ·} WAIT (present Si (emit So) nothing))))
+     (term (ρ {(sig So absent) ·} WAIT (ρ {(sig Si unknown) ·} WAIT (present Si (emit So) nothing)))))
     (test-->
      R
      (term (loop^stop pause (loop pause)))
@@ -116,8 +118,8 @@
      (term (loop^stop nothing (loop^stop pause pause))))
     (test-->>∃
      R
-     (term (ρ {(sig Si unknown) {(sig So unknown) ·}} (present Si (emit So) nothing)))
-     (term (ρ {(sig Si unknown) {(sig So absent) ·}} (present Si (emit So) nothing))))
+     (term (ρ {(sig Si unknown) {(sig So unknown) ·}} WAIT (present Si (emit So) nothing)))
+     (term (ρ {(sig Si unknown) {(sig So absent) ·}} WAIT (present Si (emit So) nothing))))
      
     (test-->>P
      R
@@ -132,7 +134,7 @@
                    (emit S2))))))
                      
      incomplete?)
-    (test-case "In which we demonstrate seq is kind of a read of K_0"
+    (test-case "In which we demonstrate seq is a kind of a read of K_0"
       ;; this test case demonstraits that, in a sense, seq acts as
       ;; a `read` of K_0, which means that is absence gives us information
       ;; without execution. However the only way to "Write" to K_0 is through
@@ -153,14 +155,15 @@
       (test-->>P
        R
        (term
-        (signal S2
-          (seq (present S2 nothing nothing)
-               (trap
-                (seq (signal S1
-                       (seq
-                        (emit S1)
-                        (present S1 (exit 0) (exit 0))))
-                     (emit S2))))))
+        (ρ · GO
+           (signal S2
+             (seq (present S2 nothing nothing)
+                  (trap
+                   (seq (signal S1
+                          (seq
+                           (emit S1)
+                           (present S1 (exit 0) (exit 0))))
+                        (emit S2)))))))
                      
        complete?))))
 
@@ -185,7 +188,7 @@
 ;                                                                                                                          
 ;                                                                                                                          
 
-(define (run-constructive-tests-for -> name good bad errored)
+(define (run-constructive-tests-for -> name good bad errored [prepair values])
   (define is-good? #t)
   (define errored? #f)
   (define old-handle (current-check-handler))
@@ -220,8 +223,10 @@
         (test--?>
          ->
          (term (ρ (mtθ+S S1 unknown)
+                  WAIT
                   (present S1
                            (ρ (mtθ+S S2 unknown)
+                              WAIT
                               (seq (emit S2)
                                    (present S2
                                             nothing
@@ -409,7 +414,8 @@
    R-no-present
    R-E
    R-control-closed
-   R-safe-after-reduction))
+   R-safe-after-reduction
+   ⟶))
 
 (module+ test
   (define good (box empty))
@@ -419,34 +425,14 @@
    (run-tests
     (make-test-suite
      "all"
-     (list
-      (make-test-suite
-       "test-relation"
-       (list
-        (test-relation R)
-        (test-relation R-empty)
-        (test-relation R-closed)
-        (test-relation R-no-control)
-        (test-relation R-no-seq)
-        (test-relation R-no-present)
-        (test-relation R-E)
-        (test-relation R-control-closed)
-        (test-relation R-safe-after-reduction)))
-      (make-test-suite
-       "test-constructive"
-       (list
-        (test-constructive R good bad errored) 
-        (test-constructive R-empty good bad errored)
-        (test-constructive R-closed good bad errored)
-        (test-constructive R-no-control good bad errored)
-        (test-constructive R-no-seq good bad errored)
-        (test-constructive R-no-present good bad errored)
-        (test-constructive R-E good bad errored)
-        (test-constructive R-control-closed good bad errored)
-        (test-constructive R-safe-after-reduction good bad errored))
-       #:after
-       (lambda ()
-         (printf "The reduction variants broke down into:\n good: ~a\n bad ~a\n errored: ~a\n"
-                 (unbox good)
-                 (unbox bad)
-                 (unbox errored)))))))))
+     (list (make-test-suite "test-relation" (list (test-relation ⟶)))
+           (make-test-suite
+            "test-constructive"
+            (list
+             (test-constructive  ⟶ good bad errored))
+            #:after
+            (lambda ()
+              (printf "The reduction variants broke down into:\n good: ~a\n bad ~a\n errored: ~a\n"
+                      (unbox good)
+                      (unbox bad)
+                      (unbox errored)))))))))

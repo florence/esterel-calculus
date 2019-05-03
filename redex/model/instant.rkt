@@ -5,8 +5,10 @@
          esterel-calculus/redex/model/shared
          esterel-calculus/redex/model/potential-function
          (prefix-in standard: esterel-calculus/redex/model/reduction)
-         (prefix-in calculus: esterel-calculus/redex/model/calculus))
+         esterel-calculus/redex/model/calculus/variants/control)
 (module+ test (require rackunit))
+
+(define calculus:R ⟶)
 
 (provide instant current-check-standard-implies-calculus
          (contract-out
@@ -61,10 +63,10 @@
   (values final-p emitted-signals))
 
 (module+ test
-  (check-equal? (term (instant (ρ · (signal S pause)) ()))
-                (term ((ρ ((sig S unknown) ·) nothing) ())))
-  (check-equal? (term (instant (ρ · (signal S (emit S))) ()))
-                (term ((ρ ((sig S unknown) ·) nothing) (S)))))
+  (check-equal? (term (instant (ρ · WAIT (signal S pause)) ()))
+                (term ((ρ ((sig S unknown) ·) WAIT nothing) ())))
+  (check-equal? (term (instant (ρ · WAIT (signal S (emit S))) ()))
+                (term ((ρ ((sig S unknown) ·) WAIT nothing) (S)))))
 
 (define (apply-reduction-relation*/enforce-single R p)
   (match (apply-reduction-relation R p)
@@ -115,7 +117,7 @@
            (cond
              [(set-empty? vars-to-change) p]
              [else
-              (define next-calc-steps (apply-reduction-relation/tag-with-names calculus:R p))
+              (define next-calc-steps (apply-reduction-relation/tag-with-names ⟶ p))
               (define chosen-calc-q+vars-that-changed-candidates
                 (filter
                  values
@@ -150,7 +152,7 @@
        ;; how those terms (plus the original term) reduces.
        (define rewritten-terms+names
          (apply-reduction-relation/tag-with-names
-          calculus:R
+          ⟶
           p))
        (define par-swapped-variants-of-p
          (filter
@@ -161,7 +163,7 @@
             (and (equal? name "par-swap")
                  rewritten-term))))
        (for/or ([term-to-try (cons p par-swapped-variants-of-p)])
-         (for/or ([calc-q (in-list (apply-reduction-relation calculus:R term-to-try))])
+         (for/or ([calc-q (in-list (apply-reduction-relation ⟶ term-to-try))])
            (same-p? std-q calc-q)))]
       [else
        (for/or ([calc-q (in-list (apply-reduction-relation calculus:R p))])
@@ -171,8 +173,9 @@
 (define (same-p? p q)
   (let loop ([p p] [q q])
     (match* (p q)
-      [(`(ρ ,θ1 ,p) `(ρ ,θ2 ,q))
+      [(`(ρ ,θ1 ,A1 ,p) `(ρ ,θ2 ,A2 ,q))
        (and (equal? (θ-to-hash θ1) (θ-to-hash θ2))
+            (equal? A1 A2)
             (loop p q))]
       [((? list?) (? list?))
        (and (= (length p) (length q)))
@@ -183,10 +186,14 @@
 
 (module+ test
   (require rackunit)
-  (check-true (standard-implies-calculus (term (ρ ((sig Sr absent) ((sig Sg unknown) ·)) (exit 0)))))
-  (check-true (standard-implies-calculus (term (ρ ((sig Sr unknown) ((sig Sg unknown) ·)) (exit 0)))))
+  (check-true (standard-implies-calculus (term (ρ ((sig Sr absent) ((sig Sg unknown) ·)) GO (exit 0)))))
+  (check-true (standard-implies-calculus (term (ρ ((sig Sr unknown) ((sig Sg unknown) ·)) GO (exit 0)))))
   (check-true (standard-implies-calculus (term (trap (loop pause)))))
-  (check-true (standard-implies-calculus (term (ρ ((sig SM unknown) ·) (loop (if xLd nothing pause))))))
+  (check-true (standard-implies-calculus (term (ρ ((sig SM unknown) ·) WAIT (loop (if xLd nothing pause))))))
+  (check-true (standard-implies-calculus (term (ρ ((sig Sr absent) ((sig Sg unknown) ·)) WAIT (exit 0)))))
+  (check-true (standard-implies-calculus (term (ρ ((sig Sr unknown) ((sig Sg unknown) ·)) WAIT (exit 0)))))
+  (check-true (standard-implies-calculus (term (trap (loop pause)))))
+  (check-true (standard-implies-calculus (term (ρ ((sig SM unknown) ·) WAIT (loop (if xLd nothing pause))))))
 
   (check-true
    (standard-implies-calculus
@@ -205,6 +212,28 @@
                       ((sig Sr unknown)
                        ((sig Ss unknown)
                         ((sig |S{| unknown) ·))))))))))))))
+           GO
+           (present
+            S$D
+            (shared s33131 := (+) (suspend nothing |S)|))
+            (suspend (signal S33132 (par pause nothing)) S$D)))))
+   (standard-implies-calculus
+    (term (ρ
+           ((sig S$D unknown)
+            ((sig |S)| present)
+             ((sig S/f unknown)
+              ((sig S4 unknown)
+               ((sig SD unknown)
+                ((sig SR unknown)
+                 ((sig SU unknown)
+                  ((sig SV unknown)
+                   ((sig SZ unknown)
+                    ((sig Sd unknown)
+                     ((sig Sg unknown)
+                      ((sig Sr unknown)
+                       ((sig Ss unknown)
+                        ((sig |S{| unknown) ·))))))))))))))
+           WAIT
            (present
             S$D
             (shared s33131 := (+) (suspend nothing |S)|))

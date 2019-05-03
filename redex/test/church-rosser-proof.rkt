@@ -2,7 +2,7 @@
 (provide (all-defined-out))
 (require redex/reduction-semantics
          esterel-calculus/redex/model/shared
-         esterel-calculus/redex/model/calculus
+         esterel-calculus/redex/model/calculus/variants/control
          "model-test.rkt"
          "generator.rkt"
          rackunit
@@ -10,6 +10,7 @@
                      racket/list
                      racket/syntax
                      racket/sequence))
+
 (module+ test (require rackunit))
 
 (define-extended-language esterel-gen esterel-eval
@@ -22,7 +23,7 @@
      (present S p q)
      (if x p q) (shared s := e p) (var x := e p)))
 
-(define debug #f)
+(define-logger esterel-calculus)
 
 ;; property:
 ;; p RPar q && p RPar q'
@@ -44,7 +45,7 @@
    #:attempts 100))
 
 (define (reduce p)
-  (apply-reduction-relation R p))
+  (apply-reduction-relation ⟶ p))
 (define (zero-to-two p)
   (define one (reduce p))
   (append
@@ -55,23 +56,26 @@
   (redex-let
    esterel-eval
    ([p p])
-   (when debug (displayln (term p)))
+   (log-esterel-calculus-debug "staring with ~a" (pretty-format (term p)))
    (define candidates (reduce `p))
+   (log-esterel-calculus-debug "available steps: ~a" (pretty-format candidates))
    (define result
      (for*/and ([c1 (in-list candidates)]
                 [c2 (in-list candidates)])
        (define out1 (zero-to-two c1))
        (define out2 (zero-to-two c2))
+       (log-esterel-calculus-debug "can from ~a to ~a" c1 (pretty-format out1))
+       (log-esterel-calculus-debug "can from ~a to ~a" c2 (pretty-format out2))
        (define result
          (for*/or ([o1 (in-list out1)]
                    [o2 (in-list out2)])
            (equal? o1 o2)))
        (unless result
-         (printf "p = ~a\n" `p)
-         (printf "q = ~a\n" c1)
-         (pretty-print out1)
-         (printf "q' = ~a\n" c2)
-         (pretty-print out2))
+         (log-esterel-calculus-error "p = ~a\n" `p)
+         (log-esterel-calculus-error "q = ~a\n" c1)
+         (log-esterel-calculus-error (pretty-format out1))
+         (log-esterel-calculus-error "q' = ~a\n" c2)
+         (log-esterel-calculus-error (pretty-format out2)))
        result))
    result))
 
@@ -80,8 +84,8 @@
 
 (define-metafunction esterel-eval
   clear-dups : any -> any
-  [(clear-dups (ρ θ p))
-   (ρ (remove-dups θ) (clear-dups p))]
+  [(clear-dups (ρ θ A p))
+   (ρ (remove-dups θ) A (clear-dups p))]
   [(clear-dups (loop p))
    (loop (clear-dups p))]
   [(clear-dups (any ...))
@@ -97,29 +101,88 @@
     (check-true
      (do-test
       `(par
-        (ρ {(sig S present) ·} nothing)
-        (ρ {(sig ST present) ·} nothing))))
+        (ρ {(sig S present) ·} GO nothing)
+        (ρ {(sig ST present) ·} GO nothing))))
+
     (check-true
      (do-test
       `(par
-        (ρ {(sig S unknown) ·} nothing)
-        (ρ {(sig ST unknown) ·} nothing))))
+        (ρ {(sig S present) ·} WAIT nothing)
+        (ρ {(sig ST present) ·} WAIT nothing))))
+    (check-true
+     (do-test
+      `(par
+        (ρ {(sig S present) ·} GO nothing)
+        (ρ {(sig ST present) ·} WAIT nothing))))
+    (check-true
+     (do-test
+      `(par
+        (ρ {(sig S present) ·} WAIT nothing)
+        (ρ {(sig ST present) ·} GO nothing))))
+    (check-true
+     (do-test
+      `(par
+        (ρ {(sig S unknown) ·} GO nothing)
+        (ρ {(sig ST unknown) ·} WAIT nothing))))
+
+
+    (check-true
+     (do-test
+      `(ρ · WAIT
+          (par
+           (ρ · GO nothing)
+           (ρ · WAIT nothing)))))
+    (check-true
+     (do-test
+      `(ρ · GO
+          (par
+           (ρ · GO nothing)
+           (ρ · WAIT nothing)))))
+
+
+    
     (check-true
      (do-test
       `(ρ {(sig S unknown)
            ((sig S1 unknown)
             ((var· x 0) ·))}
+          GO
+          (if x nothing (emit S1)))))
+    (check-true
+     (do-test
+      `(ρ {(sig S unknown)
+           ((sig S1 unknown)
+            ((var· x 0) ·))}
+          WAIT
           (if x nothing (emit S1)))))
     (check-true
      (do-test
       `(seq
-        (ρ ((sig Sg350095 unknown) ·) pause)
+        (ρ ((sig Sg350095 unknown) ·) GO pause)
+        (loop pause))))
+    (check-true
+     (do-test
+      `(seq
+        (ρ ((sig Sg350095 unknown) ·) WAIT pause)
         (loop pause))))
     (check-true
      (do-test
       `(seq
         (ρ
          ((sig Sg13633 unknown) ·)
+         GO
+         (par
+          pause
+          (seq
+           (emit Sg13633)
+           nothing)))
+        (seq nothing nothing))))
+    (check-true
+     (do-test
+      `(seq
+        (ρ
+         ((sig Sg13633 unknown) ·)
+         WAIT
          (par
           pause
           (seq
@@ -131,6 +194,17 @@
       `(seq
         (ρ
          ((sig Sg144814 absent) ((sig Sg144815 unknown) ·))
+         GO
+         (par
+          pause
+          (present Sg144814 nothing (emit Sg144815))))
+        (loop pause))))
+    (check-true
+     (do-test
+      `(seq
+        (ρ
+         ((sig Sg144814 absent) ((sig Sg144815 unknown) ·))
+         WAIT
          (par
           pause
           (present Sg144814 nothing (emit Sg144815))))
@@ -141,6 +215,31 @@
          (signal SxYWk (shared sYpw := (+) (exit 0)))
          (ρ
           ·
+          GO
+          (shared sn := (+) pause)))))
+    (check-true
+     (do-test
+      `(par
+         (signal SxYWk (shared sYpw := (+) (exit 0)))
+         (ρ
+          ·
+          WAIT
+          (shared sn := (+) pause)))))
+    (check-true
+     (do-test
+      `(par
+         (signal SxYWk (shared sYpw := (+) (exit 0)))
+         (ρ
+          ·
+          GO
+          (shared sn := (+) pause)))))
+    (check-true
+     (do-test
+      `(par
+         (signal SxYWk (shared sYpw := (+) (exit 0)))
+         (ρ
+          ·
+          WAIT
           (shared sn := (+) pause)))))
     (check-par-diamond)))
 
@@ -190,7 +289,7 @@
 
     (define-judgment-form esterel-L
       #:mode (θ-in-E I)
-      [(θ-in-E (ρ θ p))]
+      [(θ-in-E (ρ θ A p))]
       [(θ-in-E p)
        ------------
        (θ-in-E (seq p q))]
@@ -214,7 +313,7 @@
     (define-judgment-form esterel-L
       #:mode (prop I)
       [(where (in-hole E_in1 R) p_in)
-       (where (in-hole E_in2 (ρ θ p)) p_in)
+       (where (in-hole E_in2 (ρ θ A p)) p_in)
        (where (in-hole E_out R) (in-hole E_in2 p))
        (~ E_out E_in1)
        ----------------

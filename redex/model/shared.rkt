@@ -48,11 +48,8 @@
 
 (define-extended-language esterel-eval esterel
   (p q r ::= ....
-     ;; control records the control info for this term.
-     ;; the first p is the current term we are reasoning about.
-     ;; the second p records any lost (or gained) information for the orig term.
-     (ρ θ p)
-     (loop^stop p q))
+     (loop^stop p q)
+     (ρ θ A p))
 
   ;; later occurrences of duplicate bindings in θ are
   ;; ignored; i.e. only the first one should ever count
@@ -66,10 +63,9 @@
   (Sdat ::= (sig S status))
   ;; go is lionel's `green`. It means control must reach here
   ;; wait is lionel's `gray`. It means control may or may not reach here.
-  (control ::= go wait)
+  (A ::= GO WAIT)
 
   (C ::=
-     (ctrl control C p)
      (signal S C)
      (seq C q)
      (seq p C)
@@ -86,7 +82,7 @@
      (var x := e C)
      (if x C q)
      (if x p C)
-     (ρ θ C)
+     (ρ θ A C)
      hole)
 
   ;; state
@@ -96,13 +92,13 @@
   (ev ::= n (rvalue any))
 
   ;; Values and answers
-  (complete ::= done (ρ θ/c done))
   (θ/c ::= · {env-v/c θ/c})
   (env-v/c ::=
            vardat
            (shar s ev ready)
            (sig S present)
            (sig S absent))
+  (complete ::= done (ρ θ/c GO done))
   (done ::= stopped paused)
   (stopped ::= nothing (exit n))
   (paused ::=
@@ -115,7 +111,6 @@
 
   ;; evaluation contexts
   (E ::=
-     (ctrl control E p)
      (seq E q)
      (loop^stop E q)
      (par E q)
@@ -124,7 +119,6 @@
      (trap E)
      hole)
   (E1 ::=
-      (ctrl control hole p)
       (seq hole q)
       (loop^stop hole q)
       (par hole q)
@@ -145,6 +139,7 @@
   (M ::= () ((variable L) M))
   (M-S-κ ::= () ((S L-κ) M-S-κ))
   (Can-result ::= (S-code-s L-S L-κ L-s)))
+
 
 
 ;                                                                        
@@ -183,16 +178,16 @@
 
 (define-metafunction esterel-eval
   setup : p (env-v ...) -> p
-  [(setup (ρ θ p) ())
-   (ρ θ p)]
-  [(setup (ρ θ p) (env-v_h env-v ...))
-   (setup (ρ (<- θ {env-v_h ·}) p) (env-v ...))]
+  [(setup (ρ θ A p) ())
+   (ρ θ GO p)]
+  [(setup (ρ θ A p) (env-v_h env-v ...))
+   (setup (ρ (<- θ {env-v_h ·}) GO p) (env-v ...))]
   [(setup p (env-v ...))
-   (setup (ρ · p) (env-v ...))])
+   (setup (ρ · GO p) (env-v ...))])
 
 (define-metafunction esterel-eval
   next-instant : complete -> p
-  [(next-instant (ρ θ/c p)) (ρ (reset-θ θ/c) (next-instant p))]
+  [(next-instant (ρ θ/c GO p)) (ρ (reset-θ θ/c) WAIT (next-instant p))]
   [(next-instant pause) nothing]
   [(next-instant nothing) nothing]
   [(next-instant (loop^stop p q)) (seq (next-instant p) (loop q))]
@@ -223,13 +218,15 @@
    (term (next-instant (seq pause pause)))
    (term (seq nothing pause)))
   (check-equal?
-   (term (next-instant (ρ ((sig S1 absent) ((sig S2 present) ·)) pause)))
-   (term (ρ ((sig S1 unknown) ((sig S2 unknown) ·)) nothing)))
+   (term (next-instant (ρ ((sig S1 absent) ((sig S2 present) ·)) GO pause)))
+   (term (ρ ((sig S1 unknown) ((sig S2 unknown) ·)) WAIT nothing)))
   (check-equal?
    (term (next-instant (ρ ((shar s2 0 ready) ((shar s3 0 ready) ·))
+                          GO
                           (par (seq (trap pause) pause)
                                (par pause pause)))))
    (term (ρ ((shar s2 0 old) ((shar s3 0 old) ·))
+            WAIT
             (par (seq (trap nothing) pause)
                  (par nothing nothing))))))
 
@@ -354,7 +351,7 @@
 
 (define-metafunction esterel-eval
   get-signals : p -> (S ...)
-  [(get-signals (ρ θ p))
+  [(get-signals (ρ θ A p))
    (get-signals* θ)]
   [(get-signals p) ()])
 (define-metafunction esterel-eval
@@ -465,7 +462,7 @@
    (without (U (FV/e e) (FV p)) x)]
   [(FV (:= x e)) (U {x} (FV/e e))]
   [(FV (if x p q)) (U {x} (FV p) (FV q))]
-  [(FV (ρ θ p))
+  [(FV (ρ θ A p))
    (set-sub (FV p) (vars-in θ))]
   )
 

@@ -289,8 +289,8 @@
           (fix/low-signals p (S ...) (s ...) (x ...) n_max)
           (fix/low-signals q (S ...) (s ...) (x ...) n_max)))]
 
-  [(fix/low-signals (ρ θ p) (S ...) (s ...) (x ...) n_max)
-   (ρ θ
+  [(fix/low-signals (ρ θ A p) (S ...) (s ...) (x ...) n_max)
+   (ρ θ A
       ;;TODO this isn't great, re low-signals...
       (fix/low-signals p (S_θ ... S ...) (s_θ ... s ...) (x_θ ... x ...) n_max))
    (where ((S_θ ...) (s_θ ...) (x_θ ...)) (bindings θ (dom θ)))])
@@ -356,8 +356,9 @@
         `(<= ,(random-ref `(s ...))
              (fix/e e (s ... x ...))))]
 
-  [(fix (ρ θ p) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+  [(fix (ρ θ A p) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
    (ρ θ
+      A
       (fix p (S_i ...) (S_o ...) (S_θ ... S_b ...) (s_θ ... s ...) (x_θ ... x ...) n_max))
    (where ((S_θ ...) (s_θ ...) (x_θ ...)) (bindings θ (dom θ)))]
 
@@ -430,7 +431,7 @@
 (define-metafunction esterel-eval
   add-extra-syms : p (S ...) -> p
   [(add-extra-syms p (S ...))
-   (ρ θ p)
+   (ρ θ WAIT p)
    (where θ
           ,(let loop ([l `((sig S unknown) ...)])
              (if (empty? l)

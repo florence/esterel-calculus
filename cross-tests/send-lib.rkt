@@ -351,7 +351,7 @@ open import std-reduction.Base
       [`(var ,x := ,e ,p) `(var ,(var->agda-safe-var x) := ,(clean-up-e e) ,(loop p))]
       [`(:= ,x ,e) `(:= ,(var->agda-safe-var x) ,(clean-up-e e))]
       [`(if ,x ,p ,q) `(if ,(var->agda-safe-var x) ,(loop p) ,(loop q))]
-      [`(ρ ,θ ,p) `(ρ ,(clean-up-θ θ) ,(loop p))])))
+      [`(ρ ,θ ,A ,p) `(ρ ,(clean-up-θ θ) ,A ,(loop p))])))
 
 (define/contract (clean-up-e e)
   (-> (or/c esterel-eval-e? e?) e?)

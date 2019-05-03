@@ -3,7 +3,7 @@
 (require redex/reduction-semantics
          (only-in esterel-calculus/redex/model/shared quasiquote esterel-eval)
          esterel-calculus/redex/model/lset
-         esterel-calculus/redex/model/calculus)
+         esterel-calculus/redex/model/calculus/variants/control)
 
 (define-extended-language esterel-L
   esterel-eval
@@ -45,7 +45,7 @@
   [(BV (:= x e)) {}]
   [(BV (if x p q))
    (LU (BV p) (BV q))]
-  [(BV (ρ θ p))
+  [(BV (ρ θ A p))
    (LU (BV p) (Ldom θ))])
 
 (define-metafunction esterel-L
@@ -77,7 +77,7 @@
   [(FV (:= x e)) (x (FV/e e))]
   [(FV (if x p q))
    (x (LU (FV p) (FV q)))]
-  [(FV (ρ θ p))
+  [(FV (ρ θ A p))
    (Lset-sub (FV p) (Ldom θ))])
 
 (define-metafunction esterel-L
@@ -153,7 +153,7 @@
 
   [(CB p)
    ------------ "ρ"
-   (CB (ρ θ p))])
+   (CB (ρ θ A p))])
 
 (module+ test
   (check-false
@@ -161,6 +161,17 @@
     (CB
      (par
       (ρ ((shar sB 0 ready) ((var· xL 0) ·))
+         GO
+         (suspend (signal Sm (exit 0)) SY))
+      (if xl
+          (var xL := (+ 0) (shared sZ := (+ 2 5) (<= sZ (+ 1))))
+          (signal Si (trap (emit Sp))))))))
+  (check-false
+   (judgment-holds
+    (CB
+     (par
+      (ρ ((shar sB 0 ready) ((var· xL 0) ·))
+         WAIT
          (suspend (signal Sm (exit 0)) SY))
       (if xl
           (var xL := (+ 0) (shared sZ := (+ 2 5) (<= sZ (+ 1))))
@@ -171,6 +182,7 @@
      (loop
       (par
        (ρ ((shar sB 0 ready) ((var· xL 0) ·))
+          GO
           (suspend (signal Sm (exit 0)) SY))
        (if xl
            (var xL := (+ 0) (shared sZ := (+ 2 5) (<= sZ (+ 1))))
@@ -178,7 +190,22 @@
   (check-false
    (judgment-holds
     (CB
-     (loop (par (ρ ((shar sB 0 ready) ((var· xL 0) ·)) (suspend (signal Sm (exit 0)) SY)) (if xl (var xL := (+ 0) (shared sZ := (+ 2 5) (<= sZ (+ 1)))) (signal Si (trap (emit Sp))))))))))
+     (loop
+      (par
+       (ρ ((shar sB 0 ready) ((var· xL 0) ·))
+          WAIT
+          (suspend (signal Sm (exit 0)) SY))
+       (if xl
+           (var xL := (+ 0) (shared sZ := (+ 2 5) (<= sZ (+ 1))))
+           (signal Si (trap (emit Sp)))))))))
+  (check-false
+   (judgment-holds
+    (CB
+     (loop (par (ρ ((shar sB 0 ready) ((var· xL 0) ·)) WAIT (suspend (signal Sm (exit 0)) SY)) (if xl (var xL := (+ 0) (shared sZ := (+ 2 5) (<= sZ (+ 1)))) (signal Si (trap (emit Sp)))))))))
+  (check-false
+   (judgment-holds
+    (CB
+     (loop (par (ρ ((shar sB 0 ready) ((var· xL 0) ·)) GO (suspend (signal Sm (exit 0)) SY)) (if xl (var xL := (+ 0) (shared sZ := (+ 2 5) (<= sZ (+ 1)))) (signal Si (trap (emit Sp))))))))))
 
 (define-metafunction esterel-L
   Xs : L -> L
@@ -197,7 +224,7 @@
   (redex-check
    esterel-L
    #:satisfying (CB p)
-   (for/and ([pp (in-list (apply-reduction-relation R `p))])
+   (for/and ([pp (in-list (apply-reduction-relation ⟶ `p))])
      `(CB ,pp))
    #:attempts 100)
   (define-judgment-form esterel-L
@@ -268,6 +295,6 @@
   (redex-check
    esterel-L
    #:satisfying (renamed p)
-   (for/and ([pp (in-list (apply-reduction-relation R `p))])
+   (for/and ([pp (in-list (apply-reduction-relation ⟶ `p))])
      `(CB ,pp))
    #:attempts 100))

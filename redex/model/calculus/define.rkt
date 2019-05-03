@@ -20,9 +20,9 @@
 
 (define use-fast-par-swap? (make-parameter #f))
 
-(define R-base
+(define-simple-macro (R-base lang)
   (reduction-relation
-   esterel-eval #:domain p
+   lang #:domain p
    (--> (par p q) (par q p)
         (side-condition/hidden
          (implies (use-fast-par-swap?)
@@ -123,11 +123,11 @@
 
 (define-syntax R-write
   (syntax-parser
-    [(_ P*)
+    [(_ P* lang)
      #:with P (datum->syntax #'P* 'P #f)
      #`(let-syntax ([P (make-rename-transformer #'P*)])
          (reduction-relation
-          esterel-eval #:domain p
+          lang #:domain p
    
           (--> (in-hole C (ρ θ (in-hole E (emit S))))
                (in-hole C (ρ (id-but-typeset-some-parens (<- θ (mtθ+S S present))) (in-hole E nothing)))
@@ -157,7 +157,10 @@
   [(reassemble C S) (in-hole C (emit S))]
   [(reassemble C S) (in-hole C (<= s (+ 1)))])                                                                                               
 
-(define-simple-macro (MR P)
+(define-simple-macro (MR (~alt (~once P:id)
+                               (~optional (~seq #:language lang)
+                                          #:defaults ([lang #'esterel-eval])))
+                         ...)
   (union-reduction-relations
-   (compatible-closure R-base esterel-eval p)
-   (R-write P)))
+   (compatible-closure (R-base lang) lang p)
+   (R-write P lang)))

@@ -73,27 +73,27 @@
   [(->sh (S-code-s L-S L-κ L-s)) L-s])
 
 (define-metafunction esterel-eval
-  Can-θ : (ρ θ p) θ -> Can-result
+  Can-θ : (ρ θ A p) θ -> Can-result
 
-  [(Can-θ (ρ θ p) θ_2)
-   (Can-θ (ρ (Lwithoutdom θ S) p) (<- θ_2 (mtθ+S S absent)))
+  [(Can-θ (ρ θ A p) θ_2)
+   (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S absent)))
    (judgment-holds (L∈dom S θ)) ;; S ∈ dom(θ_1)
    (judgment-holds (θ-ref-S θ S unknown)) ;; θ_1(S) = present
-   (judgment-holds (L¬∈ S (->S (Can-θ (ρ (Lwithoutdom θ S) p) (<- θ_2 (mtθ+S S unknown))))))]
+   (judgment-holds (L¬∈ S (->S (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S unknown))))))]
 
-  [(Can-θ (ρ θ p) θ_2)
-   (Can-θ (ρ (Lwithoutdom θ S) p) (<- θ_2 (mtθ+S S (θ-get-S θ S))))
+  [(Can-θ (ρ θ A p) θ_2)
+   (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S (θ-get-S θ S))))
    (judgment-holds (L∈dom S θ))] ;; S ∈ dom(θ_1)
 
-  [(Can-θ (ρ θ_1 p) θ_2)
+  [(Can-θ (ρ θ_1 A p) θ_2)
    (Can p θ_2)])
 
 (define-metafunction esterel-eval
   Can : p θ -> Can-result
-  [(Can (ρ θ_1 p) θ_2)
-   (S-code-s (Lset-sub (->S (Can-θ (ρ θ_1 p) θ_2)) (Ldom θ_1))
-             (->K (Can-θ (ρ θ_1 p) θ_2))
-             (Lset-sub (->sh (Can-θ (ρ θ_1 p) θ_2)) (Ldom θ_1)))]
+  [(Can (ρ θ_1 A p) θ_2)
+   (S-code-s (Lset-sub (->S (Can-θ (ρ θ_1 A p) θ_2)) (Ldom θ_1))
+             (->K (Can-θ (ρ θ_1 A p) θ_2))
+             (Lset-sub (->sh (Can-θ (ρ θ_1 A p) θ_2)) (Ldom θ_1)))]
 
   [(Can nothing θ) (S-code-s (L0set) (L1set nothin) (L0set))]
 
@@ -195,6 +195,19 @@
   (check-equal?
    `(Can (seq
           (ρ {(sig S_I unknown) ((sig S_C unknown) ·)}
+             GO
+             (par (seq nothing (emit S_I))
+                  (seq
+                   (seq
+                    (present S_I nothing (emit S_C))
+                    (present S_C (emit S_C) nothing))
+                   pause)))
+          (loop nothing)) ·)
+   `(S-code-s (L0set) (L1set paus) (L0set)))
+  (check-equal?
+   `(Can (seq
+          (ρ {(sig S_I unknown) ((sig S_C unknown) ·)}
+             WAIT
              (par (seq nothing (emit S_I))
                   (seq
                    (seq
@@ -217,19 +230,30 @@
    `(Can_K (trap (par (exit 0) pause)) ·)
    `(L1set nothin))
   (check-equal?
-   `(Can_shared (ρ ((shar s 0 old) ·) (<= s (+ 0))) ·)
+   `(Can_shared (ρ ((shar s 0 old) ·) GO (<= s (+ 0))) ·)
+   `())
+  (check-equal?
+   `(Can_shared (ρ ((shar s 0 old) ·) WAIT (<= s (+ 0))) ·)
    `())
 
-  (check-equal? (term (Can-θ (ρ · (emit S)) ·))
+  (check-equal? (term (Can-θ (ρ · GO (emit S)) ·))
+                (term (S-code-s (L1set S) (L1set nothin) (L0set))))
+  (check-equal? (term (Can-θ (ρ · WAIT (emit S)) ·))
                 (term (S-code-s (L1set S) (L1set nothin) (L0set))))
 
-  (check-equal? (term (Can-θ (ρ ({sig S1 unknown} ·) (present S1 nothing (emit S))) ·))
+  (check-equal? (term (Can-θ (ρ ({sig S1 unknown} ·) GO (present S1 nothing (emit S))) ·))
+                (term (S-code-s (L1set S) (L1set nothin) (L0set))))
+  (check-equal? (term (Can-θ (ρ ({sig S1 unknown} ·) WAIT (present S1 nothing (emit S))) ·))
                 (term (S-code-s (L1set S) (L1set nothin) (L0set))))
 
-  (check-equal? (term (Can-θ (ρ ({sig S1 unknown} ·) (present S1 (emit S) nothing)) ·))
+  (check-equal? (term (Can-θ (ρ ({sig S1 unknown} ·) GO (present S1 (emit S) nothing)) ·))
+                (term (S-code-s (L0set) (L1set nothin) (L0set))))
+  (check-equal? (term (Can-θ (ρ ({sig S1 unknown} ·) WAIT (present S1 (emit S) nothing)) ·))
                 (term (S-code-s (L0set) (L1set nothin) (L0set))))
 
-  (check-equal? (term (Can-θ (ρ ({sig S1 unknown} ·) (present S1 (emit S1) (emit S))) ·))
+  (check-equal? (term (Can-θ (ρ ({sig S1 unknown} ·) GO (present S1 (emit S1) (emit S))) ·))
+                (term (S-code-s (L2set S1 S) (L2set nothin nothin) (L0set))))
+  (check-equal? (term (Can-θ (ρ ({sig S1 unknown} ·) WAIT (present S1 (emit S1) (emit S))) ·))
                 (term (S-code-s (L2set S1 S) (L2set nothin nothin) (L0set))))
   (check-equal?
    (term (Can (loop^stop nothing (seq (emit S) (seq (<= s (+ 1)) pause))) ·))

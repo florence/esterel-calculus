@@ -19,74 +19,74 @@
 (define R
   (reduction-relation
    esterel-standard #:domain p
-   (--> (ρ θ (in-hole D (par stopped done))) (ρ θ (in-hole D (par-⊓ stopped done)))
+   (--> (ρ θ A (in-hole D (par stopped done))) (ρ θ A (in-hole D (par-⊓ stopped done)))
         (judgment-holds (good θ D))
         parr)
    ;; TODO this and other rule are not symetric
-   (--> (ρ θ (in-hole D (par paused stopped))) (ρ θ (in-hole D (par-⊓ paused stopped)))
+   (--> (ρ θ A (in-hole D (par paused stopped))) (ρ θ A (in-hole D (par-⊓ paused stopped)))
         (judgment-holds (good θ D))
         parl)
-   (--> (ρ θ (in-hole D (present S p q)))
-        (ρ θ (in-hole D p))
+   (--> (ρ θ A (in-hole D (present S p q)))
+        (ρ θ A (in-hole D p))
         (judgment-holds (good θ D))
         (judgment-holds (θ-ref-S θ S present))
         is-present)
-   (--> (ρ θ (in-hole D (present S p q)))
-        (ρ θ (in-hole D q))
+   (--> (ρ θ A (in-hole D (present S p q)))
+        (ρ θ A (in-hole D q))
         (judgment-holds (good θ D))
         (judgment-holds (θ-ref-S θ S absent))
         is-absent)
-   (--> (ρ θ (in-hole D (emit S)))
-        (ρ (id-but-typeset-some-parens (<- θ (mtθ+S S present))) (in-hole D nothing))
+   (--> (ρ θ GO (in-hole D (emit S)))
+        (ρ (id-but-typeset-some-parens (<- θ (mtθ+S S present))) GO (in-hole D nothing))
         (judgment-holds (good θ D))
         (judgment-holds (θ-ref-S-∈ θ S (L2set present unknown)))
         emit)
-   (--> (ρ θ (in-hole D (loop p)))
-        (ρ θ (in-hole D (loop^stop p p)))
+   (--> (ρ θ A (in-hole D (loop p)))
+        (ρ θ A (in-hole D (loop^stop p p)))
         (judgment-holds (good θ D))
         loop)
-   (--> (ρ θ (in-hole D (seq nothing q)))
-        (ρ θ (in-hole D q))
+   (--> (ρ θ A (in-hole D (seq nothing q)))
+        (ρ θ A (in-hole D q))
         (judgment-holds (good θ D))
         seq-done)
-   (--> (ρ θ (in-hole D (seq (exit n) q))) (ρ θ (in-hole D (exit n)))
+   (--> (ρ θ A (in-hole D (seq (exit n) q))) (ρ θ A (in-hole D (exit n)))
         (judgment-holds (good θ D))
         seq-exit)
-   (--> (ρ θ (in-hole D (loop^stop (exit n) q))) (ρ θ (in-hole D (exit n)))
+   (--> (ρ θ A (in-hole D (loop^stop (exit n) q))) (ρ θ A (in-hole D (exit n)))
         (judgment-holds (good θ D))
         loop^stop-exit)
-   (--> (ρ θ (in-hole D (suspend stopped S))) (ρ θ (in-hole D stopped))
+   (--> (ρ θ A (in-hole D (suspend stopped S))) (ρ θ A (in-hole D stopped))
         (judgment-holds (good θ D))
         suspend)
    ;; traps
-   (--> (ρ θ (in-hole D (trap stopped))) (ρ θ (in-hole D (harp stopped)))
+   (--> (ρ θ A (in-hole D (trap stopped))) (ρ θ A (in-hole D (harp stopped)))
         (judgment-holds (good θ D))
         trap)
    ;; lifting signals
-   (--> (ρ θ (in-hole D (signal S p)))
-        (ρ θ (in-hole D (ρ (mtθ+S S unknown) p)))
+   (--> (ρ θ A (in-hole D (signal S p)))
+        (ρ θ A (in-hole D (ρ (mtθ+S S unknown) WAIT p)))
         (judgment-holds (good θ D))
         signal)
    ;; shared state
    (-->
-    (ρ θ (in-hole D (shared s := e p)))
-    (ρ θ (in-hole D (ρ (mtθ+s s ev old) p)))
+    (ρ θ A (in-hole D (shared s := e p)))
+    (ρ θ A (in-hole D (ρ (mtθ+s s ev old) WAIT p)))
     (judgment-holds (good θ D))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
     (side-condition (term (all-ready? (LFV/e e) θ)))
     (where ev (δ e θ))
     shared)
    (-->
-    (ρ θ (in-hole D (<= s e)))
-    (ρ (id-but-typeset-some-parens (<- θ (mtθ+s s (δ e θ) new))) (in-hole D nothing))
+    (ρ θ GO (in-hole D (<= s e)))
+    (ρ (id-but-typeset-some-parens (<- θ (mtθ+s s (δ e θ) new))) GO (in-hole D nothing))
     (judgment-holds (good θ D))
     (judgment-holds (θ-ref-s θ s _ old))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
     (side-condition (term (all-ready? (LFV/e e) θ)))
     set-old)
    (-->
-    (ρ θ (in-hole D (<= s e)))
-    (ρ (id-but-typeset-some-parens (<- θ (mtθ+s s (Σ ev (δ e θ)) new))) (in-hole D nothing))
+    (ρ θ GO (in-hole D (<= s e)))
+    (ρ (id-but-typeset-some-parens (<- θ (mtθ+s s (Σ ev (δ e θ)) new))) GO (in-hole D nothing))
     (judgment-holds (good θ D))
     (judgment-holds (θ-ref-s θ s ev new))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
@@ -94,51 +94,51 @@
     set-new)
    ;; unshared state
    (-->
-    (ρ θ (in-hole D (var x := e p)))
-    (ρ θ (in-hole D (ρ (mtθ+x x (δ e θ)) p)))
+    (ρ θ A (in-hole D (var x := e p)))
+    (ρ θ A (in-hole D (ρ (mtθ+x x (δ e θ)) WAIT p)))
     (judgment-holds (good θ D))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
     (side-condition (term (all-ready? (LFV/e e) θ)))
     var)
   (-->
-   (ρ θ (in-hole D (:= x e)))
-   (ρ (id-but-typeset-some-parens (<- θ (mtθ+x x (δ e θ)))) (in-hole D nothing))
+   (ρ θ A (in-hole D (:= x e)))
+   (ρ (id-but-typeset-some-parens (<- θ (mtθ+x x (δ e θ)))) A (in-hole D nothing))
    (judgment-holds (good θ D))
    (judgment-holds (L∈ x (Ldom θ)))
    (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
    (side-condition (term (all-ready? (LFV/e e) θ)))
    set-var)
   ;; if
-  (--> (ρ θ (in-hole D (if x p q)))
-       (ρ θ (in-hole D q))
+  (--> (ρ θ A (in-hole D (if x p q)))
+       (ρ θ A (in-hole D q))
        (judgment-holds (good θ D))
        (judgment-holds (θ-ref-x-but-also-rvalue-false-is-ok-if-ev-is-zero θ x 0))
        if-false)
-  (--> (ρ θ (in-hole D (if x p q)))
-       (ρ θ (in-hole D p))
+  (--> (ρ θ A (in-hole D (if x p q)))
+       (ρ θ A (in-hole D p))
        (judgment-holds (good θ D))
        (judgment-holds (L∈ x (Ldom θ)))
        (judgment-holds (¬θ-ref-x-and-also-not-rvalue-false θ x 0))
        if-true)
   ;; lifting
   (-->
-   (ρ θ_1 (in-hole D (ρ θ_2 p)))
-   (ρ (id-but-typeset-some-parens (<- θ_1 θ_2)) (in-hole D p))
+   (ρ θ_1 A_1 (in-hole D (ρ θ_2 A_2 p)))
+   (ρ (id-but-typeset-some-parens (<- θ_1 θ_2)) A_1 (in-hole D p))
    (judgment-holds (good θ_1 D))
    merge)
 
    ;; progression
   (-->
-   (ρ θ p)
-   (ρ (Lresort (Lset-all-absent2 θ 𝕊)) p)
+   (ρ θ A p)
+   (ρ (Lresort (Lset-all-absent2 θ 𝕊)) A p)
    (judgment-holds (blocked-or-done θ p))
    (where 𝕊 (Lset-sub (Lget-unknown-signals θ) (->S (Can p θ))))
    (side-condition (term (different 𝕊 (L0set))))
    absence)
 
   (-->
-   (ρ θ p)
-   (ρ (Lset-all-ready θ 𝕊_2) p)
+   (ρ θ A p)
+   (ρ (Lset-all-ready θ 𝕊_2) A p)
    (judgment-holds (blocked-or-done θ p))
    (side-condition (term (same (Lset-sub (Lget-unknown-signals θ) (->S (Can p θ))) (L0set))))
    (where 𝕊_1 (Lget-unready-shared θ))
@@ -150,8 +150,8 @@
   (check-true
    (redex-match?
     esterel-standard
-    (ρ θ p)
-    `(ρ ((shar s 1 new) ·) (shared s2 := (+ s) pause))))
+    (ρ θ A p)
+    `(ρ ((shar s 1 new) ·) GO (shared s2 := (+ s) pause))))
   (check-true (judgment-holds
                (blocked ((shar s 1 new) ·)
                         (shared s2 := (+ s) pause))))
@@ -394,8 +394,8 @@
   (check-equal?
    (apply-reduction-relation*
     R
-    `(ρ ((var· x 1) ·) (:= x ((rfunc ,add1) x))))
-   `((ρ ((var· x (rvalue 2)) ·) nothing)))
+    `(ρ ((var· x 1) ·) GO (:= x ((rfunc ,add1) x))))
+   `((ρ ((var· x (rvalue 2)) ·) GO nothing)))
   (test-judgment-holds
    (blocked-or-done
     ((sig S1 unknown) ·)
@@ -408,6 +408,7 @@
     (term
      (ρ
       ((sig S1 unknown) ·)
+      WAIT
       (loop^stop
        (present S1 pause pause)
        (present S1 pause pause)))))
@@ -415,11 +416,21 @@
     (term
      (ρ
       ((sig S1 absent) ·)
+      WAIT
       (loop^stop
        (present S1 pause pause)
        (present S1 pause pause))))))
   (check-equal?
    (apply-reduction-relation*
     R
-    `(ρ {(sig SC unknown) ·} (seq (present SC nothing nothing) (ρ {(sig Si unknown) ·} (present Si (emit SC) nothing)))))
-   `((ρ  {(sig SC absent) {(sig Si absent) ·}}nothing))))
+    `(ρ {(sig SC unknown) ·} WAIT (seq (present SC nothing nothing) (ρ {(sig Si unknown) ·} WAIT (present Si (emit SC) nothing)))))
+   `((ρ  {(sig SC absent) {(sig Si absent) ·}}
+         WAIT
+         nothing)))
+  (check-equal?
+   (apply-reduction-relation*
+    R
+    `(ρ {(sig SC unknown) ·} GO (seq (present SC nothing nothing) (ρ {(sig Si unknown) ·}  WAIT (present Si (emit SC) nothing)))))
+   `((ρ  {(sig SC absent) {(sig Si absent) ·}}
+         GO
+         nothing))))

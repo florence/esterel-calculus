@@ -16,7 +16,7 @@
   [(empty-C (ρ θ E) _) #t]
   [(empty-C _ _) #f])
 
-(define R* (union-reduction-relations R-base (R-write empty-C)))
+(define R* (union-reduction-relations (R-base esterel-eval) (R-write empty-C esterel-eval)))
 (define R-empty (MR empty-C))
 (define R-E (MR E-C))
 (define R (compatible-closure R* esterel-eval p))

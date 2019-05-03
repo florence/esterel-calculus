@@ -3,7 +3,7 @@
 (require redex/reduction-semantics
          esterel-calculus/redex/model/shared
          (only-in esterel-calculus/redex/test/binding CB)
-         esterel-calculus/redex/model/calculus
+         esterel-calculus/redex/model/calculus/variants/control
          esterel-calculus/redex/model/lset
          esterel-calculus/redex/model/potential-function)
 
@@ -51,7 +51,7 @@
 (define-judgment-form esterel-eval
   #:mode (⇀ I O)
   #:contract (⇀ p p)
-  [(where (p_1 ... q p_2 ...) ,(apply-reduction-relation R* (term p)))
+  [(where (p_1 ... q p_2 ...) ,(apply-reduction-relation ⟶ (term p)))
    -----------
    (⇀ p q)])
 
@@ -77,15 +77,15 @@
 
   (test-judgment-holds (≡e ()
                            (hole
-                            (ρ ({sig S unknown} ·) hole)
-                            (ρ ({sig S present} ·) hole)
-                            (ρ ({sig S unknown} ·) (seq hole (emit S)))
-                            (ρ ({sig S present} ·) (seq hole (emit S))))
-                           ((ρ ({sig S unknown} ·) (seq nothing (emit S)))
-                            (ρ ((sig S unknown) ·) (emit S)))
+                            (ρ ({sig S unknown} ·) GO hole)
+                            (ρ ({sig S present} ·) GO hole)
+                            (ρ ({sig S unknown} ·) GO (seq hole (emit S)))
+                            (ρ ({sig S present} ·) GO (seq hole (emit S))))
+                           ((ρ ({sig S unknown} ·) GO (seq nothing (emit S)))
+                            (ρ ((sig S unknown) ·) GO (emit S)))
 
-                           (ρ ({sig S unknown} ·) (seq (par nothing nothing) (emit S)))
-                           (ρ ((sig S present) ·) nothing)))
+                           (ρ ({sig S unknown} ·) GO (seq (par nothing nothing) (emit S)))
+                           (ρ ((sig S present) ·) GO nothing)))
 
   (check-false (judgment-holds (≡e () (hole) (pause nothing) pause nothing))))
 
@@ -93,7 +93,7 @@
 (define-judgment-form esterel-eval
   #:contract (Eval (p ...) (C ...) (p ...) p θ L-S)
   #:mode (Eval I I I I I O)
-  [(≡e any (C ...) (p_trn ...) (ρ θ p) (ρ θ/c done))
+  [(≡e any (C ...) (p_trn ...) (ρ θ GO p) (ρ θ/c GO done))
    ------
    (Eval any (C ...) (p_trn ...) p θ (Lpresentin θ/c))])
 
@@ -107,9 +107,9 @@
 
   (check-equal?
    (judgment-holds (Eval ()
-                         ((ρ · hole)
-                          (ρ · (seq hole pause)))
-                         ((ρ · (seq (exit 0) pause)))
+                         ((ρ · GO hole)
+                          (ρ · GO (seq hole pause)))
+                         ((ρ · GO (seq (exit 0) pause)))
                          (seq (par nothing (exit 0)) pause)
                          ·
                          any) any)
@@ -118,12 +118,12 @@
   (check-equal?
    (judgment-holds (Eval ()
                          (hole
-                          (ρ ({sig S unknown} ·) hole)
-                          (ρ ({sig S present} ·) hole)
-                          (ρ ({sig S unknown} ·) (seq hole (emit S)))
-                          (ρ ({sig S present} ·) (seq hole (emit S))))
-                         ((ρ ({sig S unknown} ·) (seq nothing (emit S)))
-                          (ρ ((sig S unknown) ·) (emit S)))
+                          (ρ ({sig S unknown} ·) GO hole)
+                          (ρ ({sig S present} ·) GO hole)
+                          (ρ ({sig S unknown} ·) GO (seq hole (emit S)))
+                          (ρ ({sig S present} ·) GO (seq hole (emit S))))
+                         ((ρ ({sig S unknown} ·) GO (seq nothing (emit S)))
+                          (ρ ((sig S unknown) ·) GO (emit S)))
 
                          (seq (par nothing nothing) (emit S))
                          ({sig S unknown} ·)
