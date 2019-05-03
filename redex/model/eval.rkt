@@ -3,7 +3,7 @@
 (require redex/reduction-semantics
          esterel-calculus/redex/model/shared
          (only-in esterel-calculus/redex/test/binding CB)
-         esterel-calculus/redex/model/calculus/variants/control
+         esterel-calculus/redex/model/calculus
          esterel-calculus/redex/model/lset
          esterel-calculus/redex/model/potential-function)
 

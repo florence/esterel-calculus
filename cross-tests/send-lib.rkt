@@ -79,7 +79,7 @@
   (printf "\nrule tests generated:\n")
   (pretty-write
    (sort
-    (for/list ([k (in-list (sort (reduction-relation->rule-names R*)
+    (for/list ([k (in-list (sort (reduction-relation->rule-names ⇀)
                                  symbol<?))])
       (define v (hash-ref rules-ht (symbol->string k) '(0 . 0)))
       (list k

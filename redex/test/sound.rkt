@@ -1,7 +1,7 @@
 #lang racket
 (require redex/reduction-semantics
          (except-in esterel-calculus/redex/model/shared quasiquote)
-         esterel-calculus/redex/model/calculus/variants/control
+         esterel-calculus/redex/model/calculus
          esterel-calculus/redex/model/instant
          (only-in esterel-calculus/redex/test/binding CB esterel-L)
          esterel-calculus/cross-tests/send-lib)

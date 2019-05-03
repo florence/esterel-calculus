@@ -13,7 +13,7 @@
   (with-paper-rewriters
    (parameterize ([rule-pict-style 'horizontal])
      (show
-      (render-reduction-relation calculus:R))
+      (render-reduction-relation calculus:⇀))
      (show
       (render-reduction-relation standard:R))
      (show

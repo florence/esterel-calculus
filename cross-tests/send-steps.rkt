@@ -16,7 +16,7 @@
   (-> p? (listof p?))
   (for*/list ([decomp-match (or (decompose p1) '())]
               [p1 (in-value (find-named-binding 'p decomp-match))]
-              [label+p2 (in-list (apply-reduction-relation/tag-with-names R* p1))])
+              [label+p2 (in-list (apply-reduction-relation/tag-with-names ⇀ p1))])
     (define P (find-named-binding 'C decomp-match))
     ;; eventually, this should use `P` to send an in-context reduction(?)
     (define label (list-ref label+p2 0))

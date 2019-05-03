@@ -1,9 +1,7 @@
 #lang racket
 (require
   racket/require
-  (multi-in esterel-calculus/redex/model/calculus/variants
-            (base closed-and-control graph control))
-  esterel-calculus/redex/model/calculus/define
+  esterel-calculus/redex/model/calculus
   esterel-calculus/redex/rackunit-adaptor
   esterel-calculus/redex/model/shared
   (subtract-in redex/reduction-semantics
@@ -193,7 +191,6 @@
   (define errored? #f)
   (define old-handle (current-check-handler))
   (parameterize ([current-cache-all? #f]
-                 [use-fast-par-swap? #t]
                  [current-check-handler
                   (lambda (x)
                     (set! errored? #t)
@@ -232,10 +229,10 @@
                                             nothing
                                             (emit S1))))
                            nothing)))
-         (eq? -> R)))
+         #f))
       (test-case "the original case"
         (fail-on
-         (R)
+         ()
          (test-->>P
           ->
           (term
@@ -250,7 +247,7 @@
           correct-terminus?)))
       (test-case "in which we demonstrate that `seq` isn't necessary to have the issue"
         (fail-on
-         (R R-no-seq R-no-present)
+         ()
          (test-->>P
           ->
           (term
@@ -267,7 +264,7 @@
           correct-terminus?)))
       (test-case "in which we demonstrate that ignoring seq dependencies is unsound"
         (fail-on
-         (R R-no-seq R-no-present)
+         ()
          (test-->>P
           ->
           ;; Like the previous test case, but the dependency
@@ -294,7 +291,7 @@
       
       (test-case "In which we demonstrate that closed is unsound"
         (fail-on
-         (R R-closed R-no-present R-no-seq)
+         ()
          (test-->>P
           ->
           (term
@@ -309,7 +306,7 @@
           correct-terminus?)))
       (test-case "looking at par"
         (fail-on
-         (R R-no-present R-closed R-no-seq)
+         ()
          (test-->>P
           ->
           (term
@@ -324,7 +321,7 @@
           correct-terminus?)))
       (test-case "in which we show cycles can be broken indirectly"
         (fail-on
-         (R R-safe-after-reduction)
+         ()
          (test-->>P
           ->
           (term
@@ -341,7 +338,7 @@
       (test-case "in which we show that you can't fix things by just lifting signals
 (Because its not sound to lift a signal out of a loop, even with renaming)"
         (fail-on
-         (R)
+         ()
          (test-->>P
           ->
           (term
@@ -357,10 +354,12 @@
                         pause))
                       nothing)))
           correct-terminus?)))
+      ;; this test "fails" because
+      ;; par-swap causes a cycle in the reduction graph.
       #;
       (test-case "could we have confluence issues?"
         (fail-on
-         (R)
+         ()
          (parameterize ([current-cache-all? #t])
            (test-->>P*
             ->
@@ -404,18 +403,6 @@
 ;                                                                        
 ;                                                                        
 ;                                                                        
-(define all-relations
-  (list
-   R
-   R-empty
-   R-closed
-   R-no-control
-   R-no-seq
-   R-no-present
-   R-E
-   R-control-closed
-   R-safe-after-reduction
-   ⟶))
 
 (module+ test
   (define good (box empty))

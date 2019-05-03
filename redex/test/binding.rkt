@@ -3,7 +3,7 @@
 (require redex/reduction-semantics
          (only-in esterel-calculus/redex/model/shared quasiquote esterel-eval)
          esterel-calculus/redex/model/lset
-         esterel-calculus/redex/model/calculus/variants/control)
+         esterel-calculus/redex/model/calculus)
 
 (define-extended-language esterel-L
   esterel-eval

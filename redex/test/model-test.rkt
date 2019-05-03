@@ -3,7 +3,7 @@
          esterel-calculus/redex/model/shared
          esterel-calculus/redex/model/potential-function
          esterel-calculus/redex/model/instant
-         esterel-calculus/redex/model/calculus/variants/control
+         esterel-calculus/redex/model/calculus
          (prefix-in standard: esterel-calculus/redex/model/reduction)
          (prefix-in cos: esterel-calculus/redex/cos/model)
          "generator.rkt"

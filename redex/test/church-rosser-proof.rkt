@@ -2,7 +2,7 @@
 (provide (all-defined-out))
 (require redex/reduction-semantics
          esterel-calculus/redex/model/shared
-         esterel-calculus/redex/model/calculus/variants/control
+         esterel-calculus/redex/model/calculus
          "model-test.rkt"
          "generator.rkt"
          rackunit

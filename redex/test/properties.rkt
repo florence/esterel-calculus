@@ -11,8 +11,7 @@
          (for-syntax syntax/parse)
          esterel-calculus/redex/rackunit-adaptor
          esterel-calculus/redex/model/shared
-         (multi-in esterel-calculus/redex/model/calculus/variants
-                   (base closed-and-control graph))
+         esterel-calculus/redex/model/calculus
          (rename-in esterel-calculus/redex/model/reduction
                     [R std->])
          esterel-calculus/redex/test/generator)
@@ -20,10 +19,6 @@
 (define-simple-macro (list/names n:id ...)
   (list (list n 'n) ...))
 
-(define good (list/names R-no-control
-                         R-E
-                         R-control-closed
-                         R-safe-after-reduction))
 (define correct std->)
 
 (define (complete? p)

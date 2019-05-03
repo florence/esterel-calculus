@@ -5,7 +5,7 @@
          esterel-calculus/redex/model/shared
          esterel-calculus/redex/model/potential-function
          (prefix-in standard: esterel-calculus/redex/model/reduction)
-         esterel-calculus/redex/model/calculus/variants/control)
+         esterel-calculus/redex/model/calculus)
 (module+ test (require rackunit))
 
 (define calculus:R ⟶)
