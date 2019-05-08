@@ -943,6 +943,50 @@
                   `(())
                   #:debug? #f #:limits? #f #:external? #t
                   #:memory-limits? #f)
+    (execute-test
+     (term (signal S
+             (loop (seq (emit S)
+                        (seq (present SI pause nothing)
+                             (seq (present S (emit ST) nothing)
+                                  (present SI pause nothing)))))))
+     '(SI)
+     '(ST)
+     '(() () () ())
+     #:debug? #f #:limits? #f #:external? #t
+                  #:memory-limits? #f)
+    (execute-test
+     (term (signal S
+             (loop (seq (emit S)
+                        (seq (present SI pause nothing)
+                             (seq (present S (emit ST) nothing)
+                                  (present SI pause nothing)))))))
+     '(SI)
+     '(ST)
+     '((SI) (SI) (SI) (SI))
+     #:debug? #f #:limits? #f #:external? #t
+                  #:memory-limits? #f)
+    (execute-test
+     (term (signal S
+             (loop (seq (emit S)
+                        (seq (present SI pause nothing)
+                             (seq (present S (emit ST) nothing)
+                                  (present SI pause nothing)))))))
+     '(SI)
+     '(ST)
+     '((SI) () (SI) ())
+     #:debug? #f #:limits? #f #:external? #t
+     #:memory-limits? #f)
+    (execute-test
+     (term (signal S
+             (loop (seq (emit S)
+                        (seq (present SI pause nothing)
+                             (seq (present S (emit ST) nothing)
+                                  (present SI pause nothing)))))))
+     '(SI)
+     '(ST)
+     '(() (SI) () (SI))
+     #:debug? #f #:limits? #f #:external? #t
+     #:memory-limits? #f)
 
 
     (time

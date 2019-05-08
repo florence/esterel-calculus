@@ -10,8 +10,8 @@
 (module+ test (require rackunit
                        rackunit/text-ui
                        esterel-calculus/redex/rackunit-adaptor))
-(define R ⟶)
-(define R* ⇀)
+(define-syntax R (make-rename-transformer #'⟶))
+(define-syntax R* (make-rename-transformer #'⇀))
 
 (define ⇀
   (reduction-relation

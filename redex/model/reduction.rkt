@@ -100,51 +100,51 @@
     (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
     (side-condition (term (all-ready? (LFV/e e) θ)))
     var)
-  (-->
-   (ρ θ A (in-hole D (:= x e)))
-   (ρ (id-but-typeset-some-parens (<- θ (mtθ+x x (δ e θ)))) A (in-hole D nothing))
-   (judgment-holds (good θ D))
-   (judgment-holds (L∈ x (Ldom θ)))
-   (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
-   (side-condition (term (all-ready? (LFV/e e) θ)))
-   set-var)
-  ;; if
-  (--> (ρ θ A (in-hole D (if x p q)))
-       (ρ θ A (in-hole D q))
-       (judgment-holds (good θ D))
-       (judgment-holds (θ-ref-x-but-also-rvalue-false-is-ok-if-ev-is-zero θ x 0))
-       if-false)
-  (--> (ρ θ A (in-hole D (if x p q)))
-       (ρ θ A (in-hole D p))
-       (judgment-holds (good θ D))
-       (judgment-holds (L∈ x (Ldom θ)))
-       (judgment-holds (¬θ-ref-x-and-also-not-rvalue-false θ x 0))
-       if-true)
-  ;; lifting
-  (-->
-   (ρ θ_1 A_1 (in-hole D (ρ θ_2 A_2 p)))
-   (ρ (id-but-typeset-some-parens (<- θ_1 θ_2)) A_1 (in-hole D p))
-   (judgment-holds (good θ_1 D))
-   merge)
+   (-->
+    (ρ θ A (in-hole D (:= x e)))
+    (ρ (id-but-typeset-some-parens (<- θ (mtθ+x x (δ e θ)))) A (in-hole D nothing))
+    (judgment-holds (good θ D))
+    (judgment-holds (L∈ x (Ldom θ)))
+    (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
+    (side-condition (term (all-ready? (LFV/e e) θ)))
+    set-var)
+   ;; if
+   (--> (ρ θ A (in-hole D (if x p q)))
+        (ρ θ A (in-hole D q))
+        (judgment-holds (good θ D))
+        (judgment-holds (θ-ref-x-but-also-rvalue-false-is-ok-if-ev-is-zero θ x 0))
+        if-false)
+   (--> (ρ θ A (in-hole D (if x p q)))
+        (ρ θ A (in-hole D p))
+        (judgment-holds (good θ D))
+        (judgment-holds (L∈ x (Ldom θ)))
+        (judgment-holds (¬θ-ref-x-and-also-not-rvalue-false θ x 0))
+        if-true)
+   ;; lifting
+   (-->
+    (ρ θ_1 A_1 (in-hole D (ρ θ_2 A_2 p)))
+    (ρ (id-but-typeset-some-parens (<- θ_1 θ_2)) A_1 (in-hole D p))
+    (judgment-holds (good θ_1 D))
+    merge)
 
    ;; progression
-  (-->
-   (ρ θ A p)
-   (ρ (Lresort (Lset-all-absent2 θ 𝕊)) A p)
-   (judgment-holds (blocked-or-done θ p))
-   (where 𝕊 (Lset-sub (Lget-unknown-signals θ) (->S (Can p θ))))
-   (side-condition (term (different 𝕊 (L0set))))
-   absence)
+   (-->
+    (ρ θ A p)
+    (ρ (Lresort (Lset-all-absent2 θ 𝕊)) A p)
+    (judgment-holds (blocked-or-done θ p))
+    (where 𝕊 (Lset-sub (Lget-unknown-signals θ) (->S (Can p θ))))
+    (side-condition (term (different 𝕊 (L0set))))
+    absence)
 
-  (-->
-   (ρ θ A p)
-   (ρ (Lset-all-ready θ 𝕊_2) A p)
-   (judgment-holds (blocked-or-done θ p))
-   (side-condition (term (same (Lset-sub (Lget-unknown-signals θ) (->S (Can p θ))) (L0set))))
-   (where 𝕊_1 (Lget-unready-shared θ))
-   (where 𝕊_2 (Lset-sub 𝕊_1 (->sh (Can p θ))))
-   (side-condition (term (different 𝕊_2 (L0set))))
-   readyness)))
+   (-->
+    (ρ θ A p)
+    (ρ (Lset-all-ready θ 𝕊_2) A p)
+    (judgment-holds (blocked-or-done θ p))
+    (side-condition (term (same (Lset-sub (Lget-unknown-signals θ) (->S (Can p θ))) (L0set))))
+    (where 𝕊_1 (Lget-unready-shared θ))
+    (where 𝕊_2 (Lset-sub 𝕊_1 (->sh (Can p θ))))
+    (side-condition (term (different 𝕊_2 (L0set))))
+    readyness)))
 
 (module+ test
   (check-true
@@ -433,4 +433,25 @@
     `(ρ {(sig SC unknown) ·} GO (seq (present SC nothing nothing) (ρ {(sig Si unknown) ·}  WAIT (present Si (emit SC) nothing)))))
    `((ρ  {(sig SC absent) {(sig Si absent) ·}}
          GO
-         nothing))))
+         nothing)))
+  ;;
+  (check-equal?
+   (apply-reduction-relation*
+    R
+    (term
+     (ρ ((sig SI present) ((sig ST unknown) ·)) GO
+        (signal S
+          (loop (seq (emit S)
+                     (seq (present SI pause nothing)
+                          (seq (present S (emit ST) nothing)
+                               (present SI pause nothing)))))))))
+   (term
+    ((ρ ((sig S present) ((sig SI present) ((sig ST absent) ·))) GO
+        (loop^stop
+         (seq pause
+              (seq (present S (emit ST) nothing)
+                   (present SI pause nothing)))
+         (seq (emit S)
+              (seq (present SI pause nothing)
+                   (seq (present S (emit ST) nothing)
+                        (present SI pause nothing))))))))))
