@@ -3,6 +3,7 @@
   racket/require
   esterel-calculus/redex/model/calculus
   esterel-calculus/redex/rackunit-adaptor
+  esterel-calculus/redex/test/model-test
   esterel-calculus/redex/model/shared
   (subtract-in redex/reduction-semantics
                esterel-calculus/redex/rackunit-adaptor)
@@ -17,6 +18,10 @@
   (syntax-parser
     [(_ R:id good bad errored)
      #`(run-constructive-tests-for R (symbol->string 'R)  good bad errored)]))
+(define-syntax test-data-constructive
+  (syntax-parser
+    [(_ R:id good bad errored)
+     #`(run-data-constructive-tests-for R (symbol->string 'R)  good bad errored)]))
 (define (complete? p)
   (redex-match? esterel-eval complete p))
 (define incomplete? (negate complete?))
@@ -382,6 +387,222 @@
               (and
                (= (length x) 1)
                (correct-terminus? (first x)))))))))))
+
+
+;                                              
+;                                              
+;                                              
+;                                              
+;   ;;;;;;                                     
+;   ;;   ;;                  ;                 
+;   ;;    ;;                 ;                 
+;   ;;     ;;   ;;;;;     ;;;;;;;     ;;;;;    
+;   ;;     ;;   ;   ;;       ;        ;   ;;   
+;   ;;     ;;        ;;      ;             ;;  
+;   ;;     ;;        ;;      ;             ;;  
+;   ;;     ;;    ;;;;;;      ;         ;;;;;;  
+;   ;;     ;;   ;;   ;;      ;        ;;   ;;  
+;   ;;     ;;  ;;    ;;      ;       ;;    ;;  
+;   ;;    ;;   ;;    ;;      ;       ;;    ;;  
+;   ;;   ;;     ;;  ;;;      ;;  ;    ;;  ;;;  
+;   ;;;;;;      ;;;;  ;       ;;;;    ;;;;  ;  
+;                                              
+;                                              
+;                                              
+;                                              
+;                                              
+
+
+(define (run-data-constructive-tests-for -> name good bad errored [prepair values])
+  (define is-good? #t)
+  (define errored? #f)
+  (define old-handle (current-check-handler))
+  (parameterize ([current-cache-all? #f]
+                 [current-check-handler
+                  (lambda (x)
+                    (set! errored? #t)
+                    (old-handle x))])
+    
+    (define (correct-terminus? p)
+      ((if (fail-on?) complete? incomplete?) p))
+    (define fail-on? (make-parameter #f))
+    (define-syntax fail-on
+      (syntax-parser
+        [(fail-on (Rs:id ...) body ...)
+         #`(begin
+             (when (memq -> (list Rs ...))
+               (set! is-good? #f))
+             (parameterize ([fail-on? (memq -> (list Rs ...))])
+               body ...))]))
+    (test-suite (format "Does ~a bypass constructiveness on data values?" name)
+      #:after
+      (lambda ()
+        (define (box-cons! a b)
+          (set-box! b (cons a (unbox b))))
+        (cond
+          [errored? (box-cons! name errored)]
+          [is-good? (box-cons! name good)]
+          [else (box-cons! name bad)]))
+      (test-case "original test, one step"
+        (test--?>
+         ->
+         (term (ρ (mtθ+s s1 0 old)
+                  WAIT
+                  (var x := (+ s1)
+                       (ρ (mtθ+s s2 0 old)
+                          WAIT
+                          (seq (<= s2 (+ 0))
+                               (<= s1 (+ s2)))))))
+         #f)
+        (test--?>
+         ->
+         (term (ρ (mtθ+s s1 0 old)
+                  GO
+                  (var x := (+ s1)
+                       (ρ (mtθ+s s2 0 old)
+                          WAIT
+                          (seq (<= s2 (+ 0))
+                               (<= s1 (+ s2)))))))
+         #f)
+        (test--?>
+         ->
+         (term (ρ (mtθ+s s1 0 old)
+                  WAIT
+                  (var x := (+ s1)
+                       (ρ (mtθ+s s2 0 old)
+                          GO
+                          (seq (<= s2 (+ 0))
+                               (<= s1 (+ s2)))))))
+         #t))
+      (test-case "the original case"
+        (fail-on
+         ()
+         (test-->>P
+          ->
+          (term
+           (shared s1 := (+ 0)
+             (var x := (+ s1)
+                  (shared s1 := (+ 0)
+                    (seq (<= s2 (+ 0))
+                         (<= s1 (+ s2)))))))
+          correct-terminus?)))
+      (test-case "in which we demonstrate that `seq` isn't necessary to have the issue"
+        (fail-on
+         ()
+         (test-->>P
+          ->
+          (term
+           (shared s1 := (+ 0)
+             (var x := (+ s1)
+                  (shared s1 := (+ 0)
+                    (par (<= s2 (+ 0))
+                         (<= s1 (+ s2)))))))
+          correct-terminus?)))
+      (test-case "in which we demonstrate that ignoring seq dependencies is unsound"
+        (fail-on
+         ()
+         (test-->>P
+          ->
+          (term
+           (shared s1 := (+ 0)
+             (seq (var x := (+ s1) nothing)
+                  (shared s2 := (+ 0)
+                    (seq (<= s2 (+ 0))
+                         (<= s1 (+ s2)))))))
+          correct-terminus?)))
+
+      
+      (test-case "In which we demonstrate that closed is unsound"
+        (fail-on
+         ()
+         (test-->>P
+          ->
+          (term
+           (shared s2 := (+ 0)
+             (seq (var x := (+ s2) nothing)
+                  (trap
+                   (seq (shared s1 := (+ 0)
+                          (seq
+                           (<= s1 (+ 0))
+                           (var x := (+ s1)
+                                (if x (exit 0) nothing))))
+                        (<= s2 (+ 0)))))))
+          correct-terminus?)))
+      (test-case "looking at par"
+        (fail-on
+         ()
+         (test-->>P
+          ->
+          (term
+           (shared s2 := (+ 0)
+             (seq (var x := (+ s2) nothing)
+                  (trap
+                   (seq (shared s1 := (+ 0)
+                          (par
+                           (<= s1 (+ 0))
+                           (var x := (+ s1)
+                                (if x (exit 0) nothing))))
+                        (<= s2 (+ 0)))))))
+          correct-terminus?)
+         (test-->>P
+          ->
+          (term
+           (shared s2 := (+ 0)
+             (seq (var x := (+ s2) nothing)
+                  (trap
+                   (par (shared s1 := (+ 0)
+                          (par
+                           (<= s1 (+ 0))
+                           (var x := (+ s1)
+                                (if x (exit 0) nothing))))
+                        (<= s2 (+ 0)))))))
+          correct-terminus?)
+         (test-->>P
+          ->
+          (term
+           (shared s2 := (+ 0)
+             (seq (var x := (+ s2) nothing)
+                  (trap
+                   (par (shared s1 := (+ 0)
+                          (seq
+                           (<= s1 (+ 0))
+                           (var x := (+ s1)
+                                (if x (exit 0) nothing))))
+                        (<= s2 (+ 0)))))))
+          correct-terminus?)))
+      (test-case "in which we show cycles can be broken indirectly"
+        (fail-on
+         ()
+         (test-->>P
+          ->
+          (term
+           (shared sO := (+ 0)
+             (shared sB := (+ 0)
+               (var x := (+ sO)
+                    (signal SE
+                      (seq
+                       (seq (emit SE)
+                            (present SE nothing (<= sB (+ 0))))
+                       (<= sO (+ sB))))))))
+          correct-terminus?)))
+      (test-case "in which we show that you can't fix things by just lifting variables
+(Because its not sound to lift a signal out of a loop, even with renaming)"
+        (fail-on
+         ()
+         (test-->>P
+          ->
+          (term
+           (shared s1 := (+ 0)
+             (var x := (+ s1)
+                  (loop
+                   (seq
+                    (signal S2
+                      (seq (emit S2)
+                           (present S2
+                                    nothing
+                                    (<= s1 (+ 0)))))
+                    pause)))))
+          correct-terminus?))))))
   
 ;                                                                        
 ;                                                                        
@@ -416,7 +637,10 @@
            (make-test-suite
             "test-constructive"
             (list
-             (test-constructive  ⟶ good bad errored))
+             (test-constructive
+              ⟶ good bad errored)
+             (test-data-constructive
+              ⟶ good bad errored))
             #:after
             (lambda ()
               (printf "The reduction variants broke down into:\n good: ~a\n bad ~a\n errored: ~a\n"
