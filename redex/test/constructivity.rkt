@@ -402,7 +402,7 @@
          (term
           (shared s1 := (+ 0)
             (var x := (+ s1)
-                 (shared s1 := (+ 0)
+                 (shared s2 := (+ 0)
                    (seq (<= s2 (+ 0))
                         (<= s1 (+ s2)))))))
          correct-terminus?))
@@ -412,7 +412,7 @@
          (term
           (shared s1 := (+ 0)
             (var x := (+ s1)
-                 (shared s1 := (+ 0)
+                 (shared s2 := (+ 0)
                    (par (<= s2 (+ 0))
                         (<= s1 (+ s2)))))))
          correct-terminus?))
@@ -511,6 +511,236 @@
                                    (<= s1 (+ 0)))))
                    pause)))))
          correct-terminus?)))))
+
+
+;                                                                    
+;                                                                    
+;                                                                    
+;                                               ;;;;;                
+;     ;;;;                                         ;;                
+;    ;;   ;;                                       ;;                
+;    ;     ;                                       ;;                
+;   ;;     ;;   ;;; ;;;;   ;;;;;        ;;;;       ;;         ;;;;   
+;   ;;     ;;    ;;;; ;    ;   ;;      ;;  ;;      ;;       ;;   ;;  
+;   ;;     ;;    ;;;  ;         ;;    ;;           ;;       ;     ;  
+;   ;      ;;    ;;             ;;    ;            ;;       ;     ;  
+;   ;;     ;;    ;;         ;;;;;;    ;            ;;      ;;;;;;;;  
+;   ;;     ;;    ;;        ;;   ;;    ;            ;;      ;;        
+;   ;;     ;;    ;;       ;;    ;;    ;            ;;       ;        
+;    ;     ;     ;;       ;;    ;;    ;;           ;;       ;;       
+;    ;;   ;;     ;;        ;;  ;;;     ;;  ;;      ;;  ;    ;;;  ;;  
+;     ;;;;      ;;;;;      ;;;;  ;      ;;;;        ;;;;      ;;;;   
+;                                                                    
+;                                                                    
+;                                                                    
+;                                                                    
+;                                                                    
+
+
+(define (test-oracle)
+  (define (test-against-oracle p)
+    (execute-test
+     p
+     '()
+     '()
+     '(() () () () () ())
+     #:debug? #f #:limits? #f #:external? #t
+     #:memory-limits? #f))
+  (test-suite "run all of the constructivity tests against the external evaluators"
+    (test-case "the original cases"
+      (test-against-oracle
+       (term
+        (signal S1
+          (present S1
+                   (signal S2
+                     (seq (emit S2)
+                          (present S2
+                                   nothing
+                                   (emit S1))))
+                   nothing))))
+      (test-against-oracle
+       (term
+        (shared s1 := (+ 0)
+          (var x := (+ s1)
+               (shared s2 := (+ 0)
+                 (seq (<= s2 (+ 0))
+                      (<= s1 (+ s2)))))))))
+    (test-case "in which we demonstrate that `seq` isn't necessary to have the issue"
+      (test-against-oracle
+       (term
+        (signal S1
+          (present S1
+                   (signal S2
+                     ;; This demonstraits that `seq` isn't necessary
+                     ;; to trigger the constructivity issue.
+                     (par (emit S2)
+                          (present S2
+                                   nothing
+                                   (emit S1))))
+                   nothing))))
+      (test-against-oracle
+       (term
+        (shared s1 := (+ 0)
+          (var x := (+ s1)
+               (shared s2 := (+ 0)
+                 (par (<= s2 (+ 0))
+                      (<= s1 (+ s2)))))))))
+    (test-case "in which we demonstrate that ignoring seq dependencies is unsound"
+      (test-against-oracle
+       (term
+        (signal S1
+          (seq (present S1 pause nothing)
+               (signal S2
+                 (seq (emit S2)
+                      (present S2 nothing (emit S1))))))))
+      (test-against-oracle
+       (term
+        (signal S1
+          (seq (present S1 nothing nothing)
+               (signal S2
+                 (seq (emit S2)
+                      (present S2 nothing (emit S1))))))))
+      (test-against-oracle
+       (term
+        (shared s1 := (+ 0)
+          (seq (var x := (+ s1) nothing)
+               (shared s2 := (+ 0)
+                 (seq (<= s2 (+ 0))
+                      (<= s1 (+ s2)))))))))
+
+      
+    (test-case "In which we demonstrate that closed is unsound"
+      (test-against-oracle
+       (term
+        (signal S2
+          (seq (present S2 nothing nothing)
+               (trap
+                (seq (signal S1
+                       (seq
+                        (emit S1)
+                        (present S1 (exit 0) nothing)))
+                     (emit S2)))))))
+      (test-against-oracle
+       (term
+        (shared s2 := (+ 0)
+          (seq (var x := (+ s2) nothing)
+               (trap
+                (seq (shared s1 := (+ 0)
+                       (seq
+                        (<= s1 (+ 0))
+                        (var x := (+ s1)
+                             (if x (exit 0) nothing))))
+                     (<= s2 (+ 0)))))))))
+    (test-case "looking at par"
+      (test-against-oracle
+       (term
+        (signal S2
+          (seq (present S2 nothing nothing)
+               (trap
+                (seq (signal S1
+                       (par
+                        (emit S1)
+                        (present S1 (exit 0) nothing)))
+                     (emit S2)))))))
+      (test-against-oracle
+       (term
+        (shared s2 := (+ 0)
+          (seq (var x := (+ s2) nothing)
+               (trap
+                (seq (shared s1 := (+ 0)
+                       (par
+                        (<= s1 (+ 0))
+                        (var x := (+ s1)
+                             (if x (exit 0) nothing))))
+                     (<= s2 (+ 0))))))))
+      (test-against-oracle
+       (term
+        (shared s2 := (+ 0)
+          (seq (var x := (+ s2) nothing)
+               (trap
+                (par (shared s1 := (+ 0)
+                       (par
+                        (<= s1 (+ 0))
+                        (var x := (+ s1)
+                             (if x (exit 0) nothing))))
+                     (<= s2 (+ 0))))))))
+      (test-against-oracle
+       (term
+        (shared s2 := (+ 0)
+          (seq (var x := (+ s2) nothing)
+               (trap
+                (par (shared s1 := (+ 0)
+                       (seq
+                        (<= s1 (+ 0))
+                        (var x := (+ s1)
+                             (if x (exit 0) nothing))))
+                     (<= s2 (+ 0)))))))))
+    (test-case "in which we show cycles can be broken indirectly"
+      (test-against-oracle
+       (term
+        (signal SO
+          (signal SB   
+            (present SO
+                     (signal SE
+                       (seq
+                        (seq (emit SE)
+                             (present SE nothing (emit SB)))
+                        (present SB (emit SO) nothing)))
+                     nothing)))))
+      (test-against-oracle
+       (term
+        (shared sO := (+ 0)
+          (shared sB := (+ 0)
+            (var x := (+ sO)
+                 (signal SE
+                   (seq
+                    (seq (emit SE)
+                         (present SE nothing (<= sB (+ 0))))
+                    (<= sO (+ sB))))))))))
+    (test-case "in which we show that you can't fix things by just lifting signals
+(Because its not sound to lift a signal out of a loop, even with renaming)"
+      (test-against-oracle
+       (term
+        (signal S1
+          (present S1
+                   (loop
+                    (seq
+                     (signal S2
+                       (seq (emit S2)
+                            (present S2
+                                     nothing
+                                     (emit S1))))
+                     pause))
+                   nothing))))
+      (test-against-oracle
+       (term
+        (shared s1 := (+ 0)
+          (var x := (+ s1)
+               (loop
+                (seq
+                 (signal S2
+                   (seq (emit S2)
+                        (present S2
+                                 nothing
+                                 (<= s1 (+ 0)))))
+                 pause)))))))
+    (test-case "testing against confluence"
+      (test-against-oracle
+       (term
+        (signal S1
+          (present S1
+                   (par
+                    (signal S2
+                      (seq (emit S2)
+                           (present S2
+                                    nothing
+                                    (emit S1))))
+                    (signal S3
+                      (seq (emit S3)
+                           (present S3
+                                    nothing
+                                    (emit S1)))))
+                   nothing)))))))
   
 ;                                                                        
 ;                                                                        
@@ -543,4 +773,5 @@
             "test-constructive"
             (list
              (run-constructive-tests-for ⟶)
-             (run-data-constructive-tests-for ⟶))))))))
+             (run-data-constructive-tests-for ⟶)
+             (test-oracle))))))))
