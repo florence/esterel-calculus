@@ -123,7 +123,7 @@
    ;; lifting
    (-->
     (ρ θ_1 A_1 (in-hole D (ρ θ_2 A_2 p)))
-    (ρ (id-but-typeset-some-parens (<- θ_1 θ_2)) A_1 (in-hole D p))
+    (ρ (id-but-typeset-some-parens (<- θ_1 θ_2)) (A-⊓ A_1 A_2) (in-hole D p))
     (judgment-holds (good θ_1 D))
     merge)
 

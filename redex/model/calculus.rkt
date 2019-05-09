@@ -108,7 +108,7 @@
 
    (-->
     (ρ θ_1 A_1 (in-hole E (ρ θ_2 A_2 p)))
-    (ρ (id-but-typeset-some-parens (<- θ_1 θ_2)) A_1 (in-hole E p))
+    (ρ (id-but-typeset-some-parens (<- θ_1 θ_2)) (A-⊓ A_1 A_2) (in-hole E p))
     merge)
 
    ;; control aware rules

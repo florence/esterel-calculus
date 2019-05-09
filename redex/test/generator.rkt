@@ -6,6 +6,8 @@
  ;; make it closed. some persentage of the time force it to
  ;; use a low number of signals.
  fixup
+ ;; like fixup but its allows for empty I/O sets of signals
+ fixup/allow-empty-signals
  ;; close a given program
  fix
  ;; close a given program, forcing it to
@@ -17,6 +19,7 @@
  setup-*-env
  ;; check what esterelv5 does on a given program
  esterel-oracle
+ ;; check what hiphop does on a given program
  hiphop-oracle)
 (require redex/reduction-semantics
          esterel-calculus/redex/model/shared
@@ -64,7 +67,7 @@
    (if x (convert p) (convert q))])
 
 (define-extended-language esterel-check esterel-eval*
-  (p-check
+  (p-check q-check ::=
    nothing
    pause
    (seq p-check p-check)
@@ -81,9 +84,50 @@
    (var x := e-check p-check)
    (:= x e-check)
    (if x p-check p-check))
+  (p-check+θ q-check+θ ::=
+             nothing
+             pause
+             (seq p-check+θ p-check+θ)
+             (par p-check+θ p-check+θ)
+             (trap p-check+θ)
+             (exit n)
+             (signal S p-check+θ)
+             (suspend p-check+θ S)
+             (present S p-check+θ p-check+θ)
+             (emit S)
+             (loop p-check+θ)
+             (shared s := e-check p-check+θ)
+             (<= s e-check)
+             (var x := e-check p-check+θ)
+             (:= x e-check)
+             (if x p-check+θ p-check+θ)
+             (ρ θ-check A p-check+θ))
+  (E-check ::=
+     (seq E-check q-check)
+     (loop^stop E-check q-check)
+     (par E-check q-check)
+     (par p-check E-check)
+     (suspend E-check S)
+     (trap E-check)
+     hole)
+  (E-check+θ ::=
+     (seq E-check+θ q-check+θ)
+     (loop^stop E-check+θ q-check+θ)
+     (par E-check+θ q-check+θ)
+     (par p-check+θ E-check+θ)
+     (suspend E-check+θ S)
+     (trap E-check+θ)
+     hole)
+  ;; just dont generate absence or new, to maintain coherence
+  (θ-check ::=
+           ·
+           ((sig S status-check) θ-check)
+           ((var· x n) θ-check)
+           ((shar s n shar-check) θ-check))
 
   (e-check ::= (+ s/l-check ...))
   (s/l-check ::= s x n)
+  (shar-check ::= old new)
   (status-check ::= present unknown))
 
 
@@ -98,18 +142,25 @@
              #:when (member i ins))
     `(sig ,i present)))
 
-;;  (p (S ...) (S ...) ((S ...) ...)) -> ((ρ θ p) (S ...) (S ...) ((S ...) ...))
-;; The first S... is a list of input signals.
-;; The second S... is a list of output signals
+;;  (p (S ...) (S ...) ((S ...) ...)) -> (p (S ...) (S ...) ((S ...) ...))
+;; The first S... is a list of input signals, and must be non-empty
+;; The second S... is a list of output signals, and must be non-empty
 ;; The ((S ...) ...) is a list of input signals to be present in each instant
-;; The `p` resulting program will be closed. θ will bind the input and output signals
-(define (fixup e)
+(define (fixup e #:low-signal-chance [low-signal-chance 1/8])
   (redex-let
    esterel-eval
    ([(p (S_i ...) (S_o ...) ((S ...) ...)) e])
    (when (null? `(S_o ...)) (error 'fixup "expected at least one output signal"))
    (when (null? `(S_i ...)) (error 'fixup "expected at least one input signal"))
-   (define low-signals? (< (random) 1/8))
+   (fixup/allow-empty-signals e #:low-signal-chance low-signal-chance)))
+
+;; like `fixup`, but it doesn't require
+;; the input and output signals be non-empty
+(define (fixup/allow-empty-signals e #:low-signal-chance [low-signal-chance 1/8])
+  (redex-let
+   esterel-eval
+   ([(p (S_i ...) (S_o ...) ((S ...) ...)) e])
+   (define low-signals? (< (random) low-signal-chance))
    (define generate-S (make-generator "S" e))
    (define generate-s (make-generator "s" e))
    (define signals (build-list (add1 (random 2)) (lambda (_) (generate-S))))
@@ -239,13 +290,21 @@
         `nothing
         `(exit ,(random `n_max)))]
   [(fix/low-signals (emit any) (S ...) (s ...) (x ...) n_max)
-   (emit ,(random-ref `(S ...)))]
+   ,(if (empty? `(S ...))
+        `nothing
+        `(emit ,(random-ref `(S ...))))]
   [(fix/low-signals (signal any p) (S ...) (s ...) (x ...) n_max)
    (fix/low-signals p (S ...) (s ...) (x ...) n_max)]
   [(fix/low-signals (present any p q) (S ...) (s ...) (x ...) n_max)
-   (present ,(random-ref `(S ...))
-            (fix/low-signals p (S ...) (s ...) (x ...) n_max)
-            (fix/low-signals q (S ...) (s ...) (x ...) n_max))]
+   ,(cond
+      [(empty? (term `(S ...)))
+       (if (> .5 (random))
+           `(fix/low-signals p (S ...) (s ...) (x ...) n_max)
+           `(fix/low-signals q (S ...) (s ...) (x ...) n_max))]
+      [else
+       `(present ,(random-ref `(S ...))
+                 (fix/low-signals p (S ...) (s ...) (x ...) n_max)
+                 (fix/low-signals q (S ...) (s ...) (x ...) n_max))])]
   [(fix/low-signals (par p q) (S ...) (s ...) (x ...) n_max)
    (par
     (fix/low-signals p (S ...) (s ...) (first-half (x ...)) n_max)
@@ -262,9 +321,11 @@
    (loop
     (fix/low-signals p (S ...) (s ...) (x ...) n_max))]
   [(fix/low-signals (suspend p any) (S ...) (s ...) (x ...) n_max)
-   (suspend
-    (fix/low-signals p (S ...) (s ...) (x ...) n_max)
-    ,(random-ref `(S ...)))]
+   ,(if (empty? (term (S ...)))
+        `(fix/low-signals p (S ...) (s ...) (x ...) n_max)
+        `(suspend
+          (fix/low-signals p (S ...) (s ...) (x ...) n_max)
+          ,(random-ref `(S ...))))]
   [(fix/low-signals (trap p) (S ...) (s ...) (x ...) n_max)
    (trap
     (fix/low-signals p (S ...) (s ...) (x ...) ,(add1 `n_max)))]
@@ -311,7 +372,9 @@
         `nothing
         `(exit ,(random `n_max)))]
   [(fix (emit S) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
-   (emit ,(random-ref `(S_o ... S_b ...)))]
+   ,(if (empty? `(S_o ... S_b ...))
+        `nothing
+        `(emit ,(random-ref `(S_o ... S_b ...))))]
   [(fix (signal S_d p) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
    (signal S (fix p (S_i ...) (S_o ...) (S S_b ...) (s ...) (x ...) n_max))
    (where S ,(gensym 'S))
@@ -320,9 +383,14 @@
    (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
    (where #t ,(> (length `(S_b ...)) 3))]
   [(fix (present S p q) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
-   (present ,(random-ref `(S_i ... S_b ...))
-            (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
-            (fix q (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max))]
+   ,(cond [(empty? `(S_i ... S_b ...))
+           (if (> .5 (random))
+               `(fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+               `(fix q (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max))]
+          [else
+           `(present ,(random-ref `(S_i ... S_b ...))
+                     (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+                     (fix q (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max))])]
   [(fix (par p q) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
    (par
     (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (first-half (x ...)) n_max)
@@ -339,9 +407,12 @@
    (loop
     (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max))]
   [(fix (suspend p S) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
-   (suspend
-    (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
-    ,(random-ref `(S_i ... S_b ...)))]
+   ,(if (empty? `(S_i ... S_b ...))
+        (term (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max))
+        (term
+         (suspend
+          (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
+          ,(random-ref `(S_i ... S_b ...)))))]
   [(fix (trap p) (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) n_max)
    (trap
     (fix p (S_i ...) (S_o ...) (S_b ...) (s ...) (x ...) ,(add1 `n_max)))]
@@ -413,6 +484,7 @@
   (split-at x (quotient (length x) 2)))
 
 (define-metafunction esterel-eval
+  ;; takes the expression to fix and the available shared and seq vars
   fix/e : any (V ...) -> any
   [(fix/e n (V ...)) n]
   [(fix/e V ()) 0]

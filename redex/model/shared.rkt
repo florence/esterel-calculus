@@ -165,6 +165,13 @@
 
 
 (define-metafunction esterel-eval
+  A-⊓ : A A -> A
+  [(A-⊓ WAIT WAIT) WAIT]
+  [(A-⊓ GO WAIT) GO]
+  [(A-⊓ WAIT GO) GO]
+  [(A-⊓ GO GO) GO])
+
+(define-metafunction esterel-eval
   par-⊓ : done done -> done
   [(par-⊓ nothing done) done]
   [(par-⊓ done nothing) done]
