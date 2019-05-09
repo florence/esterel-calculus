@@ -75,9 +75,9 @@
      (unless (equal? res res2)
        (fprintf (current-error-port)
                 "BAD: Esterelv5 and Hiphop behave differently on (~a ~a ~a ~a)\nV5: ~a\nHH: ~a\n\n" p i o Ss res res2))])
-  (test-reduction p i o Ss #:limits? limits? #:debug? debug?
-                  #:oracle (if (eq? res 'not-installed) #f res)
-                  #:memory-limits? memory-limits?))
+  (test-calculus p i o Ss #:limits? limits? #:debug? debug?
+                 #:oracle (if (eq? res 'not-installed) #f res)
+                 #:memory-limits? memory-limits?))
 
 (define (test-reduction p-check i o s #:limits? limits? #:debug? [debug? #f] #:oracle [oracle #f]
                         #:memory-limits? memory-limits?)
@@ -97,12 +97,9 @@
    'debug
    'eval-test))
 
-;; disabled because of known disconnect between calculus and 
-;; COS semantics mentioned in the paper: specifically that using the
-;; compatable closure we can bypass non-constructive programs.
-#;
 (define (test-calculus p-check i o s #:limits? limits? #:debug? [debug? #f]
-                       #:memory-limits? memory-limits?)
+                       #:memory-limits? memory-limits?
+                        #:oracle [oracle #f])
   ;; boundary signals shouldnt be used in reductions
   ;; output might be okay, input is not
   (define-values (p* extras) (calc-shuffle p-check))
@@ -119,7 +116,8 @@
                      `,o
                      #:limits? ,limits?
                      #:memory-limits? ,memory-limits?
-                     #:debug? ,debug?)
+                     #:debug? ,debug?
+                      #:oracle ,oracle)
             `(add-extra-syms ,p-check ,(append i o))))
   (relate r
           p
@@ -129,7 +127,8 @@
           #:limits? limits?
           #:debug? debug?
           #:extras extras
-          #:memory-limits? memory-limits?))
+          #:memory-limits? memory-limits?
+           #:oracle oracle))
 
 (define (relate pp qp ins in out #:limits? [limits? #f] #:debug? [debug? #f] #:extras [extras ""]
                 #:oracle [oracle #f]
@@ -987,7 +986,6 @@
      '(() (SI) () (SI))
      #:debug? #f #:limits? #f #:external? #t
      #:memory-limits? #f)
-
 
     (time
      (test-case "external"

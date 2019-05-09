@@ -22,6 +22,10 @@ data s/l : Set where
 data Expr : Set where
   plus : List s/l → Expr
 
+data Ctrl : Set where
+  GO : Ctrl
+  WAIT : Ctrl
+
 data Term : Set where
   nothin         : Term
   pause          : Term
@@ -34,13 +38,13 @@ data Term : Set where
   _>>_           : (p : Term) → (q : Term) → Term
   suspend        : (p : Term) → (S : Signal) → Term
   trap           : (p : Term) → Term
-  exit           : ℕ → Term
+  exit           : (n : ℕ) → Term
   shared_≔_in:_  : (s : SharedVar) → (e : Expr) → (p : Term) → Term
   _⇐_            : (s : SharedVar) → (e : Expr) → Term
   var_≔_in:_     : (x : SeqVar) → (e : Expr) → (p : Term) → Term
   _≔_            : (x : SeqVar) → (e : Expr) → Term
   if_∣⇒_∣⇒_      : (x : SeqVar) → (p : Term) → (q : Term) → Term
-  ρ_·_           : (θ : Env) → (p : Term) → Term
+  ρ⟨_,_⟩·_        : (θ : Env) → (A : Ctrl) → (p : Term) → Term
 
 infix  20 _⇐_
 infix  20 _≔_
@@ -50,4 +54,4 @@ infixr 13 _∥_
 infix  11 present_∣⇒_∣⇒_
 infix  10 shared_≔_in:_
 infix  10 var_≔_in:_
-infix   6 ρ_·_
+infix   6 ρ⟨_,_⟩·_

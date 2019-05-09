@@ -124,24 +124,24 @@ data _sn⟶₁_ : Term → Term → Set where
     (q' : halted q) →
     (p ∥ q) sn⟶₁ (value-max p' (dhalted q') (inj₂ q'))
 
-  ris-present : ∀{θ S r p q E} →
+  ris-present : ∀{θ S r p q E A} →
     (S∈ : (Env.isSig∈ S θ)) →
     Env.sig-stats{S} θ S∈ ≡ Signal.present →
     r ≐ E ⟦ present S ∣⇒ p ∣⇒ q ⟧e →
-    (ρ θ · r) sn⟶₁ (ρ θ · E ⟦ p ⟧e)
+    (ρ⟨ θ , A ⟩· r) sn⟶₁ (ρ⟨ θ , A ⟩· E ⟦ p ⟧e)
 
-  ris-absent : ∀{θ S r p q E} →
+  ris-absent : ∀{θ S r p q E A} →
     (S∈ : (Env.isSig∈ S θ)) →
     Env.sig-stats{S} θ S∈ ≡ Signal.absent →
     r ≐ E ⟦ present S ∣⇒ p ∣⇒ q ⟧e →
-    (ρ θ · r) sn⟶₁ (ρ θ · E ⟦ q ⟧e)
+    (ρ⟨ θ , A ⟩· r) sn⟶₁ (ρ⟨ θ , A ⟩· E ⟦ q ⟧e)
 
   remit : ∀{θ r S E} →
     (S∈ : (Env.isSig∈ S θ)) →
     (¬S≡a : ¬ (Env.sig-stats{S} θ S∈) ≡ Signal.absent) →
     r ≐ E ⟦ emit S ⟧e →
-    (ρ θ · r) sn⟶₁
-    (ρ (Env.set-sig{S} θ S∈ Signal.present) ·
+    (ρ⟨ θ , GO ⟩· r) sn⟶₁
+    (ρ⟨ (Env.set-sig{S} θ S∈ Signal.present) , GO ⟩·
       E ⟦ nothin ⟧e)
 
   rloop-unroll : ∀{p} →
@@ -170,11 +170,11 @@ data _sn⟶₁_ : Term → Term → Set where
   -- lifting signals
   rraise-signal : ∀{p S} →
     (signl S p) sn⟶₁
-    (ρ (Θ SigMap.[ S ↦ Signal.unknown ] ShrMap.empty VarMap.empty) ·
+    (ρ⟨ (Θ SigMap.[ S ↦ Signal.unknown ] ShrMap.empty VarMap.empty) , WAIT ⟩·
       p)
 
   -- shared state
-  rraise-shared : ∀{θ r s e p E} →
+  rraise-shared : ∀{θ r s e p E A} →
     (e' : all-ready e θ) →
     r ≐ E ⟦ shared s ≔ e in: p ⟧e →
     (ρ θ · r) sn⟶₁

@@ -142,8 +142,8 @@ data CorrectBinding : Term → (BV : VarList) → (FV : VarList) → Set where
               → (cbp : CorrectBinding p BVp FVp)
               → (cbq : CorrectBinding q BVq FVq)
               → CorrectBinding (if x ∣⇒ p ∣⇒ q) (BVp U̬ BVq) (+x x (FVp U̬ FVq))
-  CBρ       : ∀{θ p BV FV} → CorrectBinding p BV FV
-                           → CorrectBinding (ρ θ · p) (((Dom θ) U̬ BV)) (FV |̌ (Dom θ))
+  CBρ       : ∀{θ A p BV FV} → CorrectBinding p BV FV
+                             → CorrectBinding (ρ⟨ θ , A ⟩· p) (((Dom θ) U̬ BV)) (FV |̌ (Dom θ))
 
 
 binding-is-function : ∀{p BV₁ FV₁ BV₂ FV₂} →
@@ -345,10 +345,10 @@ binding-dec (if x ∣⇒ p ∣⇒ q) | yes p₁ | (no ¬p) =
 binding-dec (if x ∣⇒ p ∣⇒ q) | no ¬p =
   no (\ { (BV , FV , CBif CBp CBq) -> ¬p (_ , _ , CBp) })
 
-binding-dec (ρ θ · p) with binding-dec p
-binding-dec (ρ θ · p) | yes (BV , FV , BP) =
+binding-dec (ρ⟨ θ , A ⟩· p) with binding-dec p
+binding-dec (ρ⟨ θ , A ⟩· p) | yes (BV , FV , BP) =
   yes (((Dom θ) U̬ BV)  , FV |̌ (Dom θ) , CBρ BP)
-binding-dec (ρ θ · p) | no ¬p = no (\ { (BV , FV , CBρ p ) -> ¬p (_ , _ , p) } )
+binding-dec (ρ⟨ θ , A ⟩· p) | no ¬p = no (\ { (BV , FV , CBρ p ) -> ¬p (_ , _ , p) } )
 
 binding-extract : ∀{p BV FV p' E} →
   CorrectBinding p BV FV →
@@ -712,7 +712,7 @@ BVars (x ≔ e) = base
 BVars (if x ∣⇒ p ∣⇒ q) =  BVp U̬ BVq where
   BVp = BVars p
   BVq = BVars q
-BVars (ρ θ · p) = (Dom θ) U̬ BV where
+BVars (ρ⟨ θ , A ⟩· p) = (Dom θ) U̬ BV where
   BV = BVars p
 
 FVars : ∀ (p : Term) -> VarList
@@ -746,7 +746,7 @@ FVars (x ≔ e) = +x x (FVₑ e)
 FVars (if x ∣⇒ p ∣⇒ q) = +x x (FVp U̬ FVq) where
   FVp = FVars p
   FVq = FVars q
-FVars (ρ θ · p) = FV |̌ (Dom θ) where
+FVars (ρ⟨ θ , A ⟩· p) = FV |̌ (Dom θ) where
   FV = FVars p
 
 CB : Term -> Set
@@ -802,7 +802,7 @@ BVFVcorrect .(if _ ∣⇒ _ ∣⇒ _) .(BVp U̬ BVq) .(+x x (FVp U̬ FVq))
             (CBif{x}{p}{q}{BVp}{BVq}{FVp}{FVq} CBp CBq) with
             BVFVcorrect p BVp FVp CBp | BVFVcorrect q BVq FVq CBq
 ... | refl , refl | refl , refl = refl , refl
-BVFVcorrect .(ρ _ · _) .(((Dom θ) U̬ BV)) .(FV |̌ (Dom θ))
-            (CBρ{θ}{p}{BV}{FV} CB) with BVFVcorrect p BV FV CB
+BVFVcorrect .(ρ⟨ _ , _ ⟩· _) .(((Dom θ) U̬ BV)) .(FV |̌ (Dom θ))
+            (CBρ{θ}{A}{p}{BV}{FV} CB) with BVFVcorrect p BV FV CB
 ... | refl , refl = refl , refl
 
