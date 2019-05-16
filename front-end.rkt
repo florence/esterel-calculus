@@ -165,7 +165,7 @@
          [else (list f (loop r (cons (second f) seen)))])])))
 
 (define (get-data outputs include replacements p)
-  (match-define `(ρ ,θ ,_) p)
+  (match-define `(ρ ,θ ,_ ,_) p)
   (define env-vs (θ->list θ))
   (filter
    values
@@ -220,7 +220,10 @@
     [(_ name:id
         #:inputs (in ...)
         #:outputs (out ...)
-        machine)
+        (~optional (~seq #:input/outputs (ios ...))
+                   #:defaults
+                   ([(ios 1) null]))
+        machine:expr)
      #:with runtime (generate-temporary #'name)
      #:with compile-time (generate-temporary #'name)
      #'(begin
@@ -228,6 +231,7 @@
            (esterel-machine
             #:inputs (in ...)
             #:outputs (out ...)
+            #:input/outputs (ios ...)
             machine))
          (define-esterel-form compile-time
            (syntax-parser
@@ -236,7 +240,7 @@
                               (extend-signal-replace-map-for-many
                                (syntax->list #'(inner (... ...)))
                                (map get-signal-replacement (syntax->list #'(outer (... ...)))))])
-                (check-bound-signals! #'src (syntax->list #'(in ... out ...)))
+                (check-bound-signals! #'src (syntax->list #'(in ... out ... ios ...)))
                 (local-expand-esterel #'machine))]))
          (define-syntax name
            (make-compile-time-machine
@@ -263,9 +267,12 @@
   (syntax-parser
     [(_ #:inputs (in ...)
         #:outputs (out ...)
+        (~optional (~seq #:input/outputs (ios ...))
+                   #:defaults
+                   ([(ios 1) null]))
         machine)
      #:with (var/sym ...)
-     (for/list ([o (in-syntax #'(in ... out ...))]
+     (for/list ([o (in-syntax #'(in ... out ... ios ...))]
                 #:when (syntax-parse o [(a b) #t] [_ #f]))
        (syntax-parse o [(n v) #'n]))
      #:with (in/sym ...)
@@ -274,54 +281,60 @@
      #:with (out/sym ...)
      (for/list ([x (in-syntax #'(out ...))])
        (syntax-parse x [(i _) #'i] [i #'i]))
+     #:with (both/sym ...)
+     (for/list ([x (in-syntax #'(ios ...))])
+       (syntax-parse x [(i _) #'i] [i #'i]))
 
      (define signals
        (make-signal-replace-map
         (syntax->list
-         #'(in/sym ... out/sym ...))))
+         #'(in/sym ... out/sym ... both/sym ...))))
      (parameterize ([signal-replace-map signals])
        (define/with-syntax (in/sym/replacements ...)
          (map get-signal-replacement (syntax->list #'(in/sym ...))))
        (define/with-syntax (out/sym/replacements ...)
          (map get-signal-replacement (syntax->list #'(out/sym ...))))
-       (define/with-syntax (in/out/sym/replacements ...)
-         #'(in/sym/replacements ... out/sym/replacements ...))
+       (define/with-syntax (both/sym/replacements ...)
+         (map get-signal-replacement (syntax->list #'(both/sym ...))))
+       (define/with-syntax (in/out/both/sym/replacements ...)
+         #'(in/sym/replacements ... out/sym/replacements ... both/sym/replacements ...))
        (define vars
          (make-signal-var-map
           (map
            get-signal-replacement
            (syntax->list #'(var/sym ...)))))
        (parameterize ([signal-var-map vars])
-         (define/with-syntax ((outv/sym out/value) ...)
-           (for/list ([o (in-syntax #'(out ...))]
+         (define (get-sym/v stx)
+           (for/list ([o (in-syntax stx)]
                       #:when (syntax-parse o [(a b) #t] [_ #f]))
              (syntax-parse o [(n* v)
                               #:with n (get-signal-var (get-signal-replacement #'n*))
                               (list #'n #`(shar n (rvalue v) old))])))
+           
+         (define/with-syntax ((outv/sym out/value) ...)
+           (get-sym/v #'(out ...)))
          (define/with-syntax ((inv/sym in/value) ...)
-           (for/list ([i (in-syntax #'(in ...))]
-                      #:when (syntax-parse i [(a b) #t] [_ #f]))
-             (syntax-parse i [(n* v)
-                              #:with n (get-signal-var (get-signal-replacement #'n*))
-                              (list #'n #`(shar n (rvalue v) new))])))
+           (get-sym/v #'(in ...)))
+         (define/with-syntax ((bothv/sym both/value) ...)
+           (get-sym/v #'(ios ...)))
 
-         (define/with-syntax ((in/out ...) (in/out-replacements ...))
+         (define/with-syntax ((in/out/both ...) (in/out/both-replacements ...))
            (list
             #'(var/sym ...)
-            #'(inv/sym ... outv/sym ...)))
-         (define/with-syntax (in/out*/value ...)
+            #'(inv/sym ... outv/sym ... bothv/sym ...)))
+         (define/with-syntax (in/out/both*/value ...)
            (begin
-             (syntax-parse #'(in/value ... out/value ...)
+             (syntax-parse #'(in/value ... out/value ... both/value ...)
                [((shar n v new) ...)
-                #'((shar in/out-replacements v new) ...)])))
+                #'((shar in/out/both-replacements v new) ...)])))
 
          (define/with-syntax t
            (parameterize ([in-machine? #t])
              (local-expand-esterel #'machine)))
-         (define/with-syntax (in+out ...)
-           #'(in/sym ... out/sym ...))
+         (define/with-syntax (in+out+both ...)
+           #'(in/sym ... out/sym ... both/sym ...))
          (define/with-syntax (reps ...)
-           (for/list ([s (in-syntax #'(in+out ...))])
+           (for/list ([s (in-syntax #'(in+out+both ...))])
              (define/with-syntax S (get-signal-replacement s))
              #`(S #,(dict-ref (signal-var-map) #'S #f))))
 
@@ -329,11 +342,13 @@
              (make-machine `(ρ ,(list->θ
                                  `((sig in/sym/replacements unknown) ...
                                    (sig out/sym/replacements unknown) ...
-                                   in/out*/value ...))
+                                   (sig both/sym/replacements unknown) ...
+                                   in/out/both*/value ...))
+                               GO
                                ,raw-prog)
-                           '((in+out . reps) ...)
-                           '(in ...)
-                           '(out/sym ...)))))]))
+                           '((in+out+both . reps) ...)
+                           '(in ... ios ...)
+                           '(out/sym ... both/sym ...)))))]))
 
 (define (update-vars t vmap)
   (define (u t) (update-vars t vmap))
@@ -666,7 +681,14 @@
                                                           (~a (syntax->datum #'S)))))
      #'(trap& T
               (par& (seq& (seq& p ...) (exit& T))
-                    (seq& (await& S) (exit& T))))]))
+                    (seq& (await& S) (exit& T))))]
+    [(_ S:msg #:immediate p:expr ...)
+     (define/with-syntax T (generate-temporary (format-id #f "~a-abort-trap"
+                                                          (~a (syntax->datum #'S)))))
+     #'(trap& T
+              (par& (seq& (seq& p ...) (exit& T))
+                    (seq& (await-immediate& S) (exit& T))))]))
+
 
 (define-esterel-form weak-abort-immediate&
   (syntax-parser
@@ -769,7 +791,9 @@
      #'(signal& T (par& (loop& (await& n S) (emit& T))
                         (every& T p ...)))]
     [(_ S:msg p:expr ...)
-     #'(seq& (await& S) (loop-each& S p ...))]))
+     #'(seq& (await& S) (loop-each& S p ...))]
+    [(_ S:msg #:immediate p:expr ...)
+     #'(seq& (await-immediate& S) (loop-each& S p ...))]))
 
 (define-esterel-form every-immediate&
   (syntax-parser

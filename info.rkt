@@ -9,14 +9,15 @@
                "redex-lib"
                "redex-gui-lib"
                ["redex-pict-lib" #:version "1.7"]
-	       "gui-lib"
-	       "slideshow-lib"
+               "gui-lib"
+               "slideshow-lib"
                "sandbox-lib"
                "unstable-lib"
                "rackunit-lib"
                "draw-lib"
                "scribble-lib"
-               "pict-snip-lib"))
+               "pict-snip-lib"
+               "html-parsing"))
 
 (define collection "esterel-calculus")
 (define build-deps '("debug"))

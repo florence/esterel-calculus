@@ -9,41 +9,56 @@
          (all-from-out esterel-calculus/front-end)
          (all-from-out rackunit))
 
+(define-logger front-end)
+
+(begin-for-syntax
+  (define-splicing-syntax-class (reactions m)
+    #:datum-literals (=>)
+    #:attributes (test-expr)
+    (pattern (~and this [(ins:id ...) (~optional =>) #:causality-error])
+             #:with test-expr
+             (quasisyntax/loc #'this
+               (check-exn
+                #rx"failed to evaluate"
+                (lambda ()
+                  #,(quasisyntax/loc #'this
+                      (eval-top #,m
+                                (begin
+                                  (log-front-end-debug (printf "running on ~a\n" '(ins ...)))
+                                  '(ins ...))))))))
+    (pattern (~var head (reaction-spec m))
+             #:attr test-expr #'head.test-clause)
+    (pattern (~seq (~var head (reaction-spec m))
+                   (~var body (reactions #'head.test-clause)))
+             #:attr test-expr #'body.test-expr))
+  (define-syntax-class (reaction-spec m)
+    #:datum-literals (=>)
+    #:attributes (test-clause)
+    (pattern [(ins:id ...) (~optional =>) (~and out (outs:id ...))]
+             #:attr test-clause
+             (quasisyntax/loc #'out
+               (let ()
+                 (define-values (m* out*)
+                   #,(quasisyntax/loc #'out
+                       (eval-top #,m
+                                 (begin
+                                   (log-front-end-debug (printf "running on ~a\n" '(ins ...)))
+                                   '(ins ...)))))
+                 #,(quasisyntax/loc #'out (#,(quasisyntax/loc #'out check-equal?)
+                                           #,(quasisyntax/loc #'out (list->set out*))
+                                           #,(quasisyntax/loc #'out (list->set 'out))))
+                 m*)))))
+
 (define-syntax test-seq
   (syntax-parser
     #:datum-literals (=>)
     [(_ machine
         (~optional (~and debug?/i #:debug) #:defaults ([debug?/i #'#f]))
-        (ins (~optional =>) outs)
-        ...)
+        (~var test (reactions #'machine)))
      (define/with-syntax debug? (and (syntax-e #'debug?/i) #t))
-     (define/with-syntax test
-       (let loop ([ins (syntax->list #'(ins ...))]
-                  [outs (syntax->list #'(outs ...))]
-                  [m #'machine])
-         (match* (ins outs)
-           [((cons in rin)
-             (cons out rout))
-            (loop
-             rin
-             rout
-             (quasisyntax/loc out
-               (let ()
-                 (define-values (m* out*)
-                   #,(quasisyntax/loc out
-                       (eval-top #,m
-                                 (begin
-                                   (when debug?
-                                     (printf "running on ~a\n" '#,in))
-                                   '#,in))))
-                 #,(quasisyntax/loc out (#,(quasisyntax/loc out check-equal?)
-                                         #,(quasisyntax/loc out (list->set out*))
-                                         #,(quasisyntax/loc out (list->set '#,out))))
-                 m*)))]
-           [(_ _) m])))
      (if (syntax-e #'debug?)
-         #'(time test)
-         #'test)]))
+         #'(time test.test-expr)
+         #'test.test-expr)]))
 
 
 (define-namespace-anchor tester-anchor)

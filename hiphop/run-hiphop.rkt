@@ -44,7 +44,7 @@
      (define outs (get-output-string out))
      (define errs (get-output-string err))
      (log-hiphop-debug (format "output: ~a" outs))
-     (log-hiphop-debug (format "output: ~a" errs))
+     (log-hiphop-debug (format "error: ~a" errs))
      (cond
        [(or (regexp-match? #rx".*RUNTIME ERROR" outs)
             (regexp-match? #rx".*CAUSALITY ERROR" outs)
@@ -62,9 +62,9 @@
 
   (check-equal?
     (run-hiphop-with-signals
-      '(AO (A) (O) (loop S S (seq (present A (emit O) nothing) pause)))
+      '(AO (A) (O) (loop (seq (present A (emit O) nothing) pause)))
       '(() (A) () (A)))
     '(() (O) () (O)))
   (check-equal?
-   (run-hiphop-with-signals '(TEST () () (loop S1 S2 nothing)) '(()))
+   (run-hiphop-with-signals '(TEST () () (loop nothing)) '(()))
    #f))

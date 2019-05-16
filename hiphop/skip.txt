@@ -5,7 +5,6 @@ atom			atom
 await-count-pre		pre
 await-valued		embedded JS
 await-valued2		embedded JS
-causality-error		input-output signal
 emitnovalue		embedded JS
 emitvaluedlocal1	embedded JS
 emitvaluedlocal2	embedded JS
@@ -28,3 +27,4 @@ toogle			embedded JS
 value1			embedded JS
 value2-untyped		embedded JS
 valuepre1		embedded JS
+p19		pre

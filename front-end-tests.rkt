@@ -228,3 +228,38 @@
             (() => (O W))
             ((S) => (O F W))
             (() => ())))
+
+(test-case "run2 tests"
+  (define-esterel-machine m1
+    #:inputs ()
+    #:outputs ()
+    #:input/outputs (s u w z)
+    (par&
+     (present& s (seq& (emit& w)) nothing&)
+     (present& u (seq& (emit& z)) nothing&)))
+  (define-esterel-machine run2
+    #:inputs (s u)
+    #:outputs ()
+    #:input/outputs (a b)
+    (loop&
+     (run& m1 [s -> s] [u -> u] [a -> w] [b -> z])
+     pause&))
+  (test-seq
+   run2
+   [() => ()]
+   [(s) => (a)]
+   [(a) => (a)]))
+
+(test-case "basic causality error"
+  (define-esterel-machine broke
+    #:inputs ()
+    #:outputs ()
+    (signal& S
+      pause&
+      pause&
+      (present& S (emit& S))))
+  (test-seq
+   broke
+   [() => ()]
+   [() => ()]
+   [() => #:causality-error]))

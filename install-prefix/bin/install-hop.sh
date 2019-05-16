@@ -3,12 +3,11 @@
 cd "$(dirname "$0")/.."
 
 PREFIX="$(pwd)"
-HOP=hop-3.1.0-pre1
-
+HOP=hop-3.2.0-pre2
 mkdir -p "$PREFIX/src"
 cd "$PREFIX/src"
 
-curl http://www-sop.inria.fr/members/Colin.Vidal/$HOP.tar.gz > $HOP.tar.gz
+curl ftp://ftp-sop.inria.fr/indes/fp/Hop/$HOP.tar.gz > $HOP.tar.gz
 tar -zxf $HOP.tar.gz
 cd $HOP
 

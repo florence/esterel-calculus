@@ -3,15 +3,20 @@
 cd "$(dirname "$0")/.."
 
 PREFIX="$(pwd)"
-BIGLOO=bigloo4.3c
+BIGLOO=bigloo-unstable
+TARBALL=$BIGLOO.tar.gz
 
 mkdir -p "$PREFIX/src"
 cd "$PREFIX/src"
 
-curl ftp://ftp-sop.inria.fr/indes/fp/Bigloo/$BIGLOO.tar.gz > $BIGLOO.tar.gz
+if [ ! -f $TARBALL ]; then
+  curl ftp://ftp-sop.inria.fr/indes/fp/Bigloo/$BIGLOO.tar.gz > $TARBALL
+fi
 
-tar -zxf $BIGLOO.tar.gz
-cd $BIGLOO
+BIGLOODIR=`tar tfz $TARBALL | head -n 1`
+
+tar -zxf $TARBALL
+cd $BIGLOODIR
 
 ./configure --prefix="$PREFIX/bigloo"
 make -j4
