@@ -171,7 +171,7 @@
 ; atom->hiphop : (or symbol? integer?) env? -> String
 (define (atom->hiphop s e)
   (cond
-    [(member s (env-sigs e)) (format "this.value.~a" (id->hiphop s))]
+    [(member s (env-sigs e)) (format "this.~a.nowval" (id->hiphop s))]
     [(symbol? s) (lookup-var s e)]
     [else (format "~a" s)]))
 
