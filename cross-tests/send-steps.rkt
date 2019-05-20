@@ -76,8 +76,8 @@
     ["is-present"
      (redex-let
       esterel-L
-      ([((ρ θ (in-hole E (present S p q)))
-         (ρ θ (in-hole E p)))
+      ([((ρ θ A (in-hole E (present S p q)))
+         (ρ θ A (in-hole E p)))
         (list p1 p2)])
       (spew "[is-present] ~a ~a ~a ~a"
             (term S)
@@ -87,8 +87,8 @@
     ["is-absent"
      (redex-let
       esterel-L
-      ([((ρ θ (in-hole E (present S p q)))
-         (ρ θ (in-hole E q)))
+      ([((ρ θ A (in-hole E (present S p q)))
+         (ρ θ A (in-hole E q)))
         (list p1 p2)])
       (spew "[is-absent] ~a ~a ~a ~a"
             (term S)
@@ -98,8 +98,8 @@
     ["emit"
      (redex-let
       esterel-L
-      ([((ρ θ_1 (in-hole E (emit S)))
-         (ρ θ_2 (in-hole E nothing)))
+      ([((ρ θ_1 GO (in-hole E (emit S)))
+         (ρ θ_2 GO (in-hole E nothing)))
         (list p1 p2)])
       (define decomp-label (send-E-decomposition (term E) (term (emit S))))
       (spew "[emit] ~a ~a ~a" (send-isSigϵ (term S) (term θ_1)) "(λ ())" decomp-label))]
@@ -121,8 +121,8 @@
     ["shared"
      (redex-let
       esterel-L
-      ([((ρ θ (in-hole E (shared s := e p)))
-         (ρ θ (in-hole E (ρ ((shar s ev old) ·) p))))
+      ([((ρ θ A (in-hole E (shared s := e p)))
+         (ρ θ A (in-hole E (ρ ((shar s ev old) ·) WAIT p))))
         (list p1 p2)])
       (spew "[raise-shared] ~a ~a"
             (send-all-ready (term e) (term θ))
@@ -130,8 +130,8 @@
     ["set-old"
      (redex-let
       esterel-L
-      ([((ρ θ_1 (in-hole E (<= s e)))
-         (ρ θ_2 (in-hole E nothing)))
+      ([((ρ θ_1 GO (in-hole E (<= s e)))
+         (ρ θ_2 GO (in-hole E nothing)))
         (list p1 p2)])
       (spew "[set-shared-value-old] ~a ~a Prop.refl ~a"
             (send-all-ready (term e) (term θ_1))
@@ -140,8 +140,8 @@
     ["set-new"
      (redex-let
       esterel-L
-      ([((ρ θ_1 (in-hole E (<= s e)))
-         (ρ θ_2 (in-hole E nothing)))
+      ([((ρ θ_1 GO (in-hole E (<= s e)))
+         (ρ θ_2 GO (in-hole E nothing)))
         (list p1 p2)])
       (spew "[set-shared-value-new] ~a ~a Prop.refl ~a"
             (send-all-ready (term e) (term θ_1))
@@ -150,8 +150,8 @@
     ["var"
      (redex-let
       esterel-L
-      ([((ρ θ (in-hole E (var x := e p)))
-         (ρ θ (in-hole E (ρ ((var· x ev) ·) p))))
+      ([((ρ θ A (in-hole E (var x := e p)))
+         (ρ θ A (in-hole E (ρ ((var· x ev) ·) WAIT p))))
         (list p1 p2)])
       (spew "[raise-var] ~a ~a"
             (send-all-ready (term e) (term θ))
@@ -159,8 +159,8 @@
     ["set-var"
      (redex-let
       esterel-L
-      ([((ρ θ_1 (in-hole E (:= x e)))
-         (ρ θ_2 (in-hole E nothing)))
+      ([((ρ θ_1 A (in-hole E (:= x e)))
+         (ρ θ_2 A (in-hole E nothing)))
         (list p1 p2)])
       (spew "[set-var] ~a ~a ~a"
             (send-isVar∈ (term x) (term θ_1))
@@ -169,8 +169,8 @@
     ["if-false"
      (redex-let
       esterel-L
-      ([((ρ θ (in-hole E (if x p q)))
-         (ρ θ (in-hole E q)))
+      ([((ρ θ A (in-hole E (if x p q)))
+         (ρ θ A (in-hole E q)))
         (list p1 p2)])
       (spew "[if-false] ~a Prop.refl ~a"
             (send-isVar∈ (term x) (term θ))
@@ -178,8 +178,8 @@
     ["if-true"
      (redex-let
       esterel-L
-      ([((ρ θ (in-hole E (if x p q)))
-         (ρ θ (in-hole E p)))
+      ([((ρ θ A (in-hole E (if x p q)))
+         (ρ θ A (in-hole E p)))
         (list p1 p2)])
       (spew "[if-true] ~a Prop.refl ~a"
             (send-isVar∈ (term x) (term θ))
@@ -187,8 +187,8 @@
     ["absence"
      (redex-let
       esterel-L
-      ([(ρ θ_1 p_1) p1]
-       [(ρ θ_2 p_2) p2])
+      ([(ρ θ_1 A_1 p_1) p1]
+       [(ρ θ_2 A_2 p_2) p2])
       (define S (find-difference (term θ_1) (term θ_2)))
       (unless S (error 'absence-rule "thetas dont seem different:\n  ~s\n  ~s"
                        (term θ_1) (term θ_2)))
@@ -198,12 +198,12 @@
             "Prop.refl"
             (send-nat-not-in-nat-list (var->index S)
                                       (map var->index
-                                           (flatten (term (->S (Can-θ (ρ θ_1 p_1) ·))))))))]
+                                           (flatten (term (->S (Can-θ (ρ θ_1 A_1 p_1) ·))))))))]
     ["readyness"
      (redex-let
       esterel-L
-      ([((ρ θ_1 p)
-         (ρ θ_2 p))
+      ([((ρ θ_1 A_1 p)
+         (ρ θ_2 A_2 p))
         (list p1 p2)])
       (define s (find-difference (term θ_1) (term θ_2)))
       (unless s (error 'absence-rule "thetas dont seem different:\n  ~s\n  ~s"
@@ -214,14 +214,14 @@
             (send-isShrϵ s (term θ_1))
             (if old? "(inj₁ Prop.refl)" "(inj₂ Prop.refl)")
             (send-nat-not-in-nat-list (var->index s)
-                                      (map var->index (flatten (term (->sh (Can-θ (ρ θ_1 p) ·))))))))]
+                                      (map var->index (flatten (term (->sh (Can-θ (ρ θ_1 A_1 p) ·))))))))]
     ["merge"
      (redex-let
       esterel-L
-      ([((ρ θ_1 (in-hole E (ρ θ_2 p)))
-         (ρ θ_3 (in-hole E p)))
+      ([((ρ θ_1 A_1 (in-hole E (ρ θ_2 A_2 p)))
+         (ρ θ_3 A_3 (in-hole E p)))
         (list p1 p2)])
-      (define decomp-label (send-E-decomposition (term E) (term (ρ θ_2 p))))
+      (define decomp-label (send-E-decomposition (term E) (term (ρ θ_2 A_2 p))))
       (spew "[merge] ~a" decomp-label))]))
 
 

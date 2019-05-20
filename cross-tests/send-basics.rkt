@@ -109,9 +109,9 @@
        (spew " ∣⇒ ")
        (loop q)
        (spew ")")]
-      [`(ρ ,θ ,p)
+      [`(ρ ,θ ,A ,p)
        (define θ-id (send-θ θ))
-       (spew "(ρ ~a · " θ-id)
+       (spew "(ρ⟨ ~a , ~a ⟩· " θ-id A)
        (loop p)
        (spew ")")])))
 

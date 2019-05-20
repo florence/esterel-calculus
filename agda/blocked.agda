@@ -249,4 +249,4 @@ blocked-dec θ (x ≔ e) with blocked-e-dec θ e
 blocked-dec θ (x ≔ e) | yes p = yes (bxset p)
 blocked-dec θ (x ≔ e) | no ¬p = no (λ { (bxset x₁) → ¬p x₁ })
 blocked-dec θ (if x ∣⇒ p ∣⇒ p₁) = no (λ ())
-blocked-dec θ (ρ θ₁ · p) = no (λ ()) 
+blocked-dec θ (ρ⟨ θ₁ , A ⟩· p) = no (λ ()) 

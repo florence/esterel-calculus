@@ -681,13 +681,7 @@
                                                           (~a (syntax->datum #'S)))))
      #'(trap& T
               (par& (seq& (seq& p ...) (exit& T))
-                    (seq& (await& S) (exit& T))))]
-    [(_ S:msg #:immediate p:expr ...)
-     (define/with-syntax T (generate-temporary (format-id #f "~a-abort-trap"
-                                                          (~a (syntax->datum #'S)))))
-     #'(trap& T
-              (par& (seq& (seq& p ...) (exit& T))
-                    (seq& (await-immediate& S) (exit& T))))]))
+                    (seq& (await& S) (exit& T))))]))
 
 
 (define-esterel-form weak-abort-immediate&

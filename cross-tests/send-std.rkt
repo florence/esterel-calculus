@@ -5,26 +5,26 @@
          (only-in esterel-calculus/redex/test/binding esterel-L)
          esterel-calculus/redex/model/potential-function
          
-         esterel-calculus/cross-tests/send-lib
-         esterel-calculus/cross-tests/send-basics)
+         "send-lib.rkt"
+         "send-basics.rkt")
 
 (provide
  (contract-out
   [send-std (-> p? any)]))
 
 (define (send-std p)
-  (define p-run (term (wrap ,p)))
-  (define steps (apply-reduction-relation/tag-with-names R p-run))
-  (match steps
-    [(list) (send-no-steps p-run)]
-    [(list (list rule p))
-     (send-single-step p-run #:to p #:by rule)]
-    [else (error 'send-std "non-deterministic step in standard reduction on: ~a" p-run)]))
+  (for ([p-run (in-list (term (wrap ,p)))])
+    (define steps (apply-reduction-relation/tag-with-names R p-run))
+    (match steps
+      [(list) (send-no-steps p-run)]
+      [(list (list rule p))
+       (send-single-step p-run #:to p #:by rule)]
+      [else (error 'send-std "non-deterministic step in standard reduction on: ~a" p-run)])))
 
 (define-metafunction esterel-eval
-  wrap : p -> (ρ θ p)
-  [(wrap (ρ θ p)) (ρ θ p)]
-  [(wrap p) (ρ · p)])
+  wrap : p -> ((ρ θ A p) ...)
+  [(wrap (ρ θ A p)) ((ρ θ A p))]
+  [(wrap p) ((ρ · GO p) (ρ · WAIT p))])
 
 (define (send-no-steps p-run)
   (-> p? void?)
@@ -54,7 +54,7 @@
 (define refl "Prop.refl")
 (define ¬p "(λ ())")
 (define (spew-decomp-rule lhs rhs rule spew*)
-  (define-values (E-decomp-label E-leftmost-label inner θ)
+  (define-values (E-decomp-label E-leftmost-label inner θ A)
     (get-decomp-labels lhs rhs))
   (define spew (decomp-rule-spewer E-decomp-label E-leftmost-label spew*))
   (define in
@@ -135,14 +135,14 @@
   (define in
     (term-match/single
      esterel-L
-     [("absence" (ρ θ p))
+     [("absence" (ρ θ A p))
       (spew "std-absence ~a ~a ~a"
             (send-blocked-or-done (term θ) (term p)
                                   (first
                                    (build-derivations
                                     (blocked-or-done θ p))))
             ¬p)]
-     [("readyness" (ρ θ p))
+     [("readyness" (ρ θ A p))
       (spew "std-readyness ~a ~a ~a"
             (send-blocked-or-done (term θ) (term p)
                                   (first
@@ -163,26 +163,27 @@
         
 
 (define/contract (get-decomp-labels lhs rhs)
-  (-> p? p? (values string? string? p? θ?))
+  (-> p? p? (values string? string? p? θ? A?))
   (define decomps
     (filter values
             ((term-match
               esterel-L
-              [((ρ θ (in-hole E p))
-                (ρ θ_2 (in-hole E p_!_1)))
+              [((ρ θ A (in-hole E p))
+                (ρ θ_2 A_2 (in-hole E p_!_1)))
                (let ()
                  (define d (build-derivations (good θ E)))
                  (if (pair? d)
-                     (list (term E) (first d) (term p) (term θ))
+                     (list (term E) (first d) (term p) (term θ) (term A))
                      #f))])
              (list lhs rhs))))
-  (match-define (list E E-deriv inner θ)
+  (match-define (list E E-deriv inner θ A)
     (argmax (lambda (x) (term (E-size ,(first x))))
             decomps))
   (values (send-E-decomposition E inner)
           (send-leftmost θ E E-deriv)
           inner
-          θ))
+          θ
+          A))
 
 (define-metafunction esterel-L
   E-size : E -> natural

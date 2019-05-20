@@ -11,12 +11,13 @@
          (for-syntax syntax/parse))
 (module+ test (require rackunit))
 
-(provide S? s? x? p? e? θ? E? hole? stopped? paused? L?
+(provide S? s? x? p? e? θ? A? E? hole? stopped? paused? L?
          send-thing
          var->index
          θ-to-hash
          log-rule report-log
-         clean-up-p clean-up-θ
+         (contract-out [clean-up-p (-> (or/c esterel-eval-p? p?) p?)])
+         clean-up-θ
          to-agda-list
 
          log-S log-s log-x
@@ -28,7 +29,9 @@
 
          (struct-out premises)
          add-prefix
-         remove-underscores-for-unicode)
+         remove-underscores-for-unicode
+         current-things-to-send
+         current-things-sent-cache)
 
 (define-syntax (define-extended stx)
   (syntax-parse stx
@@ -44,6 +47,7 @@
 (define-extended p? (redex-match? esterel-L p))
 (define e? (redex-match? esterel-L e))
 (define θ? (redex-match? esterel-L θ))
+(define A? (redex-match? esterel-L A))
 (define E? (redex-match? esterel-L E))
 (define hole? (redex-match? esterel-L hole))
 (define-extended stopped? (redex-match? esterel-L stopped))
