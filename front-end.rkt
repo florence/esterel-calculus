@@ -46,6 +46,7 @@
          racket/stxparam
          racket/syntax
          (for-syntax
+          racket/list
           racket/pretty syntax/parse racket/syntax
           racket/function racket/dict
           racket/bool
@@ -218,11 +219,18 @@
 (define-syntax define-esterel-machine
   (syntax-parser
     [(_ name:id
-        #:inputs (in ...)
-        #:outputs (out ...)
-        (~optional (~seq #:input/outputs (ios ...))
-                   #:defaults
-                   ([(ios 1) null]))
+        (~alt
+         (~once (~optional (~seq #:inputs (in ...))
+                           #:defaults
+                           ([(in 1) null])))
+         (~once (~optional (~seq #:outputs (out ...))
+                           #:defaults
+                           ([(out 1) null])))
+         (~once
+          (~optional (~seq #:input/outputs (ios ...))
+                     #:defaults
+                     ([(ios 1) null]))))
+        ...
         machine:expr)
      #:with runtime (generate-temporary #'name)
      #:with compile-time (generate-temporary #'name)
@@ -271,84 +279,106 @@
                    #:defaults
                    ([(ios 1) null]))
         machine)
+
+     #:do [(define b (syntax-local-make-definition-context))
+           (define (i stx)
+             (internal-definition-context-introduce b stx))]
      #:with (var/sym ...)
      (for/list ([o (in-syntax #'(in ... out ... ios ...))]
                 #:when (syntax-parse o [(a b) #t] [_ #f]))
-       (syntax-parse o [(n v) #'n]))
+       (i (syntax-parse o [(n v) #'n])))
      #:with (in/sym ...)
      (for/list ([x (in-syntax #'(in ...))])
-       (syntax-parse x [(i _) #'i] [i #'i]))
+       (define stx (syntax-parse x [(i _) #'i] [i #'i]))
+       (syntax-local-bind-syntaxes (list stx) #f b)
+       (i stx))
      #:with (out/sym ...)
      (for/list ([x (in-syntax #'(out ...))])
-       (syntax-parse x [(i _) #'i] [i #'i]))
+       (define stx (syntax-parse x [(i _) #'i] [i #'i]))
+       (syntax-local-bind-syntaxes (list stx) #f b)
+       (i stx))
      #:with (both/sym ...)
      (for/list ([x (in-syntax #'(ios ...))])
-       (syntax-parse x [(i _) #'i] [i #'i]))
+       (define stx (syntax-parse x [(i _) #'i] [i #'i]))
+       (syntax-local-bind-syntaxes (list stx) #f b)
+       (i stx))
+     (define bin (box null))
+     (define use (box null))
+     (parameterize ([bindings bin]
+                    [uses use])
 
-     (define signals
-       (make-signal-replace-map
-        (syntax->list
-         #'(in/sym ... out/sym ... both/sym ...))))
-     (parameterize ([signal-replace-map signals])
-       (define/with-syntax (in/sym/replacements ...)
-         (map get-signal-replacement (syntax->list #'(in/sym ...))))
-       (define/with-syntax (out/sym/replacements ...)
-         (map get-signal-replacement (syntax->list #'(out/sym ...))))
-       (define/with-syntax (both/sym/replacements ...)
-         (map get-signal-replacement (syntax->list #'(both/sym ...))))
-       (define/with-syntax (in/out/both/sym/replacements ...)
-         #'(in/sym/replacements ... out/sym/replacements ... both/sym/replacements ...))
-       (define vars
-         (make-signal-var-map
-          (map
-           get-signal-replacement
-           (syntax->list #'(var/sym ...)))))
-       (parameterize ([signal-var-map vars])
-         (define (get-sym/v stx)
-           (for/list ([o (in-syntax stx)]
-                      #:when (syntax-parse o [(a b) #t] [_ #f]))
-             (syntax-parse o [(n* v)
-                              #:with n (get-signal-var (get-signal-replacement #'n*))
-                              (list #'n #`(shar n (rvalue v) old))])))
-           
-         (define/with-syntax ((outv/sym out/value) ...)
-           (get-sym/v #'(out ...)))
-         (define/with-syntax ((inv/sym in/value) ...)
-           (get-sym/v #'(in ...)))
-         (define/with-syntax ((bothv/sym both/value) ...)
-           (get-sym/v #'(ios ...)))
-
-         (define/with-syntax ((in/out/both ...) (in/out/both-replacements ...))
-           (list
-            #'(var/sym ...)
-            #'(inv/sym ... outv/sym ... bothv/sym ...)))
-         (define/with-syntax (in/out/both*/value ...)
-           (begin
-             (syntax-parse #'(in/value ... out/value ... both/value ...)
-               [((shar n v new) ...)
-                #'((shar in/out/both-replacements v new) ...)])))
-
-         (define/with-syntax t
-           (parameterize ([in-machine? #t])
-             (local-expand-esterel #'machine)))
-         (define/with-syntax (in+out+both ...)
+       (for-each
+        record-binding!
+        (syntax->list #'(in/sym ... out/sym ... both/sym ...)))
+       (define signals
+         (make-signal-replace-map
+          (syntax->list
            #'(in/sym ... out/sym ... both/sym ...))
-         (define/with-syntax (reps ...)
-           (for/list ([s (in-syntax #'(in+out+both ...))])
-             (define/with-syntax S (get-signal-replacement s))
-             #`(S #,(dict-ref (signal-var-map) #'S #f))))
+          b))
+       (parameterize ([signal-replace-map signals])
+         (define/with-syntax (in/sym/replacements ...)
+           (map get-signal-replacement (syntax->list #'(in/sym ...))))
+         (define/with-syntax (out/sym/replacements ...)
+           (map get-signal-replacement (syntax->list #'(out/sym ...))))
+         (define/with-syntax (both/sym/replacements ...)
+           (map get-signal-replacement (syntax->list #'(both/sym ...))))
+         (define vars
+           (make-signal-var-map
+            (map
+             get-signal-replacement
+             (syntax->list #'(var/sym ...)))))
+         (parameterize ([signal-var-map vars])
+           (define (get-sym/v stx)
+             (for/list ([o (in-syntax stx)]
+                        #:when (syntax-parse o [(a b) #t] [_ #f]))
+               (syntax-parse o [(n* v)
+                                #:with n (get-signal-var (get-signal-replacement #'n*))
+                                (list #'n #`(shar n (rvalue v) old))])))
+           
+           (define/with-syntax ((outv/sym out/value) ...)
+             (get-sym/v (i #'(out ...))))
+           (define/with-syntax ((inv/sym in/value) ...)
+             (get-sym/v (i #'(in ...))))
+           (define/with-syntax ((bothv/sym both/value) ...)
+             (get-sym/v (i #'(ios ...))))
 
-         #'(let-values ([(raw-prog) (term t)])
-             (make-machine `(ρ ,(list->θ
-                                 `((sig in/sym/replacements unknown) ...
-                                   (sig out/sym/replacements unknown) ...
-                                   (sig both/sym/replacements unknown) ...
-                                   in/out/both*/value ...))
-                               GO
-                               ,raw-prog)
-                           '((in+out+both . reps) ...)
-                           '(in ... ios ...)
-                           '(out/sym ... both/sym ...)))))]))
+           (define/with-syntax ((in/out/both ...) (in/out/both-replacements ...))
+             (list
+              #'(var/sym ...)
+              #'(inv/sym ... outv/sym ... bothv/sym ...)))
+           (define/with-syntax (in/out/both*/value ...)
+             (begin
+               (syntax-parse #'(in/value ... out/value ... both/value ...)
+                 [((shar n v new) ...)
+                  #'((shar in/out/both-replacements v new) ...)])))
+
+         
+           (define/with-syntax t
+             (parameterize ([in-machine? #t])
+               (local-expand-esterel (i #'machine))))
+           (define/with-syntax (in+out+both ...)
+             #'(in/sym ... out/sym ... both/sym ...))
+           (define/with-syntax (reps ...)
+             (for/list ([s (in-syntax #'(in+out+both ...))])
+               (define/with-syntax S (get-signal-replacement s))
+               #`(S #,(dict-ref (signal-var-map) #'S #f))))
+           (syntax-property
+            (syntax-property
+             #'(let-values ([(raw-prog) (term t)])
+                 (make-machine `(ρ ,(list->θ
+                                     `((sig in/sym/replacements unknown) ...
+                                       (sig out/sym/replacements unknown) ...
+                                       (sig both/sym/replacements unknown) ...
+                                       in/out/both*/value ...))
+                                   GO
+                                   ,raw-prog)
+                               '((in+out+both . reps) ...)
+                               '(in ... ios ...)
+                               '(out/sym ... both/sym ...)))
+             'disappeared-use
+             (unbox use))
+            'disappeared-binding
+            (unbox bin)))))]))
 
 (define (update-vars t vmap)
   (define (u t) (update-vars t vmap))
@@ -609,17 +639,23 @@
     [(form S:id := e:call p:est)
      (parameterize ([signal-replace-map (extend-signal-replace-map-for #'S)]
                     [signal-var-map (extend-signal-var-map-for #'S)])
-       #`(signal #,(get-signal-replacement #'S)
-               (shared #,(get-signal-var #'S) := e.func p.exp)))]
+       
+       #`(signal& S
+           (shared #,(get-signal-var #'S) := e.func p.exp)))]
     [(form S:id := e:call p:expr ...)
      #`(form S := e.func (seq& p ...))]
     [(s (S:id) p:expr ...)
      #'(s S p ...)]
     [(s (S_1 S ...) p:expr ...)
      #'(s S_1 (s (S ...) p ...))]
-    [(_ S:id p:est)
+    [(_ S*:id p*)
+     #:do [(define b (syntax-local-make-definition-context))
+           (syntax-local-bind-syntaxes (list #'S*) #f b)]
+     #:with p:est (internal-definition-context-introduce b #'p*)
+     #:with S:id (internal-definition-context-introduce b #'S*)
      (parameterize ([signal-replace-map (extend-signal-replace-map-for #'S)])
-         #`(signal #,(get-signal-replacement #'S) p.exp))]
+       (record-binding! #'S)
+       #`(signal #,(get-signal-replacement #'S) p.exp))]
     [(form S:id p:expr ...)
      #`(form S (seq& p ...))]))
 
@@ -886,15 +922,22 @@
 (define-for-syntax (extend-signal-var-map-for s)
   (hash-set (signal-var-map) s (generate-sharedvar s)))
 (define-for-syntax (get-signal-var s)
+  (record-use! s)
   (dict-ref (signal-var-map) s
             (lambda () (raise-syntax-error #f "no data assosiated with signal" s))))
 (define-for-syntax (has-signal-var? s)
   (dict-ref (signal-var-map) s #t))
 
 
-(define-for-syntax (make-signal-replace-map ss)
-  (make-immutable-free-id-table
-   (map (lambda (x) (cons x (generate-signal x))) ss)))
+(define-for-syntax (make-signal-replace-map ss [b #f])
+  (make-immutable-free-id-table   
+   (append-map (lambda (x)
+                 (define g (generate-signal x))
+                 (list* (cons x g)
+                        (if b
+                            (list (cons (internal-definition-context-introduce b x) g))
+                            (list))))
+               ss)))
 (define-for-syntax signal-replace-map (make-parameter (make-signal-replace-map (list))))
 (define-for-syntax (extend-signal-replace-map-for s)
   (extend-signal-replace-map-for-many (list s) (list (generate-signal s))))
@@ -906,6 +949,7 @@
 (define-for-syntax (has-signal-replacement? s)
   (dict-ref (signal-replace-map) s #f))
 (define-for-syntax (get-signal-replacement s)
+  (record-use! s)
   (dict-ref (signal-replace-map)
             s
             (lambda ()
@@ -916,6 +960,7 @@
 (define-for-syntax (extend-var-replace-map var)
   (dict-set (var-replace-map) var (generate-seqvar var)))
 (define-for-syntax (get-var-replacement var)
+  (record-use! var)
   (dict-ref (var-replace-map) var
             (lambda () (raise-syntax-error #f "variable" var))))
 
@@ -931,6 +976,14 @@
 (define-for-syntax (generate-signal x)
   (define id (generate-temporary x))
   (format-id id "S~a" id))
+
+(define-for-syntax bindings (make-parameter #f))
+(define-for-syntax uses (make-parameter #f))
+
+(define-for-syntax (record-use! s)
+  (set-box! (uses) (cons (syntax-local-introduce s) (unbox (uses)))))
+(define-for-syntax (record-binding! s)
+  (set-box! (bindings) (cons (syntax-local-introduce s) (unbox (bindings)))))
 
 
 
