@@ -163,12 +163,12 @@ data _⇁_ : Term → Term → Set where
     (ρ⟨ θ₁ , A₁ ⟩· r) ⇁ (ρ⟨ (θ₁ ← θ₂) , (A-max A₁ A₂) ⟩· E ⟦ p ⟧e)
 
   std-absent : ∀{θ p A} →
-    blocked-or-done θ p →
+    blocked-or-done θ A p →
     ¬ (can-set-absent θ p ≡ []) →
     ρ⟨ θ , A ⟩· p ⇁ ρ⟨ (set-all-absent θ (can-set-absent θ p)) , A ⟩· p
 
   std-readyness : ∀{θ p A} →
-    blocked-or-done θ p →
+    blocked-or-done θ A p →
     (can-set-absent θ p ≡ []) →
     ¬ (can-set-ready θ p ≡ []) →
     ρ⟨ θ , A ⟩· p ⇁ ρ⟨ (set-all-ready θ (can-set-ready θ p)) , A ⟩· p

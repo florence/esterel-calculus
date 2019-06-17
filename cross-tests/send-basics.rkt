@@ -12,7 +12,7 @@
 (provide send-p send-e send-θ send-set
          send-E-decomposition send-E
          send-nat-not-in-nat-list
-         θ-to-hash
+         θ-to-hash send-A
          
          
          send-blocked-or-done
@@ -114,6 +114,12 @@
        (spew "(ρ⟨ ~a , ~a ⟩· " θ-id A)
        (loop p)
        (spew ")")])))
+
+(define/contract (send-A A)
+  (-> A? string?)
+  (send-thing A (~a A) "Ctrl"
+              (lambda (a spew)
+                (spew (~a a)))))
 
 (define/contract (get-signal S)
   (-> (or/c S? (list/c '∀x any/c S?)) string?)
@@ -628,67 +634,73 @@
     [(derivation `(good ,theta ,E) "trap" (list a))
      (spew "ltrap ~a" (send-inner))]))
 
-(define (send-blocked-or-done θ p deriv)
+(define (send-blocked-or-done θ A p deriv)
   (send-thing deriv
               "blockedordone"
-              (~a #:separator " " "blocked-or-done" (send-θ θ) (send-p p))
+              (~a #:separator " " "blocked-or-done" (send-θ θ) (send-A A) (send-p p))
               (lambda (deriv spew)
                 (match deriv
                   [(derivation _ "done" (list))
                    (spew "inj₁ ~a" (send-done p))]
                   [(derivation _ "blocked" (list a))
-                   (send-blocked θ p a)]))))
+                   (send-blocked θ A p a)]))))
 
-(define (send-blocked θ p blk)
+(define (send-blocked θ A p blk)
   (send-thing blk
               "isblocked"
               (~a #:separator " "
-                  "blocked" (send-θ θ) (send-p p))
+                  "blocked" (send-θ θ) (send-A A) (send-p p))
               recur-over-blocked))
 
 (define (recur-over-blocked deriv spew)
   (match deriv
-    [(derivation `(blocked ,theta (present ,S ,_ ,_)) "present" _)
+    [(derivation `(blocked ,theta ,A (present ,S ,_ ,_)) "present" _)
      (spew "bsig-exists ~a ~a ~a"
            (get-signal S)
            (send-isSigϵ theta S)
            "Prop.refl")]
-    [(derivation `(blocked ,theta (par ,p ,q)) "par-both" (list b1 b2))
+    [(derivation `(blocked ,theta ,A (par ,p ,q)) "par-both" (list b1 b2))
      (spew "bpar-both ~a ~a"
-           (send-blocked theta p b1)
-           (send-blocked theta q b2))]
-    [(derivation `(blocked ,theta (par ,p ,q)) "parl" (list b))
+           (send-blocked theta A p b1)
+           (send-blocked theta A q b2))]
+    [(derivation `(blocked ,theta ,A (par ,p ,q)) "parl" (list b))
      (spew "bpar-left ~a ~a"
            (send-done p)
-           (send-blocked theta q b))]
-    [(derivation `(blocked ,theta (par ,p ,q)) "parr" (list b))
+           (send-blocked theta A q b))]
+    [(derivation `(blocked ,theta ,A (par ,p ,q)) "parr" (list b))
      (spew "bpar-left ~a ~a"
            (send-blocked theta p b)
            (send-done q))]
-    [(derivation `(blocked ,theta (seq ,p ,q)) "seq" (list b))
+    [(derivation `(blocked ,theta ,A (seq ,p ,q)) "seq" (list b))
      (spew "bseq ~a"
-           (send-blocked theta p b))]
-    [(derivation `(blocked ,theta (loop^stop ,p ,q)) "loop^stop" (list b))
+           (send-blocked theta A p b))]
+    [(derivation `(blocked ,theta ,A (loop^stop ,p ,q)) "loop^stop" (list b))
      (spew "bloopˢ ~a"
-           (send-blocked theta p b))]
-    [(derivation `(blocked ,theta (suspend ,p ,S)) "suspend" (list b))
+           (send-blocked theta A p b))]
+    [(derivation `(blocked ,theta ,A (suspend ,p ,S)) "suspend" (list b))
      (spew "bsusp ~a"
-           (send-blocked theta p b))]
-    [(derivation `(blocked ,theta (trap ,p)) "trap" (list b))
+           (send-blocked theta A p b))]
+    [(derivation `(blocked ,theta ,A (trap ,p)) "trap" (list b))
      (spew "btrap ~a"
-           (send-blocked theta p b))]
-    [(derivation `(blocked ,theta (shared ,s := ,e ,p)) "shared" (list be))
+           (send-blocked theta A p b))]
+    [(derivation `(blocked ,theta ,A (shared ,s := ,e ,p)) "shared" (list be))
      (spew "bshared ~a"
-           (send-blocked-e theta e be))]
-    [(derivation `(blocked ,theta (<= ,s ,e)) "set-shared" (list be))
+           (send-blocked-e theta A e be))]
+    [(derivation `(blocked ,theta ,A (<= ,s ,e)) "set-shared" (list be))
      (spew "bsset ~a"
-           (send-blocked-e theta e be))]
-    [(derivation `(blocked ,theta (var ,x := ,e ,p)) "var" (list be))
+           (send-blocked-e theta A e be))]
+    [(derivation `(blocked ,theta ,A (var ,x := ,e ,p)) "var" (list be))
      (spew "bvar ~a"
-           (send-blocked-e theta e be))]
-    [(derivation `(blocked ,theta (:= ,x ,e)) "set-seq" (list be))
+           (send-blocked-e theta A e be))]
+
+    [(derivation `(blocked ,theta ,WAIT (<= ,s ,e)) "set-shared-wait" (list be))
+     (spew "bwset")]
+    [(derivation `(blocked ,theta ,WAIT (emit ,S)) "emit-wait" (list be))
+     (spew "bwemit")]
+    
+    [(derivation `(blocked ,theta ,A (:= ,x ,e)) "set-seq" (list be))
      (spew "bxset ~a"
-           (send-blocked-e theta e be))]))
+           (send-blocked-e theta A e be))]))
 
 (define (send-blocked-e θ e be)
   (send-thing be

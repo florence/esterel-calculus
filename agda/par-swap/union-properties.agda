@@ -129,36 +129,36 @@ inescapability-of-complete-∪ = thm where
    = thm (inescapability-of-complete-sn completep psn⟶*r) r⟶q
   thm completep ∪refl = completep
 
-ρ-stays-ρ-∪ : ∀{θ p q} →
-  (ρ θ · p) ∥R*∪sn⟶* q →
-  Σ[ θ' ∈ Env.Env ] Σ[ qin ∈ Term ] q ≡ (ρ θ' · qin)
+ρ-stays-ρ-∪ : ∀{θ p q A} →
+  (ρ⟨ θ , A ⟩· p) ∥R*∪sn⟶* q →
+  Σ[ θ' ∈ Env.Env ] Σ[ A' ∈ Ctrl ] Σ[ qin ∈ Term ] q ≡ (ρ⟨ θ' , A' ⟩· qin)
 ρ-stays-ρ-∪ = thm where
 
-  thm∥R : ∀{θ p q} →
-   (ρ θ · p) ∥R q →
-   Σ[ θ' ∈ Env.Env ] Σ[ qin ∈ Term ] q ≡ (ρ θ' · qin)
+  thm∥R : ∀{θ p q A} →
+   (ρ⟨ θ , A ⟩· p) ∥R q →
+   Σ[ θ' ∈ Env.Env ] Σ[ A ∈ Ctrl ] Σ[ qin ∈ Term ] q ≡ (ρ⟨ θ' , A ⟩· qin)
   thm∥R (∥Rstep (dcenv d≐C⟦p∥q⟧c))
    rewrite sym (unplugc d≐C⟦p∥q⟧c)
-   = _ , _ , refl
+   = _ , _ , _ , refl
 
-  thm∥R* : ∀{θ p q} →
-   (ρ θ · p) ∥R* q →
-   Σ[ θ' ∈ Env.Env ] Σ[ qin ∈ Term ] q ≡ (ρ θ' · qin)
-  thm∥R* ∥R0 = _ , _ , refl
+  thm∥R* : ∀{θ p q A} →
+   (ρ⟨ θ , A ⟩· p) ∥R* q →
+   Σ[ θ' ∈ Env.Env ] Σ[ A' ∈ Ctrl ] Σ[ qin ∈ Term ] q ≡ (ρ⟨ θ' , A' ⟩· qin)
+  thm∥R* ∥R0 = _ , _ , _ , refl
   thm∥R* (∥Rn p∥Rq p⟶q)
     with thm∥R p∥Rq
-  ... | (θ' , qin , refl) = thm∥R* p⟶q
+  ... | (θ' , qin , A' , refl) = thm∥R* p⟶q
 
-  thm : ∀{θ p q} →
-   (ρ θ · p) ∥R*∪sn⟶* q →
-   Σ[ θ' ∈ Env.Env ] Σ[ qin ∈ Term ] q ≡ (ρ θ' · qin)
+  thm : ∀{θ p q A} →
+   (ρ⟨ θ , A ⟩· p) ∥R*∪sn⟶* q →
+   Σ[ θ' ∈ Env.Env ] Σ[ A' ∈ Ctrl ] Σ[ qin ∈ Term ] q ≡ (ρ⟨ θ' , A' ⟩· qin)
   thm (∪∥R* p∥R*q p⟶q)
     with thm∥R* p∥R*q
-  ... | (θ' , qin , refl) = thm p⟶q
+  ... | (θ' , qin , A' , refl) = thm p⟶q
   thm (∪sn⟶* psn⟶*q p⟶q)
     with ρ-stays-ρ-sn⟶* psn⟶*q
-  ... | (θ' , qin , refl) = thm p⟶q
-  thm ∪refl = _ , _ , refl
+  ... | (θ' , qin , A' , refl) = thm p⟶q
+  thm ∪refl = _ , _ , _ , refl
 
 irreducibility-of-halted-∥R : ∀ {p q} ->
   halted p ->
@@ -199,15 +199,15 @@ inescapability-of-paused-∥R* pausedp ∥R0 = pausedp
 inescapability-of-paused-∥R* pausedp (∥Rn p∥Rq p⟶q)
  = inescapability-of-paused-∥R* (inescapability-of-paused-∥R pausedp p∥Rq) p⟶q
 
-equality-of-complete-∪ : ∀{θ θ' p q} →
-  complete (ρ θ ·  p) →
-  (ρ θ · p) ∥R*∪sn⟶* (ρ θ' · q) →
-  θ ≡ θ'
+equality-of-complete-∪ : ∀{θ θ' p q A A'} →
+  complete (ρ⟨ θ , A ⟩·  p) →
+  (ρ⟨ θ , A ⟩· p) ∥R*∪sn⟶* (ρ⟨ θ' , A' ⟩· q) →
+  θ ≡ θ' × A ≡ A'
 equality-of-complete-∪ = thm where
 
- done-not-to-ρ-∪ : ∀ {p θ q} ->
+ done-not-to-ρ-∪ : ∀ {p θ q A} ->
     done p ->
-    p ∥R*∪sn⟶* (ρ θ · q) ->
+    p ∥R*∪sn⟶* (ρ⟨ θ , A ⟩· q) ->
     ⊥
  done-not-to-ρ-∪ (dhalted p/halted) (∪∥R* ∥R0 p⟶q)
    = done-not-to-ρ-∪ (dhalted p/halted) p⟶q
@@ -224,10 +224,10 @@ equality-of-complete-∪ = thm where
  done-not-to-ρ-∪ (dhalted ()) ∪refl
  done-not-to-ρ-∪ (dpaused ()) ∪refl
 
- ∥R*-lemma : ∀ {θ p q} ->
+ ∥R*-lemma : ∀ {θ p q A} ->
    done p ->
-   (ρ θ ·  p) ∥R* q ->
-   Σ[ q' ∈ Term ] q ≡ (ρ θ ·  q') × done q'
+   (ρ⟨ θ , A ⟩·  p) ∥R* q ->
+   Σ[ q' ∈ Term ] q ≡ (ρ⟨ θ , A ⟩·  q') × done q'
  ∥R*-lemma done₁ ∥R0 = _ , refl , done₁
  ∥R*-lemma (dhalted hnothin) (∥Rn (∥Rstep (dcenv ())) p⟶q)
  ∥R*-lemma (dhalted (hexit n)) (∥Rn (∥Rstep (dcenv ())) p⟶q)
@@ -235,11 +235,11 @@ equality-of-complete-∪ = thm where
    with inescapability-of-paused-∥R p/paused (∥Rstep d≐C⟦p∥q⟧c)
  ... | q/paused = ∥R*-lemma (dpaused q/paused) p⟶q
 
- thm : ∀{θ θ' p q} →
-  complete (ρ θ ·  p) →
-  (ρ θ · p) ∥R*∪sn⟶* (ρ θ' · q) →
-  θ ≡ θ'
- thm (codone x) p⟶q = ⊥-elim (done-not-to-ρ-∪ x p⟶q)
+ thm : ∀{θ θ' p q A A'} →
+  complete (ρ⟨ θ , A ⟩·  p) →
+  (ρ⟨ θ , A ⟩· p) ∥R*∪sn⟶* (ρ⟨ θ' , A' ⟩· q) →
+  θ ≡ θ' × A ≡ A'
+ thm (codone x) p⟶q =  ⊥-elim (done-not-to-ρ-∪ x p⟶q) 
  thm (coenv complete-θθ donep) (∪∥R* p∥R*q p⟶q)
    with ∥R*-lemma donep p∥R*q
  ... | _ , refl , doneq' = thm (coenv complete-θθ doneq') p⟶q
@@ -249,5 +249,5 @@ equality-of-complete-∪ = thm where
    = ⊥-elim (done-not-to-ρ-∪ x r⟶q)
  thm (coenv complete-θθ donep) (∪sn⟶* psn⟶*r r⟶q) | coenv x x₁
    with equality-of-complete-sn⟶* (coenv complete-θθ donep) psn⟶*r
- ... | refl = thm (coenv x x₁) r⟶q
- thm (coenv complete-θθ donep) ∪refl = refl
+ ... | refl , refl = thm (coenv x x₁) r⟶q
+ thm (coenv complete-θθ donep) ∪refl = refl , refl

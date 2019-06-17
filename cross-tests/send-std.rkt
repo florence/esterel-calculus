@@ -140,14 +140,14 @@
             (send-blocked-or-done (term θ) (term p)
                                   (first
                                    (build-derivations
-                                    (blocked-or-done θ p))))
+                                    (blocked-or-done θ A p))))
             ¬p)]
      [("readyness" (ρ θ A p))
       (spew "std-readyness ~a ~a ~a"
-            (send-blocked-or-done (term θ) (term p)
+            (send-blocked-or-done (term θ) (term A) (term p)
                                   (first
                                    (build-derivations
-                                    (blocked-or-done θ p))))
+                                    (blocked-or-done θ A p))))
             refl
             ¬p)]))
   (in (list rule lhs)))
@@ -171,7 +171,7 @@
               [((ρ θ A (in-hole E p))
                 (ρ θ_2 A_2 (in-hole E p_!_1)))
                (let ()
-                 (define d (build-derivations (good θ E)))
+                 (define d (build-derivations (good θ A E)))
                  (if (pair? d)
                      (list (term E) (first d) (term p) (term θ) (term A))
                      #f))])

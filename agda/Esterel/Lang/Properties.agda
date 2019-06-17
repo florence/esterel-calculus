@@ -27,10 +27,12 @@ open import Data.Maybe
 open import Data.List.Any
 open import Data.List.All
 open import Data.OrderedListMap
+open import Function using (_$_) 
 
 import Data.OrderedListMap(Signal)(Signal.unwrap)(Signal.Status) as SigOMap
 import Data.OrderedListMap(SharedVar)(SharedVar.unwrap)(SharedVar.Status × ℕ) as ShrOMap
 
+open ≡-Reasoning using (begin_ ; _≡⟨_⟩_ ; _∎)
 
 open EvaluationContext1
 open _≐_⟦_⟧e
@@ -312,3 +314,37 @@ complete-dec (ρ⟨ θ , A ⟩· p) | _ | no ¬donep = no
   (λ { (codone (dhalted ())) ;
        (codone (dpaused ())) ;
        (coenv _ donep) → ¬donep donep })
+
+
+A-max-GO-≡-left : ∀ A → A-max GO A ≡ GO
+A-max-GO-≡-left GO =  refl
+A-max-GO-≡-left WAIT = refl
+
+A-max-GO-≡-right : ∀ A → A-max A GO ≡ GO
+A-max-GO-≡-right GO = refl
+A-max-GO-≡-right WAIT = refl
+
+A-max-comm : ∀ A1 A2 → A-max A1 A2 ≡ A-max A2 A1
+A-max-comm GO GO = refl
+A-max-comm GO WAIT = refl
+A-max-comm WAIT GO = refl 
+A-max-comm WAIT WAIT = refl 
+
+A-max-assoc : ∀ A1 A2 A3 → (A-max A1 $ A-max A2 A3) ≡ A-max (A-max A1 A2) A3
+A-max-assoc GO GO GO = refl
+A-max-assoc GO GO WAIT = refl
+A-max-assoc GO WAIT GO = refl
+A-max-assoc GO WAIT WAIT = refl
+A-max-assoc WAIT GO GO = refl
+A-max-assoc WAIT GO WAIT = refl
+A-max-assoc WAIT WAIT GO = refl
+A-max-assoc WAIT WAIT WAIT = refl
+
+A-max-swap : ∀ A1 A2 A3
+             → (A-max (A-max A1 A2) A3) ≡ (A-max (A-max A1 A3) A2)
+A-max-swap A1 A2 A3 = begin
+                        (A-max (A-max A1 A2) A3) ≡⟨ sym (A-max-assoc A1 A2 A3) ⟩
+                        (A-max A1 $ A-max A2 A3) ≡⟨ sym (cong (A-max A1) (A-max-comm A3 A2)) ⟩
+                        (A-max A1 $ A-max A3 A2) ≡⟨ A-max-assoc A1 A3 A2 ⟩
+                        (A-max (A-max A1 A3) A2) ∎
+                       

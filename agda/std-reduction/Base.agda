@@ -41,8 +41,8 @@ open import Data.Bool
   using (if_then_else_)
 
 
-blocked-or-done : Env → Term → Set
-blocked-or-done θ p = (done p) ⊎ (blocked θ p)
+blocked-or-done : Env → Ctrl → Term → Set
+blocked-or-done θ A p = (done p) ⊎ (blocked θ A p)
 
 mutual
   set-all-absent : (θ : Env) → (List (∃[ S ] Env.isSig∈ S θ)) → Env
@@ -138,6 +138,6 @@ data left-most : Env → EvaluationContext → Set where
   lloopˢ : ∀{θ E q} → left-most θ E → left-most θ ((eloopˢ q) ∷ E) 
   lparl : ∀{θ E q} → left-most θ E → left-most θ ((epar₁ q) ∷ E)
   lparrdone : ∀{θ E p} → done p → left-most θ E → left-most θ ((epar₂ p) ∷ E)
-  lparrblocked : ∀{θ E p} → blocked θ p → left-most θ E → left-most θ ((epar₂ p) ∷ E)
+  lparrblocked : ∀{θ A E p} → blocked θ A p → left-most θ E → left-most θ ((epar₂ p) ∷ E)
   lsuspend : ∀{θ E S} → left-most θ E → left-most θ ((esuspend S) ∷ E)
   ltrap : ∀{θ E} → left-most θ E → left-most θ (etrap ∷ E)

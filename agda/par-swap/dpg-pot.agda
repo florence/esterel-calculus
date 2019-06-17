@@ -147,36 +147,37 @@ canθₛₕ-C-par sigs S' {C} {p} {r₁} {r₂} pC {θ} s' s'∉Canθₛₕ[p] s
 
 
 DPG-pot-view :
- ∀ {C r₁ r₂ p q θ θ'} ->
+ ∀ {C r₁ r₂ p q θ θ' A A'} ->
   p ≐ C ⟦ r₁ ∥ r₂ ⟧c ->
-  (psn⟶₁q : ρ θ · p sn⟶₁ ρ θ' · q) ->
+  (psn⟶₁q : ρ⟨ θ , A ⟩· p sn⟶₁ ρ⟨ θ' , A' ⟩· q) ->
   (p≡q : p ≡ q) ->
-  ->pot-view psn⟶₁q p≡q ->
+  (A≡A' : A ≡ A') ->
+  ->pot-view psn⟶₁q p≡q A≡A' ->
   Σ[ dd′ ∈ Term × Term ]
-  (ρ θ · C ⟦ r₂ ∥ r₁ ⟧c sn⟶ (proj₂ dd′))
+  (ρ⟨ θ , A ⟩· C ⟦ r₂ ∥ r₁ ⟧c sn⟶ (proj₂ dd′))
   ×
   ((proj₂ dd′) sn⟶* (proj₁ dd′))
   ×
-  ((ρ θ' · q) ∥R* (proj₁ dd′))
-DPG-pot-view pC (ris-present S∈ x x₁) p≡q ()
-DPG-pot-view pC (ris-absent S∈ x x₁) p≡q ()
-DPG-pot-view pC (remit S∈ ¬S≡a x) p≡q ()
-DPG-pot-view pC (rraise-shared e' x) p≡q ()
-DPG-pot-view pC (rset-shared-value-old e' s∈ x x₁) p≡q ()
-DPG-pot-view pC (rset-shared-value-new e' s∈ x x₁) p≡q ()
-DPG-pot-view pC (rraise-var e' x₁) p≡q ()
-DPG-pot-view pC (rset-var x∈ e' x₁) p≡q ()
-DPG-pot-view pC (rif-false x∈ x₁ x₂) p≡q ()
-DPG-pot-view pC (rif-true x∈ x₁ x₂) p≡q ()
-DPG-pot-view pC (rabsence{θ}{_}{S} S∈ x x₁) .refl (vabsence .S .S∈ .x .x₁)
+  ((ρ⟨ θ' , A' ⟩· q) ∥R* (proj₁ dd′))
+DPG-pot-view pC (ris-present S∈ x x₁) p≡q A≡A' ()
+DPG-pot-view pC (ris-absent S∈ x x₁) p≡q A≡A' ()
+DPG-pot-view pC (remit S∈ ¬S≡a x) p≡q A≡A' ()
+DPG-pot-view pC (rraise-shared e' x) p≡q A≡A' ()
+DPG-pot-view pC (rset-shared-value-old e' s∈ x x₁) p≡q A≡A' ()
+DPG-pot-view pC (rset-shared-value-new e' s∈ x x₁) p≡q A≡A' ()
+DPG-pot-view pC (rraise-var e' x₁) p≡q A≡A' ()
+DPG-pot-view pC (rset-var x∈ e' x₁) p≡q A≡A' ()
+DPG-pot-view pC (rif-false x∈ x₁ x₂) p≡q A≡A' ()
+DPG-pot-view pC (rif-true x∈ x₁ x₂) p≡q A≡A' ()
+DPG-pot-view pC (rabsence{θ}{_}{S} S∈ x x₁) .refl .refl (vabsence .S .S∈ .x .x₁)
   = _ , rcontext [] dchole
          (rabsence{θ}{_}{S} S∈ x (canθₛ-C-par (sig θ) 0 pC (Signal.unwrap S) x₁)) ,
     rrefl ,
-    Context1-∥R* (cenv _) (∥Rn (∥Rstep pC) ∥R0)
-DPG-pot-view pC (rreadyness{θ}{_}{s} s∈ x x₁) .refl (vreadyness .s .s∈ .x .x₁)
+    Context1-∥R* (cenv _ _) (∥Rn (∥Rstep pC) ∥R0)
+DPG-pot-view pC (rreadyness{θ}{_}{s} s∈ x x₁) .refl .refl (vreadyness .s .s∈ .x .x₁)
   = _ , rcontext [] dchole
          (rreadyness{s = s} s∈ x (canθₛₕ-C-par (sig θ) 0 pC (SharedVar.unwrap s) x₁)) ,
     rrefl ,
-    Context1-∥R* (cenv _) (∥Rn (∥Rstep pC) ∥R0)
-DPG-pot-view pC (rmerge x) p≡q ()
+    Context1-∥R* (cenv _ _) (∥Rn (∥Rstep pC) ∥R0)
+DPG-pot-view pC (rmerge x) p≡q A≡A' ()
 

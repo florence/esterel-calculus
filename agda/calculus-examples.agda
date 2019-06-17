@@ -46,6 +46,10 @@ open import Data.Product
 
 open import eval
 
+{-
+
+This example is not true (and not provable under the current calculus)
+
 {- rewriting a present to the true branch -}
 {- cannot prove without the `signal` form -}
 ex1 : ∀ S p q -> CB p ->
@@ -99,6 +103,7 @@ ex1 S p q CBp = calc where
            (≡ₑtran {r = ρ θS→pre · p}
                    (≡ₑctxt (dcenv dchole) (dcenv dchole) (≡ₑstep [seq-done]))
            ≡ₑrefl)))))))
+           -}
 
 Canₛpresent-fact : ∀ S p q ->
   (Signal.unwrap S) ∈ Canₛ (present S ∣⇒ p ∣⇒ q) (Θ SigMap.[ S ↦ Signal.unknown ] [] []) ->
@@ -159,14 +164,14 @@ ex2b S p q C CBq s∉Canₛp s∉Canₛq = calc where
  ... | inj₁ s∈Canₛp = s∉Canₛp s∈Canₛp
  ... | inj₂ s∈Canₛq = s∉Canₛq s∈Canₛq
 
- bwd : signl S q ≡ₑ (ρ θS→abs · q) # C
+ bwd : signl S q ≡ₑ (ρ⟨ θS→abs , WAIT ⟩· q) # C
  bwd =
     ≡ₑtran (≡ₑstep [raise-signal])
    (≡ₑtran (≡ₑstep ([absence] S S∈θS→unk θS→unk[S]≡unk S∉Canθₛq))
     ≡ₑrefl)
 
  fwd : signl S (present S ∣⇒ p ∣⇒ q) ≡ₑ
-       (ρ θS→abs · q) # C
+       (ρ⟨ θS→abs , WAIT ⟩· q) # C
  fwd =
      ≡ₑtran (≡ₑstep [raise-signal])
     (≡ₑtran (≡ₑstep ([absence] S S∈θS→unk θS→unk[S]≡unk S∉CanθₛpresentSpq))
@@ -185,6 +190,8 @@ ex2 : ∀ S p q C ->
    signl S q # C
 ex2 S p q C CB noSp noSq = ex2b S p q C CB (noSp unknown) (noSq unknown)
 
+{- 
+ Although true, the this example is not provable under the current calculus 
 {- lifting an emit out of a par -}
 ex3 : ∀ S p q -> CB (p ∥ q) ->
   signl S ((emit S >> p) ∥ q) ≡ₑ
@@ -211,7 +218,7 @@ ex3 S p q CBp∥q = calc where
   calc : signl S ((emit S >> p) ∥ q) ≡ₑ
          signl S  (emit S >> (p ∥ q)) # []
   calc =
-    ≡ₑtran {r = ρ θS→unk · ((emit S >> p) ∥ q)}
+    ≡ₑtran {r = ρ⟨ θS→unk · ((emit S >> p) ∥ q)}
            (≡ₑstep [raise-signal])
    (≡ₑtran {r = ρ θS→pre · (nothin >> p ∥ q)}
            (≡ₑstep ([emit]{S = S} S∈θS→unk θS→unk[S]≠absent (depar₁ (deseq dehole))))
@@ -227,6 +234,7 @@ ex3 S p q CBp∥q = calc where
                            (≡ₑstep [raise-signal])
                    (≡ₑtran (≡ₑstep ([emit] S∈θS→unk θS→unk[S]≠absent (deseq dehole)))
                            (≡ₑctxt (dcenv dchole)  (dcenv dchole) (≡ₑstep [seq-done])))))))
+                           -}
 
 {- pushing a trap across a par -}
 ex4 : ∀ n p q -> CB p ->
@@ -380,41 +388,41 @@ ex4 = ex4-split where
 ex5 : ∀ S p q r E -> CB r ->
       q ≐ E ⟦(signl S p)⟧e ->
       r ≐ E ⟦ p ⟧e ->
-      (ρ []env · q) ≡ₑ (ρ []env · (signl S r)) # []
+      (ρ⟨ []env , WAIT ⟩· q) ≡ₑ (ρ⟨ []env , WAIT ⟩· (signl S r)) # []
 ex5 S p q r E CBr decomp1 decomp2 = calc where
 
   θS→unk : Env
   θS→unk = Θ SigMap.[ S ↦ Signal.unknown ] [] []
 
   replugit : q ≐ Data.List.map ceval E ⟦ signl S p ⟧c ->
-             E ⟦ ρ θS→unk · p ⟧e ≐ Data.List.map ceval E ⟦ ρ θS→unk · p ⟧c
+             E ⟦ ρ⟨ θS→unk , WAIT ⟩· p ⟧e ≐ Data.List.map ceval E ⟦ ρ⟨ θS→unk , WAIT ⟩· p ⟧c
   replugit x = ⟦⟧e-to-⟦⟧c Erefl
 
-  calc : (ρ []env · q) ≡ₑ (ρ []env · (signl S r)) # []
+  calc : (ρ⟨ []env , WAIT ⟩· q) ≡ₑ (ρ⟨ []env , WAIT ⟩· (signl S r)) # []
   calc =
-    ≡ₑtran {r = ρ []env · (E ⟦ (ρ θS→unk · p) ⟧e)}
+    ≡ₑtran {r = ρ⟨ []env , WAIT ⟩· (E ⟦ (ρ⟨ θS→unk , WAIT ⟩· p) ⟧e)}
            (≡ₑctxt (dcenv (⟦⟧e-to-⟦⟧c decomp1))
                    (dcenv (replugit (⟦⟧e-to-⟦⟧c decomp1)))
                    (≡ₑstep [raise-signal]))
-   (≡ₑtran {r = ρ θS→unk · (E ⟦ p ⟧e)}
+   (≡ₑtran {r = ρ⟨ θS→unk , WAIT ⟩· (E ⟦ p ⟧e)}
            (≡ₑstep ([merge]{E = E} Erefl))
            (≡ₑsymm (CBρ (CBsig CBr))
-                 (≡ₑtran {r = ρ []env · (ρ θS→unk · r)}
+                 (≡ₑtran {r = ρ⟨ []env , WAIT ⟩· (ρ⟨ θS→unk , WAIT ⟩· r)}
                          (≡ₑctxt (dcenv dchole) (dcenv dchole) (≡ₑstep [raise-signal]))
                          (≡ₑstep ([merge] {E = []}
                                           (subst (\ x ->
-                                            ρ θS→unk · x ≐ [] ⟦
-                                            ρ θS→unk · E ⟦ p ⟧e ⟧e)
+                                            ρ⟨ θS→unk , WAIT ⟩· x ≐ [] ⟦
+                                            ρ⟨ θS→unk , WAIT ⟩· E ⟦ p ⟧e ⟧e)
                                             (unplug decomp2) dehole))))))
 
 {- two specific examples of lifting a signal out of an evaluation context -}
 ex6 : ∀ S p q -> CB (p ∥ q) ->
-      (ρ []env · ((signl S p) ∥ q)) ≡ₑ (ρ []env · (signl S (p ∥ q))) # []
+      (ρ⟨ []env , WAIT ⟩· ((signl S p) ∥ q)) ≡ₑ (ρ⟨ []env , WAIT ⟩· (signl S (p ∥ q))) # []
 ex6 S p q CBp∥q =
   ex5 S p (signl S p ∥ q) (p ∥ q) ((epar₁ q) ∷ []) CBp∥q (depar₁ dehole) (depar₁ dehole)
 
 ex7 : ∀ S p q -> CB (p >> q) ->
-      (ρ []env · ((signl S p) >> q)) ≡ₑ (ρ []env · (signl S (p >> q))) # []
+      (ρ⟨ []env , WAIT ⟩· ((signl S p) >> q)) ≡ₑ (ρ⟨ []env , WAIT ⟩· (signl S (p >> q))) # []
 ex7 S p q CBp>>q =
   ex5 S p (signl S p >> q) (p >> q) ((eseq q) ∷ []) CBp>>q (deseq dehole) (deseq dehole)
 
@@ -425,30 +433,30 @@ ex7 S p q CBp>>q =
 -}
 ex8-worker : ∀ {BV FV} S p q ->
       CorrectBinding ((signl S  p) >> q) BV FV ->
-      (ρ []env · (signl S  p) >> q) ≡ₑ
-      (ρ []env ·  signl S (p  >> q)) # []
+      (ρ⟨ []env , WAIT ⟩· (signl S  p) >> q) ≡ₑ
+      (ρ⟨ []env , WAIT ⟩·  signl S (p  >> q)) # []
 ex8-worker S p q (CBseq {BVp = BVsigS·p} {FVq = FVq} (CBsig {BV = BVp} CBp) CBq BVsigS·p≠FVq) =
-             ≡ₑtran {r = ρ []env · (ρ [S]-env S · p) >> q} {C = []}
-               (≡ₑctxt {C = []} {C′ = cenv []env ∷ ceval (eseq q) ∷ []}
+             ≡ₑtran {r = ρ⟨ []env , WAIT ⟩· (ρ⟨ [S]-env S , WAIT ⟩· p) >> q} {C = []}
+               (≡ₑctxt {C = []} {C′ = cenv []env WAIT ∷ ceval (eseq q) ∷ []}
                  Crefl Crefl
                  (≡ₑstep ([raise-signal] {p} {S})))
-            (≡ₑtran {r = ρ [S]-env S · p >> q} {C = []}
+            (≡ₑtran {r = ρ⟨ [S]-env S , WAIT ⟩· p >> q} {C = []}
                (≡ₑstep ([merge] (deseq dehole)))
             (≡ₑsymm
               (CBρ
                 (CBsig
                   (CBseq CBp CBq
                     (⊆-respect-distinct-left (∪ʳ (+S S base) ⊆-refl) BVsigS·p≠FVq))))
-            (≡ₑtran {r = ρ []env · (ρ [S]-env S · p >> q)} {C = []}
-              (≡ₑctxt {C = []} {C′ = cenv []env ∷ []}
+            (≡ₑtran {r = ρ⟨ []env , WAIT ⟩· (ρ⟨ [S]-env S , WAIT ⟩· p >> q)} {C = []}
+              (≡ₑctxt {C = []} {C′ = cenv []env WAIT ∷ []}
                 Crefl Crefl
                 (≡ₑstep ([raise-signal] {p >> q} {S})))
             (≡ₑstep ([merge] dehole)))))
 
 ex8 : ∀ S p q ->
              CB ((signl S  p) >> q) ->
-      (ρ []env · (signl S  p) >> q) ≡ₑ
-      (ρ []env ·  signl S (p  >> q)) # []
+      (ρ⟨ []env , WAIT ⟩· (signl S  p) >> q) ≡ₑ
+      (ρ⟨ []env , WAIT ⟩·  signl S (p  >> q)) # []
 ex8 S p q cb = ex8-worker S p q cb
 
 {- rearranging signal forms -}
@@ -456,26 +464,27 @@ ex9 : ∀ S1 S2 p ->
      CB p ->
      signl S1 (signl S2 p) ≡ₑ signl S2 (signl S1 p) # []
 ex9 S1 S2 p CBp =
-  ≡ₑtran {r = ρ (Θ SigMap.[ S1 ↦ Signal.unknown ] [] []) · (signl S2 p)}
+  ≡ₑtran {r = ρ⟨ (Θ SigMap.[ S1 ↦ Signal.unknown ] [] []) , WAIT ⟩· (signl S2 p)}
          (≡ₑstep [raise-signal])
- (≡ₑtran {r = (ρ Θ SigMap.[ S1 ↦ Signal.unknown ] [] [] ·
-              (ρ Θ SigMap.[ S2 ↦ Signal.unknown ] [] [] · p))}
+ (≡ₑtran {r = (ρ⟨ Θ SigMap.[ S1 ↦ Signal.unknown ] [] [] , WAIT ⟩·
+              (ρ⟨ Θ SigMap.[ S2 ↦ Signal.unknown ] [] [] , WAIT ⟩· p))}
          (≡ₑctxt (dcenv dchole) (dcenv dchole) (≡ₑstep [raise-signal]))
- (≡ₑtran {r = (ρ (Θ SigMap.[ S1 ↦ Signal.unknown ] [] []) ←
-               (Θ SigMap.[ S2 ↦ Signal.unknown ] [] []) ·
+ (≡ₑtran {r = (ρ⟨ (Θ SigMap.[ S1 ↦ Signal.unknown ] [] []) ←
+               (Θ SigMap.[ S2 ↦ Signal.unknown ] [] []) , A-max WAIT WAIT ⟩·
                p)}
          (≡ₑstep ([merge] dehole))
  (≡ₑsymm (CBsig (CBsig CBp))
-         (≡ₑtran {r = ρ (Θ SigMap.[ S2 ↦ Signal.unknown ] [] []) · (signl S1 p)}
+         (≡ₑtran {r = ρ⟨ (Θ SigMap.[ S2 ↦ Signal.unknown ] [] []) , WAIT ⟩· (signl S1 p)}
                  (≡ₑstep [raise-signal])
-         (≡ₑtran {r = (ρ Θ SigMap.[ S2 ↦ Signal.unknown ] [] [] ·
-                        (ρ Θ SigMap.[ S1 ↦ Signal.unknown ] [] [] · p))}
+         (≡ₑtran {r = (ρ⟨ Θ SigMap.[ S2 ↦ Signal.unknown ] [] [] , WAIT ⟩·
+                        (ρ⟨ Θ SigMap.[ S1 ↦ Signal.unknown ] [] [] , WAIT ⟩· p))}
                  (≡ₑctxt (dcenv dchole) (dcenv dchole) (≡ₑstep [raise-signal]))
-         (≡ₑtran {r = (ρ (Θ SigMap.[ S2 ↦ Signal.unknown ] [] []) ←
-                        (Θ SigMap.[ S1 ↦ Signal.unknown ] [] []) ·
+         (≡ₑtran {r = (ρ⟨ (Θ SigMap.[ S2 ↦ Signal.unknown ] [] []) ←
+                        (Θ SigMap.[ S1 ↦ Signal.unknown ] [] []) ,
+                        A-max WAIT WAIT ⟩·
                           p)}
                  (≡ₑstep ([merge] dehole))
-                 (map-order-irr S1 S2 p))))))) where
+                 (map-order-irr S1 S2 WAIT p))))))) where
 
   distinct-Ss-env'' : ∀ S1 S2 S3 ->
      ¬ Signal.unwrap S1 ≡ Signal.unwrap S2 ->
@@ -528,17 +537,19 @@ ex9 S1 S2 p CBp =
                                ((Θ SigMap.[ S2 ↦ Signal.unknown ] [] []))
                                (distinct-doms S1 S2 ¬S1=S2)
 
-  map-order-irr : ∀ S1 S2 p ->
-       (ρ
+  map-order-irr : ∀ S1 S2 A p ->
+       (ρ⟨
          Θ SigMap.[ S2 ↦ Signal.unknown ] [] [] ←
          Θ SigMap.[ S1 ↦ Signal.unknown ] [] []
-         · p)
+         ,
+         A ⟩· p)
         ≡ₑ
-        (ρ
+        (ρ⟨
          Θ SigMap.[ S1 ↦ Signal.unknown ] [] [] ←
          Θ SigMap.[ S2 ↦ Signal.unknown ] [] []
-         · p) # []
-  map-order-irr S1 S2 p rewrite map-order-irr' S1 S2 = ≡ₑrefl 
+         ,
+         A ⟩· p) # []
+  map-order-irr S1 S2 A p rewrite map-order-irr' S1 S2 = ≡ₑrefl 
 
 {- dropping a loop whose body is just `exit` -}
 
@@ -586,6 +597,7 @@ ex11 = calc where
                    (≡ₑ-context [] _ CBp->CBnothingp p≡ₑq))
            (≡ₑtran {r = q} (ex11-pq q [] doneq) (≡ₑsymm CBp p≡ₑq))
 
+{- although true, can no longer prove
 {- an emit (first) in sequence is the same as emit in parallel -}
 ex12 : ∀ S p q ->
       CB p -> done q -> p ≡ₑ q # [] ->
@@ -642,3 +654,5 @@ ex12 S p q CBp doneq p≡ₑq = calc where
                     (≡ₑstep ([emit] S∈θS→unk θS→unk[S]≠absent (deseq dehole)))
                     (≡ₑctxt (dcenv dchole) (dcenv dchole)
                             (≡ₑstep [seq-done])))))))
+
+-}

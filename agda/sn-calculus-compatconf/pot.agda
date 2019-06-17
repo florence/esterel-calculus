@@ -67,16 +67,16 @@ open _≐_⟦_⟧c
   ρθ. C⟦pin⟧   -- sn⟶₁ ->    ρθ' C⟦pin⟧
  (ρθ) C⟦pin⟧   -- sn⟶₁ ->   (ρθ) C⟦qin⟧
 -}
-1-steplρ-pot-lemma : ∀{C θ p pin qin θ' BV FV} →
-  {ρθpsn⟶₁ρθ'p  :  ρ θ · p sn⟶₁ ρ θ' · p} →
+1-steplρ-pot-lemma : ∀{C θ p pin qin θ' BV FV A} →
+  {ρθpsn⟶₁ρθ'p  :  ρ⟨ θ , A ⟩· p sn⟶₁ ρ⟨ θ' , A ⟩· p} →
 
-  ->pot-view  ρθpsn⟶₁ρθ'p  refl →
+  ->pot-view  ρθpsn⟶₁ρθ'p  refl refl →
 
   CorrectBinding pin BV FV →
   p ≐ C ⟦ pin ⟧c →
   pin sn⟶₁ qin →
 
-  ρ θ · C ⟦ qin ⟧c   sn⟶₁  ρ θ' · C ⟦ qin ⟧c
+  ρ⟨ θ , A ⟩· C ⟦ qin ⟧c   sn⟶₁  ρ⟨ θ' , A ⟩· C ⟦ qin ⟧c
 
 1-steplρ-pot-lemma {C} {θ} {_} {pin} {qin}
   {ρθpsn⟶₁ρθ'p = .(rabsence {S = S} S∈ θS≡unknown S∉can-p-θ)}
@@ -109,15 +109,15 @@ open _≐_⟦_⟧c
 
 
 -- Wrapper around 1-steplρ-pot-lemma.
-1-steplρ-pot : ∀{p q θ θ' BV FV} →
-  {ρθpsn⟶₁ρθ'p  :  ρ θ · p sn⟶₁ ρ θ' · p} →
-  CorrectBinding (ρ θ · p) BV FV →
+1-steplρ-pot : ∀{p q θ θ' BV FV A} →
+  {ρθpsn⟶₁ρθ'p  :  ρ⟨ θ , A ⟩· p sn⟶₁ ρ⟨ θ' , A ⟩· p} →
+  CorrectBinding (ρ⟨ θ , A ⟩· p) BV FV →
 
-  ->pot-view  ρθpsn⟶₁ρθ'p  refl →
+  ->pot-view  ρθpsn⟶₁ρθ'p  refl refl →
   p sn⟶ q →
 
-  (ρ θ' · p  sn⟶*  ρ θ' · q  ×
-   ρ θ · q   sn⟶*  ρ θ' · q)
+  (ρ⟨ θ' , A ⟩· p  sn⟶*  ρ⟨ θ' , A ⟩· q  ×
+   ρ⟨ θ  , A ⟩· q  sn⟶*  ρ⟨ θ' , A ⟩· q)
 
 1-steplρ-pot cb@(CBρ cb') pot psn⟶q@(rcontext _ p≐C⟦pin⟧ pinsn⟶₁qin) =
   sn⟶*-inclusion (rcontext _ (dcenv p≐C⟦pin⟧) pinsn⟶₁qin) ,′

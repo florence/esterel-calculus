@@ -179,20 +179,20 @@ R-maintain-lift-5 : ∀ xs³ ys³ {zs³ ws³} →
 R-maintain-lift-5 xs³ ys³ ys³∪zs³⊆ws³ with ∪-unjoin-⊆ ys³ ys³∪zs³⊆ws³
 ... | ys³⊆ws³ , zs³⊆ws³ = ∪-join-⊆ (∪ʳ xs³ ys³⊆ws³) (∪-respect-⊆-right xs³ zs³⊆ws³)
 
-R-maintain-lift-0 : ∀{p θ q BVp FVp E} →
+R-maintain-lift-0 : ∀{p θ q BVp FVp E A} →
   CorrectBinding p BVp FVp →
-  p ≐ E  ⟦ ρ θ · q ⟧e →
+  p ≐ E  ⟦ ρ⟨ θ , A ⟩· q ⟧e →
   Σ (VarList × VarList)
     λ { (BV' , FV') →
       (BV' ⊆ BVp × FV' ⊆ FVp) ×
-      CorrectBinding (ρ θ · E ⟦ q ⟧e) BV' FV' }
+      CorrectBinding (ρ⟨ θ , A ⟩· E ⟦ q ⟧e) BV' FV' }
 R-maintain-lift-0 cbp dehole = _ , (⊆-refl , ⊆-refl) , cbp
 R-maintain-lift-0 (CBpar {BVq = BVq'} {FVq = FVq'} cbp' cbq'
                          BVp'≠BVq' FVp'≠BVq' BVp'≠FVq' Xp'≠Xq')
                   (depar₁ p'≐E⟦ρθ⟧)
   with R-maintain-lift-0 cbp' p'≐E⟦ρθ⟧
 ... | (BV' , FV') , (BV'⊆BVp' , FV'⊆FVp') ,
-      CBρ {θ} {_} {BVp''} {FVp''} cbp'' =
+      CBρ {θ} {_} {_} {BVp''} {FVp''} cbp'' =
   _ ,
   (⊆-subst-left (∪-assoc (Dom θ) BVp'' BVq') (∪-respect-⊆-left BV'⊆BVp') ,′
    R-maintain-lift-2 FVp'' (Dom θ) FV'⊆FVp') ,′
@@ -207,7 +207,7 @@ R-maintain-lift-0 (CBpar {BVp = BVp'} {FVp = FVp'} cbp' cbq'
                   (depar₂ q'≐E⟦ρθ⟧)
   with R-maintain-lift-0 cbq' q'≐E⟦ρθ⟧
 ... | (BV' , FV') , (BV'⊆BVq' , FV'⊆FVq') ,
-      CBρ {θ} {_} {BVq''} {FVq''} cbq'' =
+      CBρ {θ} {_} {_} {BVq''} {FVq''} cbq'' =
   _ ,
   (R-maintain-lift-5 BVp' (Dom θ) BV'⊆BVq' ,′
    R-maintain-lift-6 FVp' FVq'' (Dom θ) FV'⊆FVq') ,′
@@ -224,7 +224,7 @@ R-maintain-lift-0 (CBpar {BVp = BVp'} {FVp = FVp'} cbp' cbq'
 R-maintain-lift-0 (CBseq cbp' cbq' BV≠FV) (deseq p'≐E⟦ρθ⟧)
   with R-maintain-lift-0 cbp' p'≐E⟦ρθ⟧
 ... | (BV' , FV') , (BV'⊆BVp' , FV'⊆FVp') ,
-      CBρ {θ} {_} {BVp''} {FVp''} cbp'' =
+      CBρ {θ} {_} {_} {BVp''} {FVp''} cbp'' =
   _ ,
   (∪-join-⊆
     (∪ˡ (∪-unjoin-⊆ˡ {Dom θ} BV'⊆BVp'))
@@ -235,7 +235,7 @@ R-maintain-lift-0 (CBseq cbp' cbq' BV≠FV) (deseq p'≐E⟦ρθ⟧)
 R-maintain-lift-0 (CBloopˢ cbp' cbq' BVp'≠FVq' BVq'≠FVq') (deloopˢ p'≐E⟦ρθ⟧)
   with R-maintain-lift-0 cbp' p'≐E⟦ρθ⟧
 ... | (BV' , FV') , (BV'⊆BVp' , FV'⊆FVp') ,
-      CBρ {θ} {_} {BVp''} {FVp''} cbp'' =
+      CBρ {θ} {_} {_} {BVp''} {FVp''} cbp'' =
   _ ,
   (∪-join-⊆
     (∪ˡ (∪-unjoin-⊆ˡ {Dom θ} BV'⊆BVp'))
@@ -246,7 +246,7 @@ R-maintain-lift-0 (CBloopˢ cbp' cbq' BVp'≠FVq' BVq'≠FVq') (deloopˢ p'≐E�
 R-maintain-lift-0 (CBsusp {S = S} cbp' S∉BV) (desuspend p'≐E⟦ρθ⟧)
   with R-maintain-lift-0 cbp' p'≐E⟦ρθ⟧
 ... | (BV' , FV') , (BV'⊆BVp' , FV'⊆FVp') ,
-      CBρ {θ} {_} {BVp''} {FVp''} cbp'' =
+      CBρ {θ} {_} {_} {BVp''} {FVp''} cbp'' =
   _ ,
   (BV'⊆BVp' ,′
    (R-maintain-lift-1 (Signal.unwrap S) (proj₁ FVp'') (proj₁ (Dom θ)) (proj₁ FV'⊆FVp') ,′
@@ -286,21 +286,21 @@ R-maintains-binding (CBpar cbp cbq BVp≠BVq FVp≠BVq BVp≠FVq Xp≠Xq) (rpar-
 R-maintains-binding (CBpar cbp cbq BVp≠BVq FVp≠BVq BVp≠FVq Xp≠Xq) (rpar-done-left (dhalted (hexit _)) (hexit _)) = _ , CBexit , (((λ x → λ ()) , ((λ x → λ ()) , (λ x → λ ())))) , ((λ x → λ ()) , ((λ x → λ ()) , (λ x → λ ())))
 R-maintains-binding (CBpar cbp cbq BVp≠BVq FVp≠BVq BVp≠FVq Xp≠Xq) (rpar-done-left (dpaused p') hnothin) = _ , cbp , ∪ˡ ((λ x x₁ → x₁) , (λ x x₁ → x₁) , (λ x x₁ → x₁)), ∪ˡ ((λ x x₁ → x₁) , (λ x x₁ → x₁) , (λ x x₁ → x₁))
 R-maintains-binding (CBpar cbp cbq BVp≠BVq FVp≠BVq BVp≠FVq Xp≠Xq) (rpar-done-left (dpaused p') (hexit _)) = _ , CBexit , (((λ x → λ ()) , ((λ x → λ ()) , (λ x → λ ())))) , ((λ x → λ ()) , ((λ x → λ ()) , (λ x → λ ())))
-R-maintains-binding {(ρ θ · p)} (CBρ cb) red@(ris-present S∈ θS≡present p≐E⟦presentS⟧)
+R-maintains-binding {(ρ⟨ θ , A ⟩· p)} (CBρ cb) red@(ris-present S∈ θS≡present p≐E⟦presentS⟧)
   with binding-extract cb p≐E⟦presentS⟧
 ... | _ , _ , cbpresent@(CBpresent {S = S} cbp' cbq')
   with binding-subst cb p≐E⟦presentS⟧
                      cbpresent (∪ˡ ⊆-refl) (∪ʳ (+S S base) (∪ˡ ⊆-refl))
                      cbp'
 ... | _ , (a , b) , cb' = _ , CBρ cb' , ∪-respect-⊆-right (Dom θ) a , ⊆-respect-|̌ (Dom θ) b
-R-maintains-binding {(ρ θ · p)} (CBρ cb) red@(ris-absent S∈ θS≡absent p≐E⟦presentS⟧)
+R-maintains-binding {(ρ⟨ θ , A ⟩· p)} (CBρ cb) red@(ris-absent S∈ θS≡absent p≐E⟦presentS⟧)
   with binding-extract cb p≐E⟦presentS⟧
 ... | _ , _ , cbpresent@(CBpresent {S = S} {BVp = BVp'} {FVp = FVp'} cbp' cbq') 
   with binding-subst cb p≐E⟦presentS⟧
                      cbpresent (∪ʳ BVp' ⊆-refl) (∪ʳ (+S S base) (∪ʳ FVp' ⊆-refl))
                      cbq'
 ... | _ , (a , b) , cb' = _ , CBρ cb' , ∪-respect-⊆-right (Dom θ) a , ⊆-respect-|̌ (Dom θ) b
-R-maintains-binding {(ρ θ · p)} (CBρ cb) (remit{S = S} S∈ θS≢absent p≐E⟦emitS⟧)
+R-maintains-binding {(ρ⟨ θ , A ⟩· p)} (CBρ cb) (remit{S = S} S∈ θS≢absent p≐E⟦emitS⟧)
   with binding-extract cb p≐E⟦emitS⟧
 ... | _ , _ , cbemit
   with binding-subst cb p≐E⟦emitS⟧

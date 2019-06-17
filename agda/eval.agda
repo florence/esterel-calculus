@@ -125,30 +125,30 @@ get-signals (s ⇐ e) = []
 get-signals (var x ≔ e in: p) = []
 get-signals (x ≔ e) = []
 get-signals (if x ∣⇒ p ∣⇒ p₁) = []
-get-signals (ρ θ · p) = θ-present-signals θ
+get-signals (ρ⟨ θ , A ⟩· p) = θ-present-signals θ
 
 
 data eval-result : Set where
    output : List Signal → eval-result
 
 data non-constructive : Env → Term → Set where
-  nc : ∀{p θ} → (Σ (Env × Term) λ {(θq , q) → (ρ θ · p) sn≡ₑ (ρ θq · q) × (manifests-as-non-constructive θq q)})
+  nc : ∀{p θ} → (Σ (Env × Term) λ {(θq , q) → (ρ⟨ θ , GO ⟩· p) sn≡ₑ (ρ⟨ θq , GO ⟩· q) × (manifests-as-non-constructive θq GO q)})
               → non-constructive θ p
 
 data evalsn≡ₑ : Term → Env → eval-result → Set where
    evalsn-complete : ∀{p q θ θq} →
-     (ρθ·p≡q : (ρ θ · p) sn≡ₑ (ρ θq · q)) →
-     (complete-q : complete (ρ θq · q)) →
-     evalsn≡ₑ p θ (output (get-signals (ρ θq · q)))
+     (ρθ·p≡q : (ρ⟨ θ , GO ⟩· p) sn≡ₑ (ρ⟨ θq , GO ⟩· q)) →
+     (complete-q : complete (ρ⟨ θq , GO ⟩· q)) →
+     evalsn≡ₑ p θ (output (get-signals (ρ⟨ θq , GO ⟩· q)))
 
 data eval∥R∪sn≡ₑ : Term → Env → eval-result → Set where
    eval∥R∪sn-complete : ∀{p q θ θq} →
-     (ρθ·p≡q : (ρ θ · p) ∥R∪sn≡ₑ (ρ θq · q)) →
-     (complete-q : complete (ρ θq · q)) →
-     eval∥R∪sn≡ₑ p θ (output (get-signals (ρ θq · q)))
+     (ρθ·p≡q : (ρ⟨ θ , GO ⟩· p) ∥R∪sn≡ₑ (ρ⟨ θq , GO ⟩· q)) →
+     (complete-q : complete (ρ⟨ θq , GO ⟩· q)) →
+     eval∥R∪sn≡ₑ p θ (output (get-signals (ρ⟨ θq , GO ⟩· q)))
 
 data eval≡ₑ : Term → Env → eval-result → Set where
    eval-complete : ∀{p q θ θq} →
-     (ρθ·p≡q : (ρ θ · p) ≡ₑ (ρ θq · q) # []) →
-     (complete-q : complete (ρ θq · q)) →
-     eval≡ₑ p θ (output (get-signals (ρ θq · q)))
+     (ρθ·p≡q : (ρ⟨ θ , GO ⟩· p) ≡ₑ (ρ⟨ θq , GO ⟩· q) # []) →
+     (complete-q : complete (ρ⟨ θq , GO ⟩· q)) →
+     eval≡ₑ p θ (output (get-signals (ρ⟨ θq , GO ⟩· q)))

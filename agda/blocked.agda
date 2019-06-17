@@ -58,25 +58,27 @@ data blocked-s : Env → s/l → Set where
 blocked-e : Env → Expr → Set
 blocked-e θ (plus operators) = Any (blocked-s θ) operators
 
-data blocked : Env → Term → Set where
-  bsig-exists : ∀{θ p q} S S∈ → (sig-stats{S} θ S∈ ≡ Signal.unknown) →
+data blocked : Env → Ctrl → Term → Set where
+  bsig-exists : ∀{θ p q A} S S∈ → (sig-stats{S} θ S∈ ≡ Signal.unknown) →
                 ------------------------
-                blocked θ (present S ∣⇒ p ∣⇒ q)
-  bpar-both  : ∀{θ p q} → blocked θ p → blocked θ q → blocked θ (p ∥ q)
-  bpar-left  : ∀{θ p q} → blocked θ p → done q → blocked θ (p ∥ q)
-  bpar-right : ∀{θ p q} → done p → blocked θ q → blocked θ (p ∥ q)
-  bseq       : ∀{θ p q} → blocked θ p → blocked θ (p >> q)
-  bloopˢ     : ∀{θ p q} → blocked θ p → blocked θ (loopˢ p q)
-  bsusp      : ∀{θ p S} → blocked θ p → blocked θ (suspend p S)
-  btrap      : ∀{θ p}   → blocked θ p → blocked θ (trap p)
-  bshared    : ∀{θ s e p} → blocked-e θ e → blocked θ (shared s ≔ e in: p)
-  bsset      : ∀{θ s e} → blocked-e θ e → blocked θ (s ⇐ e)
-  bvar       : ∀{θ x e p} → blocked-e θ e → blocked θ (var x ≔ e in: p)
-  bxset      : ∀{θ x e} → blocked-e θ e → blocked θ (x ≔ e)
+                blocked θ A (present S ∣⇒ p ∣⇒ q)
+  bpar-both  : ∀{θ p q A} → blocked θ A p → blocked θ A q → blocked θ A (p ∥ q)
+  bpar-left  : ∀{θ p q A} → blocked θ A p → done q → blocked θ A (p ∥ q)
+  bpar-right : ∀{θ p q A} → done p → blocked θ A q → blocked θ A (p ∥ q)
+  bseq       : ∀{θ p q A} → blocked θ A p → blocked θ A (p >> q)
+  bloopˢ     : ∀{θ p q A} → blocked θ A p → blocked θ A (loopˢ p q)
+  bsusp      : ∀{θ p S A} → blocked θ A p → blocked θ A (suspend p S)
+  btrap      : ∀{θ p A}   → blocked θ A p → blocked θ A (trap p)
+  bwset      : ∀{θ s e} → blocked θ WAIT (s ⇐ e)
+  bwemit      : ∀{θ S} → blocked θ WAIT (emit S)
+  bshared    : ∀{θ s e p A} → blocked-e θ e → blocked θ A (shared s ≔ e in: p)
+  bsset      : ∀{θ s e A} → blocked-e θ e → blocked θ A (s ⇐ e)
+  bvar       : ∀{θ x e p A} → blocked-e θ e → blocked θ A (var x ≔ e in: p)
+  bxset      : ∀{θ x e A} → blocked-e θ e → blocked θ A (x ≔ e)
 
 
-data manifests-as-non-constructive : Env → Term → Set where
-  mnc : ∀{p θ} → (blocked-p : blocked θ p)
+data manifests-as-non-constructive : Env → Ctrl → Term → Set where
+  mnc : ∀{p θ A} → (blocked-p : blocked θ A p)
               -- absent rule cannot fire: unknown signals might be emitted at some point
               → (θS≡unknown→S∈can-p-θ :
                  ∀ S →
@@ -90,14 +92,14 @@ data manifests-as-non-constructive : Env → Term → Set where
                   (θs≡old⊎θs≡new : shr-stats {s} θ s∈Domθ ≡ SharedVar.old ⊎
                                    shr-stats {s} θ s∈Domθ ≡ SharedVar.new) →
                   SharedVar.unwrap s ∈ Canθₛₕ (sig θ) 0 p []env)
-              → manifests-as-non-constructive θ p
+              → manifests-as-non-constructive θ A p
 
 
-halted-blocked-disjoint : ∀ {θ p} → halted p → blocked θ p → ⊥
+halted-blocked-disjoint : ∀ {θ p A} → halted p → blocked θ A p → ⊥
 halted-blocked-disjoint hnothin   ()
 halted-blocked-disjoint (hexit n) ()
 
-paused-blocked-disjoint : ∀ {θ p} → paused p → blocked θ p → ⊥
+paused-blocked-disjoint : ∀ {θ A p} → paused p → blocked θ A p → ⊥
 paused-blocked-disjoint ppause ()
 paused-blocked-disjoint (pseq p/paused) (bseq p/blocked) =
   paused-blocked-disjoint p/paused p/blocked
@@ -114,7 +116,7 @@ paused-blocked-disjoint (psuspend p/paused) (bsusp p/blocked) =
 paused-blocked-disjoint (ptrap p/paused) (btrap p/blocked) =
   paused-blocked-disjoint p/paused p/blocked
 
-done-blocked-disjoint : ∀ {θ p} → done p → blocked θ p → ⊥
+done-blocked-disjoint : ∀ {θ A p} → done p → blocked θ A p → ⊥
 done-blocked-disjoint (dhalted p/halted) p/blocked = halted-blocked-disjoint p/halted p/blocked
 done-blocked-disjoint (dpaused p/paused) p/blocked = paused-blocked-disjoint p/paused p/blocked
 
@@ -139,7 +141,7 @@ all-ready-blocked-disjoint {θ = θ}
 
 
 -- A subexpression in the hole in a blocked program must be either blocked or done.
-blocked-⟦⟧e : ∀ {θ p p' E} → blocked θ p → p ≐ E ⟦ p' ⟧e → blocked θ p' ⊎ done p'
+blocked-⟦⟧e : ∀ {θ p p' E A} → blocked θ A p → p ≐ E ⟦ p' ⟧e → blocked θ A p' ⊎ done p'
 blocked-⟦⟧e p/blocked dehole = inj₁ p/blocked
 blocked-⟦⟧e (bseq p/blocked)  (deseq p≐E⟦p'⟧)     = blocked-⟦⟧e p/blocked p≐E⟦p'⟧
 blocked-⟦⟧e (bloopˢ p/blocked) (deloopˢ p≐E⟦p'⟧)    = blocked-⟦⟧e p/blocked p≐E⟦p'⟧
@@ -185,68 +187,70 @@ blocked-e-dec : ∀ θ e -> Dec (blocked-e θ e)
 blocked-e-dec θ (plus l) = blocked-el-dec θ l
 
 
-blocked-dec : ∀ θ p -> Dec (blocked θ p)
-blocked-dec θ nothin = no (λ ())
-blocked-dec θ pause = no (λ ())
-blocked-dec θ (signl S p) = no (λ ())
-blocked-dec θ (present S ∣⇒ p ∣⇒ q) with Sig∈ S θ
-blocked-dec θ (present S ∣⇒ p ∣⇒ q) | yes SigS∈θ
+blocked-dec : ∀ θ A p -> Dec (blocked θ A p)
+blocked-dec θ A nothin = no (λ ())
+blocked-dec θ A pause = no (λ ())
+blocked-dec θ A (signl S p) = no (λ ())
+blocked-dec θ A (present S ∣⇒ p ∣⇒ q) with Sig∈ S θ
+blocked-dec θ A (present S ∣⇒ p ∣⇒ q) | yes SigS∈θ
    with Env.sig-stats{S} θ SigS∈θ | inspect (Env.sig-stats{S} θ) SigS∈θ 
-blocked-dec θ (present S ∣⇒ p ∣⇒ q) | yes SigS∈θ₁ | Signal.present | Reveal_·_is_.[ eq₁ ] =
+blocked-dec θ A (present S ∣⇒ p ∣⇒ q) | yes SigS∈θ₁ | Signal.present | Reveal_·_is_.[ eq₁ ] =
   no (λ { (bsig-exists .S SigS∈θ₂ eq₂) → lookup-S-eq θ S SigS∈θ₁ SigS∈θ₂ eq₁ eq₂ (λ ()) })
-blocked-dec θ (present S ∣⇒ p ∣⇒ q) | yes SigS∈θ₁ | Signal.absent | Reveal_·_is_.[ eq₁ ] =
+blocked-dec θ A (present S ∣⇒ p ∣⇒ q) | yes SigS∈θ₁ | Signal.absent | Reveal_·_is_.[ eq₁ ] =
   no (λ { (bsig-exists .S SigS∈θ₂ eq₂) → lookup-S-eq θ S SigS∈θ₁ SigS∈θ₂ eq₁ eq₂ (λ ()) } )
-blocked-dec θ (present S ∣⇒ p ∣⇒ q) | yes SigS∈θ | Signal.unknown | Reveal_·_is_.[ eq ] =
+blocked-dec θ A (present S ∣⇒ p ∣⇒ q) | yes SigS∈θ | Signal.unknown | Reveal_·_is_.[ eq ] =
   yes (bsig-exists S SigS∈θ eq)
-blocked-dec θ (present S ∣⇒ p ∣⇒ q) | no ¬SigS∈θ =
+blocked-dec θ A (present S ∣⇒ p ∣⇒ q) | no ¬SigS∈θ =
   no (λ { (bsig-exists .S S∈ _) → ¬SigS∈θ S∈ })
-blocked-dec θ (emit S) = no (λ ())
-blocked-dec θ (p ∥ q) with blocked-dec θ p | blocked-dec θ q
-blocked-dec θ (p ∥ q) | yes blockedp | yes blockedq =
+blocked-dec θ GO (emit S) = no (λ ())
+blocked-dec θ WAIT (emit S) = yes bwemit
+blocked-dec θ A (p ∥ q) with blocked-dec θ A p | blocked-dec θ A q
+blocked-dec θ A (p ∥ q) | yes blockedp | yes blockedq =
   yes (bpar-both blockedp blockedq)
-blocked-dec θ (p ∥ q) | yes blockedp | no ¬blockedq with done-dec q
-blocked-dec θ (p ∥ q) | yes blockedp | no ¬blockedq | yes donep =
+blocked-dec θ A (p ∥ q) | yes blockedp | no ¬blockedq with done-dec q
+blocked-dec θ A (p ∥ q) | yes blockedp | no ¬blockedq | yes donep =
   yes (bpar-left blockedp donep)
-blocked-dec θ (p ∥ q) | yes blockedp | no ¬blockedq | no ¬donep =
+blocked-dec θ A (p ∥ q) | yes blockedp | no ¬blockedq | no ¬donep =
   no (λ { (bpar-both  _ x) → ¬blockedq x ;
           (bpar-left  _ x) → ¬donep x ;
           (bpar-right _ x) → ¬blockedq x })
-blocked-dec θ (p ∥ q) | no ¬blockedp | yes blockedq with done-dec p
-blocked-dec θ (p ∥ q) | no ¬blockedp | yes blockedq | yes donep =
+blocked-dec θ A (p ∥ q) | no ¬blockedp | yes blockedq with done-dec p
+blocked-dec θ A (p ∥ q) | no ¬blockedp | yes blockedq | yes donep =
   yes (bpar-right donep blockedq)
-blocked-dec θ (p ∥ q) | no ¬blockedp | yes blockedq | no ¬donep =
+blocked-dec θ A (p ∥ q) | no ¬blockedp | yes blockedq | no ¬donep =
   no (λ { (bpar-both  x _) → ¬blockedp x ;
           (bpar-left  x _) → ¬blockedp x ;
           (bpar-right x _) → ¬donep x })
-blocked-dec θ (p ∥ q) | no ¬blockedp | no ¬blockedq =
+blocked-dec θ A (p ∥ q) | no ¬blockedp | no ¬blockedq =
   no (λ { (bpar-both  _ x) → ¬blockedq x ;
           (bpar-left  x _) → ¬blockedp x ;
           (bpar-right _ x) → ¬blockedq x })
-blocked-dec θ (loop p) = no (λ ())
-blocked-dec θ (p >> q) with blocked-dec θ p
-blocked-dec θ (p >> q) | yes blockedp = yes (bseq blockedp)
-blocked-dec θ (p >> q) | no ¬blockedp = no (λ { (bseq x) → ¬blockedp x })
-blocked-dec θ (loopˢ p q) with blocked-dec θ p
-blocked-dec θ (loopˢ p q) | yes blockedp = yes (bloopˢ blockedp)
-blocked-dec θ (loopˢ p q) | no ¬blockedp = no (λ { (bloopˢ x) → ¬blockedp x })
-blocked-dec θ (suspend p S) with blocked-dec θ p
-blocked-dec θ (suspend p S) | yes blockedp = yes (bsusp blockedp)
-blocked-dec θ (suspend p S) | no ¬blockedp = no (λ { (bsusp x) → ¬blockedp x })
-blocked-dec θ (trap p) with blocked-dec θ p
-blocked-dec θ (trap p) | yes blockedp = yes (btrap blockedp)
-blocked-dec θ (trap p) | no ¬blockedp = no (λ { (btrap x) → ¬blockedp x })
-blocked-dec θ (exit x) = no (λ ())
-blocked-dec θ (shared s ≔ e in: p) with blocked-e-dec θ e
-blocked-dec θ (shared s ≔ e in: p) | yes blockede = yes (bshared blockede)
-blocked-dec θ (shared s ≔ e in: p) | no ¬blockede = no (λ { (bshared x) → ¬blockede x })
-blocked-dec θ (s ⇐ e) with blocked-e-dec θ e
-blocked-dec θ (s ⇐ e) | yes p = yes (bsset p)
-blocked-dec θ (s ⇐ e) | no ¬p = no (λ { (bsset x) → ¬p x })
-blocked-dec θ (var x ≔ e in: p) with blocked-e-dec θ e
-blocked-dec θ (var x ≔ e in: p₁) | yes p = yes (bvar p)
-blocked-dec θ (var x ≔ e in: p) | no ¬p = no (λ { (bvar x₁) → ¬p x₁ })
-blocked-dec θ (x ≔ e) with blocked-e-dec θ e
-blocked-dec θ (x ≔ e) | yes p = yes (bxset p)
-blocked-dec θ (x ≔ e) | no ¬p = no (λ { (bxset x₁) → ¬p x₁ })
-blocked-dec θ (if x ∣⇒ p ∣⇒ p₁) = no (λ ())
-blocked-dec θ (ρ⟨ θ₁ , A ⟩· p) = no (λ ()) 
+blocked-dec θ A (loop p) = no (λ ())
+blocked-dec θ A (p >> q) with blocked-dec θ A p
+blocked-dec θ A (p >> q) | yes blockedp = yes (bseq blockedp)
+blocked-dec θ A (p >> q) | no ¬blockedp = no (λ { (bseq x) → ¬blockedp x })
+blocked-dec θ A (loopˢ p q) with blocked-dec θ A p
+blocked-dec θ A (loopˢ p q) | yes blockedp = yes (bloopˢ blockedp)
+blocked-dec θ A (loopˢ p q) | no ¬blockedp = no (λ { (bloopˢ x) → ¬blockedp x })
+blocked-dec θ A (suspend p S) with blocked-dec θ A p
+blocked-dec θ A (suspend p S) | yes blockedp = yes (bsusp blockedp)
+blocked-dec θ A (suspend p S) | no ¬blockedp = no (λ { (bsusp x) → ¬blockedp x })
+blocked-dec θ A (trap p) with blocked-dec θ A p
+blocked-dec θ A (trap p) | yes blockedp = yes (btrap blockedp)
+blocked-dec θ A (trap p) | no ¬blockedp = no (λ { (btrap x) → ¬blockedp x })
+blocked-dec θ A (exit x) = no (λ ())
+blocked-dec θ A (shared s ≔ e in: p) with blocked-e-dec θ e
+blocked-dec θ A (shared s ≔ e in: p) | yes blockede = yes (bshared blockede)
+blocked-dec θ A (shared s ≔ e in: p) | no ¬blockede = no (λ { (bshared x) → ¬blockede x })
+blocked-dec θ A (s ⇐ e) with blocked-e-dec θ e
+blocked-dec θ A (s ⇐ e) | yes p = yes (bsset p)
+blocked-dec θ GO (s ⇐ e) | no ¬p = no (λ { (bsset x) → ¬p x })
+blocked-dec θ WAIT (s ⇐ e) | no ¬p = yes bwset
+blocked-dec θ A (var x ≔ e in: p) with blocked-e-dec θ e
+blocked-dec θ A (var x ≔ e in: p₁) | yes p = yes (bvar p)
+blocked-dec θ A (var x ≔ e in: p) | no ¬p = no (λ { (bvar x₁) → ¬p x₁ })
+blocked-dec θ A (x ≔ e) with blocked-e-dec θ e
+blocked-dec θ A (x ≔ e) | yes p = yes (bxset p)
+blocked-dec θ A (x ≔ e) | no ¬p = no (λ { (bxset x₁) → ¬p x₁ })
+blocked-dec θ A (if x ∣⇒ p ∣⇒ p₁) = no (λ ())
+blocked-dec θ A (ρ⟨ θ₁ , A₁ ⟩· p) = no (λ ()) 

@@ -67,23 +67,24 @@ open import Data.OrderedListMap Signal Signal.unwrap Signal.Status as SigM
 open import Data.OrderedListMap SharedVar SharedVar.unwrap (Σ SharedVar.Status (λ _ → ℕ)) as ShrM
 open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
-ρ-pot-conf-rec : ∀{p θ ql θl qr θr p≡ql E pin qin FV₀ BV₀}
-                 → {ρθ·psn⟶₁ρθl·ql : (ρ θ · p) sn⟶₁ (ρ θl · ql)}
-                 → {ρθ·psn⟶₁ρθr·qr : (ρ θ · p) sn⟶₁ (ρ θr · qr)}
+ρ-pot-conf-rec : ∀{p θ ql θl qr θr p≡ql E pin qin FV₀ BV₀ A Al Ar A≡Al}
+                 → {ρθ·psn⟶₁ρθl·ql : (ρ⟨ θ , A ⟩· p) sn⟶₁ (ρ⟨ θl , Al ⟩· ql)}
+                 → {ρθ·psn⟶₁ρθr·qr : (ρ⟨ θ , A ⟩· p) sn⟶₁ (ρ⟨ θr , Ar ⟩· qr)}
                  → {p≐E⟦pin⟧      : p ≐ E ⟦ pin ⟧e}
                  → {qr≐E⟦qin⟧     : qr ≐ E ⟦ qin ⟧e}
-                 → CorrectBinding (ρ θ · p) FV₀ BV₀
-                 → ->pot-view ρθ·psn⟶₁ρθl·ql p≡ql
+                 → CorrectBinding (ρ⟨ θ , A ⟩· p) FV₀ BV₀
+                 → ->pot-view ρθ·psn⟶₁ρθl·ql p≡ql A≡Al
                  → ->E-view   ρθ·psn⟶₁ρθr·qr p≐E⟦pin⟧ qr≐E⟦qin⟧
                  →
-                  (ρ θl · ql sn⟶₁ ρ θr · qr) ⊎
+                  (ρ⟨ θl , Al ⟩· ql sn⟶₁ ρ⟨ θr , Ar ⟩· qr) ⊎
                   (Σ[ s ∈ Term ]
                    Σ[ θo ∈ Env.Env ]
-                      (ρ θl · ql) sn⟶₁ (ρ θo · s)
-                    × (ρ θr · qr) sn⟶₁ (ρ θo · s))
+                   Σ[ Ao ∈ Ctrl ]
+                      (ρ⟨ θl , Al ⟩· ql) sn⟶₁ (ρ⟨ θo , Ao ⟩· s)
+                    × (ρ⟨ θr , Ar ⟩· qr) sn⟶₁ (ρ⟨ θo , Ao ⟩· s))
 
 
-ρ-pot-conf-rec {p} {θ} {ql} {θl} {.(E ⟦ qin ⟧e)} {θr} {_} {E} {.(ρ θin · qin)} {qin} {_} {_}
+ρ-pot-conf-rec {p} {θ} {ql} {θl} {.(E ⟦ qin ⟧e)} {θr} {_} {E} {(ρ⟨ .θin , Ain ⟩· .qin)} {qin} {_} {_} {A} {.A} {_} {_}
                {.(rabsence {θ} {p} {S} S∈ θS≡unknown S∉can-p-θ)} {.(rmerge {θ} {θin} p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧}
                (CBρ cbp)
@@ -92,20 +93,20 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
   with Env.Sig∈ S θin
 ... | yes S∈Domθin
   rewrite SigMap.update-union-union S Signal.absent (Env.sig θ) (Env.sig θin) S∈ S∈Domθin
-  = inj₁ (ρ θl · ql sn⟶₁ ρ (θl ← θin) · E ⟦ qin  ⟧e ∋ rmerge {θl} {θin} p≐E⟦pin⟧)
+  = inj₁ (ρ⟨ θl , A ⟩· ql sn⟶₁ ρ⟨ (θl ← θin) , A-max A Ain ⟩· E ⟦ qin  ⟧e ∋ rmerge {θl} {θin} p≐E⟦pin⟧)
 ... | no S∉Domθin
   with Env.sig-←-irr-get {θ} {θin} {S} S∈ S∉Domθin -- θr ≡ (θ ← θin)
 ... | S∈Domθ←θin , θS≡⟨θ←θin⟩S
   = inj₂
-    (_ , _ ,
-     subst (λ θ* → ρ θl · ql sn⟶₁ ρ θ* · E ⟦ qin ⟧e)
+    (_ , _ , A-max A Ain ,
+     subst (λ { θ* → ρ⟨ θl , A ⟩· ql sn⟶₁ ρ⟨ θ* , A-max A Ain ⟩· E ⟦ qin ⟧e})
        ((Env.set-sig {S} θ S∈ Signal.absent) ← θin ≡
         Env.set-sig {S} (θ ← θin) S∈Domθ←θin Signal.absent ∋
         cong (λ sig* → Θ sig* (Env.shr (θ ← θin)) (Env.var (θ ← θin)))
           (SigMap.put-union-comm S Signal.absent (Env.sig θ) (Env.sig θin) S∉Domθin))
-       (ρ θl · ql sn⟶₁ ρ (θl ← θin) · E ⟦ qin ⟧e ∋
+       (ρ⟨ θl , A ⟩· ql sn⟶₁ ρ⟨ (θl ← θin) , A-max A Ain ⟩· E ⟦ qin ⟧e ∋
         rmerge {θl} {θin} p≐E⟦pin⟧) ,′
-     (ρ (θ ← θin) · E ⟦ qin ⟧e sn⟶₁ ρ (Env.set-sig {S} (θ ← θin) S∈Domθ←θin Signal.absent) · E ⟦ qin ⟧e ∋
+     (ρ⟨ (θ ← θin) , A-max A Ain ⟩· E ⟦ qin ⟧e sn⟶₁ ρ⟨ (Env.set-sig {S} (θ ← θin) S∈Domθ←θin Signal.absent) , A-max A Ain ⟩· E ⟦ qin ⟧e ∋
       (rabsence {θr} {_} {S} S∈Domθ←θin (trans (sym θS≡⟨θ←θin⟩S) θS≡unknown)
         (λ S∈can-E⟦qin⟧-θ←θin →
           S∉can-p-θ
@@ -113,7 +114,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
               S S∉Domθin S∈can-E⟦qin⟧-θ←θin)))))
 
 
-ρ-pot-conf-rec {p} {θ} {ql} {θl} {.(E ⟦ qin ⟧e)} {θr} {_} {E} {.(ρ θin · qin)} {qin} {_} {_}
+ρ-pot-conf-rec {p} {θ} {ql} {θl} {.(E ⟦ qin ⟧e)} {θr} {_} {E} {(ρ⟨ .θin , Ain ⟩· qin)} {qin} {_} {_} {A} {Al} {Ar} {_}
                {.(rreadyness {θ} {p} {s} s∈ θs≡old⊎θs≡new s∉can-p-θ)} {.(rmerge p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧}
                (CBρ cbp)
@@ -127,8 +128,8 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
   with Env.shr-←-irr-get {θ} {θin} {s} s∈ s∉Domθin
 ... | s∈Domθ←θin , θs≡⟨θ←θin⟩s
   = inj₂
-    (_ , _ ,
-     subst (λ θ* → ρ θl · ql sn⟶₁ ρ θ* · E ⟦ qin ⟧e)
+    (_ , _ , _ ,
+     subst (λ { θ* → ρ⟨ θl , A ⟩· ql sn⟶₁ ρ⟨ θ* , A-max A Ain ⟩· E ⟦ qin ⟧e })
        (cong (λ shr* → Θ (Env.sig (θ ← θin)) shr* (Env.var (θ ← θin)))
          (trans
            (cong (λ shrval* →
@@ -150,7 +151,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ qin ⟧e)} {.θ} {_} {E}
-               {.(present _ ∣⇒ qin ∣⇒ _)} {qin} {_} {_}
+               {.(present _ ∣⇒ qin ∣⇒ _)} {qin} {_} {_} {_} {_} {_} {_}
                {.(rabsence {θ} {p} {S} S∈ θS≡unknown S∉can-p-θ)}
                {.(ris-present {θ} {S'} S'∈ θS'≡present p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧}
@@ -163,7 +164,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
   (trans (trans (sym θS≡unknown) (Env.sig-stats-∈-irr {S} {θ} S∈ S'∈)) θS'≡present)
 ... | no S'≠S =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    ris-present {θl} {S'}
      (Env.sig-set-mono' {S'} {S} {θ} {_} {S∈} S'∈)
      (Env.sig-putputget {S'} {S} {θ} S'≠S S'∈ S∈ _ θS'≡present)
@@ -177,7 +178,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ qin ⟧e)} {.θ} {_} {E}
-               {.(present _ ∣⇒ _ ∣⇒ qin)} {qin} {_} {_}
+               {.(present _ ∣⇒ _ ∣⇒ qin)} {qin} {_} {_} {_} {_} {_} {_} 
                {.(rabsence {θ} {p} {S} S∈ θS≡unknown S∉can-p-θ)}
                {.(ris-absent {θ} {S'} S'∈ θS'≡absent p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧}
@@ -190,7 +191,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
   (trans (trans (sym θS≡unknown) (Env.sig-stats-∈-irr {S} {θ} S∈ S'∈)) θS'≡absent)
 ... | no S'≠S =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    ris-absent {θl} {S'}
      (Env.sig-set-mono' {S'} {S} {θ} {_} {S∈} S'∈)
      (Env.sig-putputget {S'} {S} {θ} S'≠S S'∈ S∈ _ θS'≡absent)
@@ -204,7 +205,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ qin ⟧e)} {.θ} {_} {E}
-               {.(present _ ∣⇒ qin ∣⇒ _)} {qin} {_} {_}
+               {.(present _ ∣⇒ qin ∣⇒ _)} {qin} {_} {_} {_} {_} {_} {_}
                {.(rreadyness {θ} {p} {s} s∈ θs≡old⊎θs≡new s∉can-p-θ)}
                {.(ris-present {θ} {S'} S'∈ θS'≡present p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧}
@@ -212,7 +213,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
                (vreadyness s s∈ θs≡old⊎θs≡new s∉can-p-θ)
                (vis-present {.θ} {S'} {S∈ = S'∈} {θS'≡present} {.p≐E⟦pin⟧}) =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    ris-present {θl} {S'} S'∈ θS'≡present p≐E⟦pin⟧ ,′
    rreadyness {θ} {_} {s} s∈ θs≡old⊎θs≡new
      (λ s∈can-E⟦qin⟧-θ →
@@ -224,7 +225,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ qin ⟧e)} {.θ} {_} {E}
-               {.(present _ ∣⇒ _ ∣⇒ qin)} {qin} {_} {_}
+               {.(present _ ∣⇒ _ ∣⇒ qin)} {qin} {_} {_} {_} {_} {_} {_}
                {.(rreadyness {θ} {p} {s} s∈ θs≡old⊎θs≡new s∉can-p-θ)}
                {.(ris-absent {θ} {S'} S'∈ θS'≡absent p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧}
@@ -232,7 +233,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
                (vreadyness s s∈ θs≡old⊎θs≡new s∉can-p-θ)
                (vis-absent {.θ} {S'} {S∈ = S'∈} {θS'≡absent} {.p≐E⟦pin⟧}) =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    ris-absent {θl} {S'} S'∈ θS'≡absent p≐E⟦pin⟧ ,′
    rreadyness {θ} {_} {s} s∈ θs≡old⊎θs≡new
      (λ s∈can-E⟦qin⟧-θ →
@@ -244,7 +245,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ nothin ⟧e)} {θr} {_} {E}
-               {.(emit S')} {.nothin} {_} {_}
+               {.(emit S')} {.nothin} {_} {_} {_} {_} {_} {_}
                {.(rreadyness {θ} {p} {s} s∈ θs≡old⊎θs≡new s∉can-p-θ)}
                {.(remit {θ} {p} {S'} S'∈ θS'≢absent p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧}
@@ -252,7 +253,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
                (vreadyness s s∈ θs≡old⊎θs≡new s∉can-p-θ)
                (vemit {.θ} {.p} {S'} {.E} {S'∈} {θS'≢absent} {.p≐E⟦pin⟧}) =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    remit {θl} {_} {S'} S'∈ θS'≢absent p≐E⟦pin⟧ ,′
    rreadyness {θr} {_} {s} s∈ θs≡old⊎θs≡new
      (λ s∈can-E⟦nothin⟧-θr →
@@ -265,7 +266,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ nothin ⟧e)} {θr} {_} {E}
-               {.(emit S')} {.nothin} {_} {_}
+               {.(emit S')} {.nothin} {_} {_} {A} {Al} {Ar} {_}
                {.(rabsence {θ} {p} {S} S∈ θS≡unknown S∉can-p-θ)}
                {.(remit {θ} {p} {S'} S'∈ θS'≢absent p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧}
@@ -280,7 +281,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
         (λ θ* → canₛ-capture-emit-signal θ* p≐E⟦pin⟧)))
 ... | no S'≢S =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    remit {θl} {_} {S'}
      (SigMap.insert-mono {_} {S'} {Env.sig θ} {S} {Signal.absent} S'∈)
      (θS'≢absent ∘
@@ -288,7 +289,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
         (sym (SigMap.putputget {_} {Env.sig θ} {S'} {S}
                {_} {Signal.absent} S'≢S S'∈ S'∈Domθl refl)))
      p≐E⟦pin⟧ ,′
-   subst (λ sig* → ρ θr · E ⟦ nothin ⟧e sn⟶₁ ρ (Θ sig* (Env.shr θ) (Env.var θ)) · E ⟦ nothin ⟧e)
+   subst (λ sig* → ρ⟨ θr , Ar ⟩· E ⟦ nothin ⟧e sn⟶₁ ρ⟨ (Θ sig* (Env.shr θ) (Env.var θ)) , Ar ⟩· E ⟦ nothin ⟧e)
      (SigMap.put-comm {_} {Env.sig θ} {_} {_} {Signal.present} {Signal.absent} S'≢S)
      (rabsence {θr} {_} {S}
        S∈Domθr
@@ -305,11 +306,11 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
         S'∈Domθl = SigMap.insert-mono {_} {S'} {Env.sig θ} {S} {Signal.absent} S'∈
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl}
-               {.(E ⟦ ρ (Θ SigMap.empty ShrMap.[ s' ↦ (SharedVar.old , δ e') ] VarMap.empty) · p' ⟧e)}
+               {.(E ⟦ ρ⟨ (Θ SigMap.empty ShrMap.[ s' ↦ (SharedVar.old , δ e') ] VarMap.empty) , WAIT ⟩· p' ⟧e)}
                {.θ} {_} {E}
                {.(shared s' ≔ e in: p')}
-               {.(ρ (Θ SigMap.empty ShrMap.[ s' ↦ (SharedVar.old , δ e') ] VarMap.empty) · p')}
-               {_} {_}
+               {.(ρ⟨ (Θ SigMap.empty ShrMap.[ s' ↦ (SharedVar.old , δ e') ] VarMap.empty) , WAIT ⟩· p')}
+               {_} {_} {A} {Al} {Ar} {_}
                {.(rabsence {θ} {p} {S} S∈ θS≡unknown S∉can-p-θ)}
                {.(rraise-shared e' p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧} (CBρ cbp)
@@ -318,26 +319,26 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
   with ready-maint/irr S S∈ Signal.absent e'
 ... | e'' , δe'≡δe'' =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    subst (λ δe* →
-           (ρ θl · p) sn⟶₁
-           (ρ θl · E ⟦ ρ ([s,δe]-env s' δe*) · p' ⟧e))
+           (ρ⟨ θl , Al ⟩· p) sn⟶₁
+           (ρ⟨ θl , Al ⟩· E ⟦ ρ⟨ ([s,δe]-env s' δe*) , WAIT ⟩· p' ⟧e))
      (sym δe'≡δe'')
      (rraise-shared e'' p≐E⟦pin⟧) ,′
    rabsence {θ} {_} {S} S∈ θS≡unknown
      (λ S∈can-E⟦ρΘp'⟧-θ →
        S∉can-p-θ
-         (canθₛ-subset (Env.sig θ) 0 (E ⟦ ρ ([s,δe]-env s' (δ e')) · p' ⟧e) p Env.[]env
+         (canθₛ-subset (Env.sig θ) 0 (E ⟦ ρ⟨ ([s,δe]-env s' (δ e')) , WAIT ⟩· p' ⟧e) p Env.[]env
            (λ θ* S* → canₛ-raise θ* (tshared (δ e') s' e p') p≐E⟦pin⟧ S*)
            S S∈can-E⟦ρΘp'⟧-θ)))
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl}
-               {.(E ⟦ ρ (Θ SigMap.empty ShrMap.[ s' ↦ (SharedVar.old , δ e') ] VarMap.empty) · p' ⟧e)}
+               {.(E ⟦ ρ⟨ (Θ SigMap.empty ShrMap.[ s' ↦ (SharedVar.old , δ e') ] VarMap.empty) , WAIT ⟩· p' ⟧e)}
                {.θ} {_} {E}
                {.(shared s' ≔ e in: p')}
-               {.(ρ (Θ SigMap.empty ShrMap.[ s' ↦ (SharedVar.old , δ e') ] VarMap.empty) · p')}
-               {_} {_}
+               {.(ρ⟨ (Θ SigMap.empty ShrMap.[ s' ↦ (SharedVar.old , δ e') ] VarMap.empty) , WAIT ⟩· p')}
+               {_} {_} {A} {Al} {Ar} {_}
                {.(rreadyness {θ} {p} {s} s∈ θs≡old⊎θs≡new s∉can-p-θ)}
                {.(rraise-shared e' p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧} (CBρ cbp)
@@ -352,24 +353,24 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
         ... | ()
 ... | e'' , δe'≡δe'' =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    subst (λ δe* →
-           (ρ θl · p) sn⟶₁
-           (ρ θl · E ⟦ ρ ([s,δe]-env s' δe*) · p' ⟧e))
+           (ρ⟨ θl , Al ⟩· p) sn⟶₁
+           (ρ⟨ θl , Al ⟩· E ⟦ ρ⟨ ([s,δe]-env s' δe*) , WAIT ⟩· p' ⟧e))
      (sym δe'≡δe'')
      (rraise-shared e'' p≐E⟦pin⟧) ,′
    rreadyness {θ} {_} {s} s∈ θs≡old⊎θs≡new
      (λ s∈can-E⟦ρΘp'⟧-θ →
        s∉can-p-θ
          (canθₛₕ-subset (Env.sig θ) 0
-           (E ⟦ ρ ([s,δe]-env s' (δ e')) · p' ⟧e) p Env.[]env
+           (E ⟦ ρ⟨ ([s,δe]-env s' (δ e')) , WAIT ⟩· p' ⟧e) p Env.[]env
            (λ θ* S* → canₛ-raise θ* (tshared (δ e') s' e p') p≐E⟦pin⟧ S*)
            (λ θ* s* → canₛₕ-raise θ* (tshared (δ e') s' e p') p≐E⟦pin⟧ s*)
            s s∈can-E⟦ρΘp'⟧-θ)))
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ nothin ⟧e)} {θr} {_} {E}
-               {.(s' ⇐ e)} {.nothin} {_} {_}
+               {.(s' ⇐ e)} {.nothin} {_} {_} {GO} {GO} {GO} {_}
                {.(rabsence {θ} {p} {S} S∈ θS≡unknown S∉can-p-θ)}
                {.(rset-shared-value-old {θ} {p} {s'} e' s'∈ θs'≡old p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧} (CBρ cbp)
@@ -378,10 +379,10 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
   with ready-maint/irr S S∈ Signal.absent e'
 ... | e'' , δe'≡δe'' =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    subst (λ δe* →
-            ρ θl · p sn⟶₁
-            ρ (θl-set-shr δe*) · E ⟦ nothin ⟧e)
+            ρ⟨ θl , GO ⟩· p sn⟶₁
+            ρ⟨ (θl-set-shr δe*) , GO ⟩· E ⟦ nothin ⟧e)
      (sym δe'≡δe'')
      (rset-shared-value-old {θl} {_} {s'} e'' s'∈ θs'≡old p≐E⟦pin⟧) ,′
    rabsence {θr} {_} {S} S∈ θS≡unknown
@@ -396,7 +397,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ nothin ⟧e)} {θr} {_} {E}
-               {.(s' ⇐ e)} {.nothin} {_} {_}
+               {.(s' ⇐ e)} {.nothin} {_} {_} {GO} {GO} {GO} {_}
                {.(rreadyness {θ} {p} {s} s∈ θs≡old⊎θs≡new s∉can-p-θ)}
                {.(rset-shared-value-old {θ} {p} {s'} e' s'∈ θs'≡old p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧} (CBρ cbp)
@@ -418,10 +419,10 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
         ... | ()
 ... | e'' , δe'≡δe'' =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    subst (λ shr* →
-           ρ θl · p sn⟶₁
-           ρ (Θ (Env.sig θl) shr* (Env.var θl)) ·
+           ρ⟨ θl , GO ⟩· p sn⟶₁
+           ρ⟨ (Θ (Env.sig θl) shr* (Env.var θl)) , GO ⟩·
              E ⟦ nothin ⟧e)
    (cong Env.shr
      (begin
@@ -459,7 +460,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ nothin ⟧e)} {θr} {_} {E}
-               {.(s' ⇐ e)} {.nothin} {_} {_}
+               {.(s' ⇐ e)} {.nothin} {_} {_} {GO} {GO} {GO} {_}
                {.(rabsence {θ} {p} {S} S∈ θS≡unknown S∉can-p-θ)}
                {.(rset-shared-value-new {θ} {p} {s'} e' s'∈ θs'≡new p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧} (CBρ cbp)
@@ -468,10 +469,10 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
   with ready-maint/irr S S∈ Signal.absent e'
 ... | e'' , δe'≡δe'' =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    subst (λ δe* →
-            ρ θl · p sn⟶₁
-            ρ (θl-set-shr δe*) · E ⟦ nothin ⟧e)
+            ρ⟨ θl , GO ⟩· p sn⟶₁
+            ρ⟨ (θl-set-shr δe*) , GO ⟩· E ⟦ nothin ⟧e)
      (cong
        (Env.shr-vals {s'} θ s'∈ +_)
        (sym δe'≡δe''))
@@ -488,7 +489,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ nothin ⟧e)} {θr} {_} {E}
-               {.(s' ⇐ e)} {.nothin} {_} {_}
+               {.(s' ⇐ e)} {.nothin} {_} {_} {GO} {GO} {GO} {_}
                {.(rreadyness {θ} {p} {s} s∈ θs≡old⊎θs≡new s∉can-p-θ)}
                {.(rset-shared-value-new {θ} {p} {s'} e' s'∈ θs'≡new p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧} (CBρ cbp)
@@ -510,10 +511,10 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
         ... | ()
 ... | e'' , δe'≡δe'' =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    subst (λ shr* →
-           ρ θl · p sn⟶₁
-           ρ (Θ (Env.sig θl) shr* (Env.var θl)) ·
+           ρ⟨ θl , GO ⟩· p sn⟶₁
+           ρ⟨ (Θ (Env.sig θl) shr* (Env.var θl)) , GO ⟩·
              E ⟦ nothin ⟧e)
    (cong Env.shr
      (begin
@@ -558,11 +559,11 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl}
-               {.(E ⟦ ρ (Θ SigMap.empty ShrMap.empty VarMap.[ x ↦ δ e' ]) · p' ⟧e)}
+               {.(E ⟦ ρ⟨ (Θ SigMap.empty ShrMap.empty VarMap.[ x ↦ δ e' ]) , WAIT ⟩· p' ⟧e)}
                {.θ} {_} {E}
                {.(var x ≔ e in: p')}
-               {.(ρ (Θ SigMap.empty ShrMap.empty VarMap.[ x ↦ δ e' ]) · p')}
-               {_} {_}
+               {.(ρ⟨ (Θ SigMap.empty ShrMap.empty VarMap.[ x ↦ δ e' ]) , WAIT ⟩· p')}
+               {_} {_} {A} {.A} {.A} {_}
                {.(rabsence {θ} {p} {S} S∈ θS≡unknown S∉can-p-θ)}
                {.(rraise-var {θ} {p} {x} {p'} {e} e' p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧} (CBρ cbp)
@@ -571,26 +572,26 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
   with ready-maint/irr S S∈ Signal.absent e'
 ... | e'' , δe'≡δe'' =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    subst (λ δe* →
-           (ρ θl · p) sn⟶₁
-           (ρ θl · E ⟦ ρ ([x,δe]-env x δe*) · p' ⟧e))
+           (ρ⟨ θl , A ⟩· p) sn⟶₁
+           (ρ⟨ θl , A ⟩· E ⟦ ρ⟨ ([x,δe]-env x δe*) , WAIT ⟩· p' ⟧e))
     (sym δe'≡δe'')
     (rraise-var {θl} {_} {x} {p'} {e} e'' p≐E⟦pin⟧) ,′
    rabsence {θ} {_} {S} S∈ θS≡unknown
      (λ S∈can-E⟦ρΘp'⟧-θ →
        S∉can-p-θ
-         (canθₛ-subset (Env.sig θ) 0 (E ⟦ ρ [x,δe]-env x (δ e') · p' ⟧e) p Env.[]env
+         (canθₛ-subset (Env.sig θ) 0 (E ⟦ ρ⟨ [x,δe]-env x (δ e') , WAIT ⟩· p' ⟧e) p Env.[]env
            (λ θ* S* → canₛ-raise θ* (tvar (δ e') x e p') p≐E⟦pin⟧ S*)
            S S∈can-E⟦ρΘp'⟧-θ)))
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl}
-               {.(E ⟦ ρ (Θ SigMap.empty ShrMap.empty VarMap.[ x ↦ δ e' ]) · p' ⟧e)}
+               {.(E ⟦ ρ⟨ (Θ SigMap.empty ShrMap.empty VarMap.[ x ↦ δ e' ]) , WAIT ⟩· p' ⟧e)}
                {.θ} {_} {E}
                {.(var x ≔ e in: p')}
-               {.(ρ (Θ SigMap.empty ShrMap.empty VarMap.[ x ↦ δ e' ]) · p')}
-               {_} {_}
+               {.(ρ⟨ (Θ SigMap.empty ShrMap.empty VarMap.[ x ↦ δ e' ]) , WAIT ⟩· p')}
+               {_} {_} {A} {.A} {.A} {_}
                {.(rreadyness {θ} {p} {s} s∈ θs≡old⊎θs≡new s∉can-p-θ)}
                {.(rraise-var {θ} {p} {x} {p'} {e} e' p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧} (CBρ cbp)
@@ -605,23 +606,23 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
         ... | ()
 ... | e'' , δe'≡δe'' =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    subst (λ δe* →
-           (ρ θl · p) sn⟶₁
-           (ρ θl · E ⟦ ρ ([x,δe]-env x δe*) · p' ⟧e))
+           (ρ⟨ θl , A ⟩· p) sn⟶₁
+           (ρ⟨ θl , A ⟩· E ⟦ ρ⟨ ([x,δe]-env x δe*) , WAIT ⟩· p' ⟧e))
     (sym δe'≡δe'')
     (rraise-var {θl} {_} {x} {p'} {e} e'' p≐E⟦pin⟧) ,′
    rreadyness {θ} {_} {s} s∈ θs≡old⊎θs≡new
      (λ s∈can-E⟦ρΘp'⟧-θ →
        s∉can-p-θ
-         (canθₛₕ-subset (Env.sig θ) 0 (E ⟦ ρ [x,δe]-env x (δ e') · p' ⟧e) p Env.[]env
+         (canθₛₕ-subset (Env.sig θ) 0 (E ⟦ ρ⟨ [x,δe]-env x (δ e') , WAIT ⟩· p' ⟧e) p Env.[]env
            (λ θ* S* → canₛ-raise θ* (tvar (δ e') x e p') p≐E⟦pin⟧ S*)
            (λ θ* s* → canₛₕ-raise θ* (tvar (δ e') x e p') p≐E⟦pin⟧ s*)
            s s∈can-E⟦ρΘp'⟧-θ)))
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ nothin ⟧e)} {θr}
-               {_} {E} {.(x ≔ e)} {.nothin} {_} {_}
+               {_} {E} {.(x ≔ e)} {.nothin} {_} {_} {A} {.A} {.A} {_}
                {.(rabsence {θ} {p} {S} S∈ θS≡unknown S∉can-p-θ)}
                {.(rset-var {θ} {p} {x} {e} x∈ e' p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧} (CBρ cbp)
@@ -630,10 +631,10 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
   with ready-maint/irr S S∈ Signal.absent e'
 ... | e'' , δe'≡δe'' =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    subst (λ δe* →
-            ρ θl · p sn⟶₁
-            ρ (θl-set-var δe*) · E ⟦ nothin ⟧e)
+            ρ⟨ θl , A ⟩· p sn⟶₁
+            ρ⟨ (θl-set-var δe*) , A ⟩· E ⟦ nothin ⟧e)
      (sym δe'≡δe'')
    (rset-var {θl} {_} {x} {e} x∈ e'' p≐E⟦pin⟧) ,′
    rabsence {θr} {_} {S} S∈ θS≡unknown
@@ -648,7 +649,7 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ nothin ⟧e)} {θr}
-               {_} {E} {.(x ≔ e)} {.nothin} {_} {_}
+               {_} {E} {.(x ≔ e)} {.nothin} {_} {_} {A} {.A} {.A} {_}
                {.(rreadyness {θ} {p} {s} s∈ θs≡old⊎θs≡new s∉can-p-θ)}
                {.(rset-var {θ} {p} {x} {e} x∈ e' p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧} (CBρ cbp)
@@ -663,10 +664,10 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
         ... | ()
 ... | e'' , δe'≡δe'' =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    subst (λ δe* →
-            ρ θl · p sn⟶₁
-            ρ (θl-set-var δe*) · E ⟦ nothin ⟧e)
+            ρ⟨ θl , A ⟩· p sn⟶₁
+            ρ⟨ (θl-set-var δe*) , A ⟩· E ⟦ nothin ⟧e)
      (sym δe'≡δe'')
    (rset-var {θl} {_} {x} {e} x∈ e'' p≐E⟦pin⟧) ,′
    rreadyness {θr} {_} {s} s∈ θs≡old⊎θs≡new
@@ -682,14 +683,14 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ qin ⟧e)} {.θ} {_} {E}
-               {.(if x ∣⇒ th ∣⇒ qin)} {qin} {_} {_}
+               {.(if x ∣⇒ th ∣⇒ qin)} {qin} {_} {_}  {_} {_} {_} {_}
                {.(rabsence {θ} {p} {S} S∈ θS≡unknown S∉can-p-θ)}
                {.(rif-false {x = x} x∈ θx≡zero p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧} (CBρ cbp)
                (vabsence S S∈ θS≡unknown S∉can-p-θ)
                (vif-false {.θ} {.p} {th} {.qin} {x} {.E} {x∈} {θx≡zero} {.p≐E⟦pin⟧}) =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    rif-false {x = x} x∈ θx≡zero p≐E⟦pin⟧ ,′
    rabsence {θ} {_} {S} S∈ θS≡unknown
      (λ S∈can-E⟦qin⟧ →
@@ -699,14 +700,14 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
            S S∈can-E⟦qin⟧)))
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ qin ⟧e)} {.θ} {_} {E}
-               {.(if x ∣⇒ th ∣⇒ qin)} {qin} {_} {_}
+               {.(if x ∣⇒ th ∣⇒ qin)} {qin} {_} {_} {_} {_} {_} {_}
                {.(rreadyness {θ} {p} {s} s∈ θs≡old⊎θs≡new s∉can-p-θ)}
                {.(rif-false {x = x} x∈ θx≡zero p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧} (CBρ cbp)
                (vreadyness s s∈ θs≡old⊎θs≡new s∉can-p-θ)
                (vif-false {.θ} {.p} {th} {.qin} {x} {.E} {x∈} {θx≡zero} {.p≐E⟦pin⟧}) =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    rif-false {x = x} x∈ θx≡zero p≐E⟦pin⟧ ,′
    rreadyness {θ} {_} {s} s∈ θs≡old⊎θs≡new
      (λ s∈can-E⟦qin⟧ →
@@ -718,14 +719,14 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ qin ⟧e)} {.θ} {_} {E}
-               {.(if x ∣⇒ qin ∣⇒ els)} {qin} {_} {_}
+               {.(if x ∣⇒ qin ∣⇒ els)} {qin} {_} {_} {_} {_} {_} {_}
                {.(rabsence {θ} {p} {S} S∈ θS≡unknown S∉can-p-θ)}
                {.(rif-true {x = x} {E} {n} x∈ θx≡suc p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧} (CBρ cbp)
                (vabsence S S∈ θS≡unknown S∉can-p-θ)
                (vif-true {.θ} {.p} {.qin} {els} {x} {.E} {n} {x∈} {θx≡suc} {.p≐E⟦pin⟧}) =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    rif-true {x = x} x∈ θx≡suc p≐E⟦pin⟧ ,′
    rabsence {θ} {_} {S} S∈ θS≡unknown
      (λ S∈can-E⟦qin⟧ →
@@ -735,14 +736,14 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
            S  S∈can-E⟦qin⟧)))
 
 ρ-pot-conf-rec {p} {θ} {.p} {θl} {.(E ⟦ qin ⟧e)} {.θ} {_} {E}
-               {.(if x ∣⇒ qin ∣⇒ els)} {qin} {_} {_}
+               {.(if x ∣⇒ qin ∣⇒ els)} {qin} {_} {_} {_} {_} {_} {_}
                {.(rreadyness {θ} {p} {s} s∈ θs≡old⊎θs≡new s∉can-p-θ)}
                {.(rif-true {x = x} {E} {n} x∈ θx≡suc p≐E⟦pin⟧)}
                {p≐E⟦pin⟧} {qr≐E⟦qin⟧} (CBρ cbp)
                (vreadyness s s∈ θs≡old⊎θs≡new s∉can-p-θ)
                (vif-true {.θ} {.p} {.qin} {els} {x} {.E} {n} {x∈} {θx≡suc} {.p≐E⟦pin⟧}) =
   inj₂
-  (_ , _ ,
+  (_ , _ , _ ,
    rif-true {x = x} x∈ θx≡suc p≐E⟦pin⟧ ,′
    rreadyness {θ} {_} {s} s∈ θs≡old⊎θs≡new
      (λ s∈can-E⟦qin⟧ →

@@ -6,6 +6,7 @@ open import sn-calculus
 open import Relation.Binary.PropositionalEquality using (_≡_)
 open _≡_
 
+{-
 std-redution-deterministic : ∀{p q r} →
                              p ⇁ q →
                              p ⇁ r →
@@ -14,3 +15,4 @@ std-redution-deterministic = ?
 
 std=>calc : ∀{p q} → p ⇁ q → p sn⟶₁ q
 std=>calc = ?
+-}
