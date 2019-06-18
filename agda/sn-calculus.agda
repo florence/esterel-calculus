@@ -126,20 +126,20 @@ data _sn⟶₁_ : Term → Term → Set where
 
   ris-present : ∀{θ S r p q E A} →
     (S∈ : (Env.isSig∈ S θ)) →
-    Env.sig-stats{S} θ S∈ ≡ Signal.present →
-    r ≐ E ⟦ present S ∣⇒ p ∣⇒ q ⟧e →
+    (Θ⦅S⦆=p : Env.sig-stats{S} θ S∈ ≡ Signal.present) →
+    (r=E⟦presentSpq⟧ : r ≐ E ⟦ present S ∣⇒ p ∣⇒ q ⟧e) →
     (ρ⟨ θ , A ⟩· r) sn⟶₁ (ρ⟨ θ , A ⟩· E ⟦ p ⟧e)
 
   ris-absent : ∀{θ S r p q E A} →
     (S∈ : (Env.isSig∈ S θ)) →
-    Env.sig-stats{S} θ S∈ ≡ Signal.absent →
-    r ≐ E ⟦ present S ∣⇒ p ∣⇒ q ⟧e →
+    (θ⦅S⦆=a : Env.sig-stats{S} θ S∈ ≡ Signal.absent) →
+    (r=E⟦presentSpq⟧ : r ≐ E ⟦ present S ∣⇒ p ∣⇒ q ⟧e) →
     (ρ⟨ θ , A ⟩· r) sn⟶₁ (ρ⟨ θ , A ⟩· E ⟦ q ⟧e)
 
   remit : ∀{θ r S E} →
     (S∈ : (Env.isSig∈ S θ)) →
     (¬S≡a : ¬ (Env.sig-stats{S} θ S∈) ≡ Signal.absent) →
-    r ≐ E ⟦ emit S ⟧e →
+    (r=E⟦emitS⟧ : r ≐ E ⟦ emit S ⟧e) →
     (ρ⟨ θ , GO ⟩· r) sn⟶₁
     (ρ⟨ (Env.set-sig{S} θ S∈ Signal.present) , GO ⟩·
       E ⟦ nothin ⟧e)
@@ -159,13 +159,13 @@ data _sn⟶₁_ : Term → Term → Set where
     (loopˢ (exit n) q) sn⟶₁ (exit n)
 
   rsuspend-done : ∀{p S} →
-    halted p →
+    (haltedp : halted p) →
     (suspend p S) sn⟶₁ p
 
   -- traps
   rtrap-done : ∀{p} →
-    (p' : halted p) →
-    (trap p) sn⟶₁ (↓ p')
+    (haltedp : halted p) →
+    (trap p) sn⟶₁ (↓ haltedp)
 
   -- lifting signals
   rraise-signal : ∀{p S} →
@@ -176,7 +176,7 @@ data _sn⟶₁_ : Term → Term → Set where
   -- shared state
   rraise-shared : ∀{θ r s e p E A} →
     (e' : all-ready e θ) →
-    r ≐ E ⟦ shared s ≔ e in: p ⟧e →
+    (r=E⟦shareds=ep⟧ : r ≐ E ⟦ shared s ≔ e in: p ⟧e) →
     (ρ⟨ θ , A ⟩· r) sn⟶₁
     (ρ⟨ θ , A ⟩·
       E ⟦ (ρ⟨ [s,δe]-env s (δ e') , WAIT ⟩· p) ⟧e)
@@ -184,8 +184,8 @@ data _sn⟶₁_ : Term → Term → Set where
   rset-shared-value-old : ∀{θ r s e E} →
     (e' : all-ready e θ) →
     (s∈ : (Env.isShr∈ s θ)) →
-    Env.shr-stats{s} θ s∈ ≡ SharedVar.old →
-    r ≐ E ⟦ s ⇐ e ⟧e →
+    (θ⦅s⦆=old : Env.shr-stats{s} θ s∈ ≡ SharedVar.old) →
+    (r=E⟦s<=e⟧ : r ≐ E ⟦ s ⇐ e ⟧e) →
     (ρ⟨ θ , GO ⟩· r) sn⟶₁
     (ρ⟨ (Env.set-shr{s} θ s∈ (SharedVar.new) (δ e')) , GO ⟩·
       E ⟦ nothin ⟧e)
@@ -193,8 +193,8 @@ data _sn⟶₁_ : Term → Term → Set where
   rset-shared-value-new : ∀{θ r s e E} →
     (e' : all-ready e θ) →
     (s∈ : (Env.isShr∈ s θ)) →
-    Env.shr-stats{s} θ s∈ ≡ SharedVar.new →
-    r ≐ E ⟦ s ⇐ e ⟧e →
+    (θ⦅s⦆=new : Env.shr-stats{s} θ s∈ ≡ SharedVar.new) →
+    (r=E⟦s<=e⟧ : r ≐ E ⟦ s ⇐ e ⟧e) →
     (ρ⟨ θ , GO ⟩· r) sn⟶₁
     (ρ⟨ (Env.set-shr{s} θ s∈ (SharedVar.new) (Env.shr-vals{s} θ s∈ + δ e')) , GO ⟩·
       E ⟦ nothin ⟧e)
@@ -202,7 +202,7 @@ data _sn⟶₁_ : Term → Term → Set where
   -- unshared state
   rraise-var : ∀{θ r x p e E A} →
     (e' : all-ready e θ) →
-    r ≐ E ⟦ var x ≔ e in: p ⟧e →
+    (r=E⟦varx=e⟧ : r ≐ E ⟦ var x ≔ e in: p ⟧e) →
     (ρ⟨ θ , A ⟩· r) sn⟶₁
     (ρ⟨ θ , A ⟩·
       E ⟦ (ρ⟨ [x,δe]-env x (δ e') , WAIT ⟩· p) ⟧e)
@@ -210,7 +210,7 @@ data _sn⟶₁_ : Term → Term → Set where
   rset-var : ∀{θ r x e E A} →
     (x∈ : (Env.isVar∈ x θ)) →
     (e' : all-ready e θ) →
-    r ≐ E ⟦ x ≔ e ⟧e →
+    (r=E⟦x=e⟧ : r ≐ E ⟦ x ≔ e ⟧e) →
     (ρ⟨ θ , A ⟩· r) sn⟶₁
     (ρ⟨ (Env.set-var{x} θ x∈ (δ e')) , A ⟩·
       E ⟦ nothin ⟧e)
@@ -218,36 +218,30 @@ data _sn⟶₁_ : Term → Term → Set where
   -- if
   rif-false : ∀{θ r p q x E A} →
     (x∈ : (Env.isVar∈ x θ)) →
-    Env.var-vals{x} θ x∈ ≡ zero →
-    r ≐ E ⟦ if x ∣⇒ p ∣⇒ q ⟧e →
+    (θ⦅x⦆=0 : Env.var-vals{x} θ x∈ ≡ zero) →
+    (r=E⟦ifxpq⟧ : r ≐ E ⟦ if x ∣⇒ p ∣⇒ q ⟧e) →
     (ρ⟨ θ , A ⟩· r) sn⟶₁ (ρ⟨ θ , A ⟩· E ⟦ q ⟧e)
 
   rif-true : ∀{θ r p q x E n A} →
     (x∈ : (Env.isVar∈ x θ)) →
-    Env.var-vals{x} θ x∈ ≡ suc n →
-    r ≐ E ⟦ if x ∣⇒ p ∣⇒ q ⟧e →
+    (θ⦅x⦆≠0 : Env.var-vals{x} θ x∈ ≡ suc n) →
+    (r=E⟦ifxpq⟧ : r ≐ E ⟦ if x ∣⇒ p ∣⇒ q ⟧e) →
     (ρ⟨ θ , A ⟩· r) sn⟶₁ (ρ⟨ θ , A ⟩· E ⟦ p ⟧e)
 
   -- progression
-  {-
-    Thoughts:
-    * These two rules are expressed differently to the definition in model/shared.rkt
-      for simplicity. Instead of being more 'computative', the definition here is
-      more 'declarative'. Keep an eye on the original definition to make sure that
-      they are equivalent.
-  -}
+  
   rabsence : ∀{θ p S A} →
     (S∈ : (Env.isSig∈ S θ)) →
-    Env.sig-stats{S} θ S∈ ≡ Signal.unknown →
-    (Signal.unwrap S) ∉ Canθₛ (sig θ) 0 p []env →
+    (θ⦅S⦆=u : Env.sig-stats{S} θ S∈ ≡ Signal.unknown) →
+    (S∉Canθ⦅p,θ⦆ : (Signal.unwrap S) ∉ Canθₛ (sig θ) 0 p []env) →
     (ρ⟨ θ , A ⟩· p) sn⟶₁
     (ρ⟨ (Env.set-sig{S} θ S∈ (Signal.absent)) , A ⟩·
       p)
 
   rreadyness : ∀{θ p s A} →
     (s∈ : (Env.isShr∈ s θ)) →
-    (Env.shr-stats{s} θ s∈ ≡ SharedVar.old) ⊎ (Env.shr-stats{s} θ s∈ ≡ SharedVar.new) →
-    (SharedVar.unwrap s) ∉ Canθₛₕ (sig θ) 0 p []env →
+    (θ⦅s⦆=oldVθ⦅s⦆=new : (Env.shr-stats{s} θ s∈ ≡ SharedVar.old) ⊎ (Env.shr-stats{s} θ s∈ ≡ SharedVar.new)) →
+    (s∉Canθ⦅p,θ⦆ : (SharedVar.unwrap s) ∉ Canθₛₕ (sig θ) 0 p []env) →
     (ρ⟨ θ , A ⟩· p) sn⟶₁
     (ρ⟨ (Env.set-shr{s} θ s∈ (SharedVar.ready) (Env.shr-vals{s} θ s∈)) , A ⟩·
       p)
