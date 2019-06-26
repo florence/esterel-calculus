@@ -1,5 +1,6 @@
 module Esterel.Variable.Signal where
 
+open import Data.Key
 open import Data.Nat
   using (ℕ) renaming (_≟_ to _≟ℕ_)
 open import Function
@@ -26,8 +27,16 @@ unwrap-injective s'≡t' = trans (sym unwrap-inverse) (trans (cong _ₛ s'≡t')
 wrap : ℕ → Signal
 wrap = _ₛ
 
+wrap-injective : ∀ {s t} → wrap s ≡ wrap t → s ≡ t
+wrap-injective refl = refl
+
 bijective : ∀{x} → unwrap (wrap x) ≡ x
 bijective = refl
+
+instance
+  Key : BijectiveKey Signal
+  Key = bijective-key unwrap wrap unwrap-injective wrap-injective bijective
+
 
 -- for backward compatibility
 unwrap-neq : ∀{k1 : Signal} → ∀{k2 : Signal} → ¬ k1 ≡ k2 → ¬ (unwrap k1) ≡ (unwrap k2)

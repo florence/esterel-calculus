@@ -16,6 +16,7 @@ open import Esterel.Variable.Sequential as SeqVar
 open import sn-calculus using (all-ready ; [s,δe]-env ; [x,δe]-env ; δ)
 
 open import std-reduction.Base
+open import std-reduction.Can
 
 open import Data.Sum
   using (_⊎_ ; inj₁ ; inj₂)
@@ -27,6 +28,12 @@ open _≡_
 open import Data.Nat using (_+_ ; zero ; suc)
 open import Data.List
   using ([])
+import Data.Product as Prod
+
+open import utility
+  using () 
+  renaming (module UniquedSet to US)
+open US using (UniquedSet)
 
 infix 4 _⇁_
 
@@ -164,12 +171,12 @@ data _⇁_ : Term → Term → Set where
 
   std-absent : ∀{θ p A} →
     (BVDθAp : blocked-or-done θ A p) →
-    (can-set-something-absent : ¬ (can-set-absent θ p ≡ [])) →
-    ρ⟨ θ , A ⟩· p ⇁ ρ⟨ (set-all-absent θ (can-set-absent θ p)) , A ⟩· p
+    (can-set-something-absent : ¬ (UniquedSet.lst (can-set-absent θ p) ≡ [])) →
+    ρ⟨ θ , A ⟩· p ⇁ ρ⟨ (US.curry (set-all-absent θ p) (can-set-absent θ p)) , A ⟩· p
 
   std-readyness : ∀{θ p A} →
     (BVDθAp : blocked-or-done θ A p) →
-    (can-set-nothing-absent : (can-set-absent θ p ≡ [])) →
-    (can-set-something-ready : ¬ (can-set-ready θ p ≡ [])) →
-    ρ⟨ θ , A ⟩· p ⇁ ρ⟨ (set-all-ready θ (can-set-ready θ p)) , A ⟩· p
+    (can-set-nothing-absent : (UniquedSet.lst (can-set-absent θ p) ≡ [])) →
+    (can-set-something-ready : ¬ (UniquedSet.lst (can-set-ready θ p) ≡ [])) →
+    ρ⟨ θ , A ⟩· p ⇁ ρ⟨ (US.curry (set-all-ready θ p) (can-set-ready θ p)) , A ⟩· p
 

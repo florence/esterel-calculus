@@ -6,17 +6,17 @@ open import Algebra.Structures
   using (IsMonoid ; IsSemigroup)
 open import Data.Empty
 open import Function
-  using (_∘_)
+  using (_∘_ ; _$_ ; _∋_)
 open import Relation.Binary
   using (Decidable)
 open import Relation.Binary.PropositionalEquality
-  using (_≡_ ; refl ; setoid ; sym ; cong)
+  using (_≡_ ; refl ; setoid ; sym ; cong ; subst)
 open import Relation.Nullary
 open import Relation.Nullary.Decidable
   using (⌊_⌋)
 open import Data.Bool
   using (not)
-open import Data.List
+open import Data.List hiding (map)
 open import Data.List.Properties
   using (map-id ; map-compose ; map-cong)
 open import Data.List.Any as ListAny
@@ -29,7 +29,7 @@ open import Data.Nat.Properties.Simple
   using (+-comm)
 open import Data.Nat.Properties
   using (n∸n≡0 ; m+n∸n≡m)
-open import Data.Product
+open import Data.Product as Prod
   using (_,_ ; _,′_ ; _×_ ; proj₁ ; proj₂ ; ∃)
 open import Data.Sum
   using (_⊎_ ; inj₁ ; inj₂)
@@ -54,17 +54,17 @@ _∉_ {A} x xs = Data.List.Membership.Setoid._∉_ (setoid A) x xs
 map-second : {A B C D : Set} →
   (f : B → D) →
   A × B × C → A × D × C
-map-second f = Data.Product.map id (Data.Product.map f id)
+map-second f = Prod.map id (Prod.map f id)
 
 any-map⁺ : ∀ {A B} {xs : List A} {x} (f : A → B) →
-  x ∈ xs → f x ∈ map f xs
+  x ∈ xs → f x ∈ Data.List.map f xs
 any-map⁺ f (here refl)  = here refl
 any-map⁺ f (there x∈xs) = there (any-map⁺ f x∈xs)
 
 -- the map-mono like the one in Data.List.Any.Membership
 -- idk why I can't import that module so I just implement one here
 map-mono : ∀ {A B} {ys zs : List A} (f : A → B) →
-  (∀ x → x ∈ ys → x ∈ zs) → ∀ fx → fx ∈ map f ys → fx ∈ map f zs
+  (∀ x → x ∈ ys → x ∈ zs) → ∀ fx → fx ∈ Data.List.map f ys → fx ∈ Data.List.map f zs
 map-mono {ys = []} f ys⊆zs fx ()
 map-mono {ys = y ∷ ys} {zs} f ys⊆zs .(f y) (here refl) =
   any-map⁺ f (ys⊆zs y (here refl))
@@ -80,15 +80,15 @@ map-mono² : ∀ {A B C} {xs xs' : List A} {ys ys' : List B} (f : A → B → C)
   (∀ u → u ∈ xs → u ∈ xs') →
   (∀ v → v ∈ ys → v ∈ ys') →
   ∀ fuv →
-    fuv ∈ concatMap (λ u → map (f u) ys)  xs →
-    fuv ∈ concatMap (λ u → map (f u) ys') xs'
+    fuv ∈ concatMap (λ u → Data.List.map (f u) ys)  xs →
+    fuv ∈ concatMap (λ u → Data.List.map (f u) ys') xs'
 map-mono² {xs = []} {xs'} {ys} {ys'} f xs⊆xs' ys⊆ys' fuv ()
 map-mono² {xs = x ∷ xs} {xs'} {ys} {ys'} f xs⊆xs' ys⊆ys' fuv fuv∈[[fuv|ys]|x∷xs]
-  with ++⁻ (map (f x) ys) fuv∈[[fuv|ys]|x∷xs]
+  with ++⁻ (Data.List.map (f x) ys) fuv∈[[fuv|ys]|x∷xs]
 ... | inj₂ fuv∈[[fuv|ys]|xs] =
   map-mono² f (λ u → xs⊆xs' u ∘ there) ys⊆ys' fuv fuv∈[[fuv|ys]|xs]
 ... | inj₁ fuv∈[fxv|ys] =
-  any-map⁺² (λ u → map (f u) ys')
+  any-map⁺² (λ u → Data.List.map (f u) ys')
     (xs⊆xs' x (here refl))
     (map-mono (f x) ys⊆ys' fuv fuv∈[fxv|ys])
 
@@ -449,7 +449,7 @@ thd = proj₂ ∘ proj₂
 ∈:: (here px) = px
 ∈:: (there ())
 
-n∉map-suc-n-+ : ∀ n xs  → ¬ (n ∈ map (suc n +_) xs)
+n∉map-suc-n-+ : ∀ n xs  → ¬ (n ∈ Data.List.map (suc n +_) xs)
 n∉map-suc-n-+ n [] ()
 n∉map-suc-n-+ n (x ∷ xs) (here n≡suc⟨n+x⟩) with cong (_∸ n) n≡suc⟨n+x⟩
 ... | n∸n≡suc⟨n+x⟩∸n rewrite n∸n≡0 n | +-comm n x | m+n∸n≡m (suc x) n with n∸n≡suc⟨n+x⟩∸n
@@ -457,7 +457,7 @@ n∉map-suc-n-+ n (x ∷ xs) (here n≡suc⟨n+x⟩) with cong (_∸ n) n≡suc�
 n∉map-suc-n-+ n (x ∷ xs) (there n∈map-suc-n-+) = n∉map-suc-n-+ n xs n∈map-suc-n-+
 
 map-+-swap-suc : ∀ n xs →
-  map (_+_ n) (map suc xs) ≡ map suc (map (_+_ n) xs)
+  Data.List.map (_+_ n) (Data.List.map suc xs) ≡ Data.List.map suc (Data.List.map (_+_ n) xs)
 map-+-swap-suc n xs
   rewrite sym (map-compose {g = _+_ n} {f = suc}      xs)
         |      map-cong (λ m → +-comm n (suc m))      xs
@@ -466,8 +466,123 @@ map-+-swap-suc n xs
   = refl
 
 map-+-compose-suc : ∀ n xs →
-  map (_+_ n) (map suc xs) ≡ map (_+_ (suc n)) xs
+  Data.List.map (_+_ n) (Data.List.map suc xs) ≡ Data.List.map (_+_ (suc n)) xs
 map-+-compose-suc n xs
   rewrite map-+-swap-suc n xs
         | sym (map-compose {g = suc} {f = _+_ n} xs)
   = refl
+
+{-
+
+This module implements sets of proofs indexed
+by some key `K`, such that each key is unique.
+This is encoded in UniqueSet by a list of proofs
+that each key does not appear in the remainder
+of the set.
+
+-}
+
+module UniquedSet where
+  open import Data.Product hiding (map ; curry)
+  open import Data.Maybe using (Maybe ; just ; nothing)
+  open import Relation.Binary.PropositionalEquality
+    using ([_] ; inspect)
+
+  {-
+   Proves that for some key accessor `f`,
+   that key only occurs once in the list
+  -}
+  data UniquedList {A : Set} {B : Set}  (f : (A → B)) : List A → Set where
+    e : (UniquedList f [])
+    c : (x : A) → (x₁ : List A)
+        → (fx∉l : ((f x) ∉ (Data.List.map f x₁)))
+        → (UniquedList f x₁)
+        → (UniquedList f (x ∷ x₁))
+
+  {- A List indexed by K, such that each `K` only occurs once -}
+  record UniquedSet {K : Set} (a : K → Set) : Set where
+    constructor uniqued-set
+    field
+      lst : List (Σ[ n ∈ K ] (a n))
+      unq : UniquedList proj₁ lst
+
+  {- Curry a function which takes an exploded UniqueSet
+     to take an actual UniqueSet.
+
+     Useful when the function must do induction over the UniquedSet,
+     as constantly taking the set appart and putting it back together
+     disagrees with the termination checker.
+  -}
+  curry : ∀{𝕝}{B : Set 𝕝}{K}{A : K → Set}
+          → (f : (lst : List (Σ[ n ∈ K ] (A n)))
+          → UniquedList proj₁ lst → B)
+          → (UniquedSet A) → B
+  curry f (uniqued-set a b) = f a b
+
+  {- 
+    Map some function `f2` over the elements of the UniqueList
+    using `f3` as the new accessor function.
+  -}
+  map : {A : Set} {B : Set} {C : Set} {D : Set} {f1 : A → B} {l : List A}
+        → (f2 : A → C)
+        → (f3 : C → D)
+        → (UniquedList f1 l)
+        → ((x : A) → (l : List A)
+        → (f3 (f2 x)) ∈ (Data.List.map f3 (Data.List.map f2 l))
+        → (f1 x) ∈ (Data.List.map f1 l))
+        → (UniquedList f3 (Data.List.map f2 l))
+  map f2 f3 e fix = e
+  map{f1 = f1} f2 f3 (c x x₁ fx∉l l) fix = c (f2 x) (Data.List.map f2 x₁) (fx∉l ∘ (fix x x₁)) (map f2 f3 l fix)
+
+  {- A to encode may-maybe on UniqueLists -}
+  lift-maybe-pair : ∀{B : Set} → {A : B → Set} → (Σ B (Maybe ∘ A)) → Maybe (Σ B A)
+  lift-maybe-pair (a , just x) = just (a , x)
+  lift-maybe-pair (a , nothing) = nothing
+
+  {- Removes `nothing`s from the list -}
+  map-maybe : ∀{B} → {A : B → Set} → {l : List (Σ B (Maybe ∘ A))}
+              → UniquedList proj₁ l
+              → UniquedList proj₁ (Data.List.mapMaybe lift-maybe-pair l)
+  map-maybe {B} {A} {.[]} e = e
+  map-maybe {B} {A} {.((b , nothing) ∷ x₁)} (c (b , nothing) x₁ fx∉l ul) 
+     =  map-maybe ul
+  map-maybe {B} {A} {.((b , just x) ∷ x₁)} (c (b , just x) x₁ fx∉l ul)
+    =  c (b , x) (Data.List.mapMaybe lift-maybe-pair x₁) (ug x₁ fx∉l) (map-maybe ul) 
+    where
+    ug : ∀ (l : List $ Σ B (Maybe ∘ A)) → b ∉ (Data.List.map proj₁ l) → b ∉ (Data.List.map proj₁ (Data.List.mapMaybe lift-maybe-pair l))
+    ug [] ∉ ()
+    ug ((b , nothing) ∷ l) ∉ ∈ = ug l (∉ ∘ there) ∈
+    ug ((b , just x) ∷ l) ∉ (here px) = ∉ (here px)
+    ug ((b , just x) ∷ l) ∉ (there ∈) = ug l (∉ ∘ there) ∈
+
+  {- Remove `nothing`s from the set-}
+  set-map-maybe : ∀{K}{A : K → Set} → UniquedSet (Maybe ∘ A) → UniquedSet A
+  set-map-maybe u = uniqued-set (Data.List.mapMaybe lift-maybe-pair lst) (map-maybe unq)
+    where open UniquedSet u
+
+  {-
+     map `fk` over the keys and `fa` over the values of the unique set.
+     Requires the proof that fk is injective to maintain the proofs
+     of uniqueness.
+  -}
+  set-map : ∀{K1 K2 : Set} {A1 : K1 → Set} {A2 : K2 → Set}
+            → UniquedSet{K1} A1
+            → (fk : K1 → K2)
+            → (fa : ∀{k1} → (A1 k1) → (A2 (fk k1)))
+            → (∀{a b} → (fk a) ≡ (fk b) → a ≡ b)
+            → UniquedSet{K2} A2
+  set-map{K1}{K2}{A1}{A2} st fk fa fix
+    =  uniqued-set (Data.List.map f2 lst)
+         $ map f2 f3 unq ug
+       where
+         open UniquedSet st
+         f2 = (Prod.map fk fa)
+         f3 =  proj₁
+         ug : (x : ∃ A1 ) → (l : List (∃ A1))
+              → (f3 (f2 x)) ∈ (Data.List.map f3 (Data.List.map f2 l))
+              → (proj₁ x) ∈ (Data.List.map proj₁ l)
+         ug x [] ()
+         ug x (x₁ ∷ l) (here px) = here $ fix px
+         ug x (x₁ ∷ l) (there x∈) = there (ug x l x∈)
+
+

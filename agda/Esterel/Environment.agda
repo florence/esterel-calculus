@@ -1,6 +1,6 @@
 module Esterel.Environment where
 
-open import utility
+open import utility renaming (module UniquedSet to UL)
 
 open import Data.Empty
 open import Esterel.Variable.Signal as Signal
@@ -32,10 +32,12 @@ open import Data.List.Any
 
 open ≡-Reasoning using (_≡⟨_⟩_ ; _≡⟨⟩_ ; _∎ ; begin_)
 
+open UL using (UniquedSet)
 
-module SigMap = Data.FiniteMap Signal.unwrap    Signal.wrap Signal.unwrap-injective Signal.bijective
-module ShrMap = Data.FiniteMap SharedVar.unwrap SharedVar.wrap SharedVar.unwrap-injective SharedVar.bijective
-module VarMap = Data.FiniteMap SeqVar.unwrap    SeqVar.wrap SeqVar.unwrap-injective SeqVar.bijective
+
+module SigMap = Data.FiniteMap Signal
+module ShrMap = Data.FiniteMap SharedVar
+module VarMap = Data.FiniteMap SeqVar
 
 record Env : Set where
   constructor Θ
@@ -90,6 +92,11 @@ SigDomMap = SigMap.key-map ∘ sig
 ShrDomMap : ∀{a}{L : Set a} →  (θ : Env) → (f : (S : SharedVar) → isShr∈ S θ → L) → List L
 ShrDomMap = ShrMap.key-map ∘ shr
 
+SigDomMap+Uniqued : ∀{L : Signal → Set} → (θ : Env) → (f : (S : Signal) → isSig∈ S θ → (L S)) → UniquedSet L 
+SigDomMap+Uniqued {L} θ f = SigMap.key-unique-map (sig θ) L f
+
+ShrDomMap+Uniqued : ∀{L : SharedVar → Set} → (θ : Env) → (f : (s : SharedVar) → isShr∈ s θ → (L s)) → UniquedSet L 
+ShrDomMap+Uniqued {L} θ f = ShrMap.key-unique-map (shr θ) L f
 
 SigDom : Env → List ℕ
 SigDom (Θ sig shr var) = (SigMap.keys sig)

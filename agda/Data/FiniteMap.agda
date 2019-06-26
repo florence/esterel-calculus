@@ -4,9 +4,15 @@ open import Relation.Binary.PropositionalEquality
   using (_≡_ ; _≢_ ; refl ; subst ; subst₂)
 open import Data.Nat as Nat
   using (ℕ ; _≤′_ ; _+_)
-open import Relation.Binary.PropositionalEquality using (sym)
+open import Relation.Binary.PropositionalEquality using (sym ; cong ; module ≡-Reasoning )
+open import Data.Unit
+open import Level using (_⊔_)
+open import Data.Nat
+
+open ≡-Reasoning
 
 import Relation.Unary as U
+open import Data.Key
 
 open import Function
   using (_∘_)
@@ -14,14 +20,14 @@ open import Function
 open import Relation.Nullary
 
 module Data.FiniteMap
-  {Key : Set}
-  (inject : Key → ℕ)
-  (surject : ℕ → Key)
-  (inject-injective : ∀ {k1 k2} → inject k1 ≡ inject k2 → k1 ≡ k2)
-  (surject-inject : ∀ {k} → inject (surject k) ≡ k)
+  (Key : Set)
+  {{b : BijectiveKey Key}}
   where
 
+open BijectiveKey b
+
 open import utility
+open UniquedSet using (UniquedList ; UniquedSet ; uniqued-set)
 
 open import Data.Maybe using (just)
 open import Data.Empty
@@ -42,6 +48,7 @@ open import Relation.Nullary
   using (yes ; no)
 open import Data.OrderedListMap(Key)(inject) as OMap hiding (insert-mono ; U-mono)
 open import Data.Bool using (Bool ; true ; false)
+open import Data.List.Properties using (map-compose)
 
 private
   nbiject : ∀ {k1 k2} → k1 ≢ k2 → inject k1 ≢ inject k2
@@ -66,10 +73,26 @@ inj= = _≡_ ∘ inject
 in-inject : ∀ {Value}{x : ℕ} → (l : Map Value) → x ∈ Dom' Value l → ∈Dom (surject x) l
 in-inject{x = x} l ∈ rewrite surject-inject{x} = ∈
 
+
+
 key-map : ∀{Value}{a}{L : Set a} → (l : Map Value) → (f : (k : Key) → (∈Dom k l) → L) → List L
 key-map{L = L} l f
   = Data.List.map ((uncurry f) ∘ (map surject (in-inject l)))
-                   (keys+∈ l)
+                  (keys+∈ l)
+
+key-unique-map : ∀{Value} → (l : Map Value) → (A : Key → Set) → (f : (k : Key) → (∈Dom k l) → (A k)) → UniquedSet A
+key-unique-map{Value} l A f
+  = uniqued-set (Data.List.map f2 lst)
+    $ UniquedSet.map f2 proj₁ unq ug 
+  where uld = (Dom'+∈-unique Value l)
+        open UniquedSet.UniquedSet uld
+        f2 = (λ { (k , ∈) → (surject k) , f (surject k) (in-inject l ∈)})
+        ug : (x : ∃ (_∈ (Dom' Value l))) → (l₁ : List (∃ (_∈ (Dom' Value l))))
+             → proj₁ (f2 x) ∈ (Data.List.map proj₁ (Data.List.map f2 l₁))
+             → proj₁ x ∈ (Data.List.map proj₁ l₁)
+        ug x [] ()
+        ug x (x₁ ∷ l₁) (here px) rewrite surject-injective px = here refl
+        ug x (x₁ ∷ l₁) (there x₂) = there (ug x l₁ x₂)
 
 ∈Check : ∀{Value}
          → (k : Key)

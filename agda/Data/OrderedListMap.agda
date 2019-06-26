@@ -2,20 +2,21 @@ import Level
 open import Relation.Binary
   using (Decidable ; Rel ; IsStrictTotalOrder ; Tri)
 open import Relation.Binary.PropositionalEquality
-  using (_≡_ ; refl ; cong ; sym ; module ≡-Reasoning ; inspect ; subst)
+  using (_≡_ ; refl ; trans ; cong ; sym ; module ≡-Reasoning ; inspect ; subst)
 open import Data.Nat as Nat
   using (ℕ ; suc ; zero ; _≤′_ ; _≤_ ; _+_ ; s≤s ; z≤n ; ≤′-refl ;
-         ≤′-step)
+         ≤′-step ; pred)
 open import Data.Nat.Properties as NatP
   using (≤⇒≤′ ; ≤′⇒≤ ;  m≤m+n ; s≤′s)
 open import Data.Nat.Properties.Simple as NatPS
   using (+-comm ; +-suc)
-open import Data.Product using (∃)
+open import Data.Product as Prod using (∃)
 
 open import Relation.Nullary using (¬_ ; Dec ; yes ; no)
 import Relation.Unary as U
 
 open import Data.MoreNatProp
+
 
 module Data.OrderedListMap
   (Key : Set)
@@ -23,16 +24,19 @@ module Data.OrderedListMap
   (Value : Set)
   where
 
-open import utility
+open import utility renaming (module UniquedSet to US)
+open US using (UniquedList ; UniquedSet)
 
 open import Data.Maybe using (just ; nothing ; Maybe)
 
 open import Function
-  using (_∘_ ; _∋_)
+  using (_∘_ ; _∋_ ; _$_)
 open import Data.Empty
   using (⊥ ; ⊥-elim)
 open import Data.List
   using (List ; _++_ ; [_] ; [] ; _∷_ ; map)
+open import Data.List.Properties
+  using (map-compose)
 open import Data.List.All as All
   using (All)
 
@@ -934,3 +938,33 @@ Dom'+∈ L = help (Dom' L)
   help : (x : List ℕ) → (List (∃[ y ] (y ∈ x)))
   help [] = []
   help (x ∷ x₁) = (x , here refl) ∷ map (λ {(a , b) → a , there b}) (help x₁)
+
+Dom'+∈-unique : (L : LMap) → UniquedSet (_∈ (Dom' L))
+Dom'+∈-unique [] = US.uniqued-set [] US.e
+Dom'+∈-unique (just x ∷ l) with (Dom'+∈-unique l)
+... | record { lst = rech ; unq = recu }
+                  = US.uniqued-set ((0 , (here refl)) ∷ (map f2 rech))
+                    $ US.c (0 , here refl) (map f2 rech)
+                          (subst (λ x → 0 ∉ x)
+                                 (sym (trans (sym $ map-compose{g = proj₁}{f2} $ rech) $ map-compose{g = suc} rech))
+                                 $ 0∈S{(map proj₁ rech)})
+                          (US.map f2 f3 recu ug)
+    where
+     f1 = proj₁
+     f2 = (Prod.map suc (there ∘ sucin))
+     f3 = proj₁
+     ug : ((x : _) → (l : _) → (f3 (f2 x)) ∈ (Data.List.map f3 (Data.List.map f2 l)) → (f1 x) ∈ (Data.List.map f1 l))
+     ug x [] ()
+     ug x (x₁ ∷ l₁) (here px) = here (cong pred px)
+     ug x (x₁ ∷ l₁) (there x₂) = there $ ug x l₁ x₂
+
+Dom'+∈-unique (nothing ∷ l) with (Dom'+∈-unique l)
+... | record { lst = rech ; unq = recu } = US.uniqued-set (map (Prod.map suc sucin) rech) $ US.map f2 f3 recu ug
+   where
+     f1 = proj₁
+     f2 = (Prod.map suc sucin)
+     f3 = proj₁
+     ug : ((x : _) → (l : _) → (f3 (f2 x)) ∈ (Data.List.map f3 (Data.List.map f2 l)) → (f1 x) ∈ (Data.List.map f1 l))
+     ug x [] ()
+     ug x (x₁ ∷ l₁) (here px) = here (cong pred px)
+     ug x (x₁ ∷ l₁) (there x₂) = there $ ug x l₁ x₂

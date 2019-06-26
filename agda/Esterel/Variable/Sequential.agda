@@ -1,5 +1,7 @@
 module Esterel.Variable.Sequential where
 
+open import Data.Key
+
 open import Data.Nat
   using (ℕ) renaming (_≟_ to _≟ℕ_)
 open import Function
@@ -31,8 +33,17 @@ unwrap-neq = (_∘ unwrap-injective)
 wrap : ℕ → SeqVar
 wrap = _ᵥ
 
+wrap-injective : ∀ {s t} → wrap s ≡ wrap t → s ≡ t
+wrap-injective refl = refl
+
+
 bijective : ∀{x} → unwrap (wrap x) ≡ x
 bijective = refl
+
+instance
+  Key : BijectiveKey SeqVar
+  Key = bijective-key unwrap wrap unwrap-injective wrap-injective bijective
+
 
 
 
