@@ -173,7 +173,7 @@ open import Data.Product
 open import Data.Sum
   using (_⊎_ ; inj₁ ; inj₂)
 open import Function
-  using (_∘_ ; id ; _∋_)
+  using (_∘_ ; id ; _∋_ ; _$_)
 open import Relation.Nullary
   using (¬_ ; Dec ; yes ; no)
 open import Relation.Nullary.Decidable

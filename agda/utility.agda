@@ -51,8 +51,7 @@ _∉_ {A} x xs = Data.List.Membership.Setoid._∉_ (setoid A) x xs
 
 
 
-map-second : {A B C D : Set} →
-  (f : B → D) →
+map-second : {A B C D : Set} → (f : B → D) →
   A × B × C → A × D × C
 map-second f = Prod.map id (Prod.map f id)
 
@@ -472,6 +471,10 @@ map-+-compose-suc n xs
         | sym (map-compose {g = suc} {f = _+_ n} xs)
   = refl
 
+map-∈ : ∀ {n : ℕ} → (f : ℕ → ℕ) → {l : List ℕ} → n ∈ l → (f n) ∈ (Data.List.map f l) 
+map-∈ f (here px) = here $ cong f px
+map-∈ f (there n∈l) = there (map-∈ f n∈l)
+
 {-
 
 This module implements sets of proofs indexed
@@ -584,5 +587,3 @@ module UniquedSet where
          ug x [] ()
          ug x (x₁ ∷ l) (here px) = here $ fix px
          ug x (x₁ ∷ l) (there x∈) = there (ug x l x∈)
-
-

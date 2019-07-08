@@ -22,6 +22,8 @@ open import Esterel.Variable.Sequential as SeqVar
   using (SeqVar)
 open import Esterel.Lang.CanFunction
   using (Canₛ ; Canₛₕ ; Canθₛ ; Canθₛₕ)
+open import Esterel.Lang.CanFunction.Base
+  using (canθₛ-membership ; canθₛₕ-membership)
 open import Esterel.Lang.CanFunction.SetSigMonotonic
 open import utility using (_∈_ ; _∉_) renaming (module UniquedSet to US)
 open US using (UniquedSet ; uniqued-set ; c ; UniquedList)

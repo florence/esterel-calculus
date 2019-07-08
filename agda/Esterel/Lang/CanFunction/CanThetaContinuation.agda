@@ -46,7 +46,7 @@ open import Esterel.Context
 open import Esterel.Context.Properties
   using (plug ; unplug)
 open import Esterel.Environment as Env
-  using (Env ; Θ ; _←_ ; Dom ; module SigMap ; module ShrMap ; module VarMap)
+  using (Env ; Θ ; _←_ ; Dom ; module SigMap ; module ShrMap ; module VarMap; []env)
 open import Esterel.CompletionCode as Code
   using () renaming (CompletionCode to Code)
 open import Esterel.Variable.Signal as Signal
@@ -83,7 +83,7 @@ open import Data.Product
 open import Data.Sum
   using (_⊎_ ; inj₁ ; inj₂)
 open import Function
-  using (_∘_ ; id ; _∋_)
+  using (_∘_ ; id ; _∋_ ; _$_)
 open import Relation.Nullary
   using (¬_ ; Dec ; yes ; no)
 open import Relation.Nullary.Decidable

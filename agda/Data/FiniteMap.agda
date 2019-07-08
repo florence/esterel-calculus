@@ -49,6 +49,7 @@ open import Relation.Nullary
 open import Data.OrderedListMap(Key)(inject) as OMap hiding (insert-mono ; U-mono)
 open import Data.Bool using (Bool ; true ; false)
 open import Data.List.Properties using (map-compose)
+open import Data.Sublist using (sublist ; visit)
 
 private
   nbiject : ∀ {k1 k2} → k1 ≢ k2 → inject k1 ≢ inject k2
@@ -63,7 +64,6 @@ keys{Value} l = (Dom' Value l)
 keys+∈ : ∀{Value} → (l : Map Value) → List (∃[ n ] (n ∈ (Dom' Value l)))
 keys+∈{Value} l = (Dom'+∈ Value l)
 
-
 inj= : Key → ℕ → Set
 inj= = _≡_ ∘ inject
 
@@ -73,7 +73,12 @@ inj= = _≡_ ∘ inject
 in-inject : ∀ {Value}{x : ℕ} → (l : Map Value) → x ∈ Dom' Value l → ∈Dom (surject x) l
 in-inject{x = x} l ∈ rewrite surject-inject{x} = ∈
 
-
+key-visit : ∀{Value}{s a}{S : Set s}{A : Set a} → (l : Map Value) → (f : (k : Key) → (∈Dom k l) → A → (A → S) → S) → (A → S) → A → S
+key-visit l f g s
+  = visit ((uncurry f) ∘ (map surject (in-inject l)))
+          g
+          s
+          (sublist (keys+∈ l))
 
 key-map : ∀{Value}{a}{L : Set a} → (l : Map Value) → (f : (k : Key) → (∈Dom k l) → L) → List L
 key-map{L = L} l f

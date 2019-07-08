@@ -33,14 +33,14 @@ open import Function
   using (_∘_ ; _∋_ ; _$_)
 open import Data.Empty
   using (⊥ ; ⊥-elim)
-open import Data.List
+open import Data.List as List
   using (List ; _++_ ; [_] ; [] ; _∷_ ; map)
-open import Data.List.Properties
+open import Data.List.Properties as ListP
   using (map-compose)
 open import Data.List.All as All
   using (All)
 
-open import Data.Product
+open import Data.Product as Prod
   using (Σ ; Σ-syntax ; _,_ ; proj₁ ; proj₂ ; _×_ ; _,′_ ; ∃-syntax)
 open import Data.Sum
   using (inj₁ ; inj₂ ; _⊎_)
@@ -930,14 +930,21 @@ ocount-merge≤′sum-ocount = f where
               (s≤′s R) (≡is≤′ (sym (+-suc (ocount p m1) (ocount p m2)))) 
   f (nothing ∷ m1) (nothing ∷ m2) p with f m1 m2 p
   ... | R = R
-
+   
+Dom'+∈-help : (x : List ℕ) → (List (∃[ y ] (y ∈ x)))
+Dom'+∈-help [] = []
+Dom'+∈-help (x ∷ x₁) = (x , here refl) ∷ map (Prod.map₂ there) (Dom'+∈-help x₁)
 
 Dom'+∈ : (L : LMap) → List (∃[ n ] (n ∈ (Dom' L)))
-Dom'+∈ L = help (Dom' L)
- where
-  help : (x : List ℕ) → (List (∃[ y ] (y ∈ x)))
-  help [] = []
-  help (x ∷ x₁) = (x , here refl) ∷ map (λ {(a , b) → a , there b}) (help x₁)
+Dom'+∈ L = Dom'+∈-help (Dom' L)
+
+Dom'+∈-help-len : ∀ f → (x : List ℕ) → (List.length (Dom'+∈-help x)) ≡ (List.length (Dom'+∈-help (map f x)))
+Dom'+∈-help-len f [] = refl
+Dom'+∈-help-len f (x ∷ x₁)
+ rewrite ListP.length-map (Prod.map₂ $ there{x = x}) (Dom'+∈-help x₁)
+       | ListP.length-map (Prod.map₂ $ there{x = f x}) (Dom'+∈-help (map f x₁))
+       | Dom'+∈-help-len f x₁
+ = refl
 
 Dom'+∈-unique : (L : LMap) → UniquedSet (_∈ (Dom' L))
 Dom'+∈-unique [] = US.uniqued-set [] US.e
@@ -953,7 +960,7 @@ Dom'+∈-unique (just x ∷ l) with (Dom'+∈-unique l)
      f1 = proj₁
      f2 = (Prod.map suc (there ∘ sucin))
      f3 = proj₁
-     ug : ((x : _) → (l : _) → (f3 (f2 x)) ∈ (Data.List.map f3 (Data.List.map f2 l)) → (f1 x) ∈ (Data.List.map f1 l))
+     ug : ((x : _) → (l : _) → (f3 (f2 x)) ∈ (List.map f3 (List.map f2 l)) → (f1 x) ∈ (List.map f1 l))
      ug x [] ()
      ug x (x₁ ∷ l₁) (here px) = here (cong pred px)
      ug x (x₁ ∷ l₁) (there x₂) = there $ ug x l₁ x₂
@@ -964,7 +971,7 @@ Dom'+∈-unique (nothing ∷ l) with (Dom'+∈-unique l)
      f1 = proj₁
      f2 = (Prod.map suc sucin)
      f3 = proj₁
-     ug : ((x : _) → (l : _) → (f3 (f2 x)) ∈ (Data.List.map f3 (Data.List.map f2 l)) → (f1 x) ∈ (Data.List.map f1 l))
+     ug : ((x : _) → (l : _) → (f3 (f2 x)) ∈ (List.map f3 (List.map f2 l)) → (f1 x) ∈ (List.map f1 l))
      ug x [] ()
      ug x (x₁ ∷ l₁) (here px) = here (cong pred px)
      ug x (x₁ ∷ l₁) (there x₂) = there $ ug x l₁ x₂

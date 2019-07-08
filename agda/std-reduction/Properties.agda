@@ -18,8 +18,8 @@ import Esterel.Variable.Signal as Signal
 
 open import utility
   using (_∉_)
-  renaming (module UniquedList to UL)
-open UL using (UniquedSet ; uniqued-set)
+  renaming (module UniquedSet to US)
+open US using (UniquedSet ; uniqued-set)
 
 open import Relation.Binary.PropositionalEquality using (_≡_ ; sym)
 open import Function
@@ -55,8 +55,8 @@ std-redution-deterministic = {!!}
 {- Helper for std=>calc for the absence rule -}
 std=>calc-for-absence' : ∀{θ A p} → ∀ lst unq
                         → ρ⟨ θ , A ⟩· p sn⟶* ρ⟨ (set-all-absent θ p lst unq) , A ⟩· p
-std=>calc-for-absence' [] UL.e = rrefl
-std=>calc-for-absence'{θ}{A}{p} lst1@((S , x) ∷ lst) unq1@(UL.c .(S , x) .lst fx∉l unq)
+std=>calc-for-absence' [] US.e = rrefl
+std=>calc-for-absence'{θ}{A}{p} lst1@((S , x) ∷ lst) unq1@(US.c .(S , x) .lst fx∉l unq)
   = sn⟶*+{p = ρ⟨ θ , A ⟩· p}{q = ρ⟨ (set-all-absent θ p lst1 unq1) , A ⟩· p} (std=>calc-for-absence' lst unq)
     $ sn⟶*-inclusion
     $ rcontext [] dchole
@@ -65,7 +65,7 @@ std=>calc-for-absence'{θ}{A}{p} lst1@((S , x) ∷ lst) unq1@(UL.c .(S , x) .lst
     where open CanSetToAbsent x
 
 std=>calc-for-absence : ∀{θ A p} → ∀ uns
-                        → ρ⟨ θ , A ⟩· p sn⟶* ρ⟨ (UL.curry (set-all-absent θ p) uns) , A ⟩· p
+                        → ρ⟨ θ , A ⟩· p sn⟶* ρ⟨ (US.curry (set-all-absent θ p) uns) , A ⟩· p
 std=>calc-for-absence{θ}{A}{p} (uniqued-set lst unq) = std=>calc-for-absence' {θ}{A}{p} lst unq
                         {-
 std=>calc-for-absence {Ss = []} = rrefl
