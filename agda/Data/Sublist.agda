@@ -26,16 +26,15 @@ data Sublist {a}{A : Set a} (l : List A) : ℕ → Set where
 
 
 
-private              
-  build-sublist : ∀{a}{A : Set a}
-                  → {l : List A}
-                  → (n : ℕ)
-                  → (n≤l : n ≤ (length l))
-                  → Sublist l n
-  build-sublist {l = []} zero z≤s = empty
-  build-sublist {l = []} (suc n) ()
-  build-sublist {l = l@(_ ∷ _)} zero n≤l = empty
-  build-sublist {l = l@(_ ∷ _)} (suc n) n≤l = elem n n≤l $ build-sublist n $ ≤⇒pred≤ n≤l
+build-sublist : ∀{a}{A : Set a}
+                → {l : List A}
+                → (n : ℕ)
+                → (n≤l : n ≤ (length l))
+                → Sublist l n
+build-sublist {l = []} zero z≤s = empty
+build-sublist {l = []} (suc n) ()
+build-sublist {l = l@(_ ∷ _)} zero n≤l = empty
+build-sublist {l = l@(_ ∷ _)} (suc n) n≤l = elem n n≤l $ build-sublist n $ ≤⇒pred≤ n≤l
 
 --elem (suc n) n≤l (build-sublist n {!!})
 
@@ -60,6 +59,8 @@ visit : ∀{i a o n}{I : Set i}{A : Set a}{O : Set o}{l : List I} → (f : I →
 visit f g a empty = g a
 visit f g a l@(elem n n<l sl) = f (get l) a (λ a → visit f g a sl)
 
+get-n : ∀{a}{A : Set a}{l : List A}{n} → Sublist l n → ℕ
+get-n {n = n} _ = n
 
 module Tests where
   open import Relation.Binary.PropositionalEquality

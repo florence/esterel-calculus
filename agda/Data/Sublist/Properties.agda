@@ -1,6 +1,7 @@
 module Data.Sublist.Properties where
 
 open import Data.Sublist
+open import utility.HeterogeneousEquality
 
 open import Data.List as List
   using (List ; [] ; _++_ ; _∷_ ; lookup ; length)
@@ -14,14 +15,19 @@ open import Relation.Binary
 open import Relation.Nullary
   using (¬_)
 open import Function
-  using (_$_)
-open import Data.Fin
+  using (_$_ ; _∋_ ; id)
+open import Data.Fin as Fin
   using (fromℕ≤)
 open import Data.Empty
   using (⊥ ; ⊥-elim)
-open import Relation.Binary.HeterogeneousEquality
-  using (_≅_)
+open import Relation.Binary.HeterogeneousEquality as Het
+  using (_≅_ ; ≡-to-≅ ; ≅-to-type-≡)
   renaming (refl to hrefl ; cong to hcong)
+open import Data.Maybe as Maybe
+  using (just)
+open import Data.Product as Prod
+  using (_,_ ; _,′_ ; proj₁ ; proj₂ ; Σ-syntax ; _×_)
+
 
 open import Data.Nat.Properties as NatProp
   using ()
@@ -42,13 +48,13 @@ sucn-not≤n {zero} ()
 sucn-not≤n {suc n} (s≤s lt) = sucn-not≤n lt
 
 
-fromℕ≤-suc-must-suc : ∀{m}{n} → (lt : m < n) → ¬ fromℕ≤ (s≤s lt) ≡ Data.Fin.zero
+fromℕ≤-suc-must-suc : ∀{m}{n} → (lt : m < n) → ¬ fromℕ≤ (s≤s lt) ≡ Fin.zero
 fromℕ≤-suc-must-suc {zero} {zero} ()
 fromℕ≤-suc-must-suc {zero} {suc n} (s≤s lt) ()
 fromℕ≤-suc-must-suc {suc m} {zero} ()
 fromℕ≤-suc-must-suc {suc m} {suc n} (s≤s lt) ()
 
-fromℕ≤-inner : ∀{m}{n}{fin} → (lt : m < n) → fromℕ≤ (s≤s lt) ≡ Data.Fin.suc fin →  fromℕ≤ lt ≡ fin
+fromℕ≤-inner : ∀{m}{n}{fin} → (lt : m < n) → fromℕ≤ (s≤s lt) ≡ Fin.suc fin →  fromℕ≤ lt ≡ fin
 fromℕ≤-inner {zero} {zero} () eq
 fromℕ≤-inner {zero} {suc n} (s≤s lt) refl = refl
 fromℕ≤-inner {suc m} {zero} () eq
@@ -68,11 +74,11 @@ lookup-++ : ∀{a}{A : Set a}
 lookup-++ [] l index lt i<l i<h++l rewrite NatProp.≤-irrelevance i<l i<h++l = refl
 lookup-++ (x ∷ h) l index lt i<l (s≤s i<h++l)
  with fromℕ≤ (s≤s i<h++l) | inspect fromℕ≤ (s≤s i<h++l)
-lookup-++ (x ∷ h) l index lt i<l (s≤s i<h++l) | Data.Fin.zero | [ eq ]
+lookup-++ (x ∷ h) l index lt i<l (s≤s i<h++l) | Fin.zero | [ eq ]
    rewrite NatProp.+-∸-assoc 1 (ug{i = index}{l} h lt)
    = ⊥-elim $ fromℕ≤-suc-must-suc{(length (h ++ l)) ∸ index}{(length (h ++ l))} i<h++l eq
    --⊥-elim $ fromℕ≤-suc-must-suc (s≤s {!i<h++l!}) {!!}  {!eq!}
-lookup-++ (x ∷ h) l index lt i<l (s≤s i<h++l) | Data.Fin.suc fin | [ eq ]
+lookup-++ (x ∷ h) l index lt i<l (s≤s i<h++l) | Fin.suc fin | [ eq ]
    rewrite NatProp.+-∸-assoc 1 (ug{i = index}{l} h lt)
    = subst (λ x → lookup l (fromℕ≤ i<l) ≡ lookup (h ++ l) x) (fromℕ≤-inner i<h++l eq)  (lookup-++ h l index lt i<l i<h++l) 
 
@@ -99,10 +105,10 @@ map-lookup {off1 = zero} {off2 = .zero} f (x ∷ l) (s≤s z≤n) (s≤s z≤n) 
 map-lookup {off1 = suc off} {off2 = .suc off} f [] () o2 refl
 map-lookup {off1 = suc off} {off2 = .suc off} f (x ∷ l) (s≤s o1) (s≤s o2) refl
    with fromℕ≤ (s≤s o1) | inspect fromℕ≤ (s≤s o1) 
-... | Data.Fin.zero | [ eq ] = ⊥-elim $ fromℕ≤-suc-must-suc o1 eq 
-... | Data.Fin.suc a | [ eq ] with fromℕ≤ (s≤s o2) | inspect fromℕ≤ (s≤s o2)
-... | Data.Fin.zero | [ eq2 ] = ⊥-elim $ fromℕ≤-suc-must-suc o2 eq2 
-... | Data.Fin.suc b | [ eq2 ]
+... | Fin.zero | [ eq ] = ⊥-elim $ fromℕ≤-suc-must-suc o1 eq 
+... | Fin.suc a | [ eq ] with fromℕ≤ (s≤s o2) | inspect fromℕ≤ (s≤s o2)
+... | Fin.zero | [ eq2 ] = ⊥-elim $ fromℕ≤-suc-must-suc o2 eq2 
+... | Fin.suc b | [ eq2 ]
    rewrite sym $ fromℕ≤-inner o1 eq
          | sym $ fromℕ≤-inner o2 eq2
    = map-lookup f l o1 o2 refl
@@ -129,38 +135,80 @@ equal-list-equal-sublist empty empty refl = hrefl
 equal-list-equal-sublist (elem n n<l sl1) (elem .n n<l₁ sl2) refl
   rewrite NatProp.≤-irrelevance n<l₁ n<l
   = hcong (elem n n<l) $ equal-list-equal-sublist sl1 sl2 refl 
+
+equal-list-equal-sublist-het : ∀{a}{A : Set a}{B : Set a}{l1}{l2}{off1 off2}
+                               → (sl1 : Sublist{A = A} l1 off1)
+                               → (sl2 : Sublist{A = B} l2 off2)
+                               → A ≅ B
+                               → l1 ≅ l2
+                               → off1 ≡ off2
+                               → sl1 ≅ sl2
+equal-list-equal-sublist-het empty empty eq1 eq2 refl
+   = Het.cong₂ (λ T l → empty{l = l}) eq1 eq2
+equal-list-equal-sublist-het{A = A}{B = B}{l1 = l1}{l2 = l2}{off1 = (suc off)}{off2 = .(suc off)} (elem n n<l sl1) (elem .n n<l₁ sl2) eq1 eq2 refl
+  = (cong₄
+         (λ _ l lt sub → (elem{l = l} n lt sub))
+         eq1 
+         eq2
+         (het-list-lt-eq n l1 l2 n<l n<l₁ eq1 eq2)
+         $ equal-list-equal-sublist-het sl1 sl2 eq1 eq2 refl)
+
+     
+    where
+      het-cons-injective : ∀ (x : A) → (y : B)
+                           → (l1 : List A) → (l2 : List B)
+                           → A ≅ B
+                           → (x ∷ l1 ≅ y ∷ l2)
+                           → x ≅ y × (l1 ≅ l2)
+      het-cons-injective x .x l2 .l2 hrefl hrefl = hrefl , hrefl
+      het-list-lt-eq : ∀ n → (l1 : List A) → (l2 : List B)
+                        → (n<l1 : n < (length l1))
+                        → (n<l2 : n < (length l2))
+                        → A ≅ B
+                        → l1 ≅ l2
+                        → n<l1 ≅ n<l2
+      het-list-lt-eq n [] [] n<l1 n<l2 eq1 eq2 = ≡-to-≅ $ NatProp.≤-irrelevance n<l1 n<l2
+      het-list-lt-eq n [] (x ∷ l2) n<l1 n<l2 hrefl ()
+      het-list-lt-eq n (x ∷ l1) [] n<l1 n<l2 hrefl ()
+      het-list-lt-eq zero (x ∷ .l2) (.x ∷ l2) (s≤s z≤n) (s≤s z≤n) hrefl hrefl = hrefl
+      het-list-lt-eq (suc n) (x ∷ l1) (x₁ ∷ l2) (s≤s n<l1) (s≤s n<l2) eq1 eq2
+        =  cong₄{B = List}{C = λ t _ → t}{D = λ _ l _ → n < length l}{E = λ t l x lt → (suc n) < (length (x ∷ l))}
+               (λ _ _ _ lt → s≤s lt)
+               eq1 (proj₂ (het-cons-injective x x₁ l1 l2 eq1 eq2))
+               (proj₁ (het-cons-injective x x₁ l1 l2 eq1 eq2))
+               $ het-list-lt-eq n l1 l2 n<l1 n<l2 eq1
+               $ proj₂ $ het-cons-injective x x₁ l1 l2 eq1 eq2
+    {-
+Het.cong
+     (Het.cong
+       
+       ?)
+       $ equal-list-equal-sublist-het sl1 sl2 eq1 eq2 refl
+       -}
+    -- 
+
+fromℕ-subt-lt-head : ∀ l lt →
+  (fromℕ≤ (get-sub-lt l (suc l) lt))
+    ≡
+  Fin.zero
+fromℕ-subt-lt-head l lt
+  with (get-sub-lt l (suc l) lt)
+fromℕ-subt-lt-head l lt | s≤s x
+  with  (suc l) ∸ (suc l) | NatProp.n∸n≡0 (suc l)
+fromℕ-subt-lt-head l lt | s≤s z≤n | .0 | refl = refl
+
+
+get-first-is-first-from-head : ∀{a}{A : Set a}→ (x : A) → (l : List A)
+                               → (get (sublist (x ∷ l))) ≡ x
+get-first-is-first-from-head x l
+ = cong (lookup (x ∷ l)) $ fromℕ-subt-lt-head (length l) (s≤s (NatProp.≤-reflexive refl))
            
-{-
-
-lookup-tail-get-equal : ∀{a}{A : Set a} →  (l : List A) → ∀ x n
-      → n < (length l)
-      → (n<l   : ((length l) ∸ suc n) < (length l))
-      → (n<x∷l : ((length (x ∷ l)) ∸ suc n) < (length (x ∷ l)))
-      → lookup l (fromℕ≤ n<l)
-        ≡
-        lookup (x ∷ l) (fromℕ≤ n<x∷l)
-lookup-tail-get-equal l x n lt n<l n<x∷l
-  rewrite (NatProp.+-∸-assoc 1 {length l} {suc n} lt)
-  = lookup-tail-get-equal-help l x ((length l) ∸ suc n) n<l n<x∷l
-  where
-    lookup-tail-get-equal-help : ∀{a}{A : Set a} →  (l : List A) → ∀ x n
-      → (n<l   : n < (length l))
-      → (n<x∷l : (suc n) < (length (x ∷ l)))
-      → lookup l (fromℕ≤ n<l)
-        ≡
-        lookup (x ∷ l) (fromℕ≤ n<x∷l)
-    lookup-tail-get-equal-help l x zero n>l n<x∷l = {!!}
-    lookup-tail-get-equal-help l x (suc n) n>l n<x∷l = {!!}
-
-
-lookup-tail-get-equal l x n n<1 n<x∷l = {!!} 
-
-sublist-tail-get-equal : ∀{a}{A : Set a}{l : List A}{off} x
-                         → (sl1 : Sublist l (suc off))
-                         → (sl2 : Sublist (x ∷ l) (suc off))
-                         → (get sl1) ≡ (get sl2)
-sublist-tail-get-equal{l = l} x (elem n n<l sl1) (elem .n n<l₁ sl2)
-    = lookup-tail-get-equal l x n n<l (get-sub-lt n (length l) n<l) (get-sub-lt n (length (x ∷ l)) n<l₁)
-
--- 
--}
+get-first-is-first : ∀{a}{A : Set a}{l}{off}
+                     → (sl : Sublist{A = A} l (suc off))
+                     → (suc off) ≡ (length l)
+                     → just (get sl) ≡ (List.head l)
+get-first-is-first {l = []} {off} sl ()
+get-first-is-first {l = x ∷ l} {.(length l)} sl refl
+  rewrite sublist-irrelevant sl (sublist (x ∷ l))
+    = cong just $ get-first-is-first-from-head x l 
+  

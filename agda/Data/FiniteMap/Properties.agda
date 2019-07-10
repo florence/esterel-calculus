@@ -24,7 +24,6 @@ open import Function
 open import Data.Product as Prod
   using (proj₁)
   
-
 keys+∈-tail-equal : ∀{Value}
                      → (l : Map Value)
                      → ∀ x

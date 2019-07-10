@@ -19,12 +19,14 @@ open import Function
 open import Data.Product as Prod
   using (Σ ; Σ-syntax ; _,_ ; proj₁ ; proj₂ ; _×_ ; _,′_ ; ∃-syntax ; ∃)
 open import Relation.Binary.PropositionalEquality as Eql
-  using (_≡_ ; refl ; cong ; sym) 
+  using (_≡_ ; refl ; cong ; sym ; inspect ; [_] ; module ≡-Reasoning) 
 open import Data.Maybe as Maybe
   using (Maybe ; just ; nothing)
 
 open import Data.List.Properties as ListP
   using (map-compose)
+
+open ≡-Reasoning
 
 
 ProdMap+proj₁≡l+proj₁ : ∀{A : Set}{B : Set}{C : A → Set}{D : B → Set}
@@ -70,4 +72,18 @@ proj₁∈-unchanged (just x ∷ sigs)
          | ListP.map-id $ List.map proj₁ (Dom'+∈-help (List.map suc (Dom' sigs)))
          | Dom'-help-suc-swap $ (Dom' sigs)
   = cong ((0 ∷_) ∘ List.map suc) $ proj₁∈-unchanged sigs
+
+suc-isprodsucin : ∀ l → Dom'+∈-help (List.map suc l) ≡ List.map (Prod.map suc sucin) (Dom'+∈-help l)
+suc-isprodsucin [] = refl
+suc-isprodsucin (x ∷ l)
+   rewrite suc-isprodsucin l
+  = cong ((suc x , here refl) ∷_)
+         $ (begin
+              List.map (Prod.map₂ there) (List.map (Prod.map suc sucin) (Dom'+∈-help l))
+              ≡⟨ sym $ ListP.map-compose (Dom'+∈-help l) ⟩
+              List.map ((Prod.map₂ there) ∘ (Prod.map suc sucin)) (Dom'+∈-help l)
+              ≡⟨ ListP.map-cong (λ { (fst , snd) → refl}) (Dom'+∈-help l) ⟩
+              List.map ((Prod.map suc sucin) ∘ (Prod.map₂ there)) (Dom'+∈-help l)
+              ≡⟨ ListP.map-compose (Dom'+∈-help l) ⟩
+              List.map (Prod.map suc sucin) (List.map (Prod.map₂ there) (Dom'+∈-help l)) ∎)
 
