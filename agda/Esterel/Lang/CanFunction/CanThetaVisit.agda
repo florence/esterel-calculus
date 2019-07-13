@@ -1,7 +1,17 @@
-module Esterel.Lang.CanFunction.Subset where
+module Esterel.Lang.CanFunction.CanThetaVisit where
+
+{- 
+
+This moduel defines Canθ-visit, a variant of Canθ which
+works by induction on the Domain of θ. (with the usual _ₛ, _ₖ, and _ₛₕ variantes)
+
+It also defines Canθ-visit≡Canθ, which proves that Canθ-visit is the same as CanΘ
+
+-}
 
 open import utility
   renaming (_U̬_ to _∪_ ; _|̌_ to _-_)
+  hiding (_⊆_)
 open import utility.HeterogeneousEquality
 
 open import Esterel.Lang
@@ -16,6 +26,8 @@ open import Esterel.CompletionCode as Code
   using () renaming (CompletionCode to Code)
 open import Esterel.Variable.Signal as Signal
   using (Signal ; _ₛ)
+open import Esterel.Variable.Signal.Ordering as SO
+ using (_⊑_)
 open import Esterel.Variable.Shared as SharedVar
   using (SharedVar ; _ₛₕ)
 open import Esterel.Variable.Sequential as SeqVar
@@ -23,7 +35,7 @@ open import Esterel.Variable.Sequential as SeqVar
 open import Data.OrderedListMap(Signal)(Signal.unwrap)(Signal.Status) as OLST
 open import Data.OrderedListMap.Properties(Signal)(Signal.unwrap)(Signal.Status) as OLSTP
 open import Data.Sublist as SL
-  using (Sublist ; visit ; get)
+  using (Sublist ; visit ; get ; elem ; empty)
 open import Data.Sublist.Properties as SLProp
   using ()
 open import Data.FiniteMap.Properties(Signal) as FMPropSig
@@ -53,7 +65,7 @@ open import Data.Product as Prod
 open import Data.Sum
   using (_⊎_ ; inj₁ ; inj₂)
 open import Function
-  using (_∘_ ; id ; _∋_ ; _$_ ; _|>_ ; const ; flip)
+  using (_∘_ ; id ; _∋_ ; _$_ ; _|>_ ; const ; flip; _⟨_⟩_)
 open import Relation.Nullary
   using (¬_ ; Dec ; yes ; no)
 open import Relation.Nullary.Decidable
@@ -67,6 +79,8 @@ open import Relation.Nullary.Negation
   using (contradiction)
 open import Data.Fin as Fin
   using ()
+open import Relation.Unary
+  using (_⊆′_)
 
 open ≡-Reasoning
 
@@ -82,9 +96,19 @@ Canθ-lookup sigs S S∈ θ visit with SigMap.lookup{k = S} sigs S∈
 ... | yes _ = visit $ θ ← [S]-env S
 ... | no _ = visit $ θ ← [S]-env-absent S
 
-Canθ-visit : Term → SigMap.Map Signal.Status → Env →  CanResult
+Canθ-visit : Term → SigMap.Map Signal.Status → Env → CanResult
 Canθ-visit p sigs θ
   = SigMap.key-visit sigs (Canθ-lookup sigs) (Can p) θ
+
+Canθₛ-visit : Term → SigMap.Map Signal.Status → Env → SigSet.ST
+Canθₛ-visit p sigs θ = proj₁ $ Canθ-visit p sigs θ
+
+Canθₖ-visit : Term → SigMap.Map Signal.Status → Env → CodeSet.ST
+Canθₖ-visit p sigs θ = proj₁ $ proj₂ $ Canθ-visit p sigs θ
+
+Canθₛₕ-visit : Term → SigMap.Map Signal.Status → Env → ShrSet.ST
+Canθₛₕ-visit p sigs θ = proj₂ $ proj₂ $ Canθ-visit p sigs θ
+
 
 add-n-nothings : ℕ → SigMap.Map Signal.Status → SigMap.Map Signal.Status
 add-n-nothings 0 s = s
@@ -178,6 +202,17 @@ visit-lift-sig : ∀{a}{A : Set a}{sigs : SigMap.Map Signal.Status}
                → (∃[ n ] (n ∈ SigMap.keys sigs) → A)
 visit-lift-sig {sigs = sigs} f
   = (Prod.uncurry f) ∘ (Prod.map Signal.wrap (SigMap.in-inject sigs))
+
+Canθ-visit-rec : ∀{off} → (sigs : SigMap.Map Signal.Status) → Term → Sublist (SigMap.keys+∈ sigs) off → Env → CanResult
+Canθ-visit-rec sigs p sl θ = SL.visit (visit-lift-sig{sigs = sigs} (Canθ-lookup sigs)) (Can p) θ sl
+   where dom = (SigMap.keys+∈ sigs)
+
+Canθₛ-visit-rec : ∀{off} → (sigs : SigMap.Map Signal.Status) → Term → Sublist (SigMap.keys+∈ sigs) off → Env → SigSet.ST 
+Canθₛ-visit-rec sigs p sl θ = proj₁ $ Canθ-visit-rec sigs p sl θ
+Canθₖ-visit-rec : ∀{off} → (sigs : SigMap.Map Signal.Status) → Term → Sublist (SigMap.keys+∈ sigs) off → Env → CodeSet.ST 
+Canθₖ-visit-rec sigs p sl θ = proj₁ $ proj₂ $ Canθ-visit-rec sigs p sl θ
+Canθₛₕ-visit-rec : ∀{off} → (sigs : SigMap.Map Signal.Status) → Term → Sublist (SigMap.keys+∈ sigs) off → Env → ShrSet.ST 
+Canθₛₕ-visit-rec sigs p sl θ = proj₂ $ proj₂ $ Canθ-visit-rec sigs p sl θ
 
 add-nothings-remove-is-set : ∀ n x sigs → 
   (add-n-nothings n (just x ∷ sigs)) ≡ (SigMap.union (add-n-nothings (suc n) sigs) SigMap.[ n ₛ ↦ x ])
@@ -547,7 +582,7 @@ mutual
                      $ SLProp.sublist-irrelevant sl2 sl2' ⟩
                   (as (SigMap.key-visit sig-suc (Canθ-lookup sig-suc) (Can p) θ2))
                   ≡⟨ cong as $ sym $ rec ⟩
-                  ¬ Any (_≡_ n) (proj₁ (Canθ sigs (suc n) p θ2))
+                  (¬ Any (_≡_ n) (proj₁ (Canθ sigs (suc n) p θ2)))
                   ≡⟨ Prop.cong₂ final-step (sym $ +-identityʳ n) (NatP.+-comm 1 n) ⟩
                   final-step (n + 0) (n + 1)
                   ∎)
@@ -589,18 +624,30 @@ mutual
         SigMap.key-visit (add-n-nothings (n + 0) (just x ∷ sigs)) (Canθ-lookup (add-n-nothings (n + 0) (just x ∷ sigs))) (Can p) θ ∎
 
 
+Canθ-visit≡Canθ : ∀ sigs θ p → 
+                  Canθ-visit p sigs θ ≡ Canθ sigs 0 p θ
+Canθ-visit≡Canθ sigs θ p = sym $ canθ-visit-correct-start-higher sigs θ p 0
+
+Canθ-visit-rec-step : ∀{off} sigs θ p
+  →  (slo : Sublist (SigMap.keys+∈ sigs) (suc off))
+  →  (sli : Sublist (SigMap.keys+∈ sigs) off)
+  → ∃[ stat ]
+      ((Canθ-visit-rec sigs p slo θ
+        ≡
+        Canθ-visit-rec sigs p sli (θ ← [S]-env-build ((proj₁ (get slo)) ₛ) stat))
+       ×
+        (SigMap.lookup{k = ((proj₁ (get slo)) ₛ)} sigs (proj₂ (get slo))  ⊑ stat))
+Canθ-visit-rec-step sigs θ p l@(elem n n<l slo) sli
+  with SLProp.sublist-irrelevant slo sli
+     | SigMap.lookup{k = (proj₁ (get l)) ₛ} sigs (proj₂ (get l))
+... | refl | Signal.present  = Signal.present , refl , SO.refl
+... | refl | Signal.absent = Signal.absent , refl , SO.refl
+... | refl | Signal.unknown
+  with any (_≟_  (proj₁ (get l))) (proj₁ (revisit (θ ← ([S]-env-build ((proj₁ (get l)) ₛ) Signal.unknown))))
+    where revisit = (λ θ → SL.visit (visit-lift-sig{sigs = sigs} (Canθ-lookup sigs)) (Can p) θ sli)
+... | yes _ = Signal.unknown , refl , SO.refl
+... | no _ = Signal.absent , refl , SO.uknw
 
 
-Canθₛ⊆Canₛ : ∀ θ θu p S S′′ →
-  (Signal.unwrap S) ∈ Canθₛ (Env.sig θ) S′′ p θu →
-  (Signal.unwrap S) ∈ Canₛ p (θ ← θu)
-Canθₛ⊆Canₛ (Θ [] a b) θu p S S′′ ∈ rewrite can-shr-var-irr p  θu ((Θ [] a b) ← θu)  refl = ∈
-Canθₛ⊆Canₛ (Θ (nothing ∷ sg) a b) θu p S S′′ ∈
-   = {!(Canθₛ⊆Canₛ (Θ sg a b) θu p S (suc S′′) ∈)!}
-Canθₛ⊆Canₛ (Θ (just x ∷ sg) _ _) θu p S S′′ ∈ = {!!}
+                      
 
-Canθₛ⊆Canₛ-[]env-negative : ∀ θ p S →
-  (Signal.unwrap S) ∉ Canₛ p θ →
-  (Signal.unwrap S) ∉ Canθₛ (Env.sig θ) 0 p Env.[]env
-Canθₛ⊆Canₛ-[]env-negative θ p S ∉f ∈f
-   =   ∉f $ subst (λ x → ((Signal.unwrap S) ∈ Canₛ p x)) (Env.←-comm θ Env.[]env ((λ x x₁ ()) , (λ x x₁ ()) , (λ x x₁ ()))) (Canθₛ⊆Canₛ θ Env.[]env p S 0 ∈f) 

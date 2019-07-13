@@ -975,3 +975,19 @@ Dom'+∈-unique (nothing ∷ l) with (Dom'+∈-unique l)
      ug x [] ()
      ug x (x₁ ∷ l₁) (here px) = here (cong pred px)
      ug x (x₁ ∷ l₁) (there x₂) = there $ ug x l₁ x₂
+
+
+re-set-is-eq : ∀ (l : LMap) → (n : ℕ) → (n∈ : n ∈ (Dom' l))
+               → (v : Value)
+               → deref n l n∈ ≡ v
+               → m-insert (just v) n l ≡ l
+re-set-is-eq [] n () v eq
+re-set-is-eq (just x ∷ l) zero n∈ .x refl = refl
+re-set-is-eq (nothing ∷ l) zero n∈ _ refl = ⊥-elim (0∈S n∈)
+re-set-is-eq (x ∷ l) (suc n) n∈ v eq
+  = cong (x ∷_) $ re-set-is-eq l n (n∈S{x = x} n∈) v eq
+
+U-self-identity : ∀ l → l U l ≡ l 
+U-self-identity [] = refl
+U-self-identity (just x ∷ l) = cong (just x ∷_) (U-self-identity l) 
+U-self-identity (nothing ∷ l) = cong (nothing ∷_) (U-self-identity l) 

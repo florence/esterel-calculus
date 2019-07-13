@@ -301,3 +301,12 @@ count-merge≤′sum-count :
     count p (union m1 m2) ≤′ count p m1 + count p m2
 count-merge≤′sum-count {V} m1 m2 p =
   ocount-merge≤′sum-ocount V m1 m2 p
+
+re-update-is-eq : ∀ {Value} → (m : Map Value) → (k : Key) → (k∈ : (∈Dom k m))
+                  → (v : Value)
+                  → lookup{k = k} m k∈ ≡ v
+                  → update m k v ≡ m
+re-update-is-eq m k k∈ v eq = re-set-is-eq _ m (inject k) k∈ v eq 
+
+union-self-idenity : ∀{Value} → (l : Map Value) → union l l ≡ l
+union-self-idenity = U-self-identity _

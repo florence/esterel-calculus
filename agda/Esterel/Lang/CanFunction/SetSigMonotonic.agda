@@ -119,7 +119,6 @@ open import Data.OrderedListMap Signal Signal.unwrap Signal.Status as SigM
 open import Data.OrderedListMap SharedVar SharedVar.unwrap (Σ SharedVar.Status (λ _ → ℕ)) as ShrM
 open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
-
 canₖ-set-sig-monotonic : ∀ p S θ S∈ status →
   Env.sig-stats {S} θ S∈ ≡ Signal.unknown →
   ∀ k →
@@ -1349,3 +1348,5 @@ canθₛ-cong-←-add-sig-monotonic sigs S'' p θ θ' S status S' S'∈
           (Env.←-assoc-comm θ [ S ↦ status ] θ'
             (Env.sig-single-notin-distinct S status θ' S∉Domθ')))
         S'∈)
+
+

@@ -1048,7 +1048,6 @@ sig-put-1map-overwrite' S status status' S∈
   rewrite SigMap.putput-overwrite SigMap.empty S status status'
   = refl
 
--- ←-comm : ∀ θ θ' → distinct (Dom θ) (Dom θ') → (θ ← θ') ≡ (θ' ← θ)
 sig-set-inner-clobber : ∀ θ θ' θ'' S stat → isSig∈ S θ''
                         → ((θ ← (Θ SigMap.[ S ↦ stat ] [] [])) ← θ') ← θ''
                           ≡
@@ -1127,3 +1126,17 @@ sig-set-clobber-single-as-← S status status' θ S∈
    where
      θs1 = (Θ SigMap.[ S ↦ status' ] [] [])
      θs2 = (Θ SigMap.[ S ↦ status ] [] [])
+
+sig-re-set-is-eq : ∀ θ S status → (S∈ : isSig∈ S θ)
+                   → sig-stats {S} θ S∈ ≡ status
+                   → set-sig {S} θ S∈ status ≡ θ
+sig-re-set-is-eq θ S status S∈ eq
+  rewrite SigMap.re-update-is-eq (sig θ) S S∈ status eq
+  = refl
+
+←-self-identity : ∀ θ → θ ← θ ≡ θ
+←-self-identity θ
+  rewrite SigMap.union-self-idenity (sig θ)
+        | VarMap.union-self-idenity (var θ)
+        | ShrMap.union-self-idenity (shr θ)
+   = refl

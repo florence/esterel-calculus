@@ -12,7 +12,7 @@ open import Data.List as List
   using (List ; length ; _∷_ ; [])
 open import Data.List.Properties as ListProp
 open import Function
-  using (_$_ ; _∘_)
+  using (_$_ ; _∘_ ; id ; const)
 open import Relation.Nullary
   using (yes ; no)
 open import Data.Empty
@@ -55,9 +55,19 @@ map {l = l} f (elem n n<l sl)
    rewrite sym $ ListProp.length-map f l
    = elem n n<l (map f sl)
 
-visit : ∀{i a o n}{I : Set i}{A : Set a}{O : Set o}{l : List I} → (f : I → A → (A → O) → O) → (A → O) → A → Sublist l n → O
+visit : ∀{i a o n}{I : Set i}{A : Set a}{O : A → Set o}{l : List I}
+        → (f : I → (af : A) → ((ar : A) → O ar) → O af)
+        → ((ai : A) → O ai)
+        → (a : A)
+        → Sublist l n
+        → O a
 visit f g a empty = g a
 visit f g a l@(elem n n<l sl) = f (get l) a (λ a → visit f g a sl)
+
+-- a variant of visit that work more like the well founded recursion forms
+visit-rec : ∀{i a n}{I : Set i}{A : Set a}{l : List I} → (f : I → A → (A → A) → A) → A → Sublist l n → A
+visit-rec{A = A} f a l = visit f id a l
+
 
 get-n : ∀{a}{A : Set a}{l : List A}{n} → Sublist l n → ℕ
 get-n {n = n} _ = n

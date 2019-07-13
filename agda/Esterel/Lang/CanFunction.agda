@@ -16,7 +16,7 @@ open import Esterel.Variable.Sequential as SeqVar
   using (SeqVar ; _ᵥ)
 
 open import Function
-  using (_∘_)
+  using (_∘_ ; flip ; _$_)
 open import Relation.Nullary
   using (yes ; no)
 open import Relation.Nullary.Decidable
@@ -45,17 +45,19 @@ module SigSet = utility.ListSet Nat._≟_
 module ShrSet = utility.ListSet Nat._≟_
 module CodeSet = utility.ListSet Code._≟_
 
+[S]-env-build : Signal → Signal.Status → Env
+[S]-env-build S stat = Θ SigMap.[ S ↦ stat ] ShrMap.empty VarMap.empty
 -- hide this when importing CanFunction to avoid ambiguity from sn-calculus.agda
 [S]-env : (S : Signal) → Env
-[S]-env S = Θ SigMap.[ S ↦ Signal.unknown ] ShrMap.empty VarMap.empty
+[S]-env = flip [S]-env-build $ Signal.unknown
 
 -- The speculative environment used in Canₛ rule and for existing signals in Canθ
 [S]-env-absent : (S : Signal) → Env
-[S]-env-absent S = Θ SigMap.[ S ↦ Signal.absent ] ShrMap.empty VarMap.empty
+[S]-env-absent = flip [S]-env-build $ Signal.absent
 
 -- Helper environment for existing signals in Canθ
 [S]-env-present : (S : Signal) → Env
-[S]-env-present S = Θ SigMap.[ S ↦ Signal.present ] ShrMap.empty VarMap.empty
+[S]-env-present = flip [S]-env-build $ Signal.present
 
 Can   : Term → Env → SigSet.ST × CodeSet.ST × ShrSet.ST
 Canₛ  : Term → Env → SigSet.ST

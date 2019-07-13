@@ -1,4 +1,4 @@
-module Esterel.Variable.Signal where
+module Esterel.Variable.Signal where 
 
 open import Data.Key
 open import Data.Nat
@@ -46,6 +46,7 @@ _≟_ : Decidable {A = Signal} _≡_
 (s ₛ) ≟ (t ₛ) with s ≟ℕ t
 ... | yes p = yes (cong _ₛ p)
 ... | no ¬p = no (¬p ∘ cong unwrap)
+
 
 data Status : Set where
   present : Status
