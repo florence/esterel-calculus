@@ -7,7 +7,7 @@ open import Esterel.Lang.CanFunction.SetSigMonotonic public
 
 open import Esterel.Lang.CanFunction.NonMergePotentialRules
 open import Esterel.Lang.CanFunction.CanThetaVisit as V
-  using (Canθ-visit ; Canθ-visit≡Canθ ; Canθₛ-visit ; Canθₛ-visit-rec ; Canθ-visit-rec-step )
+  using (Canθ-visit ; Canθ-visit≡Canθ ; Canθₛ-visit ; Canθₛ-visit-rec ; Canθ-visit-rec-step ; Canθ-visit-rec )
 open import Esterel.Lang.CanFunction
 open import Esterel.Variable.Signal as Signal
   using (Signal ; _ₛ)
@@ -253,69 +253,51 @@ mutual
         S'∈2
         
   ... | no ¬refl
-    = {!!}
-  
-  {-
-  Canθₛ-visit-sig-set-monotonic-rec sigs θ p S_set stat lat Sublist.empty
-    = Canₛ-sig-set-monotonic θ p S_set stat lat
-  Canθₛ-visit-sig-set-monotonic-rec sigs θ p Ss stat ⊑ l@(Sublist.elem n n<l sl)
-   with SigMap.lookup{k = proj₁ (get l) ₛ} sigs (proj₂ (get l))
-  Canθₛ-visit-sig-set-monotonic-rec sigs θ p Ss stat ⊑ l@(Sublist.elem n n<l sl) | Signal.absent
-    with (Signal.wrap (proj₁ (get l))) Signal.≟ Ss
-  ... | yes refl
-     rewrite Env.sig-single-←-←-overwrite θ Ss stat Signal.absent
-    = λ x x₁ → x₁
-  ... | no ¬eq
-    rewrite sym $ Env.←-assoc-comm θ ([S]-env-build ((proj₁ (get l)) ₛ) Signal.absent) ([S]-env-build Ss stat)
-                $ (Env.sig-single-noteq-distinct ((proj₁ (get l)) ₛ) Signal.absent Ss stat λ x → ¬eq (trans (cong Signal.wrap x) Signal.unwrap-inverse))
-    = Canθₛ-visit-sig-set-monotonic-rec sigs (θ ← [S]-env-build ((proj₁ (get l)) ₛ) set) p Ss stat
-       ((mono-extend θ Ss stat ⊑) ((proj₁ (get l)) ₛ) set ¬eq)
-      sl
-    where set = Signal.absent
-  Canθₛ-visit-sig-set-monotonic-rec sigs θ p Ss stat ⊑ l@(Sublist.elem n n<l sl) | Signal.present
-    with (Signal.wrap (proj₁ (get l))) Signal.≟ Ss
-  ... | yes refl
-     rewrite Env.sig-single-←-←-overwrite θ Ss stat Signal.present
-    = λ x x₁ → x₁
-  ... | no ¬eq
-    rewrite sym $ Env.←-assoc-comm θ ([S]-env-build ((proj₁ (get l)) ₛ) Signal.present) ([S]-env-build Ss stat)
-                $ (Env.sig-single-noteq-distinct ((proj₁ (get l)) ₛ) Signal.present Ss stat λ x → ¬eq (trans (cong Signal.wrap x) Signal.unwrap-inverse))
-    = Canθₛ-visit-sig-set-monotonic-rec sigs (θ ← [S]-env-build ((proj₁ (get l)) ₛ) set) p Ss stat
-       ((mono-extend θ Ss stat ⊑) ((proj₁ (get l)) ₛ) set ¬eq)
-      sl
-    where set = Signal.present
-  Canθₛ-visit-sig-set-monotonic-rec sigs θ p Ss stat ⊑ l@(Sublist.elem n n<l sl) | Signal.unknown
-    with (Signal.wrap (proj₁ (get l))) Signal.≟ Ss
-  ... | yes refl = {!
-     rewrite Env.sig-single-←-←-overwrite θ Ss stat Signal.unknown
-    = λ x x₁ → x₁!}
-  ... | no ¬eq = {!
-    rewrite sym $ Env.←-assoc-comm θ ([S]-env-build ((proj₁ (get l)) ₛ) Signal.unknown) ([S]-env-build Ss stat)
-                $ (Env.sig-single-noteq-distinct ((proj₁ (get l)) ₛ) Signal.unknown Ss stat λ x → ¬eq (trans (cong Signal.wrap x) Signal.unwrap-inverse))
-    = Canθₛ-visit-sig-set-monotonic-rec sigs (θ ← [S]-env-build ((proj₁ (get l)) ₛ) set) p Ss stat
-       ((mono-extend θ Ss stat ⊑) ((proj₁ (get l)) ₛ) set ¬eq)
-      sl
-    where set = Signal.unknown !}
-  -}
-  {-
-    with any (Nat._≟_ (proj₁ (get l))) (proj₁ (revisit (θ ← [S]-env ((proj₁ (get l)) ₛ))))
-      where revisit = (λ θ → SL.visit (V.visit-lift-sig{sigs = sigs} (V.Canθ-lookup sigs)) (Can p) θ sl)
-    ... | yes _ = {!!}
-  ... | no _ = {!!}
-  -}
-  {-
-    with (Signal.wrap (proj₁ (get l))) Signal.≟ Ss
-  ... | yes refl
-     rewrite Env.sig-single-←-←-overwrite θ Ss stat Signal.absent
-    = λ x x₁ → x₁
-  ... | no ¬eq
-    rewrite sym $ Env.←-assoc-comm θ ([S]-env-build ((proj₁ (get l)) ₛ) Signal.absent) ([S]-env-build Ss stat)
-                $ (Env.sig-single-noteq-distinct ((proj₁ (get l)) ₛ) Signal.absent Ss stat λ x → ¬eq (trans (cong Signal.wrap x) Signal.unwrap-inverse))
-    = Canθₛ-visit-sig-set-monotonic-rec sigs (θ ← [S]-env-build ((proj₁ (get l)) ₛ) set) p Ss stat
-       ((mono-extend θ Ss stat ⊑) ((proj₁ (get l)) ₛ) set ¬eq)
-      sl
-    where set = Signal.absent -}
-  
+    = subst
+       id
+       (cong (S' ∈_ ∘ proj₁) $ sym eq1)
+       step2
+       
+        where
+         Shere = ((proj₁ (get l)) ₛ)
+         θset = (θ ← [S]-env-build Shere set)
+         θset1 = (θ ← [S]-env-build Shere set1)
+         θset1set = (θset1 ← [S]-env-build Shere set)
+         mono1 = ((mono-neq-extend θ Ss stat ⊑l) Shere set ¬refl)
+         S'∈x : S' ∈ (Canθₛ-visit-rec sigs p sl
+                       ((θ ← [S]-env-build Shere set)
+                           ← [S]-env-build Ss stat))
+         S'∈x = subst
+                 id
+                 ((begin
+                 ((S' ∈ (Canθₛ-visit-rec sigs p l
+                       ((θ ← [S]-env-build Ss stat)))))
+                 ≡⟨ cong (S' ∈_ ∘ proj₁) eq ⟩
+                 (S' ∈ (Canθₛ-visit-rec sigs p sl
+                       ((θ ← [S]-env-build Ss stat)
+                           ← [S]-env-build Shere set)))
+                 ≡⟨ (cong (λ θ → S' ∈ (Canθₛ-visit-rec sigs p sl θ))
+                       $ sym
+                       $ Env.←-assoc-comm θ ([S]-env-build Shere set) ([S]-env-build Ss stat)
+                       $ Env.sig-single-noteq-distinct Shere set Ss stat
+                       $ λ x → ¬refl (trans (cong Signal.wrap x) Signal.unwrap-inverse)) ⟩
+                 (S' ∈ (Canθₛ-visit-rec sigs p sl
+                       (θset ← [S]-env-build Ss stat))) ∎))
+                 S'∈Can←
+
+
+         step1 : (S' ∈ (Canθₛ-visit-rec sigs p sl θset))
+         step1
+            = (Canθₛ-visit-sig-set-monotonic-rec sigs θset p Ss stat mono1 sl S' S'∈x)
+         step1·5 : (S' ∈ (Canθₛ-visit-rec sigs p sl θset1set))
+         step1·5 rewrite Env.sig-single-←-←-overwrite θ Shere set1 set
+            = step1 
+         ⊑2 : ∀ S∈ → Env.sig-stats {Shere} θset1 S∈ ⊑ set
+         ⊑2 S∈ rewrite Env.sig-stats-1map-right-← Shere set1 θ S∈
+            = set1⊑set
+         step2 : (S' ∈ (Canθₛ-visit-rec sigs p sl θset1))
+         step2
+            = (Canθₛ-visit-sig-set-monotonic-rec sigs θset1 p Shere set ⊑2 sl S' step1·5)
 
 Canθₛ-visit-sig-set-monotonic : ∀ sigs θ p S status
   → (∀ S∈ → (Env.sig-stats {S} θ S∈ ⊑ status))
