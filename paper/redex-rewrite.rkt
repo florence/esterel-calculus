@@ -685,11 +685,15 @@
     ['ρ (λ (lws)
           (list (list-ref lws 0)
                 (just-after (hbl-append (alt-ρ) (def-t " ")) (list-ref lws 0))
-                ""
+                "⟨"
                 (list-ref lws 2)
-                (just-after "." (list-ref lws 2))
+                ", "
                 (list-ref lws 3)
-                (list-ref lws 4)))]
+                "⟩"
+                (just-after "." (list-ref lws 3))
+                (list-ref lws 4)
+                (list-ref lws 5)))]
+    ['A-⊓ (λ (lws) (binop "⊓" lws))]
     ['<- (λ (lws) (binop "←" lws))]
     ;; note: Lset-sub must match Lwithoutdom / restriction's typesetting
     ['Lset-sub (λ (lws) (binop "\\" lws))]

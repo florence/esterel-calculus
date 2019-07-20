@@ -144,7 +144,7 @@
   (with-paper-rewriters
       (render-language esterel-eval
                     #:nts
-                    '(stopped done paused E p q complete
+                    '(stopped done paused E p q A complete
                              status shared-status))))
 
 (define supp-lang

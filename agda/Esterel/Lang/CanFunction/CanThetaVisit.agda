@@ -84,6 +84,27 @@ open import Relation.Unary
 
 open ≡-Reasoning
 
+SubDomain : (sig : SigMap.Map Signal.Status) → ∀ off → Set
+SubDomain sig off = Sublist (SigMap.keys+∈ sig) off
+
+subdomain : (sig : SigMap.Map Signal.Status)
+  → SubDomain sig (List.length (SigMap.keys+∈ sig))
+subdomain = SL.sublist ∘ SigMap.keys+∈
+
+subdomain-sig : ∀{off} sigs
+   → SubDomain sigs (suc off)
+   → Signal
+subdomain-sig _ sl = (proj₁ (get sl)) ₛ
+
+subdomain-∈ : ∀{off} sigs
+   → (sl : SubDomain sigs (suc off))
+   → (SigMap.∈Dom (subdomain-sig sigs sl) sigs)
+subdomain-∈ _ = proj₂ ∘ get
+
+subdomain-lookup : ∀{off} sigs
+   → SubDomain sigs (suc off)
+   → Signal.Status
+subdomain-lookup sigs sl = SigMap.lookup{k = subdomain-sig sigs sl} sigs $ proj₂ (get sl)
 
 CanResult = SigSet.ST × CodeSet.ST × ShrSet.ST
 

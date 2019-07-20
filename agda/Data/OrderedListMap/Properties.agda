@@ -87,3 +87,47 @@ suc-isprodsucin (x ∷ l)
               ≡⟨ ListP.map-compose (Dom'+∈-help l) ⟩
               List.map (Prod.map suc sucin) (List.map (Prod.map₂ there) (Dom'+∈-help l)) ∎)
 
+module Canonical where
+  data Canonical : (l : LMap) → Set where
+    empty : Canonical []
+    just-empty : ∀ x → Canonical (just x ∷ [])
+    cons-j : ∀{l} x → Canonical l → Canonical ((just x) ∷ l)
+    cons-n : ∀{x l} → (Canonical (x ∷ l)) → Canonical (nothing ∷ x ∷ l)
+
+  canonical-insert-just : ∀{x l} y → Canonical (x ∷ l) →  Canonical (just y ∷ l)
+  canonical-insert-just y (just-empty x) = just-empty y
+  canonical-insert-just y (cons-j x can) = cons-j y can
+  canonical-insert-just y (cons-n can) = cons-j y can
+
+  m-insert-empty-is-canonical : ∀ x n → Canonical (m-insert (just x) n [])
+  m-insert-empty-is-canonical x zero = just-empty x
+  m-insert-empty-is-canonical x (suc zero) = cons-n (just-empty x)
+  m-insert-empty-is-canonical x (suc (suc n)) = cons-n (m-insert-empty-is-canonical x (suc n))
+
+  m-insert-maintains-canonical : ∀ l x n → Canonical l → Canonical (m-insert (just x) n l)
+  m-insert-maintains-canonical [] x zero can = just-empty x
+  m-insert-maintains-canonical (x₁ ∷ l) x zero can = canonical-insert-just x can
+  m-insert-maintains-canonical [] x (suc n) can = m-insert-empty-is-canonical x (suc n)
+  m-insert-maintains-canonical (just x₁ ∷ .[]) x (suc zero) (just-empty .x₁) = cons-j x₁ (just-empty x)
+  m-insert-maintains-canonical (just x₁ ∷ l) x (suc zero) (cons-j .x₁ can)
+    = cons-j x₁ (m-insert-maintains-canonical l x zero can )
+  m-insert-maintains-canonical (just x₁ ∷ .[]) x (suc (suc n)) (just-empty .x₁)
+    = cons-j x₁ (m-insert-empty-is-canonical x (suc n))
+  m-insert-maintains-canonical (just x₁ ∷ l) x (suc (suc n)) (cons-j .x₁ can)
+   = cons-j x₁ (m-insert-maintains-canonical l x (suc n) can)
+  m-insert-maintains-canonical (nothing ∷ a ∷ b) x (suc zero) (cons-n can)
+    = cons-n (m-insert-maintains-canonical (a ∷ b) x zero can)
+  m-insert-maintains-canonical (nothing ∷ a ∷ b) x (suc (suc n)) (cons-n can)
+    = cons-n (m-insert-maintains-canonical (a ∷ b) x (suc n) can)
+
+  normalize : LMap → ∃ Canonical
+  normalize [] = [] , empty
+  normalize (x ∷ l)
+    with normalize l
+  normalize (just x ∷ l)
+          | l' , can
+   = _ , cons-j x can
+  normalize (nothing ∷ l) | [] , can
+    = _ , can
+  normalize (nothing ∷ l)
+    | x ∷ l' , can = _ , cons-n can

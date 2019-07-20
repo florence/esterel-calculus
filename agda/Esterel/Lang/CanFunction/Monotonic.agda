@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Esterel.Lang.CanFunction.Monotonic where
 {-
 
@@ -7,8 +8,8 @@ open import Esterel.Lang.CanFunction.SetSigMonotonic public
 
 open import Esterel.Lang.CanFunction.NonMergePotentialRules
 open import Esterel.Lang.CanFunction.CanThetaVisit as V
-  using (Canθ-visit ; Canθ-visit≡Canθ ; Canθₛ-visit ; Canθₛ-visit-rec ; Canθ-visit-rec-step ; Canθ-visit-rec )
 open import Esterel.Lang.CanFunction
+open import Esterel.Lang.CanFunction.Base
 open import Esterel.Variable.Signal as Signal
   using (Signal ; _ₛ)
 open import Esterel.Variable.Signal.Ordering as SO
@@ -19,8 +20,8 @@ open import Esterel.Variable.Sequential as SeqVar
   using (SeqVar)
 open import utility
 open import Esterel.Environment as Env
-  using (Env ; _←_ ; Dom ; module SigMap ; module ShrMap ; module VarMap ; isSig∈)
-open Env.Env
+  using (Env ; _←_ ; Dom ; module SigMap ; module ShrMap ; module VarMap ; isSig∈ ;
+         sig ; var ; shr ; Θ)
 open import Esterel.Lang
   using (Term)
 open Term
@@ -81,6 +82,50 @@ _⊑θ_ : Rel Env 0ℓ
 ⊑θ-empty : ∀ θ → Env.[]env ⊑θ θ
 ⊑θ-empty θ _ ()
 
+⊑θ-extend-both : ∀{θ1 θ2}
+                 → θ1 ⊑θ θ2
+                 → ∀ S stat
+                 → (θ1 ← [S]-env-build S stat)
+                   ⊑θ
+                   (θ2 ← [S]-env-build S stat)
+⊑θ-extend-both{θ1}{θ2} f S stat S' S'∈
+  with S Signal.≟ S'
+... | yes refl
+  rewrite Env.sig-stats-1map-right-← S stat θ1 S'∈
+  = (Env.sig-∈-single-right-← S stat θ2)
+    , subst
+       (stat ⊑_)
+       (sym $ Env.sig-stats-1map-right-← S stat θ2 (Env.sig-∈-single-right-← S stat θ2))
+       SO.refl
+... | no ¬refl
+   = Env.sig-←-monoˡ S' θ2 ([S]-env-build S stat) (proj₁ inner∈,inner⊑)
+     , {!subst
+         (Env.sig-stats{S'} θ1 S'∈2 ⊑_)
+         (Env.sig-←-∉-irr-stats' S' θ2 ([S]-env-build S stat) (proj₁ inner∈,inner⊑)
+             (Env.sig-∉-single S' S stat (¬refl ∘ sym))
+             (Env.sig-←-monoˡ S' θ2 ([S]-env-build S stat) (proj₁ inner∈,inner⊑)))
+         (proj₂ inner∈,inner⊑)!}
+   where
+    S'∈2 : Env.isSig∈ S' θ1
+    S'∈2 = {!!}
+    inner∈,inner⊑ = f S' {!!}
+
+
+⊑θ-extendˡ : ∀{θ1 θ2}
+            → θ1 ⊑θ θ2 → ∀ S S∈
+            → (θ1 ← [S]-env-build S (Env.sig-stats{S} θ2 S∈)) ⊑θ θ2 
+⊑θ-extendˡ{θ1}{θ2} θ1⊑θ2 S S∈
+  = subst
+    ((θ1 ← [S]-env-build S (Env.sig-stats{S} θ2 S∈)) ⊑θ_)
+    (begin
+      (θ2 ← [S]-env-build S (Env.sig-stats{S} θ2 S∈))
+      ≡⟨ sym (Env.sig-set=← θ2 S (Env.sig-stats{S} θ2 S∈) S∈) ⟩
+      (Env.set-sig {S} θ2 S∈ (Env.sig-stats{S} θ2 S∈))
+      ≡⟨ (Env.sig-re-set-is-eq θ2 S (Env.sig-stats{S} θ2 S∈) S∈ refl) ⟩
+      θ2 ∎)
+    (⊑θ-extend-both{θ1}{θ2} θ1⊑θ2 S (Env.sig-stats{S} θ2 S∈)) 
+  -- 
+
 ⊑θ-extend : ∀{θ1 θ2}
             → θ1 ⊑θ θ2 → ∀ S stat
             → (∀ S∈ → Env.sig-stats{S} θ1 S∈ ⊑ stat)
@@ -103,6 +148,15 @@ _⊑θ_ : Rel Env 0ℓ
        (proj₂ inner∈,inner⊑)
   where
     inner∈,inner⊑ = θ1⊑θ2 S' S'∈
+
+⊑θ-to-⊑ : ∀{θ1 θ2} → θ1 ⊑θ θ2
+        → ∀ S S∈2 S∈ → Env.sig-stats{S} θ1 S∈ ⊑ Env.sig-stats{S} θ2 S∈2
+⊑θ-to-⊑ {θ1}{θ2} θ1⊑θ2 S S∈2 S∈ with
+   θ1⊑θ2 S S∈ 
+... | a , ⊑res  = subst
+                   (λ x →  Env.sig-stats{S} θ1 S∈ ⊑ Env.sig-stats{S} θ2 x)
+                   (Env.sig∈-eq{S}{θ2} a S∈2)
+                   ⊑res
 
 canₛ-add-sig-monotonic : ∀ p θ S status →
   ∀ S' →
@@ -304,5 +358,83 @@ Canθₛ-visit-sig-set-monotonic : ∀ sigs θ p S status
   → (_∈ (Canθₛ-visit p sigs (θ ← [S]-env-build S status))) ⊆′ (_∈ (Canθₛ-visit p sigs θ))
 Canθₛ-visit-sig-set-monotonic sigs θ p S_set stat lat
   =   Canθₛ-visit-sig-set-monotonic-rec sigs θ p S_set stat lat $ (SL.sublist (SigMap.keys+∈ sigs)) 
-     
 
+subdomain-copy : ∀{off} sigs → Env
+  → SubDomain sigs off
+  → Env
+subdomain-copy _ θ empty = θ
+subdomain-copy sigs θ l@(elem n n<l sl)
+  = (subdomain-copy sigs θ sl)
+    ←
+    [S]-env-build (subdomain-sig sigs l) (subdomain-lookup sigs l)
+
+subdomain-copy-useless : ∀ θ1 θ2
+  → subdomain-copy (sig θ2) θ1 (subdomain (sig θ2))
+     ≡
+    (Θ (sig θ2) (shr θ1) (var θ1))
+subdomain-copy-useless θ1 θ2 = {!!}
+
+subdomain-copy-maintains-⊑ : ∀{off θ1 θ2}
+  → θ1 ⊑θ θ2 
+  → (sl : SubDomain (sig θ2) off)
+  → (subdomain-copy (sig θ2) θ1 sl) ⊑θ θ2 
+subdomain-copy-maintains-⊑ θ1⊑θ2 empty = θ1⊑θ2
+subdomain-copy-maintains-⊑{_}{θ1}{θ2} θ1⊑θ2 l@(elem n n<l sl)
+  = ⊑θ-extendˡ{subdomain-copy (sig θ2) θ1 sl}{θ2}
+              (subdomain-copy-maintains-⊑ {_} {θ1} {θ2} θ1⊑θ2 sl)
+              (subdomain-sig (sig θ2) l)
+              (subdomain-∈ (sig θ2) l) 
+
+Canₛ-θ-monotonic-step : ∀{off} θ1 θ2 p
+  → θ1 ⊑θ θ2
+  → (sl : SubDomain (sig θ2) off)
+  → (_∈ (Canₛ p (subdomain-copy (sig θ2) θ1 sl))) ⊆′ (_∈ (Canₛ p θ1))
+Canₛ-θ-monotonic-step θ1 θ2 p θ1⊑θ2 empty S' S'∈ = S'∈
+Canₛ-θ-monotonic-step θ1 θ2 p θ1⊑θ2 l@(elem n n<l sl) S' S'∈
+  = Canₛ-θ-monotonic-step θ1 θ2 p θ1⊑θ2 sl S'
+    $ Canₛ-sig-set-monotonic  (subdomain-copy (sig θ2) θ1 sl) p
+          (subdomain-sig (sig θ2) l) (subdomain-lookup (sig θ2) l)
+            (⊑θ-to-⊑ {(subdomain-copy (sig θ2) θ1 sl)} {θ2}
+              (subdomain-copy-maintains-⊑{_}{θ1}{θ2} θ1⊑θ2 sl)
+              (subdomain-sig (sig θ2) l)
+              (subdomain-∈ (sig θ2) l)) S' S'∈ 
+
+Canₛ-θ-monotonic : ∀ θ1 θ2 p
+  → θ1 ⊑θ θ2
+  → ((_∈ (Canₛ p θ2)) ⊆′ (_∈ (Canₛ p θ1)))
+Canₛ-θ-monotonic θ1 θ2 p θ1⊑θ2 S' S'∈
+  = Canₛ-θ-monotonic-step θ1 θ2 p θ1⊑θ2 (subdomain (sig θ2)) S'
+   $ (subst
+      id
+      (begin
+      S' ∈ Canₛ p θ2
+      ≡⟨ cong (S' ∈_ ∘ proj₁)
+             $ can-shr-var-irr p θ2 (Θ (sig θ2) (shr θ1) (var θ1)) refl ⟩
+      S' ∈ Canₛ p (Θ (sig θ2) (shr θ1) (var θ1))
+      ≡⟨ cong (S' ∈_ ∘ (Canₛ p)) $ sym $ subdomain-copy-useless θ1 θ2 ⟩
+      S' ∈ Canₛ p (subdomain-copy (sig θ2) θ1 (subdomain (sig θ2))) ∎)
+      S'∈)
+
+Canθₛ-visit-θ-monotonic-rec : ∀{off} sigs θ1 θ2 p
+  → θ1 ⊑θ θ2
+  → (sl : Sublist (SigMap.keys+∈ sigs) off)
+  → ((_∈ (Canθₛ-visit-rec sigs p sl θ2))
+     ⊆′
+    (_∈ (Canθₛ-visit-rec sigs p sl θ1)))
+
+Canθₛ-visit-θ-monotonic-rec sigs θ1 θ2 p θ1⊑θ2 empty S S∈
+  = Canₛ-θ-monotonic θ1 θ2 p θ1⊑θ2 S S∈ 
+Canθₛ-visit-θ-monotonic-rec sigs θ1 θ2 p θ1⊑θ2 (elem n n<l sl) S S∈
+  = {!Canθₛ-visit-θ-monotonic-rec sigs θ1 θ2 p θ1⊑θ2 sl S!}
+
+Canθₛ-visit-θ-monotonic : ∀ sigs θ1 θ2 p
+  → θ1 ⊑θ θ2
+  → ((_∈ (Canθₛ-visit p sigs θ2))
+     ⊆′
+    (_∈ (Canθₛ-visit p sigs θ1)))
+Canθₛ-visit-θ-monotonic sigs θ1 θ2 p θ1⊑θ2
+  = Canθₛ-visit-θ-monotonic-rec sigs θ1 θ2 p θ1⊑θ2
+    $ sublist (SigMap.keys+∈ sigs)
+
+
+    

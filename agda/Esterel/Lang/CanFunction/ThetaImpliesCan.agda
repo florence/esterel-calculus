@@ -10,13 +10,15 @@ Variants are also proved for Canθₖ and Canθₛₕ
 
 -}
 
+open import Esterel.Lang.CanFunction.Monotonic
 open import Esterel.Lang.CanFunction.CanThetaVisit
   using (Canθ-visit ; Canθ-visit≡Canθ ; Canθₛ-visit ; Canθₛ-visit-rec)
-open import Esterel.Lang.CanFunction.SetSigMonotonic
 open import Esterel.Lang.CanFunction
   using (Can ; Canθ ; Canₛ ; Canθₛ ; [S]-env-build ; [S]-env)
 open import Esterel.Variable.Signal as Signal
-  using (Signal ; _ₛ ; _⊑_)
+  using (Signal ; _ₛ)
+open import Esterel.Variable.Signal.Ordering as SO
+  using (_⊑_)
 open import Esterel.Variable.Shared as SharedVar
   using (SharedVar ; _ₛₕ)
 open import Esterel.Variable.Sequential as SeqVar
@@ -61,6 +63,7 @@ Canθₛ-visit⊆Canₛ-rec θ θu p (elem n n<l sl) = {!!}
 
 Canθₛ-visit-step-rec : ∀{off} θ θu p
   → (sl : Sublist (SigMap.keys+∈ (Env.sig θ)) off)
+  → θ ⊑θ θu
   → ∀ S
   → (Signal.unwrap S) ∈ Canθₛ-visit-rec (Env.sig θ) p sl θu
   → (Signal.unwrap S) ∈ Canθₛ-visit-rec (Env.sig θ) p sl θ 
@@ -71,7 +74,7 @@ Canθₛ-visit-step-rec θ θu p (elem n n<l sl) s s∈ = {!!}
 Canθₛ-visit-step : ∀ θ p S →
   (Signal.unwrap S) ∈ Canθₛ-visit p (Env.sig θ) Env.[]env →
   (Signal.unwrap S) ∈ Canθₛ-visit p (Env.sig θ) θ 
-Canθₛ-visit-step θ p s s∈ = {!!}
+Canθₛ-visit-step θ p s s∈ = {!Canθₛ-visit-θ-monotonic-rec !}
 
 Canθₛ-visit⊆Canₛ : ∀ θ p S →
   (Signal.unwrap S) ∈ Canθₛ-visit p (Env.sig θ) Env.[]env →
