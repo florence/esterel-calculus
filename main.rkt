@@ -8,13 +8,9 @@
 (define-syntax define/ppl 
  (syntax-parser
    #:literals (propigate/remove*)
-   [(_ name propigate/remove* before body ...) 
-    #'(begin (define-term name (propigate/remove* before body ...))
-             (assert-subset-class (term before) (term name))
-             (for-each pretty-write (term name)))]
    [(_ name f:id before body ...) 
     #'(begin (define-term name (f before body ...))
-             (assert-same-class (term before) (term name))
+             (assert-same (term before) (term name))
              (for-each pretty-write (term name)))]
    [(_ name #:no-check
        body) 
@@ -209,6 +205,32 @@ The COS circuit for:
 ;                                              
 ;                                              
 
+(define-metafunction constructive
+  ;; first output P is the input
+  ;; second is the result of evaling P_a with the first
+  ;; this is the result of evaling P_b with the first
+  interp-both-con : P P -> ((P P P) ...)
+  [(interp-both-con P_a P_b)
+   ((P_I P_1 P_2) ...)
+   (where (((a = const) ...) ...)
+          (all-con P_a))
+   (where ((P_I (P_1) (P_2)) ...)
+          ((((a = const) ...)
+            (eval-con P_a ((a = const) ...))
+            (eval-con P_b ((a = const) ...)))
+           ...))])
+(define-metafunction classical
+  ;; ditto
+  interp-both-class : P P -> ((P P P) ...)
+  [(interp-both-class P_a P_b)
+   ((P_I P_1 P_2) ...)
+   (where (((a = const) ...) ...)
+          (all-class P_a))
+   (where ((P_I (P_1) (P_2)) ...)
+          ((((a = const) ...)
+            (eval-clas P_a ((a = const) ...))
+            (eval-clas P_b ((a = const) ...)))
+           ...))])
 
 (define-metafunction constructive
   interp-con : P -> (P ...)
@@ -289,19 +311,6 @@ The COS circuit for:
    (where (((c = const) ...) ...)
           (get-vals-class (b ...)))])
 
-(define-metafunction classical
-  vars : p -> (a ...)
-  [(vars (and p q))
-   (a ... b ...)
-   (where (a ...) (vars p))
-   (where (b ...) (vars q))]
-  [(vars (or p q))
-   (a ... b ...)
-   (where (a ...) (vars p))
-   (where (b ...) (vars q))]
-  [(vars (not p)) (vars p)]
-  [(vars a) (a)]
-  [(vars const) ()])
 
 (define-extended-language evalu classical
   [const ::= .... ⊥]
@@ -328,6 +337,21 @@ The COS circuit for:
       (or E* p)
       (or v E*)
       (not E*)])
+
+
+(define-metafunction evalu
+  vars : p -> (a ...)
+  [(vars (and p q))
+   (a ... b ...)
+   (where (a ...) (vars p))
+   (where (b ...) (vars q))]
+  [(vars (or p q))
+   (a ... b ...)
+   (where (a ...) (vars p))
+   (where (b ...) (vars q))]
+  [(vars (not p)) (vars p)]
+  [(vars a) (a)]
+  [(vars const) ()])
 
 (define-metafunction evalu
   eval-con : P ((a = const) ...) -> ((unevalable ...) ...)
@@ -430,38 +454,33 @@ The COS circuit for:
   [(consts-of ((a = q) (b = p) ...))
    (consts-of ((b = p) ...))])
 
-(define (assert-subset-class p q)
-  (define p*
-    (list->set (term (interp-class ,p))))
-  (define q*
-    (list->set (term (interp-class ,q))))
-  (define bad empty)
-  (for ([q (in-set q*)])
-    (unless
-        (for/first ([p (in-set p*)]
-                    #:when (subset? (list->set q)
-                                    (list->set p)))
-          #t)
-      (set! bad (cons q bad))))
-  (unless (empty? bad)
-    (error 'subset-class
-           "second class had:\n ~a\nwhich had no corresponding element in:\n ~a"
-           (pretty-format bad)
-           (pretty-format p*))))
-(module+ test
-  (check-not-exn
-   (λ ()
-     (assert-subset-class '((a = c) (c = d)) '((a = d))))))
 
-(define (assert-same-class p q)
-  (define p*
-    (term (interp-class ,p)))
-  (define q*
-    (term (interp-class ,q)))
-  (unless (equal? (list->set p*) (list->set q*))
+(define (assert-same p q)
+  (define con? (redex-match? constructive P p))
+  (define res
+    (if con?
+        (term (interp-both-con ,p ,q))
+        (term (interp-both-class ,p ,q))))
+  (define res*
+    (for*/list ([x (in-list res)]
+                [y (in-value
+                    (first-is-not-superset (second x) (third x)))]
+                #:when y)
+      (cons y x)))
+  
+  (unless (empty? res*)
     (error 'equal-class
            "the diff:\n ~a"
-           (pretty-format (sexp-diff p* q*)))))
+           (pretty-format res*))))
+
+(define (first-is-not-superset a b)
+  (and (not (empty? b))
+       (for/or ([x (in-list b)])
+         (and (not
+               (for/or ([y (in-list a)]
+                        #:when (equal? x y))
+                 #t))
+              (list "a broken clause:" x)))))
 
 
 (module+ test
@@ -512,4 +531,49 @@ The COS circuit for:
     P
     (equal?
      (list->set (map-conv (term (interp-con P))))
-     (list->set (term (interp-class (convert-P P))))))))
+     (list->set (term (interp-class (convert-P P)))))))
+  (check-not-exn
+   (lambda ()
+     (assert-same
+      (term ((a = b) (b = c)))
+      (term ((a = c))))))
+  (check-not-exn
+   (lambda ()
+     (assert-same
+      (term (convert-P ((a = b) (b = c))))
+      (term (convert-P ((a = c)))))))
+  (check-exn
+   #rx"the diff"
+   (lambda ()
+     (assert-same (term ((a = b)))
+                  (term ((a = true))))))
+  (check-exn
+   #rx"the diff"
+   (lambda ()
+     (assert-same
+      (term ((a = b) (b = c)))
+      (term ((a = true))))))
+  (check-exn
+   #rx"the diff"
+   (lambda ()
+     (assert-same
+      (term (convert-P ((a = b) (b = c))))
+      (term (convert-P ((a = true)))))))
+  (check-exn
+   #rx"the diff"
+   (lambda ()
+     (assert-same
+      (term ((SEL = reg-out)
+             (k2 = GO)
+             ))
+      (term
+       ((SEL = false)
+        (k2 = GO)
+        )))))
+    
+  (redex-check
+   constructive
+   P
+   (begin
+     (assert-same (term P) (term P))
+     (assert-same (term (convert-P P)) (term (convert-P P))))))
