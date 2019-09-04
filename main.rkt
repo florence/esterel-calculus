@@ -444,6 +444,25 @@ The COS circuit for:
          (c const) ...)))))
     update-env]))
 
+(module+ test
+  (check-equal?
+   (remove-duplicates
+    (apply-reduction-relation*
+     ->b
+     (term ((x = (or true false))))))
+   (term (((x = true)))))
+
+  (check-equal?
+   (remove-duplicates
+    (apply-reduction-relation*
+     ->b
+     (term
+      (((+ left) = (or true (+ lem)))
+       ((+ lem) = (and false (and false true)))))))
+   (term
+    ((((+ left) = true)
+      ((+ lem) = false))))))
+
 (define-metafunction evalu
   consts-of : P -> env
   [(consts-of ()) ()]
