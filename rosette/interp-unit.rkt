@@ -37,21 +37,21 @@
              (constructive? b))))
 
   (define (verify-same P1 P2)
-    (define inputs (symbolic-inputs (append P1 P2)))
-    (begin0
-      (verify
-       #:assume
-       (assert (constraints inputs))
-       #:guarantee
-       (assert
-        (result=?
-         (eval (build-state P1 inputs)
-               (build-formula P1)
-               #t)
-         (eval (build-state P2 inputs)
-               (build-formula P2)
-               #t))))
-      (clear-asserts!)))
+    (with-asserts
+     (let ()
+       (define inputs (symbolic-inputs (append P1 P2)))
+       (verify
+        #:assume
+        (assert (constraints inputs))
+        #:guarantee
+        (assert
+         (result=?
+          (eval (build-state P1 inputs)
+                (build-formula P1)
+                #t)
+          (eval (build-state P2 inputs)
+                (build-formula P2)
+                #t)))))))
 
   (define (build-formula P)
     (map
