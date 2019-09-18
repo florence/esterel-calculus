@@ -21,7 +21,7 @@
     (lambda (w)
       (not (n w))))
   (define (symbolic-boolean name)
-    (constant (~a name "$" (next-unique!)) boolean?))
+    (constant (~a name "$" (next-unique! name)) boolean?))
   (define (constraints I)
     (andmap
      (λ (x)

@@ -18,8 +18,8 @@
 (define (contains? t v)
   (not (false? (assoc v t))))
 
-(define counter 0)
-(define (next-unique!)
-  (define x counter)
-  (set! counter (add1 counter))
-  x)
+(require (only-in racket/base make-hash hash-update! hash-ref))
+(define counter (make-hash))
+(define (next-unique! x)
+  (hash-update! counter x add1 (lambda () -1))
+  (hash-ref counter x))
