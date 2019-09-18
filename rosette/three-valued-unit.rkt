@@ -42,9 +42,9 @@
         [(⊥) '⊥])))
   (define (symbolic-boolean name)
     (define pos
-      (constant (~a "pos" name next-unique!) boolean?))
+      (constant (~a "pos-" name "$" (next-unique!)) boolean?))
     (define neg
-      (constant (~a "neg" name next-unique!) boolean?))
+      (constant (~a "neg-" name "$" (next-unique!)) boolean?))
     (if pos #t (if neg #f '⊥)))
   (define (constraints _)
     #t)
