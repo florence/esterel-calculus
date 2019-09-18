@@ -45,6 +45,7 @@
       (constant (~a "pos-" name "$" (next-unique! name)) boolean?))
     (define neg
       (constant (~a "neg-" name "$" (next-unique! name)) boolean?))
+    (assert (not (and pos neg)))
     (if pos #t (if neg #f '⊥)))
   (define (constraints _)
     #t)
