@@ -215,7 +215,7 @@ x∈xs++[]→x∈xs {xs = xs} x∈xs rewrite xs++[]≡xs xs = x∈xs
 
 
 _⊆¹_ : List ℕ → List ℕ → Set
-xs ⊆¹ ys = ∀ x → x ∈ xs → x ∈ ys
+xs ⊆¹ ys = ∀ x → (x∈xs : x ∈ xs) → x ∈ ys
 
 _⊆_ : List ℕ × List ℕ × List ℕ → List ℕ × List ℕ × List ℕ → Set
 (Ss₁ , ss₁ , xs₁) ⊆ (Ss₂ , ss₂ , xs₂) =

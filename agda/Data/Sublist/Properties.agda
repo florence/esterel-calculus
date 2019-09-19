@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Data.Sublist.Properties where
 
 open import Data.Sublist
@@ -6,7 +7,7 @@ open import utility.HeterogeneousEquality
 open import Data.List as List
   using (List ; [] ; _++_ ; _∷_ ; lookup ; length)
 open import Relation.Binary.PropositionalEquality
-  using (refl ; _≡_ ; cong ; inspect ; [_] ; subst ; sym)
+  using (refl ; _≡_ ; cong ; inspect ; [_] ; subst ; sym ; trans)
 open import Data.Nat as Nat
   using (ℕ ; zero ; suc ; _∸_ ; _+_ ; _<_ ; _≤_)
 open _≤_
@@ -178,14 +179,6 @@ equal-list-equal-sublist-het{A = A}{B = B}{l1 = l1}{l2 = l2}{off1 = (suc off)}{o
                (proj₁ (het-cons-injective x x₁ l1 l2 eq1 eq2))
                $ het-list-lt-eq n l1 l2 n<l1 n<l2 eq1
                $ proj₂ $ het-cons-injective x x₁ l1 l2 eq1 eq2
-    {-
-Het.cong
-     (Het.cong
-       
-       ?)
-       $ equal-list-equal-sublist-het sl1 sl2 eq1 eq2 refl
-       -}
-    -- 
 
 fromℕ-subt-lt-head : ∀ l lt →
   (fromℕ≤ (get-sub-lt l (suc l) lt))
@@ -212,3 +205,54 @@ get-first-is-first {l = x ∷ l} {.(length l)} sl refl
   rewrite sublist-irrelevant sl (sublist (x ∷ l))
     = cong just $ get-first-is-first-from-head x l 
   
+
+split-stepʳ : ∀{a}{A : Set a}{l : List A}{off}
+             → (s1 : Sublist l (suc off))
+             → (s2 : Sublist l off)
+             → (proj₂ (proj₁ (split s1)))
+                 ≡
+               ((get s1) ∷ (proj₂ (proj₁ (split s2))))
+split-stepʳ l@(elem n n<l s1) s2
+    with split l
+       | split s2
+... | (l1 , l2) , eq1 , eq2
+    | (sl1 , sl2) , seq1 , seq2
+  rewrite sublist-irrelevant s1 s2
+    = {!trans eq1 (sym seq1)!}
+
+split-stepˡ : ∀{a}{A : Set a}{l : List A}{off}
+             → (s1 : Sublist l (suc off))
+             → (s2 : Sublist l off)
+             → ((proj₁ (proj₁ (split s1))) ++ List.[ (get s1) ])
+                 ≡
+               (proj₂ (proj₁ (split s2)))
+split-stepˡ l@(elem n n<l s1) sl2
+   with split l
+      | split sl2
+      | split-stepʳ l sl2
+... | a | b | refl rewrite sublist-irrelevant s1 sl2
+  = {!!}
+
+              
+split-startˡ : ∀{a}{A : Set a}
+              → (l : List A)
+              → [] ≡ (proj₁ (proj₁ (split (sublist l))))
+split-startˡ l with (split (sublist l))
+split-startˡ .b | ([] , b) , refl , eq2 = refl
+split-startˡ .(x ∷ a ++ b) | (x ∷ a , b) , refl , eq2
+  with NatProp.+-cancelʳ-≡ 0
+        (suc (length a))
+        (subst
+           (λ x → (length b) ≡ suc x)
+           (ListProp.length-++ a {b})
+           eq2)
+... | ()
+  
+               
+
+split-startʳ : ∀{a}{A : Set a}
+              → (l : List A)
+              → l ≡ (proj₂ (proj₁ (split (sublist l))))
+split-startʳ l with split (sublist l)
+                 | split-startˡ l
+... | (.[] , q) , refl , _ | refl = refl             

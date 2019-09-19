@@ -764,6 +764,19 @@
       #:memory-limits? #f
       #:debug? #f
       #:oracle '(() (SO))))
+    (test-case "example discovered during investigation of circuits"
+      (check-not-false
+       (execute-test
+        (term
+         (loop (trap (seq pause (seq (emit S) (exit 0))))))
+        '()
+        '(S)
+        '(() () () ())
+        #:limits? #f 
+        #:memory-limits? #f
+        #:debug? #f
+        #:external? #t)))
+        
 
     (check-not-false
      (execute-test

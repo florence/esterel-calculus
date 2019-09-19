@@ -205,6 +205,7 @@
             ((S) => (O F W))
             (() => ())))
 
+
 (test-case "weak-abort-immediate"
   (define-esterel-machine m1
     #:inputs (S)
@@ -242,7 +243,7 @@
     #:outputs ()
     #:input/outputs (a b)
     (loop&
-     (run& m1 [s -> s] [u -> u] [a -> w] [b -> z])
+       (run& m1 [s -> s] [u -> u] [a -> w] [b -> z])
      pause&))
   (test-seq
    run2

@@ -18,6 +18,7 @@ import Relation.Unary as U
 open import Data.MoreNatProp
 
 
+
 module Data.OrderedListMap
   (Key : Set)
   (inject : Key → ℕ)
@@ -48,7 +49,8 @@ open import Data.Unit
   using (⊤ ; tt)
 open import Relation.Nullary
   using (yes ; no ; ¬_)
-open import Data.List.Any using (here ; there)
+open import Data.List.Any as lAny
+  using (Any ; here ; there)
 open import Data.List.Any.Properties using (∷↔ ; ⊥↔Any[])
   renaming ( ++⁺ˡ  to ++ˡ ; ++⁺ʳ to ++ʳ ) 
 open import Function using (_∘_)
@@ -68,6 +70,7 @@ m-insert nothing zero (x ∷ l) = x ∷ l
 m-insert (just v) zero (x ∷ l) = (just v) ∷ l
 m-insert v (suc n) [] = nothing ∷ (m-insert v n [])
 m-insert v (suc n) (x ∷ l) = x ∷ (m-insert v n l)
+
 
 insert : Key → Value → LMap → LMap
 insert k v l = m-insert (just v) (inject k) l
@@ -991,3 +994,4 @@ U-self-identity : ∀ l → l U l ≡ l
 U-self-identity [] = refl
 U-self-identity (just x ∷ l) = cong (just x ∷_) (U-self-identity l) 
 U-self-identity (nothing ∷ l) = cong (nothing ∷_) (U-self-identity l) 
+

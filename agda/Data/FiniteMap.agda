@@ -49,7 +49,7 @@ open import Relation.Nullary
 open import Data.OrderedListMap(Key)(inject) as OMap hiding (insert-mono ; U-mono)
 open import Data.Bool using (Bool ; true ; false)
 open import Data.List.Properties using (map-compose)
-open import Data.Sublist using (sublist ; visit)
+open import Data.Sublist using (sublist ; visit ; visit-rec ; Sublist ; Rec)
 
 private
   nbiject : ∀ {k1 k2} → k1 ≢ k2 → inject k1 ≢ inject k2
@@ -73,19 +73,33 @@ inj= = _≡_ ∘ inject
 in-inject : ∀ {Value}{x : ℕ} → (l : Map Value) → x ∈ Dom' Value l → ∈Dom (surject x) l
 in-inject{x = x} l ∈ rewrite surject-inject{x} = ∈
 
-key-visit : ∀{Value}{s a}{S : Set s}{A : Set a} → (l : Map Value) → (f : (k : Key) → (∈Dom k l) → A → (A → S) → S) → (A → S) → A → S
+key-visit : ∀{Value}{s a}{S : Set s}{A : Set a}
+            → (l : Map Value)
+            → (f : (k : Key) → (k∈ : (∈Dom k l)) → (acc : A) → (rec : (A → S)) → S)
+            → ((acc : A) → S)
+            → A → S
 key-visit l f g s
   = visit ((uncurry f) ∘ (map surject (in-inject l)))
           g
           s
           (sublist (keys+∈ l))
 
-key-map : ∀{Value}{a}{L : Set a} → (l : Map Value) → (f : (k : Key) → (∈Dom k l) → L) → List L
+key-visit-rec : ∀{Value}{a}
+                → (l : Map Value)
+                → {A : ∀{n} → Sublist (keys l) n → Set a}
+                → (f : ∀{n} → (sl : Sublist (keys l) n)
+                       → (Rec (keys l) n A)
+                       → A sl)
+                → A (sublist (keys l))
+key-visit-rec l f
+  = visit-rec f (sublist (keys l))
+
+key-map : ∀{Value}{a}{L : Set a} → (l : Map Value) → (f : (k : Key) → (k : (∈Dom k l)) → L) → List L
 key-map{L = L} l f
   = Data.List.map ((uncurry f) ∘ (map surject (in-inject l)))
                   (keys+∈ l)
 
-key-unique-map : ∀{Value} → (l : Map Value) → (A : Key → Set) → (f : (k : Key) → (∈Dom k l) → (A k)) → UniquedSet A
+key-unique-map : ∀{Value} → (l : Map Value) → (A : Key → Set) → (f : (k : Key) → (k∈ : (∈Dom k l)) → (A k)) → UniquedSet A
 key-unique-map{Value} l A f
   = uniqued-set (Data.List.map f2 lst)
     $ UniquedSet.map f2 proj₁ unq ug 
@@ -110,6 +124,10 @@ lookup{Value}{k = k} m k∈ = deref Value (inject k) m k∈
 
 update : ∀{Value} → (l : Map Value) → Key → Value → Map Value
 update{Value} l k v = m-insert Value (just v) (inject k) l
+
+values : ∀{Value} → (l : Map Value) → List Value
+values l = key-map l (λ _ → lookup l)
+
 
 -- Union map. For repeated keys, the values from the second map is preferred.
 union : ∀{Value} → Map Value → Map Value → Map Value
