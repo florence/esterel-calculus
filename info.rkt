@@ -17,7 +17,8 @@
                "draw-lib"
                "scribble-lib"
                "pict-snip-lib"
-               "html-parsing"))
+               "html-parsing"
+	       "rosette"))
 
 (define collection "esterel-calculus")
 (define build-deps '("debug"))
