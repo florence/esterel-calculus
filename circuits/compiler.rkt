@@ -1,10 +1,26 @@
 #lang racket
+(provide compile-esterel)
 (require esterel-calculus/circuits
          esterel-calculus/circuits/rosette
          esterel-calculus/redex/model/shared
          redex/reduction-semantics)
 
 (module+ test (require rackunit))
+(module+ rename
+  (provide rename*)
+  (define-metafunction L+
+    rename* : any [c:a any] ... -> any
+    [(rename* c:a _ ... [c:a c:b] _ ...)
+     c:b]
+    [(rename* (c:a = any_e) _ ... [c:a any] _ ...)
+     ,(error 'rename "~a cannot be renamed to ~a" (term (c:a = any_e)) (term any))
+     (side-condition
+      (not (redex-match? L+ c:a (term any))))]
+    [(rename* c:a _ ... [c:a any] _ ...)
+     any]
+    [(rename* (any ...) [c:a any_2] ...)
+     ((rename* any [c:a any_2] ...) ...)]
+    [(rename* any _ ...) any]))
 
 (define-extended-language constructive+ constructive
   (a ::= .... (K n))
@@ -76,14 +92,14 @@
   [(compile (present e:S e:p e:q) c:entropy)
    ((++/P ((c:a_then = (and GO e:S))
            (c:a_else = (and GO (not e:S)))
-           (SEL = (or c:p_sel c:q_sel)))
+           (SEL = (or any_psel any_qsel)))
           (rename* c:P_p
                    [GO c:a_then]
-                   [SEL c:p_sel]
+                   [SEL any_psel]
                    [(K c:k_rename) c:a_prename] ...)
-          (rename* c:P_p
+          (rename* c:P_q
                    [GO c:a_else]
-                   [SEL c:q_sel]
+                   [SEL any_qsel]
                    [(K c:k_rename) c:a_prename] ...))
          
     (++/filter (e:S_p ...) (e:S_q ...))
@@ -101,20 +117,22 @@
                  .
                  c:entropy_r))
    (where/error c:a_then (afresh then c:entropy_r2))
-   (where/error c:a_else (afresh else c:entropy_r2))]
+   (where/error c:a_else (afresh else c:entropy_r2))
+   (where/error any_psel (maybe-afresh c:P_p SEL pSEL-present c:entropy_r2))
+   (where/error any_qsel (maybe-afresh c:P_q SEL qSEL-present c:entropy_r2))]
   [(compile (suspend e:p e:S) c:entropy)
    ((++/P ((c:a_susp-res = (and (not e:S) c:a_do-res))
-           (c:a_do-res = (and c:a_susp-sel RES))
+           (c:a_do-res = (and any_susp-sel RES))
            (c:a_susp-susp = (or SUSP c:a_do-susp))
            (c:a_do-susp = (and e:S c:a_do-res))
            ((K 1) = (or c:a_do-susp any_k1rename)))
           (rename* c:P
                    [RES c:a_susp-res]
-                   [SEL c:a_susp-sel]
+                   [SEL any_susp-sel]
                    [SUSP c:a_susp-susp]
                    [(K 1) any_k1rename]))
     (e:S_out ...)
-    (c:k_out ...))
+    (++/filter/sort (1) (c:k_out ...)))
    (where/error (c:P (e:S_out ...) (c:k_out ...))
                 (compile e:p c:entropy))
    
@@ -122,7 +140,8 @@
    (where/error any_k1rename (maybe-rename-k 1 (c:k_out ...) c:entropy_r))
    (where/error c:a_susp-res (afresh susp-res c:entropy_r))
    (where/error c:a_do-res (afresh do-res c:entropy_r))
-   (where/error c:a_susp-sel (afresh susp-sel c:entropy_r))
+   (where/error any_susp-sel
+                (maybe-afresh c:P SEL susp-sel c:entropy_r))
    (where/error c:a_susp-susp (afresh susp-susp c:entropy_r))
    (where/error c:a_do-susp (afresh do-susp c:entropy_r))]
   [(compile (seq e:p e:q) c:entropy)
@@ -134,7 +153,8 @@
                 (compile e:p c:entropy))
    (where/error (c:P_q (e:S_q ...) (c:n_q ...))
                 (compile e:q (c:P_p . c:entropy)))
-   (where/error any_k0rename (maybe-rename-k 0 (c:n_p ...) (c:P_p c:P_q . c:entropy)))]
+   (where/error any_k0rename
+                (maybe-rename-k 0 (c:n_p ...) (c:P_p c:P_q . c:entropy)))]
   [(compile (loop e:p) c:entopy)
    ((++/P (((K 0) = false)
            (c:a_loop-go = (or GO any_k0rename)))
@@ -168,17 +188,22 @@
    (where/error any_k2rename (maybe-rename-k 2 (c:k_out ...) c:entropy_r))
    (where/error ((c:k_o c:k_i) ...) (lower-ks (c:k_out ...)))]
   [(compile (signal e:S e:p) c:entropy)
-   ;; assuming names are unique
-   (compile e:p c:entropy)]
+   ((rename* c:P [e:S any_srename])
+    ,(filter (lambda (x) (not (eq? (term e:S) x))) (term (e:S_o ...)))
+    (c:k ...))
+   (where/error (c:P (e:S_o ...) (c:k ...))
+                (compile e:p c:entropy))
+   (where/error any_srename (maybe-afresh c:P e:S e:S (c:P. c:entropy)))]
   [(compile (par e:p e:q) c:entropy)
    ((++/P c:P_sync
+          ((SEL = (or any_psel any_qsel)))
           (rename* c:P_p
                    [KILL c:a_outkill]
-                   [SEL c:a_psel]
+                   [SEL any_psel]
                    [(K c:n_p) c:a_prename] ...)
           (rename* c:P_q
                    [KILL c:a_outkill]
-                   [SEL c:a_qsel]
+                   [SEL any_qsel]
                    [(K c:n_q) c:a_qrename] ...))
     (++/filter (e:S_p ...) (e:S_q ...))
     (++/filter/sort (c:n_p ...) (c:n_q ...)))
@@ -187,15 +212,15 @@
    (where/error (c:P_q (e:S_q ...) (c:n_q ...))
                 (compile e:q (c:P_p . c:entropy)))
    (where/error c:entropy_r (c:P_q c:P_p . c:entropy))
-   (where/error c:a_psel (afresh psel c:entropy_r))
-   (where/error c:a_qsel (afresh qsel c:entropy_r))
+   (where/error any_psel (maybe-afresh c:P_p SEL psel c:entropy_r))
+   (where/error any_qsel (maybe-afresh c:P_q SEL qsel c:entropy_r))
    (where/error (c:P_sync (c:a_prename ...)
                           (c:a_qrename ...)
                           c:a_outkill)
                 (build-synchonizer (c:n_p ...)
-                                   c:a_psel
+                                   any_psel
                                    (c:n_q ...)
-                                   c:a_qsel
+                                   any_qsel
                                    (c:a_psel c:a_qsel . c:entropy_r)))])
 
 (define-metafunction L+
@@ -250,6 +275,13 @@
    (where/error any (c:n (afresh left c:entropy) (afresh right c:entropy)))])
 
 (define-metafunction L+
+  maybe-afresh : c:P variable variable c:entropy -> c:a or false
+  [(maybe-afresh (_ ... [variable = _] _ ...) variable variable_1 c:entropy)
+   (afresh variable_1 c:entropy)]
+  [(maybe-afresh _ _ _ _)
+   false])
+   
+(define-metafunction L+
   afresh : variable c:entropy -> c:a
   [(afresh variable c:entropy)
    ,(variable-not-in (term c:entropy) (term variable))])
@@ -279,15 +311,15 @@
     (or-duplicates (c:e ...)))])
 
 (define-metafunction L+
-  build-synchonizer : (c:n ...) c:a (c:n ...) c:a c:entropy
+  build-synchonizer : (c:n ...) any (c:n ...) any c:entropy
   -> (c:P (c:a ...) (c:a ...) c:a)
   
-  [(build-synchonizer (c:n_p ...) c:a_psel (c:n_q ...) c:a_qsel c:entropy)
+  [(build-synchonizer (c:n_p ...) any_psel (c:n_q ...) any_qsel c:entropy)
    ,(let ()
       (define lem (variable-not-in (term c:entropy) 'lem))
       (define rem (variable-not-in (term c:entropy) 'rem))
-      (for/fold ([P (term ((,lem = (and SEL (and RES (not c:a_psel))))
-                           (,rem = (and SEL (and RES (not c:a_qsel))))))]
+      (for/fold ([P (term ((,lem = (and SEL (and RES (not any_psel))))
+                           (,rem = (and SEL (and RES (not any_qsel))))))]
                  [lem lem]
                  [rem rem]
                  [kill (term KILL)]
@@ -335,90 +367,226 @@
   rename* : any [c:a any] ... -> any
   [(rename* c:a _ ... [c:a c:b] _ ...)
    c:b]
+  [(rename* (c:a = any_e) _ ... [c:a any] _ ...)
+   ,(error 'rename "~a cannot be renamed to ~a" (term (c:a = any_e)) (term any))
+   (side-condition
+    (not (redex-match? L+ c:a (term any))))]
   [(rename* c:a _ ... [c:a any] _ ...)
-   ,(error "dont get here")]
+   any]
   [(rename* (any ...) [c:a any_2] ...)
    ((rename* any [c:a any_2] ...) ...)]
   [(rename* any _ ...) any])
-              
+
+
+;                                                         
+;                                                         
+;                                                         
+;                                                         
+;   ;;;;;;;;;                                             
+;       ;                               ;                 
+;       ;                               ;                 
+;       ;         ;;;;      ;;;;;    ;;;;;;;      ;;;;;   
+;       ;       ;;   ;;    ;;   ;;      ;        ;;   ;;  
+;       ;       ;     ;    ;            ;        ;        
+;       ;       ;     ;    ;;           ;        ;;       
+;       ;      ;;;;;;;;     ;;;;        ;         ;;;;    
+;       ;      ;;             ;;;       ;           ;;;   
+;       ;       ;               ;;      ;             ;;  
+;       ;       ;;              ;;      ;             ;;  
+;       ;       ;;;  ;;    ;;  ;;;      ;;  ;    ;;  ;;;  
+;       ;         ;;;;    ; ;;;;         ;;;;   ; ;;;;    
+;                                                         
+;                                                         
+;                                                         
+;                                                         
+;                                                         
+
+
 (module+ test
-  (check-equal?
-   (term (compile-esterel nothing))
-   (term ((K0 = GO))))
-  (check-equal?
-   (term (compile-esterel (exit 0)))
-   (term ((K2 = GO))))
-  (check-equal?
-   (term (compile-esterel (emit Ss)))
-   (term ((K0 = GO)
-          (Ss = GO))))
-  (check-equal?
-   (term (compile-esterel (seq nothing nothing)))
-   (term ((K0-internal = GO)
-          (K0 = K0-internal))))
-  (check-equal?
-   (term (compile-esterel pause))
-   (term ((K1 = GO)
-          (K0 = (and reg-out RES))
-          (SEL = reg-out)
-          (reg-in = (and (not KILL) do-sel))
-          (do-sel = (or GO resel))
-          (resel = (and susp SEL)))))
-  (check-pred
-   unsat?
-   (verify-same
-    (term (compile-esterel (par nothing nothing)))
-    (term (compile-esterel nothing))))
-  (check-pred
-   unsat?
-   (verify-same
-    (term (compile-esterel (par (exit 2) nothing)))
-    (term (compile-esterel (exit 2)))))
-  (check-pred
-   unsat?
-   (verify-same
-    (term (compile-esterel (par (exit 2) (exit 4))))
-    (term (compile-esterel (exit 4)))))
-  (check-pred
-   unsat?
-   (verify-same
-    (term (compile-esterel (signal Ss (present Ss (emit S1) (emit S2)))))
-    (term (compile-esterel (emit S2)))))
-  (check-pred
-   unsat?
-   (verify-same
-    (term (compile-esterel (suspend nothing Ss)))
-    (term (compile-esterel nothing))))
-  (check-pred
-   unsat?
-   (verify-same
-    (term (compile-esterel (suspend (exit 2) Ss)))
-    (term (compile-esterel (exit 2)))))
-  (check-pred
-   unsat?
-   (verify-same
-    (term (compile-esterel (trap nothing)))
-    (term (compile-esterel nothing))))
-  (check-pred
-   unsat?
-   (verify-same
-    (term (compile-esterel (trap (exit 0))))
-    (term (compile-esterel nothing))))
-  (check-pred
-   unsat?
-   (verify-same
-    (term (compile-esterel (trap (exit 4))))
-    (term (compile-esterel (exit 3)))))
-  (check-pred
-   unsat?
-   (verify-same
-    #:outputs '(K0 SEL p-GO p-SUSP p-KILL p-RES q-GO q-SUSP q-KILL q-RES)
-    (term (compile-esterel (par (nts p 1) (nts q 1))))
-    (term (compile-esterel (par (nts q 1) (nts p 1))))))
-  (check-pred
-   unsat?
-   (verify-same
-    #:outputs '(K0 K1 K2 K3 K4 K5 SEL
-                   p-GO p-SUSP p-KILL p-RES q-GO q-SUSP q-KILL q-RES)
-    (term (compile-esterel (par (nts p 5) (nts q 5))))
-    (term (compile-esterel (par (nts q 5) (nts p 5)))))))
+  (test-case "renaming"
+    (check-equal?
+     (term
+      (rename*
+       ((p-GO = GO))
+       [GO false]))
+     (term ((p-GO = false)))))
+  (test-case "direct tests"
+    (check-equal?
+     (term (compile-esterel nothing))
+     (term ((K0 = GO))))
+    (check-equal?
+     (term (compile-esterel (exit 0)))
+     (term ((K2 = GO))))
+    (check-equal?
+     (term (compile-esterel (emit Ss)))
+     (term ((K0 = GO)
+            (Ss = GO))))
+    (check-equal?
+     (term (compile-esterel (seq nothing nothing)))
+     (term ((K0-internal = GO)
+            (K0 = K0-internal))))
+    (check-equal?
+     (term (compile-esterel pause))
+     (term ((K1 = GO)
+            (K0 = (and reg-out RES))
+            (SEL = reg-out)
+            (reg-in = (and (not KILL) do-sel))
+            (do-sel = (or GO resel))
+            (resel = (and susp SEL)))))
+    (check-equal?
+     (term (compile-esterel (suspend nothing S)))
+     (term ((susp-res = (and (not S) do-res))
+            (do-res = (and false RES))
+            (susp-susp = (or SUSP do-susp))
+            (do-susp = (and S do-res))
+            (K1 = (or do-susp false))
+            (K0 = GO))))
+    (check-equal?
+     (term (compile-esterel (seq (exit 3) (nts q 6))))
+     (term
+      ((K5 = (or GO qK5))
+       (q-GO = false)
+       (q-SUSP = SUSP)
+       (q-KILL = KILL)
+       (q-RES = RES)
+       (SEL = q-SEL)
+       (K0 = qK0)
+       (K1 = qK1)
+       (K2 = qK2)
+       (K3 = qK3)
+       (K4 = qK4)
+       (K6 = qK6))))
+    (check-equal?
+     (term (compile-esterel (par nothing nothing)))
+     (term
+      ((killout = KILL)
+       (lem1 = (or lem lname))
+       (rem1 = (or rem rname))
+       (both = (or lname rname))
+       (K0 = (and lem1 (and rem1 both)))
+       (lem = (and SEL (and RES (not false))))
+       (rem = (and SEL (and RES (not false))))
+       (SEL = (or false false))
+       (lname = GO)
+       (rname = GO)))))
+  (test-case "testing via verification"
+    (check-pred
+     unsat?
+     (verify-same
+      (term (compile-esterel (par nothing nothing)))
+      (term (compile-esterel nothing))))
+    (check-pred
+     unsat?
+     (verify-same
+      (term (compile-esterel (par (exit 2) nothing)))
+      (term (compile-esterel (exit 2)))))
+    (check-pred
+     unsat?
+     (verify-same
+      (term (compile-esterel (par (exit 2) (exit 4))))
+      (term (compile-esterel (exit 4)))))
+    (check-pred
+     unsat?
+     (verify-same
+      (term (compile-esterel (signal Ss (present Ss (emit S1) (emit S2)))))
+      (term (compile-esterel (emit S2)))))
+    (check-pred
+     unsat?
+     (verify-same
+      (term (compile-esterel (suspend nothing Ss)))
+      (term (compile-esterel nothing))))
+    (check-pred
+     unsat?
+     (verify-same
+      (term (compile-esterel (suspend (exit 2) Ss)))
+      (term (compile-esterel (exit 2)))))
+    (check-pred
+     unsat?
+     (verify-same
+      (term (compile-esterel (trap nothing)))
+      (term (compile-esterel nothing))))
+    (check-pred
+     unsat?
+     (verify-same
+      (term (compile-esterel (trap (exit 0))))
+      (term (compile-esterel nothing))))
+    (check-pred
+     unsat?
+     (verify-same
+      (term (compile-esterel (trap (exit 4))))
+      (term (compile-esterel (exit 3)))))
+    (check-pred
+     unsat?
+     (verify-same
+      #:outputs '(K0 SEL p-GO p-SUSP p-KILL p-RES q-GO q-SUSP q-KILL q-RES)
+      (term (compile-esterel (par (nts p 1) (nts q 1))))
+      (term (compile-esterel (par (nts q 1) (nts p 1))))))
+    (check-pred
+     unsat?
+     (verify-same
+      #:outputs '(K0 K1 K2 K3 K4 K5 SEL
+                     p-GO p-SUSP p-KILL p-RES q-GO q-SUSP q-KILL q-RES)
+      (term (compile-esterel (par (nts p 5) (nts q 5))))
+      (term (compile-esterel (par (nts q 5) (nts p 5))))))
+    (check-pred
+     unsat?
+     (verify-same
+      (term (compile-esterel (suspend nothing S)))
+      (term (compile-esterel nothing))))
+    (check-pred
+     unsat?
+     (verify-same
+      (term (compile-esterel (suspend (par pause (exit 0)) S)))
+      (term (compile-esterel (exit 0)))))
+    (check-pred
+     list?
+     (verify-same #:outputs '(K0 K4)
+                  (term (compile-esterel (suspend nothing S)))
+                  (term (compile-esterel (exit 2)))))
+    (check-pred
+     list?
+     (verify-same 
+      (term (compile-esterel (signal S (present S (emit S) (emit S)))))
+      (term (compile-esterel nothing))))
+    (check-pred
+     list?
+     (verify-same
+      #:outputs '(K0 K4 SEL)
+      (term (compile-esterel
+             (signal S
+               (seq (emit S)
+                    (present S (exit 2) nothing)))))
+      (term (compile-esterel (exit 2)))))
+    (check-pred
+     list?
+     (verify-same
+      #:outputs '(K0 K4 SEL)
+      (term (++/P
+             ((GO = ⊥))
+             (compile-esterel
+              (signal S
+                (seq (emit S)
+                     (present S (exit 2) nothing))))))
+      (term (++/P ((GO = ⊥)) (compile-esterel (exit 2))))))
+    (check-pred
+     unsat?
+     (verify-same
+      #:outputs '(K0 K4 SEL)
+      (term (++/P
+             ((GO = false))
+             (compile-esterel
+              (signal S
+                (seq (emit S)
+                     (present S (exit 2) nothing))))))
+      (term (++/P ((GO = false)) (compile-esterel (exit 2))))))
+    (check-pred
+     unsat?
+     (verify-same
+      #:outputs '(K0 K4 SEL)
+      (term (++/P
+             ((GO = true))
+             (compile-esterel
+              (signal S
+                (seq (emit S)
+                     (present S (exit 2) nothing))))))
+      (term (++/P ((GO = true)) (compile-esterel (exit 2))))))))

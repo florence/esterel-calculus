@@ -2,21 +2,29 @@
 (provide
  outputs=? deref contains?
  next-unique!)
+(require (only-in racket/base error))
 
 
 (define (outputs=? a b #:outputs [outputs #f])
-  (andmap
-   (lambda (w)
-     (implies
-      (if outputs
-          (member (first w) outputs)
-          (contains? b (first w)))
-      (equal? (second w) (deref b (first w)))))
-   a))
+  (if outputs
+      (andmap
+       (lambda (w)
+         (equal?
+          (and (contains? a w) (deref a w))
+          (and (contains? b w) (deref b w))))
+       outputs)
+      (andmap
+       (lambda (w)
+         (implies
+          (contains? b (first w))
+          (equal? (second w) (deref b (first w)))))
+       a)))
 
 (define (deref t v)
   (define x (assoc v t))
-  (second x))
+  (if x
+      (second x)
+      (error 'deref "~a is not in ~a" v t)))
 (define (contains? t v)
   (not (false? (assoc v t))))
 
