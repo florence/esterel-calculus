@@ -4,11 +4,13 @@
  next-unique!)
 
 
-(define (outputs=? a b)
+(define (outputs=? a b #:outputs [outputs #f])
   (andmap
    (lambda (w)
      (implies
-      (contains? b (first w))
+      (if outputs
+          (member (first w) outputs)
+          (contains? b (first w)))
       (equal? (second w) (deref b (first w)))))
    a))
 

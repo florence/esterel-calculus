@@ -30,29 +30,41 @@
            w))
      state))
 
-  (define (result=? a b)
+  (define (result=? a b #:outputs [outputs #f])
     (and
-     (outputs=? a b)
+     (outputs=? a b #:outputs outputs)
      (equal? (constructive? a)
              (constructive? b))))
 
-  (define (verify-same P1 P2)
+  (define (verify-same P1 P2 #:outputs [outputs #f])
     (define-values (r _)
       (with-asserts
        (let ()
          (define inputs (symbolic-inputs (append P1 P2)))
-         (verify
-          #:assume
-          (assert (constraints inputs))
-          #:guarantee
-          (assert
-           (result=?
-            (eval (build-state P1 inputs)
-                  (build-formula P1)
-                  #t)
-            (eval (build-state P2 inputs)
-                  (build-formula P2)
-                  #t)))))))
+         (define state1 (build-state P1 inputs))
+         (define state2 (build-state P2 inputs))
+         (define formula1 (build-formula P1))
+         (define formula2 (build-formula P2))
+         (define r
+           (verify
+            #:assume
+            (assert (constraints inputs))
+            #:guarantee
+            (assert
+             (result=?
+              (eval state1 formula1)
+              (eval state2 formula2)
+              #:outputs outputs))))
+         (if (unsat? r)
+             r
+             (list
+              r
+              (evaluate
+               (eval state1 formula1)
+               r)
+              (evaluate
+               (eval state2 formula2)
+               r))))))
     r)
 
   (define (build-formula P)

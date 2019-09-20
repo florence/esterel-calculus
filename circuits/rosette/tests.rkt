@@ -168,7 +168,7 @@
        `((O = I)))))
 
     (check-true
-     (sat?
+     (list?
       (verify-same
        `((O = (not L)) (L = I))
        `((O = I)))))
@@ -189,7 +189,7 @@
           (both0 = (or l0 r0))))
       (define p2 '((K0 = r0) (SEL = rsel)))
       (check-true
-       (sat?
+       (list?
         (verify-same p1 p2))))))
 
 
@@ -555,7 +555,7 @@
        (term (convert-P ((O = L) (L = I))))
        (term (convert-P ((O = I)))))))
     (check-true
-     (sat?
+     (list?
       (verify-same
        (term (convert-P ((O = (not L)) (L = I))))
        (term (convert-P ((O = I)))))))))

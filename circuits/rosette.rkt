@@ -18,10 +18,10 @@
     (export (prefix three-valued: interp^))
     (link interp@ three-valued@))
 
-(define (verify-same P1 P2)
+(define (verify-same P1 P2 #:outputs [outputs #f])
   (if (pos-neg? P1)
-      (pos-neg:verify-same P1 P2)
-      (three-valued:verify-same P1 P2)))
+      (pos-neg:verify-same P1 P2 #:outputs outputs)
+      (three-valued:verify-same P1 P2 #:outputs outputs)))
 
 (define (pos-neg? p)
   (ormap (lambda (x) (list? (first x)))

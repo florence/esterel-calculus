@@ -31,7 +31,7 @@
   (P ::= (e ...))
   (e ::= (a = p))
   (p q ::= (and p q) (or p q) (not p) const a)
-  (a b c ::= variable-not-otherwise-mentioned)
+  (a b c ::= (variable-except true false ⊥))
   (const ::= true false ⊥)
   (C ::=
      hole
@@ -595,13 +595,22 @@ The COS circuit for:
   (log-circuits-debug "q = ~a" (pretty-format q*))
   (values p* q*))
 
-(define (assert-same/smt p q)
-  (define x (verify-same p q))
+(define (assert-same/smt p q #:outputs [outputs #f])
+  (define x (verify-same p q #:outputs outputs))
   (unless (unsat? x)
+    (match-define (list sat p1 q1) x)
+    (define the-diff
+      (for*/list ([l (in-list p1)]
+                  [r (in-list q1)]
+                  #:when (and (equal? (first l) (first r))
+                              (not (equal? (second l) (second r)))))
+        (list l r)))
     (error 'assert-same
-           "rosette model gave counterexample: ~a\n~a\n~a"
-           x
-           p q)))
+           "rosette model gave counterexample:\n~a\n~a\n~a\n~a"
+           (pretty-format sat)
+           (pretty-format the-diff)
+           (pretty-format p1)
+           (pretty-format q1))))
 
 (define (assert-same p q)
   (define-values (p* q*)
