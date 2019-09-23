@@ -22,6 +22,31 @@
      ((rename* any [c:a any_2] ...) ...)]
     [(rename* any _ ...) any]))
 
+
+;                                              
+;                                              
+;                                              
+;         ;;                                   
+;         ;;                                   
+;         ;;                 ;                 
+;         ;;                 ;                 
+;     ;;;;;;    ;;;;;     ;;;;;;;     ;;;;;    
+;    ;;  ;;;    ;   ;;       ;        ;   ;;   
+;    ;    ;;         ;;      ;             ;;  
+;   ;;    ;;         ;;      ;             ;;  
+;   ;;    ;;     ;;;;;;      ;         ;;;;;;  
+;   ;;    ;;    ;;   ;;      ;        ;;   ;;  
+;   ;;    ;;   ;;    ;;      ;       ;;    ;;  
+;    ;    ;;   ;;    ;;      ;       ;;    ;;  
+;    ;;  ;;;    ;;  ;;;      ;;  ;    ;;  ;;;  
+;     ;;;  ;    ;;;;  ;       ;;;;    ;;;;  ;  
+;                                              
+;                                              
+;                                              
+;                                              
+;                                              
+
+
 (define-extended-language constructive+ constructive
   (a ::= .... (K n))
   (n k ::= natural)
@@ -45,10 +70,30 @@
                 ,(for/list ([x (in-list (term (c:n ...)))])
                    (list x (string->symbol (~a "K" x)))))])
 
-(define-metafunction L+
-  synth : any ... entropy -> c:a
-  [(synth any ... c:entropy)
-   (afresh ,(string->symbol (apply ~a (term (any ...)))) c:entropy)])
+
+;                                                                               
+;                                                                               
+;                                                                               
+;                                                  ;;      ;;;;;                
+;                                                  ;;;        ;;                
+;                                                             ;;                
+;                                                             ;;                
+;      ;;;;      ;;;;     ; ;;  ;;    ; ;;;;     ;;;;;        ;;         ;;;;   
+;     ;;  ;;    ;;   ;;   ;; ;;; ;;   ;;;  ;;       ;;        ;;       ;;   ;;  
+;    ;;         ;    ;;   ;   ;  ;;   ;;   ;;       ;;        ;;       ;     ;  
+;    ;         ;;     ;   ;   ;  ;;   ;     ;       ;;        ;;       ;     ;  
+;    ;         ;;     ;   ;   ;  ;;   ;     ;       ;;        ;;      ;;;;;;;;  
+;    ;         ;;     ;   ;   ;  ;;   ;     ;       ;;        ;;      ;;        
+;    ;         ;;     ;   ;   ;  ;;   ;     ;       ;;        ;;       ;        
+;    ;;         ;    ;;   ;   ;  ;;   ;    ;;       ;;        ;;       ;;       
+;     ;;  ;;    ;;  ;;;   ;   ;  ;;   ;;   ;;       ;;        ;;  ;    ;;;  ;;  
+;      ;;;;      ;;;;     ;   ;  ;;   ; ;;;;     ;;;;;;;       ;;;;      ;;;;   
+;                                     ;                                         
+;                                     ;                                         
+;                                     ;                                         
+;                                     ;                                         
+;                                                                               
+
 
 (define-metafunction L+
   compile : e:p c:entropy -> (c:P (e:S ...) (c:n ...))
@@ -223,6 +268,31 @@
                                    any_qsel
                                    (c:a_psel c:a_qsel . c:entropy_r)))])
 
+
+;                                   
+;                                   
+;                                   
+;                                   
+;                                   
+;                                   
+;                                   
+;    ;;;;;      ;    ;;   ;;;   ;;  
+;    ;   ;;     ;    ;;    ;;   ;   
+;         ;;    ;    ;;     ;; ;;   
+;         ;;    ;    ;;      ; ;    
+;     ;;;;;;    ;    ;;      ;;     
+;    ;;   ;;    ;    ;;      ;;;    
+;   ;;    ;;    ;    ;;     ;; ;    
+;   ;;    ;;    ;    ;;     ;  ;;   
+;    ;;  ;;;    ;;  ;;;    ;;   ;;  
+;    ;;;;  ;     ;;;  ;   ;;     ;; 
+;                                   
+;                                   
+;                                   
+;                                   
+;                                   
+
+
 (define-metafunction L+
   lower-ks : (c:k ...) -> ((c:k c:k) ...)
   [(lower-ks ()) ()]
@@ -243,15 +313,7 @@
         (term (afresh ,(string->symbol (~a "K" (term c:k) "-internal")) c:entropy))
         (term false))])
 
-(define-metafunction L+
-  ++/filter : (any ...) ... -> (any ...)
-  [(++/filter (any ...) ...)
-   ,(remove-duplicates (term (++ (any ...) ...)))])
 
-(define-metafunction L+
-  ++/filter/sort : (c:n ...) ... -> (c:n ...)
-  [(++/filter/sort (c:n ...) ...)
-   ,(sort (term (++/filter (c:n ...) ...)) <)])
 
 (define-metafunction L+
   get-overlap-n/rename : (c:n ...) (c:n ...) c:entropy -> ((c:n c:a c:a) ...)
@@ -275,6 +337,11 @@
    (where/error any (c:n (afresh left c:entropy) (afresh right c:entropy)))])
 
 (define-metafunction L+
+  synth : any ... entropy -> c:a
+  [(synth any ... c:entropy)
+   (afresh ,(string->symbol (apply ~a (term (any ...)))) c:entropy)])
+
+(define-metafunction L+
   maybe-afresh : c:P variable variable c:entropy -> c:a or false
   [(maybe-afresh (_ ... [variable = _] _ ...) variable variable_1 c:entropy)
    (afresh variable_1 c:entropy)]
@@ -285,15 +352,27 @@
   afresh : variable c:entropy -> c:a
   [(afresh variable c:entropy)
    ,(variable-not-in (term c:entropy) (term variable))])
-(define-metafunction L+
-  ++ : (any ...) ... -> (any ...)
-  [(++ (any ...) ...)
-   (any ... ...)])
 
 (define-metafunction L+
   ++/P : c:P ... -> c:P
   [(++/P (c:e ...) ...)
    (or-duplicates (++ (c:e ...) ...))])
+
+(define-metafunction L+
+  ++/filter/sort : (c:n ...) ... -> (c:n ...)
+  [(++/filter/sort (c:n ...) ...)
+   ,(sort (term (++/filter (c:n ...) ...)) <)])
+
+(define-metafunction L+
+  ++/filter : (any ...) ... -> (any ...)
+  [(++/filter (any ...) ...)
+   ,(remove-duplicates (term (++ (any ...) ...)))])
+
+(define-metafunction L+
+  ++ : (any ...) ... -> (any ...)
+  [(++ (any ...) ...)
+   (any ... ...)])
+
 (define-metafunction L+
   or-duplicates : c:P -> c:P
   [(or-duplicates ()) ()]
@@ -589,4 +668,15 @@
               (signal S
                 (seq (emit S)
                      (present S (exit 2) nothing))))))
-      (term (++/P ((GO = true)) (compile-esterel (exit 2))))))))
+      (term (++/P ((GO = true)) (compile-esterel (exit 2))))))
+    (check-pred
+     unsat?
+     (verify-same
+      #:outputs '(K0 K1 K2 K3 K4)
+      (term (compile-esterel (exit 2)))
+      (term
+       (compile-esterel
+            (par (par nothing (exit 1))
+                 (par (exit 0)
+                      (par (exit 1)
+                           (exit 2))))))))))

@@ -11,11 +11,14 @@
   (import sem^)
   (export interp^)
 
-  (define (eval state formulas [wto? #f])
+  (define (eval state formulas)
     (define (eval* state formulas bound)
       (if (zero? bound)
           state
-          (eval* (step state formulas) formulas (sub1 bound))))
+          (let ([x (step state formulas)])
+            (if (equal? x state)
+                state
+                (eval* x formulas (sub1 bound))))))
     (eval* state formulas (length formulas)))
 
   (define (step state formulas)
@@ -30,42 +33,80 @@
            w))
      state))
 
+  (define (eval/multi states formulas in-registers out-registers)
+    (reverse
+     (let loop ([registers out-registers]
+                [seen (list)]
+                [states states])
+       (cond
+         [(empty? states) seen]
+         [else
+          (define next (eval (append registers (first states))
+                             formulas))
+          (if (or (not (constructive? next))
+                  (member next seen))
+              (cons next seen)
+              (loop (map (lambda (in outpair)
+                           (list (first outpair)
+                                 (deref next in)))
+                         in-registers
+                         out-registers)
+                    (cons next seen)
+                    (rest states)))]))))
+
   (define (result=? a b #:outputs [outputs #f])
     (and
      (outputs=? a b #:outputs outputs)
      (equal? (constructive? a)
              (constructive? b))))
 
-  (define (verify-same P1 P2 #:outputs [outputs #f])
+  (define (result=?/multi a b #:outputs [outputs #f])
+    (and
+     (equal? (length a) (length b))
+     (andmap
+      (lambda (a b o) (result=? a b #:outputs o))
+      a
+      b
+      (or outputs
+          (map (const #f) a)))))
+
+  (define (verify-same P1 P2
+                       #:register-pairs [register-pairs #f]
+                       #:constraints [extra-constraints 'true]
+                       #:outputs [outputs #f])
+    (if register-pairs
+        (/ 1 0)
+        (verify-same/single P1 P2
+                            #:constraints extra-constraints
+                            #:outputs outputs)))
+  (define (verify-same/single P1 P2
+                              #:constraints [extra-constraints 'true]
+                              #:outputs [outputs #f])
+    
     (define-values (r _)
       (with-asserts
        (let ()
          (define inputs (symbolic-inputs (append P1 P2)))
-         (define state1 (build-state P1 inputs))
-         (define state2 (build-state P2 inputs))
-         (define formula1 (build-formula P1))
-         (define formula2 (build-formula P2))
+         (define e1 (symbolic-repr P1 inputs))
+         (define e2 (symbolic-repr P2 inputs))
          (define r
            (verify
             #:assume
-            (assert (constraints inputs))
+            (assert
+             (and
+              ((build-expression extra-constraints) inputs)
+              (constraints inputs)))
             #:guarantee
             (assert
-             (result=?
-              (eval state1 formula1)
-              (eval state2 formula2)
-              #:outputs outputs))))
+             (result=? e1 e2
+                       #:outputs outputs))))
          (if (unsat? r)
              r
-             (list
-              r
-              (evaluate
-               (eval state1 formula1)
-               r)
-              (evaluate
-               (eval state2 formula2)
-               r))))))
+             (list r (evaluate e1 r) (evaluate e2 r))))))
     r)
+  (define (symbolic-repr P inputs)
+    (eval (build-state P inputs)
+          (build-formula P)))
 
   (define (build-formula P)
     (map

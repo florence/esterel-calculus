@@ -6,3 +6,4 @@ f-and
 f-not
 constraints
 constructive?
+initialize-to-false

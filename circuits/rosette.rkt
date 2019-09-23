@@ -18,10 +18,16 @@
     (export (prefix three-valued: interp^))
     (link interp@ three-valued@))
 
-(define (verify-same P1 P2 #:outputs [outputs #f])
+(define (verify-same P1 P2
+                     #:constraints [constraints `true]
+                     #:outputs [outputs #f])
   (if (pos-neg? P1)
-      (pos-neg:verify-same P1 P2 #:outputs outputs)
-      (three-valued:verify-same P1 P2 #:outputs outputs)))
+      (pos-neg:verify-same P1 P2
+                           #:constraints constraints
+                           #:outputs outputs)
+      (three-valued:verify-same P1 P2
+                                #:constraints constraints
+                                #:outputs outputs)))
 
 (define (pos-neg? p)
   (ormap (lambda (x) (list? (first x)))

@@ -10,6 +10,8 @@
 (define-unit three-valued@
   (import)
   (export sem^)
+  (define (initialize-to-false i)
+    (map (lambda (x) (list x #f)) i))
   (define (f-or x y)
     (lambda (w)
       (define a (x w))

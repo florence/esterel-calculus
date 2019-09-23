@@ -122,44 +122,46 @@
           (build-formula `((O = I))))))
      
   (test-case "verification"
-    (let ()
-      (define s (build-state `((O = L) (L = I))
-                             (symbolic-inputs `((O = L) (L = I)))))
-      (define f (build-formula `((O = L) (L = I))))
-      (check-true
-       (unsat?
-        (verify
-         (assert
-          (equal?
-           (deref
-            (eval s f)
-            'O)
-           (deref s 'I))))))
-      (check-true
-       (unsat?
-        (verify
-         #:assume (assert (equal? (deref s 'I) '⊥))
-         #:guarantee
-         (assert (not (constructive? (eval s f))))))))
-    (let ()
-      (define s (build-state `((O = I))
-                             (symbolic-inputs `((O = I)))))
-      (define f (build-formula `((O = I))))
-      (check-true
-       (unsat?
-        (verify
-         (assert
-          (equal?
-           (deref
-            (eval s f)
-            'O)
-           (deref s 'I))))))
-      (check-true
-       (unsat?
-        (verify
-         #:assume (assert (equal? (deref s 'I) '⊥))
-         #:guarantee
-         (assert (not (constructive? (eval s f))))))))
+    (with-asserts-only
+     (let ()
+       (define s (build-state `((O = L) (L = I))
+                              (symbolic-inputs `((O = L) (L = I)))))
+       (define f (build-formula `((O = L) (L = I))))
+       (check-true
+        (unsat?
+         (verify
+          (assert
+           (equal?
+            (deref
+             (eval s f)
+             'O)
+            (deref s 'I))))))
+       (check-true
+        (unsat?
+         (verify
+          #:assume (assert (equal? (deref s 'I) '⊥))
+          #:guarantee
+          (assert (not (constructive? (eval s f)))))))))
+    (with-asserts-only
+     (let ()
+       (define s (build-state `((O = I))
+                              (symbolic-inputs `((O = I)))))
+       (define f (build-formula `((O = I))))
+       (check-true
+        (unsat?
+         (verify
+          (assert
+           (equal?
+            (deref
+             (eval s f)
+             'O)
+            (deref s 'I))))))
+       (check-true
+        (unsat?
+         (verify
+          #:assume (assert (equal? (deref s 'I) '⊥))
+          #:guarantee
+          (assert (not (constructive? (eval s f)))))))))
     
     (check-true
      (unsat?
@@ -172,6 +174,14 @@
       (verify-same
        `((O = (not L)) (L = I))
        `((O = I)))))
+
+    (check-pred
+     unsat?
+     (verify-same
+      #:constraints `(not (or I (not I)))
+      `((O = (not L)) (L = I))
+      `((O = I))))
+    
     (test-case "pinning tests"
       (define p1
         '(
@@ -190,7 +200,45 @@
       (define p2 '((K0 = r0) (SEL = rsel)))
       (check-true
        (list?
-        (verify-same p1 p2))))))
+        (verify-same p1 p2)))))
+
+  (test-case "eval/multi"
+    (check-equal?
+     (eval/multi (list `((a #t) (o ⊥)) `((a #f) (o ⊥)))
+                 (build-formula `((o = a)))
+                 `()
+                 `())
+     (list `((a #t) (o #t)) `((a #f) (o #f))))
+    (check-true
+     (result=?/multi
+      (eval/multi (list `((a #t) (o ⊥)) `((a #f) (o ⊥)))
+                  (build-formula `((o = a)))
+                  `()
+                  `())
+      (list `((a #t) (o #t)) `((a #f) (o #f)))))
+    (check-true
+     (result=?/multi
+      (eval/multi (list `((a #t) (o ⊥))
+                        `((a #f) (o ⊥))
+                        `((a ⊥) (o ⊥))
+                        `((a ⊥) (o ⊥)))
+                  (build-formula `((o = a)))
+                  `()
+                  `())
+      (list `((a #t) (o #t)) `((a #f) (o #f)) `((a ⊥) (o ⊥)))))
+
+    (check-true
+     (result=?/multi
+      (eval/multi (list `((a #t) (o ⊥) (pre-in ⊥))
+                        `((a #f) (o ⊥) (pre-in ⊥))
+                        `((a ⊥) (o ⊥) (pre-in ⊥)))
+                  (build-formula `((o = a) (pre-in = o)))
+                  `(pre-in)
+                  `((pre-out #f)))
+      (list `((pre-out #f) (a #t) (o #t) (pre-in #t))
+            `((pre-out #t) (a #f) (o #f) (pre-in #f))
+            `((pre-out #f) (a ⊥) (o ⊥) (pre-in ⊥)))))))
+      
 
 
 ;                                                                               
@@ -486,6 +534,13 @@
                        `(((+ I) #f)
                          ((- I) #f)))
           (build-formula (term (convert-P ((O = I))))))))
+
+  (check-pred
+   unsat?
+   (verify-same
+    #:constraints (term (convert-p (not (or I (not I)))))
+    (term (convert-P ((O = (not L)) (L = I))))
+    (term (convert-P ((O = I))))))
      
   (test-case "verification"
     (let ()

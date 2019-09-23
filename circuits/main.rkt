@@ -595,8 +595,13 @@ The COS circuit for:
   (log-circuits-debug "q = ~a" (pretty-format q*))
   (values p* q*))
 
-(define (assert-same/smt p q #:outputs [outputs #f])
-  (define x (verify-same p q #:outputs outputs))
+(define (assert-same/smt p q
+                         #:constraints [constraints `true]
+                         #:outputs [outputs #f])
+  (define x
+    (verify-same p q
+                 #:constraints constraints
+                 #:outputs outputs))
   (unless (unsat? x)
     (match-define (list sat p1 q1) x)
     (define the-diff

@@ -10,6 +10,13 @@
 (define-unit pos-neg@
   (import)
   (export sem^)
+  (define (initialize-to-false i)
+    (map (lambda (x)
+           (if (and (list? x)
+                    (equal? '- (first x)))
+               (list x #t)
+               (list x #f)))
+         i))
 
   (define (f-or a b)
     (lambda (w)
