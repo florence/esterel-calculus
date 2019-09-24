@@ -2,6 +2,7 @@
 symbolic-inputs
 build-state
 build-formula
+build-expression
 eval
 eval/multi
 verify-same

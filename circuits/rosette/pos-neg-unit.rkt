@@ -5,11 +5,14 @@
          "shared.rkt"
          racket/unit
          racket/match
-         (only-in racket/format ~a))
+         (only-in racket/format ~a)
+         (only-in racket/string string-replace))
 
 (define-unit pos-neg@
   (import)
   (export sem^)
+  (define (get-maximal-statespace x)
+    (expt 2 (inexact->exact (ceiling (/ x 2)))))
   (define (initialize-to-false i)
     (map (lambda (x)
            (if (and (list? x)
@@ -28,7 +31,11 @@
     (lambda (w)
       (not (n w))))
   (define (symbolic-boolean name)
-    (constant (~a name "$" (next-unique! name)) boolean?))
+    (constant (string-replace
+               (~a name "$" (next-unique! name))
+               " "
+               "_")
+              boolean?))
   (define (constraints I)
     (andmap
      (λ (x)

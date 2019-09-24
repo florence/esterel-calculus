@@ -7,3 +7,4 @@ f-not
 constraints
 constructive?
 initialize-to-false
+get-maximal-statespace

@@ -4,8 +4,22 @@
          "interp-sig.rkt"
          "shared.rkt"
          racket/unit
-         racket/match)
+         racket/match
+         (for-syntax syntax/parse)
+         (only-in racket/base error
+                  define-logger))
+(define-logger circuit-solver)
+(define-logger circuit-eval)
+
 (module+ test (require rackunit))
+
+
+(define-syntax with-asserts*
+  (syntax-parser
+    [(_ b ...)
+     #'(let-values ([(r _)
+                     (with-asserts (let () b ...))])
+         r)]))
 
 (define-unit interp@
   (import sem^)
@@ -34,15 +48,19 @@
      state))
 
   (define (eval/multi states formulas in-registers out-registers)
+    (log-circuit-eval-debug "starting eval/multi")
     (reverse
      (let loop ([registers out-registers]
                 [seen (list)]
                 [states states])
+       (log-circuit-eval-debug "states: ~a" (pretty-format states))
+       (log-circuit-eval-debug "seen: ~a" (pretty-format seen))
        (cond
          [(empty? states) seen]
          [else
           (define next (eval (append registers (first states))
                              formulas))
+          (log-circuit-eval-debug "next: ~a" (pretty-format next))
           (if (or (not (constructive? next))
                   (member next seen))
               (cons next seen)
@@ -63,48 +81,121 @@
   (define (result=?/multi a b #:outputs [outputs #f])
     (and
      (equal? (length a) (length b))
-     (andmap
-      (lambda (a b o) (result=? a b #:outputs o))
-      a
-      b
-      (or outputs
-          (map (const #f) a)))))
+     (let andmap ([a a]
+                  [b b])
+       (if (empty? a)
+           #t
+           (and (result=? (first a) (first b) #:outputs (or outputs #f))
+                (andmap (rest a) (rest b)))))))
 
   (define (verify-same P1 P2
-                       #:register-pairs [register-pairs #f]
+                       #:register-pairs1 [register-pairs1 #f]
+                       #:register-pairs2 [register-pairs2 #f]
                        #:constraints [extra-constraints 'true]
                        #:outputs [outputs #f])
-    (if register-pairs
-        (/ 1 0)
-        (verify-same/single P1 P2
-                            #:constraints extra-constraints
-                            #:outputs outputs)))
+    (cond
+      [(and register-pairs1 register-pairs2)
+       (verify-same/multi P1 P2
+                          #:register-pairs1 register-pairs1
+                          #:register-pairs2 register-pairs2
+                          #:constraints extra-constraints
+                          #:outputs outputs)]
+      [(not (or register-pairs1 register-pairs2))
+       (verify-same/single P1 P2
+                           #:constraints extra-constraints
+                           #:outputs outputs)]
+      [else (error "missing register pair set")]))
+  (define (verify-same/multi P1 P2
+                             #:register-pairs1 [register-pairs1 (list)]
+                             #:register-pairs2 [register-pairs2 (list)]
+                             #:constraints [extra-constraints 'true]
+                             #:outputs [outputs #f])
+    (do-verify
+     #:=? result=?/multi
+     #:expr1 e1
+     #:expr2 e2
+     #:asserts asserts
+     #:outputs outputs
+     
+     (log-circuit-solver-debug "starting multi run for ~a and ~a"
+                               (pretty-format P1)
+                               (pretty-format P2))
+     (define register-ins1 (map first register-pairs1))
+     (define register-outs1 (map second register-pairs1))
+     (define register-ins2 (map first register-pairs2))
+     (define register-outs2 (map second register-pairs2))
+     (define maximal-statespace
+       (max (get-maximal-statespace (length register-pairs1))
+            (get-maximal-statespace (length register-pairs2))))
+     (log-circuit-solver-debug
+      "maximal-statespace: ~a"
+      maximal-statespace)
+     (define inputs
+       (let loop ([x maximal-statespace])
+         (if (zero? x)
+             (list)
+             (cons (symbolic-inputs (append P1 P2) #:exclude (append register-outs1 register-outs2))
+                   (loop (sub1 x))))))
+     (log-circuit-solver-debug "inputs: ~a" (pretty-format inputs))
+     (define e1
+       (symbolic-repr-of-eval/multi inputs P1 register-ins1 register-outs1))
+     (define e2
+       (symbolic-repr-of-eval/multi inputs P2 register-ins2 register-outs2))
+     (define asserts
+       (andmap
+        (lambda (inputs)
+          (and
+           ((build-expression extra-constraints) inputs)
+           (constraints inputs)))
+        inputs))))
   (define (verify-same/single P1 P2
                               #:constraints [extra-constraints 'true]
                               #:outputs [outputs #f])
-    
-    (define-values (r _)
-      (with-asserts
-       (let ()
-         (define inputs (symbolic-inputs (append P1 P2)))
-         (define e1 (symbolic-repr P1 inputs))
-         (define e2 (symbolic-repr P2 inputs))
-         (define r
-           (verify
-            #:assume
-            (assert
-             (and
-              ((build-expression extra-constraints) inputs)
-              (constraints inputs)))
-            #:guarantee
-            (assert
-             (result=? e1 e2
-                       #:outputs outputs))))
-         (if (unsat? r)
-             r
-             (list r (evaluate e1 r) (evaluate e2 r))))))
-    r)
-  (define (symbolic-repr P inputs)
+    (do-verify
+     #:=? result=?
+     #:expr1 e1
+     #:expr2 e2
+     #:asserts asserts
+     #:outputs outputs
+     (define inputs (symbolic-inputs (append P1 P2)))
+     (log-circuit-solver-debug "inputs: ~a" (pretty-format inputs))
+     (define e1 (symbolic-repr-of-eval P1 inputs))
+     (define e2 (symbolic-repr-of-eval P2 inputs))
+     (define asserts
+       (and
+        ((build-expression extra-constraints) inputs)
+        (constraints inputs)))))
+  (define-syntax do-verify
+    (syntax-parser
+      [(_ #:=? =?:id
+          #:expr1 e1:id
+          #:expr2 e2:id
+          #:asserts asserts:id
+          #:outputs outputs:id
+          body:expr ...)
+       #'(with-asserts*
+          body ...
+          (verify/f =? e1 e2 asserts outputs))]))
+  (define (verify/f =? e1 e2 asserts* outputs)
+    (define eq (=? e1 e2 #:outputs outputs))
+    (log-circuit-solver-debug "e1: ~a" (pretty-format e1))
+    (log-circuit-solver-debug "e2: ~a" (pretty-format e2))
+    (log-circuit-solver-debug "constraints: ~a" (pretty-format asserts*))
+    (log-circuit-solver-debug "asserts: ~a" (pretty-format (asserts)))
+    (log-circuit-solver-debug "eq: ~a" (pretty-format eq))
+    (define r
+      (verify
+       #:assume (assert asserts*)
+       #:guarantee (assert eq)))
+    (if (unsat? r)
+        r
+        (list r (evaluate e1 r) (evaluate e2 r))))
+  (define (symbolic-repr-of-eval/multi inputs P in-registers out-registers)
+    (eval/multi (map (lambda (x) (build-state P x)) inputs)
+                (build-formula P)
+                in-registers
+                (initialize-to-false out-registers)))
+  (define (symbolic-repr-of-eval P inputs)
     (eval (build-state P inputs)
           (build-formula P)))
 
@@ -137,10 +228,12 @@
       (lambda (w) (list (first w) '⊥))
       P)
      inputs))
-  (define (symbolic-inputs P)
+  (define (symbolic-inputs P #:exclude [exclude (list)])
     (map
      (lambda (x) (list x (symbolic-boolean x)))
-     (FV P))))
+     (filter (lambda (x)
+               (not (member x exclude)))
+               (FV P)))))
 
 (define (FV P)
   (remove-duplicates

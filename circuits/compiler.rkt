@@ -222,9 +222,11 @@
                    [(K 0) any_k0rename]
                    [(K 2) any_k2rename]
                    [(K c:k_o) (K c:k_i)] ...))
-    (e:S_out ...) 
-    ,(map (λ (x) (match x [0 0] [1 1] [2 0] [x (- x 1)]))
-          (term (c:k_out ...))))
+    (e:S_out ...)
+    (++/filter/sort
+     (0)
+     ,(map (λ (x) (match x [0 0] [1 1] [2 0] [x (- x 1)]))
+           (term (c:k_out ...)))))
    (where/error (c:P (e:S_out ...) (c:k_out ...))
                 (compile e:p c:entropy))
    (where/error c:entropy_r (c:P . c:entropy))
