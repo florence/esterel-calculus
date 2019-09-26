@@ -44,6 +44,14 @@
         [(#t) #f]
         [(#f) #t]
         [(⊥) '⊥])))
+  ;; TODO: is this the right extention of constructive implies
+  ;; to scott domains?
+  (define (f-implies a b)
+    (lambda (w)
+      (case (a w)
+        [(#t) (b w)]
+        [(#f) #t]
+        [(⊥) '⊥])))
   (define (symbolic-boolean name)
     (define pos
       (constant (~a "pos-" name "$" (next-unique! name)) boolean?))

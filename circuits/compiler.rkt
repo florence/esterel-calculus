@@ -1,5 +1,6 @@
 #lang racket
-(provide compile-esterel)
+(provide compile-esterel
+         compile-esterel/get-registers)
 (require esterel-calculus/circuits
          esterel-calculus/circuits/rosette
          esterel-calculus/redex/model/shared
@@ -53,22 +54,37 @@
   (entropy ::= any))
 
 (define-extended-language esterel-eval+ esterel-eval
-  (p ::= .... (nts variable natural)))
+  (p ::= .... (nts variable natural)
+     (loop* p)))
 
 (define-union-language L+
   (e: esterel-eval+)
   (c: constructive+))
 
 (define-metafunction L+
-  compile-esterel : e:p -> c:P
-  [(compile-esterel e:p)
-   (rename* c:P
-            [(K c:n) c:a] ...)         
-   (where/error (c:P _ (c:n ...))
-                (compile e:p ,(flatten (term e:p))))
+  compile-esterel/get-registers : e:p -> (c:P ((c:a c:a) ...))
+  [(compile-esterel/get-registers e:p)
+   (compile-esterel/get-registers/entropy e:p ())])
+
+(define-metafunction L+
+  compile-esterel/get-registers/entropy : e:p c:entropy -> (c:P ((c:a c:a) ...))
+  [(compile-esterel/get-registers/entropy e:p c:entropy_extra)
+   ((rename* c:P
+             [(K c:n) c:a] ...)
+    ((c:a_1 c:a_2) ...))
+   (where/error (c:P _ (c:n ...) ((c:a_1 c:a_2) ...))
+                (compile e:p (c:entropy_extra . ,(flatten (term e:p)))))
    (where/error ((c:n c:a) ...)
                 ,(for/list ([x (in-list (term (c:n ...)))])
                    (list x (string->symbol (~a "K" x)))))])
+
+(define-metafunction L+
+  compile-esterel : e:p -> c:P
+  [(compile-esterel e:p)
+   c:P
+   (where/error (c:P _)
+                (compile-esterel/get-registers e:p))])
+
 
 
 ;                                                                               
@@ -96,7 +112,7 @@
 
 
 (define-metafunction L+
-  compile : e:p c:entropy -> (c:P (e:S ...) (c:n ...))
+  compile : e:p c:entropy -> (c:P (e:S ...) (c:n ...)  ((c:a c:a) ...))
   [(compile (nts variable c:n) c:entropy)
    ((((synth variable -GO entropy) = GO)
      ((synth variable -SUSP entropy) = SUSP)
@@ -107,29 +123,34 @@
          (term ((K ,i) = (synth variable K ,i entropy)))))
      
     ()
-    ,(for/list ([i (in-range 0 (add1 (term c:n)))]) i))]
+    ,(for/list ([i (in-range 0 (add1 (term c:n)))]) i)
+    ())]
   [(compile nothing _)
    ((((K 0) = GO))
     ()
-    (0))]
+    (0)
+    ())]
   [(compile (exit c:k) _)
    ((((K ,(+ 2 (term c:k))) = GO))
     ()
-    (,(+ 2 (term c:k))))]
+    (,(+ 2 (term c:k)))
+    ())]
   [(compile (emit e:S) _)
    ((((K 0) = GO)
      (e:S = GO))
     (e:S)
-    (0))]
+    (0)
+    ())]
   [(compile pause c:entropy)
    ((((K 1) = GO)
      ((K 0) = (and c:a_reg-out RES))
      (SEL = c:a_reg-out)
      (c:a_reg-in = (and (not KILL) c:a_do-sel))
      (c:a_do-sel = (or GO c:a_resel))
-     (c:a_resel = (and susp SEL)))
+     (c:a_resel = (and SUSP SEL)))
     ()
-    (0 1))
+    (0 1)
+    ((c:a_reg-in c:a_reg-out)))
    (where/error c:a_resel (afresh resel c:entropy))
    (where/error c:a_do-sel (afresh do-sel c:entropy))
    (where/error c:a_reg-out (afresh reg-out c:entropy))
@@ -140,18 +161,18 @@
            (SEL = (or any_psel any_qsel)))
           (rename* c:P_p
                    [GO c:a_then]
-                   [SEL any_psel]
-                   [(K c:k_rename) c:a_prename] ...)
+                   [SEL any_psel])
           (rename* c:P_q
                    [GO c:a_else]
-                   [SEL any_qsel]
-                   [(K c:k_rename) c:a_prename] ...))
+                   [SEL any_qsel]))
          
     (++/filter (e:S_p ...) (e:S_q ...))
-    (++/filter/sort (c:n_p ...) (c:n_q ...)))
-   (where/error (c:P_p (e:S_p ...) (c:n_p ...))
+    (++/filter/sort (c:n_p ...) (c:n_q ...))
+    ((c:a_preg-in c:a_preg-out) ...
+     (c:a_qreg-in c:a_qreg-out) ...))
+   (where/error (c:P_p (e:S_p ...) (c:n_p ...) ((c:a_preg-in c:a_preg-out) ...))
                 (compile e:p c:entropy))
-   (where/error (c:P_q (e:S_q ...) (c:n_q ...))
+   (where/error (c:P_q (e:S_q ...) (c:n_q ...) ((c:a_qreg-in c:a_qreg-out) ...))
                 (compile e:q (c:P_p c:entropy)))
    (where/error c:entropy_r (c:P_p c:P_q c:entropy))
    (where/error ((c:k_rename c:a_prename c:a_qrename) ...)
@@ -177,8 +198,9 @@
                    [SUSP c:a_susp-susp]
                    [(K 1) any_k1rename]))
     (e:S_out ...)
-    (++/filter/sort (1) (c:k_out ...)))
-   (where/error (c:P (e:S_out ...) (c:k_out ...))
+    (++/filter/sort (1) (c:k_out ...))
+    ((c:a_preg-in c:a_preg-out) ...))
+   (where/error (c:P (e:S_out ...) (c:k_out ...) ((c:a_preg-in c:a_preg-out) ...))
                 (compile e:p c:entropy))
    
    (where/error c:entropy_r (c:P . c:entropy))
@@ -193,22 +215,27 @@
    ((++/P (rename* c:P_p [(K 0) any_k0rename])
           (rename* c:P_q [GO any_k0rename]))
     (++/filter (e:S_p ...) (e:S_q ...))
-    (++/filter/sort (c:n_q ...) (c:n_q ...)))
-   (where/error (c:P_p (e:S_p ...) (c:n_p ...))
+    (++/filter/sort (c:n_p ...) (c:n_q ...))
+    ((c:a_preg-in c:a_preg-out) ...
+     (c:a_qreg-in c:a_qreg-out) ...))
+   (where/error (c:P_p (e:S_p ...) (c:n_p ...) ((c:a_preg-in c:a_preg-out) ...))
                 (compile e:p c:entropy))
-   (where/error (c:P_q (e:S_q ...) (c:n_q ...))
+   (where/error (c:P_q (e:S_q ...) (c:n_q ...) ((c:a_qreg-in c:a_qreg-out) ...))
                 (compile e:q (c:P_p . c:entropy)))
    (where/error any_k0rename
                 (maybe-rename-k 0 (c:n_p ...) (c:P_p c:P_q . c:entropy)))]
   [(compile (loop e:p) c:entopy)
+   (compile (loop* (seq e:p e:p)) c:entopy)]
+  [(compile (loop* e:p) c:entopy)
    ((++/P (((K 0) = false)
            (c:a_loop-go = (or GO any_k0rename)))
           (rename* c:P
                    [GO c:a_loop-go]
                    [(K 0) any_k0rename]))
     (e:S_out ...)
-    (++/filter (0) (c:k_out ...)))
-   (where/error (c:P (e:S_out ...) (c:k_out ...))
+    (++/filter (0) (c:k_out ...))
+    ((c:a_preg-in c:a_preg-out) ...))
+   (where/error (c:P (e:S_out ...) (c:k_out ...) ((c:a_preg-in c:a_preg-out) ...))
                 (compile e:p c:entropy))
    (where/error c:entropy_r (c:P . c:entropy))
    (where/error any_k0rename
@@ -226,8 +253,9 @@
     (++/filter/sort
      (0)
      ,(map (λ (x) (match x [0 0] [1 1] [2 0] [x (- x 1)]))
-           (term (c:k_out ...)))))
-   (where/error (c:P (e:S_out ...) (c:k_out ...))
+           (term (c:k_out ...))))
+    ((c:a_preg-in c:a_preg-out) ...))
+   (where/error (c:P (e:S_out ...) (c:k_out ...) ((c:a_preg-in c:a_preg-out) ...))
                 (compile e:p c:entropy))
    (where/error c:entropy_r (c:P . c:entropy))
    (where/error c:a_trap-kill (afresh trap-kill c:entropy_r))
@@ -237,8 +265,9 @@
   [(compile (signal e:S e:p) c:entropy)
    ((rename* c:P [e:S any_srename])
     ,(filter (lambda (x) (not (eq? (term e:S) x))) (term (e:S_o ...)))
-    (c:k ...))
-   (where/error (c:P (e:S_o ...) (c:k ...))
+    (c:k ...)
+    ((c:a_preg-in c:a_preg-out) ...))
+   (where/error (c:P (e:S_o ...) (c:k ...) ((c:a_preg-in c:a_preg-out) ...))
                 (compile e:p c:entropy))
    (where/error any_srename (maybe-afresh c:P e:S e:S (c:P. c:entropy)))]
   [(compile (par e:p e:q) c:entropy)
@@ -253,10 +282,12 @@
                    [SEL any_qsel]
                    [(K c:n_q) c:a_qrename] ...))
     (++/filter (e:S_p ...) (e:S_q ...))
-    (++/filter/sort (c:n_p ...) (c:n_q ...)))
-   (where/error (c:P_p (e:S_p ...) (c:n_p ...))
+    (++/filter/sort (c:n_p ...) (c:n_q ...))
+    ((c:a_preg-in c:a_preg-out) ...
+     (c:a_qreg-in c:a_qreg-out) ...))
+   (where/error (c:P_p (e:S_p ...) (c:n_p ...) ((c:a_preg-in c:a_preg-out) ...))
                 (compile e:p c:entropy))
-   (where/error (c:P_q (e:S_q ...) (c:n_q ...))
+   (where/error (c:P_q (e:S_q ...) (c:n_q ...) ((c:a_qreg-in c:a_qreg-out) ...))
                 (compile e:q (c:P_p . c:entropy)))
    (where/error c:entropy_r (c:P_q c:P_p . c:entropy))
    (where/error any_psel (maybe-afresh c:P_p SEL psel c:entropy_r))
@@ -513,7 +544,7 @@
             (SEL = reg-out)
             (reg-in = (and (not KILL) do-sel))
             (do-sel = (or GO resel))
-            (resel = (and susp SEL)))))
+            (resel = (and SUSP SEL)))))
     (check-equal?
      (term (compile-esterel (suspend nothing S)))
      (term ((susp-res = (and (not S) do-res))
@@ -678,7 +709,42 @@
       (term (compile-esterel (exit 2)))
       (term
        (compile-esterel
-            (par (par nothing (exit 1))
-                 (par (exit 0)
-                      (par (exit 1)
-                           (exit 2))))))))))
+        (par (par nothing (exit 1))
+             (par (exit 0)
+                  (par (exit 1)
+                       (exit 2))))))))
+    (test-case "state and Can"
+      (define p++regs
+        (term
+         (compile-esterel/get-registers
+          (signal S2
+            (seq
+             (present S2 (emit S1) nothing)
+             (seq pause
+                  (emit S2)))))))
+      (define q++regs
+        (term
+         (compile-esterel/get-registers/entropy
+          (signal S2
+            (seq
+             nothing
+             (seq pause
+                  (emit S2))))
+          ,p++regs)))
+      (check-pred
+       list?
+       (verify-same
+        #:register-pairs1 (second p++regs)
+        #:register-pairs2 (second q++regs)
+        #:outputs '(K0 K1 K2 S1)
+        (first p++regs)
+        (first q++regs)))
+      (check-pred
+       unsat?
+       (verify-same
+        #:register-pairs1 (second p++regs)
+        #:register-pairs2 (second q++regs)
+        #:constraints (term (implies SEL (not GO)))
+        #:outputs '(K0 K1 K2 S1)
+        (first p++regs)
+        (first q++regs))))))

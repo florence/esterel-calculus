@@ -30,6 +30,9 @@
   (define (f-not n)
     (lambda (w)
       (not (n w))))
+  (define (f-implies a b)
+    (lambda (w)
+      (implies (a w) (b w))))
   (define (symbolic-boolean name)
     (constant (string-replace
                (~a name "$" (next-unique! name))

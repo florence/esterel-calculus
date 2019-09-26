@@ -18,14 +18,21 @@
     (export (prefix three-valued: interp^))
     (link interp@ three-valued@))
 
+
 (define (verify-same P1 P2
+                     #:register-pairs1 [register-pairs1 #f]
+                     #:register-pairs2 [register-pairs2 #f]
                      #:constraints [constraints `true]
                      #:outputs [outputs #f])
   (if (pos-neg? P1)
       (pos-neg:verify-same P1 P2
+                           #:register-pairs1 register-pairs1
+                           #:register-pairs2 register-pairs2
                            #:constraints constraints
                            #:outputs outputs)
       (three-valued:verify-same P1 P2
+                                #:register-pairs1 register-pairs1
+                                #:register-pairs2 register-pairs2
                                 #:constraints constraints
                                 #:outputs outputs)))
 

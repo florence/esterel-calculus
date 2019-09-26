@@ -117,7 +117,7 @@
      #:asserts asserts
      #:outputs outputs
      
-     (log-circuit-solver-debug "starting multi run for ~a and ~a"
+     (log-circuit-solver-debug "starting multi run for\n~a\nand\n~a"
                                (pretty-format P1)
                                (pretty-format P2))
      (define register-ins1 (map first register-pairs1))
@@ -127,9 +127,7 @@
      (define maximal-statespace
        (max (get-maximal-statespace (length register-pairs1))
             (get-maximal-statespace (length register-pairs2))))
-     (log-circuit-solver-debug
-      "maximal-statespace: ~a"
-      maximal-statespace)
+     (log-circuit-solver-debug "maximal-statespace: ~a" maximal-statespace)
      (define inputs
        (let loop ([x maximal-statespace])
          (if (zero? x)
@@ -141,13 +139,16 @@
        (symbolic-repr-of-eval/multi inputs P1 register-ins1 register-outs1))
      (define e2
        (symbolic-repr-of-eval/multi inputs P2 register-ins2 register-outs2))
-     (define asserts
+     (define (make-asserts e)
        (andmap
-        (lambda (inputs)
+        (lambda (v)
           (and
-           ((build-expression extra-constraints) inputs)
-           (constraints inputs)))
-        inputs))))
+           (equal? #t ((build-expression extra-constraints) v))
+           (equal? #t (constraints v))))
+        e))
+     (define asserts
+       (and (make-asserts e1)
+            (make-asserts e2)))))
   (define (verify-same/single P1 P2
                               #:constraints [extra-constraints 'true]
                               #:outputs [outputs #f])
@@ -159,12 +160,17 @@
      #:outputs outputs
      (define inputs (symbolic-inputs (append P1 P2)))
      (log-circuit-solver-debug "inputs: ~a" (pretty-format inputs))
+     (log-circuit-solver-debug "extras: ~a" (pretty-format extra-constraints))
      (define e1 (symbolic-repr-of-eval P1 inputs))
      (define e2 (symbolic-repr-of-eval P2 inputs))
-     (define asserts
+     (define (make-asserts e)
        (and
-        ((build-expression extra-constraints) inputs)
-        (constraints inputs)))))
+        (equal? #t ((build-expression extra-constraints) e))
+        (equal? #t (constraints e))))
+     (define asserts
+       (and (make-asserts e1)
+            (make-asserts e2)))))
+  
   (define-syntax do-verify
     (syntax-parser
       [(_ #:=? =?:id
@@ -176,20 +182,38 @@
        #'(with-asserts*
           body ...
           (verify/f =? e1 e2 asserts outputs))]))
+  
   (define (verify/f =? e1 e2 asserts* outputs)
-    (define eq (=? e1 e2 #:outputs outputs))
     (log-circuit-solver-debug "e1: ~a" (pretty-format e1))
+    (log-circuit-solver-debug "e1 vars: ~a" (pretty-format (symbolics e1)))
     (log-circuit-solver-debug "e2: ~a" (pretty-format e2))
-    (log-circuit-solver-debug "constraints: ~a" (pretty-format asserts*))
+    (log-circuit-solver-debug "e2 vars: ~a" (pretty-format (symbolics e2)))
+    (log-circuit-solver-debug "constraints: ~a" (pretty-format (equal? #t asserts*)))
     (log-circuit-solver-debug "asserts: ~a" (pretty-format (asserts)))
+
+    (define eq (equal? #t (=? e1 e2 #:outputs outputs)))
+    
     (log-circuit-solver-debug "eq: ~a" (pretty-format eq))
+    (log-circuit-solver-debug "eq symbolics: ~a" (pretty-format (symbolics eq)))
     (define r
       (verify
+       ;; note: this assumes that
+       ;; the constraints require strict truth
+       ;; not not-falseness
        #:assume (assert asserts*)
        #:guarantee (assert eq)))
+    (when (sat? r)
+      (log-circuit-solver-debug
+       "symbolics in result: ~a"
+       (pretty-format
+        (map
+         (lambda (x) (list x (r x)))
+         (symbolics eq)))))
     (if (unsat? r)
         r
-        (list r (evaluate e1 r) (evaluate e2 r))))
+        (let ([r (complete-solution r (symbolics eq))])
+          (list r (evaluate e1 r) (evaluate e2 r)))))
+  
   (define (symbolic-repr-of-eval/multi inputs P in-registers out-registers)
     (eval/multi (map (lambda (x) (build-state P x)) inputs)
                 (build-formula P)
@@ -216,6 +240,9 @@
              (build-expression e2))]
       [`(not ,e1)
        (f-not (build-expression e1))]
+      [`(implies ,e1 ,e2)
+       (f-implies (build-expression e1)
+                  (build-expression e2))]
       [`true (lambda (_) #t)]
       [`false (lambda (_) #f)]
       [`⊥ (lambda (_) '⊥)]
