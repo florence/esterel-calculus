@@ -9,7 +9,8 @@
          "rosette/sem-sig.rkt"
          "rosette/interp-sig.rkt"
          "rosette/interp-unit.rkt"
-         "rosette/three-valued-unit.rkt")
+         "rosette/three-valued-unit.rkt"
+         (prefix-in r: racket/base))
 
 (module+ test (require rackunit))
 (module+ rename
@@ -78,7 +79,7 @@
              [(K c:n) c:a] ...)
     ((c:a_1 c:a_2) ...))
    (where/error (c:P _ (c:n ...) ((c:a_1 c:a_2) ...))
-                (compile e:p (c:entropy_extra . ,(flatten (term e:p)))))
+                (compile e:p (c:entropy_extra ,(flatten (term e:p)))))
    (where/error ((c:n c:a) ...)
                 ,(for/list ([x (in-list (term (c:n ...)))])
                    (list x (string->symbol (~a "K" x)))))])
@@ -119,10 +120,6 @@
        (cond
          [(not (three-valued:constructive? x))
           (build-list (length (cons x r)) (const #f))]
-         [(and (assoc 'K0 x)
-               (second (assoc 'K0 x)))
-          (cons (get-outputs x)
-                (build-list (length r) (const 'done)))]
          [else
           (cons (get-outputs x)
                 (process r))])])))
@@ -275,7 +272,8 @@
    ((++/P (rename* c:P_p [(K 0) any_k0rename])
           (rename* c:P_q [GO any_k0rename]))
     (++/filter (e:S_p ...) (e:S_q ...))
-    (++/filter/sort (c:n_p ...) (c:n_q ...))
+    (++/filter/sort ,(r:remove 0 (term (c:n_p ...)))
+                    (c:n_q ...))
     ((c:a_preg-in c:a_preg-out) ...
      (c:a_qreg-in c:a_qreg-out) ...))
    (where/error (c:P_p (e:S_p ...) (c:n_p ...) ((c:a_preg-in c:a_preg-out) ...))
@@ -284,16 +282,16 @@
                 (compile e:q (c:P_p . c:entropy)))
    (where/error any_k0rename
                 (maybe-rename-k 0 (c:n_p ...) (c:P_p c:P_q . c:entropy)))]
-  [(compile (loop e:p) c:entopy)
-   (compile (loop* (seq e:p e:p)) c:entopy)]
-  [(compile (loop* e:p) c:entopy)
+  [(compile (loop e:p) c:entropy)
+   (compile (loop* (seq e:p e:p)) c:entropy)]
+  [(compile (loop* e:p) c:entropy)
    ((++/P (((K 0) = false)
            (c:a_loop-go = (or GO any_k0rename)))
           (rename* c:P
                    [GO c:a_loop-go]
                    [(K 0) any_k0rename]))
     (e:S_out ...)
-    (++/filter (0) (c:k_out ...))
+    (++/filter/sort (0) (c:k_out ...))
     ((c:a_preg-in c:a_preg-out) ...))
    (where/error (c:P (e:S_out ...) (c:k_out ...) ((c:a_preg-in c:a_preg-out) ...))
                 (compile e:p c:entropy))
@@ -830,7 +828,7 @@
        '()
        '()
        '(() ()))
-      (list (set) 'done))
+      (list (set) (set)))
      (check-equal?
       (run/circuit
        'pause
@@ -844,14 +842,14 @@
        '()
        '()
        '(() () ()))
-      (list (set) (set) 'done))
+      (list (set) (set) (set)))
      (check-equal?
       (run/circuit
        '(emit S)
        '()
        '(S)
        '(() ()))
-      (list (set 'S) 'done))
+      (list (set 'S) (set)))
      (check-equal?
       (run/circuit
        '(seq (emit S)
@@ -867,18 +865,85 @@
        '()
        '(S)
        '(() () ()))
-      (list (set 'S) (set 'S) 'done))
+      (list (set 'S) (set 'S) (set)))
      (check-equal?
       (run/circuit
        '(present S (emit S1) nothing)
        '(S)
        '(S1)
        '(() ()))
-      (list (set) 'done))
+      (list (set) (set)))
      (check-equal?
       (run/circuit
        '(present S (emit S1) nothing)
        '(S)
        '(S1)
        '((S) ()))
-      (list (set 'S1) 'done))))
+      (list (set 'S1) (set)))
+    (check-equal?
+     (run/circuit
+      (term (seq nothing (exit 0)))
+      '()
+      '()
+      '(()))
+     (list (set)))
+    (test-case "internal eval issues"
+      (define p++regs
+        (term (compile-esterel/top (trap (seq nothing (exit 0))))))
+      (check-equal?
+       (length
+        (three-valued:eval/multi*
+         '(() () () ())
+         (first p++regs)
+         (second p++regs)))
+       4))
+    (check-equal?
+     (run/circuit
+      (term (trap (seq nothing (exit 0))))
+      '()
+      '()
+      '(() () () ()))
+     (list (set) (set) (set) (set)))
+    (check-equal?
+     (run/circuit
+      (term (trap (seq (emit S) (exit 0))))
+      '()
+      '(S)
+      '(() () () ()))
+     (list (set 'S) (set) (set) (set)))
+    (check-equal?
+     (run/circuit
+      (term (loop (seq pause (emit S))))
+      '()
+      '(S)
+      '(() () () ()))
+     (list (set) (set 'S) (set 'S) (set 'S)))
+    (check-equal?
+     (run/circuit
+      (term (seq (trap (seq pause (seq (emit S) (exit 0))))
+                 (trap (seq pause (seq (emit S) (exit 0))))))
+      '()
+      '(S)
+      '(() () () ()))
+     (list (set) (set 'S) (set 'S) (set)))
+    (check-equal?
+     (run/circuit
+      (term (loop (trap (seq pause (seq (emit S) (exit 0))))))
+      '()
+      '(S)
+      '(() () () ()))
+     (list (set) (set 'S) (set 'S) (set 'S)))
+    (check-equal?
+     (run/circuit
+      (term (signal S (seq (loop (present S nothing nothing)) (emit S))))
+      '()
+      '()
+      '(()))
+     (list #f))
+    (check-equal?
+     (run/circuit
+      (term (signal S (seq (loop (present S nothing pause)) (emit S))))
+      '()
+      '()
+      '(()))
+     (list #f))))

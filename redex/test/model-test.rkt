@@ -6,6 +6,7 @@
          esterel-calculus/redex/model/calculus
          (prefix-in standard: esterel-calculus/redex/model/reduction)
          (prefix-in cos: esterel-calculus/redex/cos/model)
+         esterel-calculus/circuits/compiler
          "generator.rkt"
          racket/sandbox
          unstable/error
@@ -33,28 +34,28 @@
   (define test-count 0)
   (define start-time (current-seconds))
 
-     (redex-check
-      esterel-check
-      (p-check (name i (S_!_g S_!_g ...)) (name o (S_!_g S_!_g ...)) ((S_1 ...) (S ...) ...))
-      (redex-let
-       esterel-eval
-       ([(S_i ...) `i]
-        [(S_o ...) `o])
-       (begin
-         (set! test-count (add1 test-count))
-         (when (zero? (modulo test-count 100))
-           (printf "running test ~a\n" test-count)
-           (printf "has been running for ~a seconds\n" (- (current-seconds) start-time))
-           (flush-output))
-         (log-eval-test-debug (list `test-reduction ``p-check ``i ``o ``((S_1 ...) (S ...) ...) '#:limits? limits? '#:memory-limits? memory-limits?))
-         (with-handlers ([exn:fail?
-                          (lambda (e)
-                            (error-display e)
-                            #f)])
-           (execute-test `p-check `i `o `((S_1 ...) (S ...) ...) #:limits? limits? #:debug? d #:external? external #:memory-limits? memory-limits?))))
-      #:prepare fixup
-      #:attempts attempts
-      #:keep-going? c?))
+  (redex-check
+   esterel-check
+   (p-check (name i (S_!_g S_!_g ...)) (name o (S_!_g S_!_g ...)) ((S_1 ...) (S ...) ...))
+   (redex-let
+    esterel-eval
+    ([(S_i ...) `i]
+     [(S_o ...) `o])
+    (begin
+      (set! test-count (add1 test-count))
+      (when (zero? (modulo test-count 100))
+        (printf "running test ~a\n" test-count)
+        (printf "has been running for ~a seconds\n" (- (current-seconds) start-time))
+        (flush-output))
+      (log-eval-test-debug (list `test-reduction ``p-check ``i ``o ``((S_1 ...) (S ...) ...) '#:limits? limits? '#:memory-limits? memory-limits?))
+      (with-handlers ([exn:fail?
+                       (lambda (e)
+                         (error-display e)
+                         #f)])
+        (execute-test `p-check `i `o `((S_1 ...) (S ...) ...) #:limits? limits? #:debug? d #:external? external #:memory-limits? memory-limits?))))
+   #:prepare fixup
+   #:attempts attempts
+   #:keep-going? c?))
 
 (define (warn-about-uninstalled-hiphop)
   (printf "\n\nWARNING: hiphop is not installed; skipping some tests\n\n\n")
@@ -66,6 +67,10 @@
                       #:memory-limits? memory-limits?)
   (define res (and external? (esterel-oracle p i o Ss)))
   (define res2 (and external? (hiphop-oracle p i o Ss)))
+  (define circuit-res
+    (if (redex-match? esterel-check p-pure p)
+        (run/circuit p i o Ss)
+        #f))
   (cond
     [(equal? res 'not-installed)
      (warn-about-uninstalled-esterel)]
@@ -77,10 +82,13 @@
                 "BAD: Esterelv5 and Hiphop behave differently on (~a ~a ~a ~a)\nV5: ~a\nHH: ~a\n\n" p i o Ss res res2))])
   (test-calculus p i o Ss #:limits? limits? #:debug? debug?
                  #:oracle (if (eq? res 'not-installed) #f res)
-                 #:memory-limits? memory-limits?))
+                 #:memory-limits? memory-limits?
+                 #:other-sequences (and circuit-res
+                                        (list (list 'circuits circuit-res)))))
 
 (define (test-reduction p-check i o s #:limits? limits? #:debug? [debug? #f] #:oracle [oracle #f]
-                        #:memory-limits? memory-limits?)
+                        #:memory-limits? memory-limits?
+                        #:other-sequences [os #f])
   (with-logging-to-port
    (current-output-port)
    (lambda ()
@@ -92,14 +100,16 @@
              #:limits? limits?
              #:memory-limits? memory-limits?
              #:debug? debug?
-             #:oracle oracle))
+             #:oracle oracle
+             #:other-sequences os))
    #:logger (if debug? (current-logger) (make-logger))
    'debug
    'eval-test))
 
 (define (test-calculus p-check i o s #:limits? limits? #:debug? [debug? #f]
                        #:memory-limits? memory-limits?
-                        #:oracle [oracle #f])
+                       #:oracle [oracle #f]
+                       #:other-sequences [os #f])
   ;; boundary signals shouldnt be used in reductions
   ;; output might be okay, input is not
   (define-values (p* extras) (calc-shuffle p-check))
@@ -117,7 +127,8 @@
                      #:limits? ,limits?
                      #:memory-limits? ,memory-limits?
                      #:debug? ,debug?
-                      #:oracle ,oracle)
+                     #:other-sequences ,os
+                     #:oracle ,oracle)
             `(add-extra-syms ,p-check ,(append i o))))
   (relate r
           p
@@ -128,21 +139,34 @@
           #:debug? debug?
           #:extras extras
           #:memory-limits? memory-limits?
-           #:oracle oracle))
+          #:other-sequences os
+          #:oracle oracle))
 
 (define (relate pp qp ins in out #:limits? [limits? #f] #:debug? [debug? #f] #:extras [extras ""]
                 #:oracle [oracle #f]
+                ;; (nonempty-listof (list/c symbol? (listof (or/c #f (setof symbol)))))) or #f
+                ;; length of inner list must be equal to length of ins
+                #:other-sequences [os #f]
                 #:memory-limits? [memory-limits? #f])
   (define (remove-not-outs l)
     (filter (lambda (x) (member x out)) l))
   ;;TODO update to check which instant had the non-constructive behavior
   (define olist (if (list? oracle) oracle (build-list (length ins) (lambda (_) #f))))
+  (define other-sequence-lists
+    (if os
+        (apply map
+               (lambda x
+                 (map list (map first os) x))
+               (map second os))
+         (build-list (length ins) (lambda (_) empty))))
+           
   (log-eval-test-debug "using oracle: ~a\n" olist)
   (log-eval-test-debug "using ins: ~a\n" ins)
   (for/fold ([p pp]
              [q qp])
             ([i (in-list ins)]
              [t (in-list olist)]
+             [others other-sequence-lists]
              #:break
              (or
               ;; program was non constructive
@@ -151,14 +175,17 @@
               ;; the COS model is done and we have no oracle data
               (and (cos:done? p)
                    (not oracle)
+                   (empty? others)
                    (standard:done? q)
-                   (log-eval-test-debug "breaking due to program completion and lack of oracle"))))
+                   (log-eval-test-debug "breaking due to program completion and lack of oracle or other sequences"))))
     (log-eval-test-debug "running:\np:")
     (log-eval-test-debug (pretty-format p))
     (log-eval-test-debug  "q:")
     (log-eval-test-debug (pretty-format q))
     (log-eval-test-debug "i:")
     (log-eval-test-debug (pretty-format i))
+    (log-eval-test-debug "current others:")
+    (log-eval-test-debug (pretty-format others))
     (with-handlers ([(lambda (x) (and (exn:fail:resource? x)
                                       (memq (exn:fail:resource-resource x)
                                             '(time memory))))
@@ -192,22 +219,27 @@
                             ,(setup-*-env i in)
                             (machine pbar data_*) (S ...) k)
                   (pbar data_* (S ...)))]))
+        (log-eval-test-debug "cos results:")
+        (log-eval-test-debug (pretty-format constructive-reduction))
 
         (match* (constructive-reduction new-reduction/standard oracle)
           [('ignore (list q2 qouts) _)
            (define qset (list->set (remove-not-outs qouts)))
            (define tset (and t (list->set t)))
-           (unless (implies t (equal? qset tset))
+           (unless (and (implies t (equal? qset tset))
+                        (andmap (lambda (x) (equal? qset (second x))) others))
              (error 'test
                     (string-append "VERY BAD: programs were <terminated>\n"
                                    "~a -> (~a ~a)\n"
                                    "exec: ~a\n"
+                                   "others: ~a\n"
                                    "under ~a\nThe original call was ~a\n"
                                    extras)
                     q
                     q2
                     qset
                     tset
+                    others
                     i
                     (list 'relate pp qp ins in out)))
            (values p q2)]
@@ -220,11 +252,14 @@
            (define pset (list->set (remove-not-outs pouts)))
            (define qset (list->set (remove-not-outs qouts)))
            (define tset (and t (list->set t)))
-           (unless (and (equal? pset qset) (implies t (equal? qset tset)))
+           (unless (and (equal? pset qset)
+                        (andmap (lambda (x) (equal? pset (second x))) others)
+                        (implies t (equal? qset tset)))
              (error 'test
                     (string-append "VERY BAD: programs were ~a -> (~a ~a)\n"
                                    "~a -> (~a ~a)\n"
                                    "exec: ~a\n"
+                                   "others: ~a\n"
                                    "under ~a\nThe original call was ~a\n"
                                    extras)
                     p
@@ -234,16 +269,31 @@
                     q2
                     qset
                     tset
+                    others
                     i
                     (list 'relate pp qp ins in out '#:oracle oracle)))
            (values (list p2 data) q2)]
           [((list) #f (or 'non-constructive #f))
+           (unless (andmap (lambda (x) (not (second x))) others)
+             (error
+              'test
+              (string-append "VERY BAD: programs were ~a\n"
+                             "~a\n"
+                             "others: ~a\n"
+                             "under ~a\nThe original call was ~a\n"
+                             extras)
+              p
+              q
+              others
+              i
+              (list 'relate pp qp ins in out '#:oracle oracle)))
            (values #f #f)]
           [(done paused t)
            (error 'test
                   (string-append "VERY BAD: inconsistent output states:\n programs were ~a -> ~a\n"
                                  "~a -> ~a\n"
                                  "exec : ~a\n"
+                                 "others: ~a\n"
                                  "under ~a\nThe original call was ~a\n"
                                  extras)
                   p
@@ -251,6 +301,7 @@
                   q
                   paused
                   i
+                  others
                   oracle
                   (list 'relate pp qp ins in out '#:oracle oracle))]))))
   #t)
@@ -355,7 +406,31 @@
                '(ρ · GO (loop pause))
                '(())
                '()
-               '(S)))))
+               '(S))))
+    (check-exn
+     #rx"VERY BAD"
+     (lambda ()
+       (test-reduction #:limits? #f
+                       #:memory-limits? #f
+                       #:other-sequences (list (list 'circuit (list (set 'S))))
+                       `nothing
+                       `() `() `(()))))
+    (check-exn
+     #rx"VERY BAD"
+     (lambda ()
+       (test-reduction #:limits? #f
+                       #:memory-limits? #f
+                       #:other-sequences (list (list 'circuit (list 'done)))
+                       `nothing
+                       `() `() `(()))))
+    (check-exn
+     #rx"VERY BAD"
+     (lambda ()
+       (test-reduction #:limits? #f
+                       #:memory-limits? #f
+                       #:other-sequences (list (list 'circuit (list #f)))
+                       `nothing
+                       `() `() `(())))))
   
   
   (test-begin

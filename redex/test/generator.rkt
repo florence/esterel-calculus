@@ -67,6 +67,18 @@
    (if x (convert p) (convert q))])
 
 (define-extended-language esterel-check esterel-eval*
+  (p-pure q-pure ::=
+   nothing
+   pause
+   (seq p-pure p-pure)
+   (par p-pure p-pure)
+   (trap p-pure)
+   (exit n)
+   (signal S p-pure)
+   (suspend p-pure S)
+   (present S p-pure p-pure)
+   (emit S)
+   (loop p-pure))
   (p-check q-check ::=
    nothing
    pause
