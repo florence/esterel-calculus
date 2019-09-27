@@ -1,10 +1,15 @@
 #lang racket
 (provide compile-esterel
-         compile-esterel/get-registers)
+         compile-esterel/get-registers
+         run/circuit)
 (require esterel-calculus/circuits
          esterel-calculus/circuits/rosette
          esterel-calculus/redex/model/shared
-         redex/reduction-semantics)
+         redex/reduction-semantics
+         "rosette/sem-sig.rkt"
+         "rosette/interp-sig.rkt"
+         "rosette/interp-unit.rkt"
+         "rosette/three-valued-unit.rkt")
 
 (module+ test (require rackunit))
 (module+ rename
@@ -84,6 +89,61 @@
    c:P
    (where/error (c:P _)
                 (compile-esterel/get-registers e:p))])
+
+(define-values/invoke-unit/infer
+  (export (prefix three-valued: interp^)
+          (prefix three-valued: sem^))
+  (link interp@ three-valued@))
+(define (run/circuit p ins outs inputs)
+  (define extended-inputs
+    (for/list ([i (in-list inputs)])
+      (append
+       (map (lambda (x) `(,x #t)) i)
+       (for/list ([x (in-list ins)]
+                  #:when (not (member x i)))
+         `(,x #f)))))
+  (define p++regs (term (compile-esterel/top ,p)))
+  (define results
+    (three-valued:eval/multi*
+     extended-inputs
+     (first p++regs)
+     (second p++regs)))
+  (define (get-outputs x)
+    (for/set ([o (in-list outs)]
+              #:when (eq? #t (second (assoc o x))))
+      o))
+  (let process ([r results])
+    (match r
+      [(list) empty]
+      [(cons x r)
+       (cond
+         [(not (three-valued:constructive? x))
+          (build-list (length (cons x r)) (const #f))]
+         [(and (assoc 'K0 x)
+               (second (assoc 'K0 x)))
+          (cons (get-outputs x)
+                (build-list (length r) (const 'done)))]
+         [else
+          (cons (get-outputs x)
+                (process r))])])))
+
+(define-metafunction L+
+  compile-esterel/top : e:p -> (c:P ((c:a c:a) ...))
+  [(compile-esterel/top e:p)
+   ((++/P
+     c:P
+     ((GO = (not c:a_reg-out))
+      (c:a_reg-in = (not false))
+      (RES = true)
+      (SUSP = false)
+      (KILL = false)))
+    ((c:a_reg-in c:a_reg-out)
+     (c:a c:b) ...))
+    
+   (where (c:P ((c:a c:b) ...))
+          (compile-esterel/get-registers e:p))
+   (where c:a_reg-out (afresh reg-out c:P))
+   (where c:a_reg-in (afresh reg-out (c:a_reg-out . c:P)))])
 
 
 
@@ -747,4 +807,78 @@
         #:constraints (term (implies SEL (not GO)))
         #:outputs '(K0 K1 K2 S1)
         (first p++regs)
-        (first q++regs))))))
+        (first q++regs)))))
+
+  (test-case "testing eval"
+    (check-equal?
+     (run/circuit
+      'nothing
+      '()
+      '()
+      '())
+     '())
+    (check-equal?
+      (run/circuit
+       'nothing
+       '()
+       '()
+       '(()))
+      (list (set)))
+     (check-equal?
+      (run/circuit
+       'nothing
+       '()
+       '()
+       '(() ()))
+      (list (set) 'done))
+     (check-equal?
+      (run/circuit
+       'pause
+       '()
+       '()
+       '(() ()))
+      (list (set) (set)))
+     (check-equal?
+      (run/circuit
+       'pause
+       '()
+       '()
+       '(() () ()))
+      (list (set) (set) 'done))
+     (check-equal?
+      (run/circuit
+       '(emit S)
+       '()
+       '(S)
+       '(() ()))
+      (list (set 'S) 'done))
+     (check-equal?
+      (run/circuit
+       '(seq (emit S)
+             (seq pause (emit S)))
+       '()
+       '(S)
+       '(() ()))
+      (list (set 'S) (set 'S)))
+     (check-equal?
+      (run/circuit
+       '(seq (emit S)
+             (seq pause (emit S)))
+       '()
+       '(S)
+       '(() () ()))
+      (list (set 'S) (set 'S) 'done))
+     (check-equal?
+      (run/circuit
+       '(present S (emit S1) nothing)
+       '(S)
+       '(S1)
+       '(() ()))
+      (list (set) 'done))
+     (check-equal?
+      (run/circuit
+       '(present S (emit S1) nothing)
+       '(S)
+       '(S1)
+       '((S) ()))
+      (list (set 'S1) 'done))))

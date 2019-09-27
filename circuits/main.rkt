@@ -1,7 +1,6 @@
 #lang racket
 (require redex/reduction-semantics
          (for-syntax syntax/parse)
-         sexp-diff
          racket/syntax
          racket/hash
          "rosette.rkt")

@@ -71,6 +71,13 @@
                          out-registers)
                     (cons next seen)
                     (rest states)))]))))
+  (define (eval/multi* IVS eqs register-pairs)
+    (define mid (build-state eqs (list)))
+    (eval/multi (map (lambda (x) (append x mid)) IVS)
+                (build-formula eqs)
+                (map first register-pairs)
+                (initialize-to-false
+                 (map second register-pairs))))
 
   (define (result=? a b #:outputs [outputs #f])
     (and
@@ -136,9 +143,9 @@
                    (loop (sub1 x))))))
      (log-circuit-solver-debug "inputs: ~a" (pretty-format inputs))
      (define e1
-       (symbolic-repr-of-eval/multi inputs P1 register-ins1 register-outs1))
+       (symbolic-repr-of-eval/multi inputs P1 register-pairs1))
      (define e2
-       (symbolic-repr-of-eval/multi inputs P2 register-ins2 register-outs2))
+       (symbolic-repr-of-eval/multi inputs P2 register-pairs2))
      (define (make-asserts e)
        (andmap
         (lambda (v)
@@ -214,11 +221,10 @@
         (let ([r (complete-solution r (symbolics eq))])
           (list r (evaluate e1 r) (evaluate e2 r)))))
   
-  (define (symbolic-repr-of-eval/multi inputs P in-registers out-registers)
-    (eval/multi (map (lambda (x) (build-state P x)) inputs)
-                (build-formula P)
-                in-registers
-                (initialize-to-false out-registers)))
+  (define (symbolic-repr-of-eval/multi inputs P register-pairs)
+    (eval/multi* inputs
+                P
+                register-pairs))
   (define (symbolic-repr-of-eval P inputs)
     (eval (build-state P inputs)
           (build-formula P)))

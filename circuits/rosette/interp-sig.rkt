@@ -5,6 +5,7 @@ build-formula
 build-expression
 eval
 eval/multi
+eval/multi*
 verify-same
 result=?
 result=?/multi
