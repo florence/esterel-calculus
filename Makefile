@@ -7,7 +7,10 @@ racket-build: always
 front-end: redex
 	raco test front-end*rkt
 
-redex: always racket-build
+circuits: always racket-build
+	raco test circuits
+
+redex: always racket-build circuits
 	raco test redex/cos/model.rkt
 	raco test redex/cos/test/main.rkt
 	./redex/test-short.sh redex
