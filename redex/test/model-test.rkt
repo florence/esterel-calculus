@@ -13,7 +13,8 @@
          rackunit
          racket/random
          (prefix-in r: racket)
-         racket/logging)
+         racket/logging
+         (for-syntax syntax/parse))
 
 (module+ test
   (require (submod esterel-calculus/redex/model/reduction test)))
@@ -25,37 +26,45 @@
 (provide (all-defined-out))
 
 ;; single point of control for all tests
-(define (do-test #:limits? [limits? #f]
-                 #:count [attempts 10000]
-                 #:debug [d #f]
-                 #:continue-on-fail? [c? #t]
-                 #:external [external #f]
-                 #:memory-limits? [memory-limits? #f])
-  (define test-count 0)
-  (define start-time (current-seconds))
+(define-syntax define-tester-for-pattern
+  (syntax-parser
+    [(_ name:id p-check:expr)
+     #'
+     (...
+      (define (name #:limits? [limits? #f]
+                    #:count [attempts 10000]
+                    #:debug [d #f]
+                    #:continue-on-fail? [c? #t]
+                    #:external [external #f]
+                    #:memory-limits? [memory-limits? #f])
+        (define test-count 0)
+        (define start-time (current-seconds))
 
-  (redex-check
-   esterel-check
-   (p-check (name i (S_!_g S_!_g ...)) (name o (S_!_g S_!_g ...)) ((S_1 ...) (S ...) ...))
-   (redex-let
-    esterel-eval
-    ([(S_i ...) `i]
-     [(S_o ...) `o])
-    (begin
-      (set! test-count (add1 test-count))
-      (when (zero? (modulo test-count 100))
-        (printf "running test ~a\n" test-count)
-        (printf "has been running for ~a seconds\n" (- (current-seconds) start-time))
-        (flush-output))
-      (log-eval-test-debug (list `test-reduction ``p-check ``i ``o ``((S_1 ...) (S ...) ...) '#:limits? limits? '#:memory-limits? memory-limits?))
-      (with-handlers ([exn:fail?
-                       (lambda (e)
-                         (error-display e)
-                         #f)])
-        (execute-test `p-check `i `o `((S_1 ...) (S ...) ...) #:limits? limits? #:debug? d #:external? external #:memory-limits? memory-limits?))))
-   #:prepare fixup
-   #:attempts attempts
-   #:keep-going? c?))
+        (redex-check
+         esterel-check
+         (p-check (name i (S_!_g S_!_g ...)) (name o (S_!_g S_!_g ...)) ((S_1 ...) (S ...) ...))
+         (redex-let
+          esterel-eval
+          ([(S_i ...) `i]
+           [(S_o ...) `o])
+          (begin
+            (set! test-count (add1 test-count))
+            (when (zero? (modulo test-count 100))
+              (printf "running test ~a\n" test-count)
+              (printf "has been running for ~a seconds\n" (- (current-seconds) start-time))
+              (flush-output))
+            (log-eval-test-debug (list `test-reduction ``p-check ``i ``o ``((S_1 ...) (S ...) ...) '#:limits? limits? '#:memory-limits? memory-limits?))
+            (with-handlers ([exn:fail?
+                             (lambda (e)
+                               (error-display e)
+                               #f)])
+              (execute-test `p-check `i `o `((S_1 ...) (S ...) ...) #:limits? limits? #:debug? d #:external? external #:memory-limits? memory-limits?))))
+         #:prepare fixup
+         #:attempts attempts
+         #:keep-going? c?)))]))
+
+(define-tester-for-pattern do-test p-check)
+(define-tester-for-pattern do-test-pure p-pure)
 
 (define (warn-about-uninstalled-hiphop)
   (printf "\n\nWARNING: hiphop is not installed; skipping some tests\n\n\n")
@@ -1087,10 +1096,20 @@
      #:debug? #f #:limits? #f #:external? #t
      #:memory-limits? #f)
 
-    (time
-     (test-case "external"
-       (do-test #:limits? #f #:count 100 #:external #t
-                #:memory-limits? #f)))
-    (test-case "random"
-      (do-test #:limits? #f #:count 1000
-               #:memory-limits? #f))))
+    (test-case "generative"
+      (time
+       (test-case "external"
+         (do-test #:limits? #f #:count 100 #:external #t
+                  #:memory-limits? #f)))
+      (time
+       (test-case "external pure"
+         (do-test-pure #:limits? #f #:count 100 #:external #t
+                       #:memory-limits? #f)))
+      (time
+       (test-case "random"
+         (do-test #:limits? #f #:count 1000
+                  #:memory-limits? #f)))
+      (time
+       (test-case "random pure"
+         (do-test-pure #:limits? #f #:count 1000
+                       #:memory-limits? #f))))))
