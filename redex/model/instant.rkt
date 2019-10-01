@@ -243,7 +243,7 @@
               (suspend (signal S33132 (par pause nothing)) S$D))))))
     (check-true
      (standard-implies-calculus
-      (term (ρ ((shar sW (rvalue "kK") new) ·) GO (<= sW (dec 1)))))))
+      (term (ρ ((shar sW (rvalue "kK") old) ·) GO (<= sW (dec 1)))))))
   (redex-check standard:esterel-standard p
                (standard-implies-calculus (term p))
                #:source standard:R)
