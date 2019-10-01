@@ -69,21 +69,24 @@
             (> (size e) (size largest)))
     (set! largest e)))
 
+;; Disabled until correct property can be found.
+
+#|
 (check-true
  (GOness-maintained?
   (term
    (ρ · WAIT (ρ · GO nothing)))))
- 
+
 (redex-check
  esterel-check
  ((name p-check+θ
-        (in-hole (cross p-check+θ)
+        (in-hole C-check+θ
                  (ρ θ-check_1 A_1
                     (in-hole
-                     (cross p-check+θ)
+                     C-check+θ
                      (ρ θ-check_2 A_2
                         (in-hole
-                         (cross p-check+θ)
+                         C-check+θ
                          (ρ θ-check_3 A_3
                             p-check+θ_1)))))))
   () () (() ...))
@@ -92,6 +95,7 @@
    (update-largest! (term p-check+θ))
    (GOness-maintained? (term p-check+θ)))
  #:prepare fixup/allow-empty-signals)
+
 (redex-check
  esterel-check
  ((name p-check+θ
@@ -114,3 +118,4 @@
  (curry fixup/allow-empty-signals #:low-signal-chance 0))
 ;(pretty-print tracking-table)
 ;largest
+|#

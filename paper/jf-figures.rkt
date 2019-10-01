@@ -159,7 +159,7 @@
                       (collection-file-path "reduction.rkt" "esterel-calculus" "redex" "model")
                       good-layout)
 
-     (define good-pict (with-layout good-layout (λ () (render-judgment-form S:good))))
+     (define good-pict (with-layout good-layout (λ () (render-judgment-form S:leftmost))))
 
      (define blocked-type (inset (relation-type-frame (es (blocked θ p))) 0 -5 0 0))
      (define blocked-e-type (relation-type-frame (es (blocked-e θ e))))
@@ -194,11 +194,6 @@
        0 20 ;; to make space for the label on the top
        0 0)
       (vc-append
-       (parameterize ([metafunction-pict-style 'up-down/compact-side-conditions])
-         (htl-append
-          20
-          (render-metafunction Lset-all-absent2 #:contract? #t)
-          (render-metafunction Lset-all-ready #:contract? #t)))
        (parameterize ([metafunction-arrow-pict
                        (λ ()
                          (text " ↛ " (default-style) (default-font-size)))])

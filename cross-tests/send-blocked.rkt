@@ -9,7 +9,10 @@
 (provide send-blocked)
 (define/contract (send-blocked θ A p)
   (-> θ? A? p? string?)
-  (define is-blocked? (judgment-holds (blocked ,θ ,A ,p)))
+  (define is-blocked?
+    (error "ug")
+    #;
+    (judgment-holds (blocked ,θ ,A ,p)))
   (define statement
     (~a "⌊ blocked-dec "
         (send-θ θ)

@@ -18,11 +18,6 @@
          syntax/parse/define
          (for-syntax rackunit-abbrevs/error-reporting))
 
-(define (default-equiv-set-equal? a b)
-  (for/and ([a (in-list a)])
-    (for/or ([b (in-list b)])
-      ((default-equiv) a b))))
-
 (define-syntax in:test-->*
   (syntax-parser
     [(_ R term results ...)
@@ -107,7 +102,7 @@
        (test-term-equal a b #:equiv (default-equiv)))]
     [(test-term-equal a b #:equiv eq)
      #`(with-default-check-info*
-        (list (make-check-name 'test-equial)
+        (list (make-check-name 'test-equal)
               (make-check-location '#,(syntax->location this-syntax))
               (make-check-expression
                '(test-term-equal a b #:equiv eq)))
@@ -129,7 +124,7 @@
        (test-equal a b #:equiv (default-equiv)))]
     [(test-equal a b #:equiv eq)
      #`(with-default-check-info*
-        (list (make-check-name 'test-equial)
+        (list (make-check-name 'test-equal)
               (make-check-location '#,(syntax->location this-syntax))
               (make-check-expression
                '(test-equal a b #:equiv eq)))
@@ -158,7 +153,7 @@
              (define r (judgment-holds (judgment body ...) (body ...)))
              (with-check-info
               (['|held at| (map (lambda (x) (cons 'judgment x)) r)])
-              (unless (not r)
+              (unless (empty? r)
                 (fail-check "judgment, in fact, held")))))))]))
 
 (define-syntax in:test-judgment-holds

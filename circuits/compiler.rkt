@@ -111,7 +111,8 @@
      (second p++regs)))
   (define (get-outputs x)
     (for/set ([o (in-list outs)]
-              #:when (eq? #t (second (assoc o x))))
+              #:when (let ([p (assoc o x)])
+                       (and p (eq? #t (second p)))))
       o))
   (let process ([r results])
     (match r
@@ -928,22 +929,16 @@
      (list (set) (set 'S) (set 'S) (set)))
     (check-equal?
      (run/circuit
+      (term (seq (trap (seq pause (seq nothing (exit 0))))
+                 (trap (seq pause (seq nothing (exit 0))))))
+      '()
+      '()
+      '(() () () ()))
+     (list (set) (set) (set) (set)))
+    (check-equal?
+     (run/circuit
       (term (loop (trap (seq pause (seq (emit S) (exit 0))))))
       '()
       '(S)
       '(() () () ()))
-     (list (set) (set 'S) (set 'S) (set 'S)))
-    (check-equal?
-     (run/circuit
-      (term (signal S (seq (loop (present S nothing nothing)) (emit S))))
-      '()
-      '()
-      '(()))
-     (list #f))
-    (check-equal?
-     (run/circuit
-      (term (signal S (seq (loop (present S nothing pause)) (emit S))))
-      '()
-      '()
-      '(()))
-     (list #f))))
+     (list (set) (set 'S) (set 'S) (set 'S)))))

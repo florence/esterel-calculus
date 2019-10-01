@@ -20,11 +20,15 @@
  ;; check what esterelv5 does on a given program
  esterel-oracle
  ;; check what hiphop does on a given program
- hiphop-oracle)
+ hiphop-oracle
+ ;; is it safe to attempt to generate a circuit from the given program?
+ can-generate-circuit?)
+
 (require redex/reduction-semantics
          esterel-calculus/redex/model/shared
          esterel-calculus/redex/test/external
          esterel-calculus/hiphop/run-hiphop
+         esterel-calculus/redex/model/lset
          (prefix-in calculus: esterel-calculus/redex/model/calculus)
          (prefix-in standard: esterel-calculus/redex/model/reduction)
          (prefix-in cos: esterel-calculus/redex/cos/model)
@@ -34,6 +38,30 @@
          warn-about-uninstalled-esterel)
 (define-syntax quasiquote (make-rename-transformer #'term))
 (module+ test (require rackunit))
+
+
+;                                          
+;                                          
+;                                          
+;        ;                                 
+;         ;;                               
+;         ;;              ;;               
+;         ;;              ;;               
+;     ;;; ;;   ;;;;;    ;;;;;;;    ;;;;;   
+;    ;;  ;;;  ;    ;;     ;;      ;    ;;  
+;   ;;    ;;        ;     ;;            ;  
+;   ;;    ;;    ;;;;;     ;;        ;;;;;  
+;   ;;    ;;   ;;   ;     ;;       ;;   ;  
+;   ;;    ;;  ;;    ;     ;;      ;;    ;  
+;   ;;    ;;  ;;    ;     ;;      ;;    ;  
+;    ;;  ;;;  ;;   ;;      ;  ;   ;;   ;;  
+;     ;;; ;;   ;;;; ;;      ;;;;   ;;;; ;; 
+;                                          
+;                                          
+;                                          
+;                                          
+;                                          
+
 
 (define-union-language esterel-eval* esterel-eval (cos: cos:esterel-eval))
 (define-metafunction esterel-eval*
@@ -114,6 +142,23 @@
              (:= x e-check)
              (if x p-check+θ p-check+θ)
              (ρ θ-check A p-check+θ))
+  (C-check+θ ::=
+             hole
+             (seq p-check+θ C-check+θ)
+             (seq C-check+θ p-check+θ)
+             (par C-check+θ p-check+θ)
+             (par p-check+θ C-check+θ)
+             (trap C-check+θ)
+             (signal S C-check+θ)
+             (suspend C-check+θ S)
+             (present S C-check+θ p-check+θ)
+             (present S p-check+θ C-check+θ)
+             (loop C-check+θ)
+             (shared s := e-check C-check+θ)
+             (var x := e-check C-check+θ)
+             (if x C-check+θ p-check+θ)
+             (if x p-check+θ C-check+θ)
+             (ρ θ-check A C-check+θ))
   (E-check ::=
      (seq E-check q-check)
      (loop^stop E-check q-check)
@@ -140,7 +185,219 @@
   (e-check ::= (+ s/l-check ...))
   (s/l-check ::= s x n)
   (shar-check ::= old new)
-  (status-check ::= present unknown))
+  (status-check ::= present unknown)
+  ;; for random tests on loop safety
+  (p-loopless ::=
+              nothing
+              pause
+              (seq p-loopless p-loopless)
+              (par p-loopless p-loopless)
+              (trap p-loopless)
+              (exit n)
+              (signal S p-loopless)
+              (suspend p-loopless S)
+              (present S p-loopless p-loopless)
+              (emit S))
+  (p-loop-safe q-loop-safe
+               ::=
+               (exit n)
+               pause
+               (seq p-loopless p-loop-safe)
+               (seq  p-loop-safe p-loopless)
+               (seq  p-loop-safe p-loop-safe)
+               (par p-loopless p-loop-safe)
+               (par p-loop-safe p-loopless)
+               (par p-loop-safe p-loop-safe)
+               (present S p-loop-safe p-loop-safe)
+               (suspend p-loop-safe S)
+               ;; generating traps results in things like
+               ;; (loop (trap (exit 0))
+               ;; which is not loop safe!
+               ;;(trap p-loop-safe)
+               (signal S p-loop-safe)
+               (loop p-loop-safe)))
+
+
+;                                                                                  
+;                                                                                  
+;                                                                                  
+;                ;;                                      ;;                        
+;                ;;                                      ;;                        
+;                                                                 ;;               
+;                                                                 ;;               
+;      ;;;;    ;;;;      ;;  ;;;     ;;;;    ;    ;;   ;;;;     ;;;;;;;     ;;;;;  
+;     ;   ;;      ;       ; ;  ;    ;   ;;   ;    ;;      ;       ;;       ;;   ;  
+;    ;;           ;       ;;   ;   ;;        ;    ;;      ;       ;;       ;       
+;    ;            ;       ;;       ;         ;    ;;      ;       ;;       ;;;     
+;    ;            ;       ;;       ;         ;    ;;      ;       ;;         ;;;   
+;    ;            ;       ;;       ;         ;    ;;      ;       ;;            ;  
+;    ;            ;       ;;       ;         ;    ;;      ;       ;;            ;; 
+;    ;;   ;       ;       ;;       ;;   ;    ;   ;;;      ;        ;  ;    ;   ;;  
+;      ;;;;;   ;;;;;;;   ;;;;        ;;;;;    ;;; ;;   ;;;;;;;      ;;;;  ;;;;;;   
+;                                                                                  
+;                                                                                  
+;                                                                                  
+;                                                                                  
+;                                                                                  
+
+
+(define (can-generate-circuit? p)
+  (and (redex-match? esterel-check p-pure p)
+       (judgment-holds (loop-safe ,p))))
+
+(define-judgment-form esterel-check
+  #:mode     (loop-safe I)
+  #:contract (loop-safe p-pure)
+  [-----
+   (loop-safe nothing)]
+  [-----
+   (loop-safe pause)]
+  [-----
+   (loop-safe (exit n))]
+  [-----
+   (loop-safe (emit S))]
+  [(loop-safe p)
+   -----
+   (loop-safe (suspend p S))]
+  [(loop-safe p) (loop-safe q)
+   -----
+   (loop-safe (seq p q))]
+  [(loop-safe p) (loop-safe q)
+   -----
+   (loop-safe (par p q))]
+  [(loop-safe p) (loop-safe q)
+   -----
+   (loop-safe (present S p q))]
+  [(loop-safe p)
+   -----
+   (loop-safe (trap p))]
+  [(loop-safe p)
+   -----
+   (loop-safe (signal S p))]
+  [(loop-safe p)
+   (L¬∈ nothin (K p))
+   -----
+   (loop-safe (loop p))])
+  
+
+(define-metafunction esterel-check
+  K : p-pure -> L ;; of κ
+  [(K nothing) (L1set nothin)]
+  [(K pause) (L1set paus)]
+  [(K (exit n)) (L1set n)]
+  [(K (emit S)) (L1set nothin)]
+  [(K (suspend p S)) (K p)]
+  [(K (present S p q)) (LU (K p) (K q))]
+  [(K (seq p q))
+   (LU (Lremove (K p) nothin) (K q))
+   (judgment-holds (L∈ nothin (K p)))]
+  [(K (seq p q)) (K p)]
+  [(K (loop p)) (Lremove (K p) nothin)]
+  [(K (par p q)) (Lmax* (K p) (K q))]
+  [(K (trap p)) (Lharp... (K p))]
+  [(K (signal S p)) (K p)])
+
+(module+ test
+  (test-case "can-generate-cirucit?"
+    (check-pred
+     can-generate-circuit?
+     (term nothing))
+    (check-pred
+     can-generate-circuit?
+     (term pause))
+    (check-pred
+     can-generate-circuit?
+     (term (exit 0)))
+    (check-pred
+     can-generate-circuit?
+     (term (emit S)))
+    (check-pred
+     can-generate-circuit?
+     (term (suspend (emit S) S)))
+    (check-pred
+     can-generate-circuit?
+     (term (loop pause)))
+    (check-pred
+     can-generate-circuit?
+     (term (loop (par pause nothing))))
+    (check-pred
+     can-generate-circuit?
+     (term (loop (seq pause nothing))))
+    (check-pred
+     can-generate-circuit?
+     (term (loop (seq nothing pause))))
+    (check-pred
+     can-generate-circuit?
+     (term (loop (loop (seq nothing pause)))))
+    (check-pred
+     can-generate-circuit?
+     (term (loop (par (loop (seq nothing pause)) nothing))))
+    (check-pred
+     can-generate-circuit?
+     (term (loop (par nothing (loop (seq nothing pause))))))
+    (check-pred
+     can-generate-circuit?
+     (term (loop (present S pause (exit 0)))))
+    (check-pred
+     can-generate-circuit?
+     (term (loop (par pause (exit 0)))))
+    (check-pred
+     can-generate-circuit?
+     (term (loop (exit 0))))
+    (check-pred
+     can-generate-circuit?
+     (term (loop (trap (exit 1)))))
+    (check-pred
+     can-generate-circuit?
+     (term (loop (loop (signal S (seq (loop (present S (exit 0) pause)) (emit S)))))))
+    (check-pred
+     (negate can-generate-circuit?)
+     (term (loop nothing)))
+    (check-pred
+     (negate can-generate-circuit?)
+     (term (loop (seq nothing nothing))))
+    (check-pred
+     (negate can-generate-circuit?)
+     (term (loop (par nothing nothing))))
+    (check-pred
+     (negate can-generate-circuit?)
+     (term (loop (present S nothing pause))))
+    (check-pred
+     (negate can-generate-circuit?)
+     (term (loop (signal S (seq (loop (present S nothing pause)) (emit S))))))
+    (check-pred
+     (negate can-generate-circuit?)
+     (term (loop (trap (exit 0)))))
+    (check-pred
+     (negate can-generate-circuit?)
+     (term (loop (trap (trap (exit 1))))))
+    (redex-check
+     esterel-check
+     p-loop-safe
+     (check-true (can-generate-circuit? (term p-loop-safe))))))
+
+
+;                                                                                                      
+;                                                                                                      
+;                                                                                                      
+;                                                         ;;;;     ;;                                  
+;                                                        ;;  ;     ;;                                  
+;     ;;                                                 ;                                             
+;     ;;                                                 ;                                             
+;   ;;;;;;;     ;;;;     ;;  ;;;  ; ;; ;;;               ;       ;;;;     ;;    ;;   ;    ;;   ; ;;;   
+;     ;;       ;;  ;;     ; ;  ;  ;; ;;  ;             ;;;;;;       ;      ;;  ;;    ;    ;;   ;;  ;;  
+;     ;;       ;    ;;    ;;   ;  ;  ;;  ;               ;          ;       ;; ;     ;    ;;   ;    ;; 
+;     ;;      ;;    ;;    ;;      ;  ;;  ;               ;          ;        ;;      ;    ;;   ;    ;; 
+;     ;;      ;;;;;;;;    ;;      ;  ;;  ;               ;          ;        ;;      ;    ;;   ;    ;; 
+;     ;;      ;;          ;;      ;  ;;  ;               ;          ;       ;;;;     ;    ;;   ;    ;; 
+;     ;;       ;          ;;      ;  ;;  ;               ;          ;       ;  ;;    ;    ;;   ;    ;; 
+;      ;  ;    ;;   ;     ;;      ;  ;;  ;               ;          ;      ;;   ;    ;   ;;;   ;;  ;;  
+;       ;;;;    ;;;;;;   ;;;;     ;  ;;  ;               ;       ;;;;;;;  ;;    ;;    ;;; ;;   ; ;;;   
+;                                                                                              ;       
+;                                                                                              ;       
+;                                                                                              ;       
+;                                                                                                      
+;                                                                                                      
 
 
 (define (setup-*-env ins in)

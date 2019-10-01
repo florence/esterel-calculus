@@ -13,11 +13,11 @@ Various lists-as-sets utility functions
 (provide L0set L1set L2set L¬∈ L∈ L∈-OI LU L∩
          L⊂ Lset-sub Lremove distinct
          Lflatten
+         Lunflatten
          Lharp... Lmax* Ldom LFV/e
-         Lset-all-absent Lget-unknown-signals
-         Lset-all-absent2 Lresort
-         Lget-unready-shared
-         Lset-all-ready)
+         Lget-unknown-signals
+         Lresort
+         Lget-unready-shared)
 
 (define-metafunction esterel-eval
   L0set : -> L
@@ -193,6 +193,12 @@ Various lists-as-sets utility functions
    (any any_r ...)
    (where (any_r ...) (Lflatten L))])
 
+(define-metafunction esterel-eval
+  Lunflatten : (any ...) -> L
+  [(Lunflatten ()) (L0set)]
+  [(Lunflatten (any any_r ...))
+   (LU (L1set any) (Lunflatten (any_r ...)))])
+
 (module+ test
   (check-equal? (term (Lmax* () ())) (term ()))
   (check-equal? (term (Lmax* (L1set paus) (L2set 0 1)))
@@ -230,59 +236,10 @@ Various lists-as-sets utility functions
   (check-equal? (term (LFV/e (+ x s x1 s2 0 1 41 s3 x3)))
                 (term (x (s (x1 (s2 (s3 (x3 ())))))))))
 
-(define-metafunction esterel-eval
-  Lset-all-absent2 : θ L-S -> θ
-  [(Lset-all-absent2 θ 𝕊)
-   (Lset-all-absent2 (<- θ (mtθ+S S absent)) (Lset-sub 𝕊 (L1set S)))
-   (judgment-holds (L∈-OI/first S 𝕊))]
-  [(Lset-all-absent2 θ 𝕊) θ])
-(module+ test
-  (check-equal? (term (Lset-all-absent2 · (L0set)))
-                (term ·))
-  (check-equal? (term (Lset-all-absent2 (mtθ+S S present) (L0set)))
-                (term (mtθ+S S present)))
-  (check-equal? (term (Lset-all-absent2 ((sig S present) ((sig S present) ·)) (L1set S)))
-                (term ((sig S absent) ((sig S present) ·))))
-  (check-equal? (term (Lset-all-absent2 (mtθ+S S present) (L1set S)))
-                (term (mtθ+S S absent)))
-  (check-equal? (term (Lset-all-absent2 (mtθ+S S1 present) (L1set S2)))
-                (term (<- (mtθ+S S1 present) (mtθ+S S2 absent)))))
-
-(define-metafunction esterel-eval
-  Lset-all-ready : θ L-s -> θ
-  [(Lset-all-ready θ 𝕊)
-   (Lset-all-ready (<- θ (mtθ+s s ev ready)) (Lset-sub 𝕊 (L1set s)))
-   (judgment-holds (L∈-OI/first s 𝕊))
-   (judgment-holds (θ-ref-s θ s ev shared-status))]
-  [(Lset-all-ready θ 𝕊) θ])
-
-(module+ test
-  (check-equal? (term (Lset-all-ready · (L0set)))
-                (term ·))
-  (check-equal? (term (Lset-all-ready (mtθ+s s 11 old) (L0set)))
-                (term (mtθ+s s 11 old)))
-  (check-equal? (term (Lset-all-ready (mtθ+s s 11 new) (L1set s)))
-                (term (mtθ+s s 11 ready))))
-
-(define-metafunction esterel-eval
-  Lset-all-absent : θ L -> θ
-  [(Lset-all-absent θ L)
-   (Lresort (Lset-all-absent/same-order θ L))])
 
 (define-metafunction esterel-eval
   Lresort : θ -> θ
   [(Lresort θ) ,(resort (term θ))])
-
-(define-metafunction esterel-eval
-  Lset-all-absent/same-order : θ L -> θ
-  [(Lset-all-absent/same-order · L) ·]
-  [(Lset-all-absent/same-order ((sig S unknown) θ) L)
-   ((sig S absent)
-    (Lset-all-absent/same-order θ L))
-   (judgment-holds (L∈ S L))]
-  [(Lset-all-absent/same-order (env-v θ) L)
-   (env-v
-    (Lset-all-absent/same-order θ L))])
 
 
 (define-metafunction esterel-eval
@@ -330,17 +287,13 @@ Various lists-as-sets utility functions
                 (term (L1set s)))
   (check-equal? (term (Lget-unready-shared ((shar s 2 old) ·)))
                 (term (L1set s)))
-  (check-equal? (term (Lget-unready-shared ((shar s 3 ready) ·)))
-                (term (L0set)))
   (check-equal? (term (Lget-unready-shared ((shar s1 4 old)
-                                                    ((shar s2 5 ready)
-                                                     ((shar s3 6 new)
-                                                      ·)))))
+                                            ((shar s3 6 new)
+                                             ·))))
                 (term (L2set s1 s3)))
   (check-equal? (term (Lget-unready-shared ((sig S absent)
-                                                    ((shar s2 7 ready)
-                                                     ((sig S2 present)
-                                                      ·)))))
+                                            ((sig S2 present)
+                                             ·))))
                 (term (L0set)))
   (check-equal? (term (Lget-unready-shared ((sig S absent)
                                                     ((shar s2 8 new)

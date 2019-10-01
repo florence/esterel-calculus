@@ -5,13 +5,14 @@
   esterel-calculus/redex/rackunit-adaptor
   esterel-calculus/redex/test/model-test
   esterel-calculus/redex/model/shared
+  esterel-calculus/redex/model/potential-function
   (subtract-in redex/reduction-semantics
                esterel-calculus/redex/rackunit-adaptor)
   rackunit
   rackunit/text-ui
   (for-syntax syntax/parse))
 (define (complete? p)
-  (redex-match? esterel-eval complete p))
+  (term (is-complete? ,p)))
 (define incomplete? (negate complete?))
 (require (prefix-in ru: rackunit))
 
@@ -55,10 +56,10 @@
         (present S1 pause pause))))
      (term
       (ρ
-       ((sig S1 absent) ·)
+       ((sig S1 unknown) ·)
        WAIT
        (loop^stop
-        (present S1 pause pause)
+        pause
         (present S1 pause pause)))))
     (test-->
      R
@@ -71,18 +72,10 @@
      R
      (term (ρ · WAIT (signal S pause)))
      (term (ρ · WAIT (ρ {(sig S unknown) ·} WAIT pause))))
-    (test-->
-     R
-     (term (ρ ((sig S unknown) ·) WAIT pause))
-     (term (ρ ((sig S absent) ·) WAIT pause)))
-    (test-->
-     R
-     (term (ρ ((sig S unknown) ·) WAIT pause))
-     (term (ρ ((sig S absent) ·) WAIT pause)))
     (test-->>∃
      R
      (term (ρ {(sig So unknown) ·} WAIT (ρ {(sig Si unknown) ·} WAIT (present Si (emit So) nothing))))
-     (term (ρ {(sig So absent) ·} WAIT (ρ {(sig Si unknown) ·} WAIT (present Si (emit So) nothing)))))
+     (term (ρ {(sig So unknown) ·} WAIT (ρ {(sig Si unknown) ·} WAIT nothing))))
     (test-->
      R
      (term (loop^stop pause (loop pause)))
@@ -110,7 +103,7 @@
     (test-->>∃
      R
      (term (ρ {(sig Si unknown) {(sig So unknown) ·}} WAIT (present Si (emit So) nothing)))
-     (term (ρ {(sig Si unknown) {(sig So absent) ·}} WAIT (present Si (emit So) nothing))))
+     (term (ρ {(sig Si unknown) {(sig So unknown) ·}} WAIT nothing)))
      
     (test-->>P
      R
@@ -536,9 +529,7 @@
 ;                                                                    
 ;                                                                    
 
-
-(define (test-oracle)
-  (define (test-against-oracle p)
+(define (test-against-oracle p)
     (execute-test
      p
      '()
@@ -546,6 +537,7 @@
      '(() () () () () ())
      #:debug? #f #:limits? #f #:external? #t
      #:memory-limits? #f))
+(define (test-oracle)
   (test-suite "run all of the constructivity tests against the external evaluators"
     (test-case "the original cases"
       (test-against-oracle

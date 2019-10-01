@@ -93,12 +93,13 @@
 (define-judgment-form esterel-eval
   #:contract (Eval (p ...) (C ...) (p ...) p θ L-S)
   #:mode (Eval I I I I I O)
-  [(≡e any (C ...) (p_trn ...) (ρ θ GO p) (ρ θ/c GO done))
+  [(≡e any (C ...) (p_trn ...) (ρ θ GO p) (ρ θ_1 GO done))
+   (side-condition (is-complete? (ρ θ_1 GO done)))
    ------
-   (Eval any (C ...) (p_trn ...) p θ (Lpresentin θ/c))])
+   (Eval any (C ...) (p_trn ...) p θ (Lpresentin θ_1))])
 
 (define-metafunction esterel-eval
-  Lpresentin : θ/c -> L-S
+  Lpresentin : θ -> L-S
   [(Lpresentin ·) ()]
   [(Lpresentin ({sig S present} θ)) (S (Lpresentin θ))]
   [(Lpresentin (env-v θ)) (Lpresentin θ)])
@@ -112,7 +113,8 @@
                          ((ρ · GO (seq (exit 0) pause)))
                          (seq (par nothing (exit 0)) pause)
                          ·
-                         any) any)
+                         any)
+                   any)
    (list (term (L0set))))
 
   (check-equal?

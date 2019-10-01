@@ -26,10 +26,11 @@
   instant : p (env-v ...) -> (p (S ...)) or #f
   [(instant p (env-v ...))
    (p_*
-    (get-signals complete))
-   (where (complete)
+    (get-signals complete*))
+   (where (complete*)
           ,(apply-reduction-relation*/enforce-single standard:R `(setup p (env-v ...))))
-   (where p_* (next-instant complete))]
+   (side-condition (term (is-compelete? complete*)))
+   (where p_* (next-instant complete*))]
   [(instant p (env-v ...))
    #f
    (where (p_* ...) ,
@@ -195,50 +196,60 @@
   (check-true (standard-implies-calculus (term (trap (loop pause)))))
   (check-true (standard-implies-calculus (term (ρ ((sig SM unknown) ·) WAIT (loop (if xLd nothing pause))))))
 
-  (check-true
-   (standard-implies-calculus
-    (term (ρ
-           ((sig S$D unknown)
-            ((sig |S)| present)
-             ((sig S/f unknown)
-              ((sig S4 unknown)
-               ((sig SD unknown)
-                ((sig SR unknown)
-                 ((sig SU unknown)
-                  ((sig SV unknown)
-                   ((sig SZ unknown)
-                    ((sig Sd unknown)
-                     ((sig Sg unknown)
-                      ((sig Sr unknown)
-                       ((sig Ss unknown)
-                        ((sig |S{| unknown) ·))))))))))))))
-           GO
-           (present
-            S$D
-            (shared s33131 := (+) (suspend nothing |S)|))
-            (suspend (signal S33132 (par pause nothing)) S$D)))))
-   (standard-implies-calculus
-    (term (ρ
-           ((sig S$D unknown)
-            ((sig |S)| present)
-             ((sig S/f unknown)
-              ((sig S4 unknown)
-               ((sig SD unknown)
-                ((sig SR unknown)
-                 ((sig SU unknown)
-                  ((sig SV unknown)
-                   ((sig SZ unknown)
-                    ((sig Sd unknown)
-                     ((sig Sg unknown)
-                      ((sig Sr unknown)
-                       ((sig Ss unknown)
-                        ((sig |S{| unknown) ·))))))))))))))
-           WAIT
-           (present
-            S$D
-            (shared s33131 := (+) (suspend nothing |S)|))
-            (suspend (signal S33132 (par pause nothing)) S$D))))))
-
+  (test-case "pinning tests"
+    (check-true
+     (standard-implies-calculus
+      (term (ρ
+             ((sig S$D unknown)
+              ((sig |S)| present)
+               ((sig S/f unknown)
+                ((sig S4 unknown)
+                 ((sig SD unknown)
+                  ((sig SR unknown)
+                   ((sig SU unknown)
+                    ((sig SV unknown)
+                     ((sig SZ unknown)
+                      ((sig Sd unknown)
+                       ((sig Sg unknown)
+                        ((sig Sr unknown)
+                         ((sig Ss unknown)
+                          ((sig |S{| unknown) ·))))))))))))))
+             GO
+             (present
+              S$D
+              (shared s33131 := (+) (suspend nothing |S)|))
+              (suspend (signal S33132 (par pause nothing)) S$D))))))
+    (check-true
+     (standard-implies-calculus
+      (term (ρ
+             ((sig S$D unknown)
+              ((sig |S)| present)
+               ((sig S/f unknown)
+                ((sig S4 unknown)
+                 ((sig SD unknown)
+                  ((sig SR unknown)
+                   ((sig SU unknown)
+                    ((sig SV unknown)
+                     ((sig SZ unknown)
+                      ((sig Sd unknown)
+                       ((sig Sg unknown)
+                        ((sig Sr unknown)
+                         ((sig Ss unknown)
+                          ((sig |S{| unknown) ·))))))))))))))
+             WAIT
+             (present
+              S$D
+              (shared s33131 := (+) (suspend nothing |S)|))
+              (suspend (signal S33132 (par pause nothing)) S$D))))))
+    (check-true
+     (standard-implies-calculus
+      (term (ρ ((shar sW (rvalue "kK") new) ·) GO (<= sW (dec 1)))))))
   (redex-check standard:esterel-standard p
                (standard-implies-calculus (term p))
-               #:source standard:R))
+               #:source standard:R)
+
+  (check-false
+   (term
+    (instant
+     (signal S1 (seq (present S1 pause nothing) (signal S2 (seq (emit S2) (present S2 nothing (emit S1))))))
+     ()))))

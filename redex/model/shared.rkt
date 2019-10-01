@@ -58,8 +58,8 @@
   (env-v ::= Sdat shareddat vardat)
   (status ::=
           present
-          absent
-          unknown)
+          unknown
+          absent)
   (Sdat ::= (sig S status))
   ;; go is lionel's `green`. It means control must reach here
   ;; wait is lionel's `gray`. It means control may or may not reach here.
@@ -86,19 +86,13 @@
      hole)
 
   ;; state
-  (shared-status ::= ready old new)
+  (shared-status ::= old new)
   (shareddat ::= (shar s ev shared-status))
   (vardat ::= (var· x ev))
   (ev ::= n (rvalue any))
 
   ;; Values and answers
-  (θ/c ::= · {env-v/c θ/c})
-  (env-v/c ::=
-           vardat
-           (shar s ev ready)
-           (sig S present)
-           (sig S absent))
-  (complete ::= done (ρ θ/c GO done))
+  (complete* ::= done (ρ θ GO done))
   (done ::= stopped paused)
   (stopped ::= nothing (exit n))
   (paused ::=
@@ -165,11 +159,10 @@
 
 
 (define-metafunction esterel-eval
-  A-⊓ : A A -> A
-  [(A-⊓ WAIT WAIT) WAIT]
-  [(A-⊓ GO WAIT) GO]
-  [(A-⊓ WAIT GO) GO]
-  [(A-⊓ GO GO) GO])
+  A->= : A A -> boolean
+  [(A->= GO A) #t]
+  [(A->= WAIT WAIT) #t]
+  [(A->= WAIT GO) #f])
 
 (define-metafunction esterel-eval
   par-⊓ : done done -> done
@@ -193,8 +186,8 @@
    (setup (ρ · GO p) (env-v ...))])
 
 (define-metafunction esterel-eval
-  next-instant : complete -> p
-  [(next-instant (ρ θ/c GO p)) (ρ (reset-θ θ/c) WAIT (next-instant p))]
+  next-instant : complete* -> p
+  [(next-instant (ρ θ GO p)) (ρ (reset-θ θ) WAIT (next-instant p))]
   [(next-instant pause) nothing]
   [(next-instant nothing) nothing]
   [(next-instant (loop^stop p q)) (seq (next-instant p) (loop q))]
@@ -206,7 +199,7 @@
   [(next-instant (exit n)) (exit n)])
 
 (define-metafunction esterel-eval
-  reset-θ : θ/c -> θ
+  reset-θ : θ -> θ
   [(reset-θ ·) ·]
   [(reset-θ {env-v θ}) {(reset-env-v env-v) (reset-θ θ)}])
 
@@ -225,10 +218,10 @@
    (term (next-instant (seq pause pause)))
    (term (seq nothing pause)))
   (check-equal?
-   (term (next-instant (ρ ((sig S1 absent) ((sig S2 present) ·)) GO pause)))
+   (term (next-instant (ρ ((sig S1 unknown) ((sig S2 present) ·)) GO pause)))
    (term (ρ ((sig S1 unknown) ((sig S2 unknown) ·)) WAIT nothing)))
   (check-equal?
-   (term (next-instant (ρ ((shar s2 0 ready) ((shar s3 0 ready) ·))
+   (term (next-instant (ρ ((shar s2 0 new) ((shar s3 0 new) ·))
                           GO
                           (par (seq (trap pause) pause)
                                (par pause pause)))))
@@ -332,6 +325,7 @@
   δ : e θ -> ev
   [(δ (+ s/l ...) θ) ,(apply + `(resolve (s/l ...) θ))]
   [(δ (dec s/l) θ) ,(apply (λ (x) (max 0 (- x 1))) `(resolve (s/l) θ))]
+  [(δ (dec s/l ...) θ) 0]
   [(δ ((rfunc any) s/l ...) θ) (rvalue ,(apply `any `(resolve (s/l ...) θ)))])
 
 (define-metafunction esterel-eval
@@ -347,7 +341,7 @@
    (where (ev_r ...) (resolve (s/l ...) θ))]
   [(resolve (s s/l ...) θ)
    (ev ev_r ...)
-   (where (shar s ev ready) (θ-ref θ s))
+   (where (shar s ev shared-status) (θ-ref θ s))
    (where (ev_r ...) (resolve (s/l ...) θ))])
 
 (define-metafunction esterel-eval
@@ -381,34 +375,6 @@
    ()])
 
 (define-metafunction esterel-eval
-  set-all-absent : θ (S ...) -> θ
-  [(set-all-absent θ (S ...))
-   ,(resort `(set-all-absent/same-order θ (S ...)))])
-
-(define-metafunction esterel-eval
-  set-all-absent/same-order : θ (S ...) -> θ
-  [(set-all-absent/same-order · (S ...)) ·]
-  [(set-all-absent/same-order ((sig S unknown) θ) (S_0 ... S S_2 ...))
-   ((sig S absent)
-    (set-all-absent/same-order θ (S_0 ... S S_2 ...)))]
-  [(set-all-absent/same-order (env-v θ) (S ...))
-   (env-v
-    (set-all-absent/same-order θ (S ...)))])
-
-(module+ test
-  (check-equal? (term (set-all-absent · (S1 S2))) (term ·))
-  (check-equal? (term (set-all-absent ((sig S1 unknown) ·) (S1 S2)))
-                (term ((sig S1 absent) ·)))
-  (check-equal? (term
-                 (set-all-absent
-                  ((sig S1 unknown) ((sig S2 present) ((shar srandom-shared766092 0 new) ·)))
-                  (S1 S2)))
-                (term ((sig S1 absent) ((sig S2 present) ((shar srandom-shared766092 0 new) ·)))))
-  (check-equal? (term (set-all-absent ((sig SG unknown) ((sig Sw present) ((sig SEP present) ·)))
-                                      (SG)))
-                (term ((sig SEP present) ((sig SG absent) ((sig Sw present) ·))))))
-
-(define-metafunction esterel-eval
   get-unready-shared : θ -> (s ...)
   [(get-unready-shared  ((shar s ev shared-status) θ))
    {s s_r ...}
@@ -421,32 +387,13 @@
 
 (module+ test
   (check-equal?
-   `(get-unready-shared ((sig SIb absent)
-                         ((sig Sd absent)
-                          ((sig Sl absent)
+   `(get-unready-shared ((sig SIb unknown)
+                         ((sig Sd unknown)
+                          ((sig Sl unknown)
                            ((shar srandom-shared766092 0 new)
-                            ((sig Srandom-signal766091 absent) ·))))))
+                            ((sig Srandom-signal766091 unknown) ·))))))
    '(srandom-shared766092)))
 
-(define-metafunction esterel-eval
-  set-all-ready : θ {s ...} -> θ
-  [(set-all-ready θ {}) θ]
-  [(set-all-ready θ {s s_r ...})
-   (<-
-    (set-all-ready θ {s_r ...})
-    {(shar s ev ready) ·})
-   (where (shar s ev shared-status) (θ-ref θ s))])
-
-(module+ test
-  (check-equal?
-   `(set-all-ready ((shar srandom-shared934658 0 old) ·) (srandom-shared934658))
-   '((shar srandom-shared934658 0 ready) ·))
-  (check-equal?
-   `(set-all-ready ((shar sa 0 old) ((shar sb 0 old) ·)) (sb))
-   '((shar sa 0 old) ((shar sb 0 ready) ·)))
-  (check-equal?
-   `(set-all-ready ((shar sa 0 old) ((shar sb 0 old) ·)) (sa sb))
-   '((shar sa 0 ready) ((shar sb 0 ready) ·))))
 
 (define-metafunction esterel-eval
   FV : p -> {V ...}
@@ -500,28 +447,6 @@
    (U (FV/e s/l) ...)])
 
 (define-metafunction esterel-eval
-  all-ready? : L θ -> boolean
-  [(all-ready? () θ) #t]
-  [(all-ready? (s L) θ) (all-ready? L θ)
-   (judgment-holds (θ-ref-s θ s ev ready))]
-  [(all-ready? (s L) θ) #f]
-  [(all-ready? (any L) θ) (all-ready? L θ)])
-
-(module+ test
-  (check-true (term (all-ready? () ·)))
-  (check-true (term (all-ready? (x ()) ·))) ;; does not care about free vars
-  (check-true (term (all-ready? (s1 ())
-                                ((shar s1 0 ready) ((shar s2 0 old) ·)))))
-  (check-true (term (all-ready? (s1 (s1 ()))
-                                ((shar s1 0 ready) ((shar s2 0 old) ·)))))
-  (check-false (term (all-ready? (s1 (s1 (s2 (s1 ()))))
-                                ((shar s1 0 ready) ((shar s2 0 old) ·)))))
-  (check-false (term (all-ready? (s2 ())
-                                ((shar s1 0 ready) ((shar s2 0 old) ·)))))
-  (check-false (term (all-ready? (s3 ())
-                                 ((shar s1 0 ready) ((shar s2 0 old) ·))))))
-
-(define-metafunction esterel-eval
   subset : (variable ...) (variable ...) -> boolean
   [(subset () (any ...)) #t]
   [(subset (any_1 any_2 ...) (any_3 ...))
@@ -564,12 +489,12 @@
 
 (module+ test
   (check-equal? (term (<- · ·)) (term ·))
-  (check-equal? (term (<- ((sig Sa absent) ·) ·)) (term ((sig Sa absent) ·)))
-  (check-equal? (term (<- · ((sig Sa absent) ·))) (term ((sig Sa absent) ·)))
-  (check-equal? (term (<- ((sig Sa absent) ·) ((sig Sa present) ·)))
+  (check-equal? (term (<- ((sig Sa unknown) ·) ·)) (term ((sig Sa unknown) ·)))
+  (check-equal? (term (<- · ((sig Sa present) ·))) (term ((sig Sa present) ·)))
+  (check-equal? (term (<- ((sig Sa unknown) ·) ((sig Sa present) ·)))
                 (term ((sig Sa present) ·)))
-  (check-equal? (term (<- · ((sig Sa absent) ((sig Sa present) ·))))
-                (term ((sig Sa absent) ·))))
+  (check-equal? (term (<- · ((sig Sa unknown) ((sig Sa present) ·))))
+                (term ((sig Sa unknown) ·))))
 
 (define-metafunction esterel-eval
   mtθ+x  : x ev -> θ
@@ -602,11 +527,11 @@
 
 (module+ test
   (check-equal? (term (θ-get-S · S)) (term #f))
-  (check-equal? (term (θ-get-S {(shar s 0 new) {(sig S1 absent) ·}} S)) (term #f))
-  (check-equal? (term (θ-get-S {(shar s 0 new) {(sig S1 absent) {(sig S2 present) ·}}} S2))
+  (check-equal? (term (θ-get-S {(shar s 0 new) {(sig S1 unknown) ·}} S)) (term #f))
+  (check-equal? (term (θ-get-S {(shar s 0 new) {(sig S1 unknown) {(sig S2 present) ·}}} S2))
                 (term present))
-  (check-equal? (term (θ-get-S {(shar s 0 new) {(sig S1 absent) {(sig S2 present) ·}}} S1))
-                (term absent)))
+  (check-equal? (term (θ-get-S {(shar s 0 new) {(sig S1 unknown) {(sig S2 present) ·}}} S1))
+                (term unknown)))
 
 (define-judgment-form esterel-eval
   #:mode (θ-ref-S I I O)
@@ -626,19 +551,20 @@
    (θ-ref-S-∈ θ S (status L))])
 
 (module+ test
-  (let ([θ (term {(sig S1 absent) {(sig S2 present) {(sig S3 unknown) ·}}})])
+  (let ([θ (term {(sig S1 unknown) {(sig S2 present) {(sig S3 unknown) ·}}})])
     (check-false (judgment-holds (θ-ref-S-∈ ,θ S0 ())))
     (check-false (judgment-holds (θ-ref-S-∈ ,θ S1 ())))
     (check-false (judgment-holds (θ-ref-S-∈ ,θ S2 ())))
     (check-false (judgment-holds (θ-ref-S-∈ ,θ S3 ())))
 
     (check-false (judgment-holds (θ-ref-S-∈ ,θ S0 (present (unknown ())))))
-    (check-false (judgment-holds (θ-ref-S-∈ ,θ S1 (present (unknown ())))))
+    (check-false (judgment-holds (θ-ref-S-∈ ,θ S1 (present ()))))
+    (check-true (judgment-holds (θ-ref-S-∈ ,θ S1 (present (unknown ())))))
     (check-true  (judgment-holds (θ-ref-S-∈ ,θ S2 (present (unknown ())))))
     (check-true  (judgment-holds (θ-ref-S-∈ ,θ S3 (present (unknown ()))))))
 
   ;; make sure only the first binding of a given variable counts
-  (check-false (judgment-holds (θ-ref-S-∈ {(sig S absent) {(sig S present) ·}} S0 (present ())))))
+  (check-false (judgment-holds (θ-ref-S-∈ {(sig S unknown) {(sig S present) ·}} S0 (present ())))))
 
 (define-judgment-form esterel-eval
   #:mode (¬θ-ref-S I I I)
@@ -736,17 +662,18 @@
 
 (module+ test
   (check-equal? (term (Lwithoutdom · S)) (term ·))
-  (check-equal? (term (Lwithoutdom ({shar s 0 new} ({sig S absent} ·)) S))
+  (check-equal? (term (Lwithoutdom ({shar s 0 new} ({sig S unknown} ·)) S))
                 (term ({shar s 0 new} ·)))
-  (check-equal? (term (Lwithoutdom ({var· x 11} ({shar s 0 new} ({sig S absent} ·))) S))
+  (check-equal? (term (Lwithoutdom ({var· x 11} ({shar s 0 new} ({sig S unknown} ·))) S))
                 (term ({var· x 11} ({shar s 0 new} ·))))
-  (check-equal? (term (Lwithoutdom ({sig S present} ({sig S absent} ·)) S))
+  (check-equal? (term (Lwithoutdom ({sig S present} ({sig S unknown} ·)) S))
                 (term ·))
   (check-equal? (term (Lwithoutdom ({sig S1 present}
                                     ({sig S present}
                                      ({sig S2 present}
-                                      ({sig S absent}
-                                       ({sig S3 unknown}·)))))
+                                      ({sig S unknown}
+                                       ({sig S3 unknown}
+                                        ·)))))
                                    S))
                 (term ({sig S1 present}
                        ({sig S2 present}
@@ -767,10 +694,10 @@
    (L∈dom S {(var· x ev) θ})])
 
 (module+ test
-  (check-true (judgment-holds (L∈dom S ({sig S absent} ·))))
-  (check-true (judgment-holds (L∈dom S ({shar s 0 new} ({sig S absent} ·)))))
-  (check-true (judgment-holds (L∈dom S ({shar s 0 new} ({var· x 11} ({sig S absent} ·))))))
-  (check-false (judgment-holds (L∈dom S1 ({sig S2 absent} ·)))))
+  (check-true (judgment-holds (L∈dom S ({sig S unknown} ·))))
+  (check-true (judgment-holds (L∈dom S ({shar s 0 new} ({sig S unknown} ·)))))
+  (check-true (judgment-holds (L∈dom S ({shar s 0 new} ({var· x 11} ({sig S unknown} ·))))))
+  (check-false (judgment-holds (L∈dom S1 ({sig S2 unknown} ·)))))
 
 (define (resort l)
   (define flt
@@ -788,12 +715,12 @@
 
 (module+ test
   (check-equal? (resort (term ·)) (term ·))
-  (check-equal? (resort (term {(sig S absent) {(sig T present) ·}}))
-                (term {(sig S absent) {(sig T present) ·}}))
-  (check-equal? (resort (term {(sig T present) {(sig S absent) ·}}))
-                (term {(sig S absent) {(sig T present) ·}}))
-  (check-equal? (resort (term {(sig S present) {(sig S absent) ·}}))
-                (term {(sig S present) {(sig S absent) ·}})))
+  (check-equal? (resort (term {(sig S unknown) {(sig T present) ·}}))
+                (term {(sig S unknown) {(sig T present) ·}}))
+  (check-equal? (resort (term {(sig T present) {(sig S unknown) ·}}))
+                (term {(sig S unknown) {(sig T present) ·}}))
+  (check-equal? (resort (term {(sig S present) {(sig S unknown) ·}}))
+                (term {(sig S present) {(sig S unknown) ·}})))
 
 (define-metafunction esterel-eval
   id-but-typeset-some-parens : any -> any

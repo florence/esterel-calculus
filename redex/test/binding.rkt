@@ -160,7 +160,7 @@
    (judgment-holds
     (CB
      (par
-      (ρ ((shar sB 0 ready) ((var· xL 0) ·))
+      (ρ ((shar sB 0 new) ((var· xL 0) ·))
          GO
          (suspend (signal Sm (exit 0)) SY))
       (if xl
@@ -170,7 +170,7 @@
    (judgment-holds
     (CB
      (par
-      (ρ ((shar sB 0 ready) ((var· xL 0) ·))
+      (ρ ((shar sB 0 new) ((var· xL 0) ·))
          WAIT
          (suspend (signal Sm (exit 0)) SY))
       (if xl
@@ -181,7 +181,7 @@
     (CB
      (loop
       (par
-       (ρ ((shar sB 0 ready) ((var· xL 0) ·))
+       (ρ ((shar sB 0 old) ((var· xL 0) ·))
           GO
           (suspend (signal Sm (exit 0)) SY))
        (if xl
@@ -192,7 +192,7 @@
     (CB
      (loop
       (par
-       (ρ ((shar sB 0 ready) ((var· xL 0) ·))
+       (ρ ((shar sB 0 old) ((var· xL 0) ·))
           WAIT
           (suspend (signal Sm (exit 0)) SY))
        (if xl
@@ -201,11 +201,11 @@
   (check-false
    (judgment-holds
     (CB
-     (loop (par (ρ ((shar sB 0 ready) ((var· xL 0) ·)) WAIT (suspend (signal Sm (exit 0)) SY)) (if xl (var xL := (+ 0) (shared sZ := (+ 2 5) (<= sZ (+ 1)))) (signal Si (trap (emit Sp)))))))))
+     (loop (par (ρ ((shar sB 0 old) ((var· xL 0) ·)) WAIT (suspend (signal Sm (exit 0)) SY)) (if xl (var xL := (+ 0) (shared sZ := (+ 2 5) (<= sZ (+ 1)))) (signal Si (trap (emit Sp)))))))))
   (check-false
    (judgment-holds
     (CB
-     (loop (par (ρ ((shar sB 0 ready) ((var· xL 0) ·)) GO (suspend (signal Sm (exit 0)) SY)) (if xl (var xL := (+ 0) (shared sZ := (+ 2 5) (<= sZ (+ 1)))) (signal Si (trap (emit Sp))))))))))
+     (loop (par (ρ ((shar sB 0 new) ((var· xL 0) ·)) GO (suspend (signal Sm (exit 0)) SY)) (if xl (var xL := (+ 0) (shared sZ := (+ 2 5) (<= sZ (+ 1)))) (signal Si (trap (emit Sp))))))))))
 
 (define-metafunction esterel-L
   Xs : L -> L

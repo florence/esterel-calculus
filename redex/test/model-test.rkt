@@ -68,7 +68,7 @@
   (define res (and external? (esterel-oracle p i o Ss)))
   (define res2 (and external? (hiphop-oracle p i o Ss)))
   (define circuit-res
-    (if (redex-match? esterel-check p-pure p)
+    (if (can-generate-circuit? p)
         (run/circuit p i o Ss)
         #f))
   (cond
@@ -442,10 +442,17 @@
           (par (suspend (seq pause nothing) SS)
                (present SA pause pause))))
      (list
-      `(ρ ((sig SA absent) ((sig SS present) ·))
+      `(ρ ((sig SS present) ((sig SA unknown) ·))
           GO
           (par (suspend (seq pause nothing) SS)
-               (present SA pause pause)))))
+               pause))))
+    (check-true
+     (term
+      (is-complete?
+       (ρ ((sig SS present) ((sig SA unknown) ·))
+          GO
+          (par (suspend (seq pause nothing) SS)
+               pause)))))
     (check-equal?
      ;; raise-shared
      (apply-reduction-relation
@@ -459,7 +466,11 @@
       `(ρ · GO
           (seq (shared s1 := (+) (var x1 := (+ s1) nothing))
                (ρ ((shar s1 0 old) ·) WAIT (<= s1 (+))))))
-     (list `(ρ ((shar s1 0 ready) ((var· x1 0) ·)) GO nothing)))
+     (list `(ρ ((shar s1 0 new) ((var· x1 0) ·)) GO nothing)))
+    (check-true
+     (term
+      (is-complete?
+       (ρ ((shar s1 0 new) ((var· x1 0) ·)) GO nothing))))
     
     (check-equal?
      ;; merge
@@ -492,20 +503,20 @@
      (apply-reduction-relation
       standard:R
       `(ρ ((shar ss 1 new) ·) GO (shared s2 := (+ ss) pause)))
-     (list `(ρ ((shar ss 1 ready) ·) GO (shared s2 := (+ ss) pause))))
+     (list `(ρ ((shar ss 1 new) ·) GO (ρ ((shar s2 1 old) ·) WAIT pause))))
 
     (check-equal?
      ;; raise-shared
      (apply-reduction-relation
       standard:R
-      `(ρ ((shar ss 1 ready) ·) GO (shared s2 := (+ ss) pause)))
-     (list `(ρ ((shar ss 1 ready) ·) GO (ρ ((shar s2 1 old) ·) WAIT pause))))
+      `(ρ ((shar ss 1 old) ·) GO (shared s2 := (+ ss) pause)))
+     (list `(ρ ((shar ss 1 old) ·) GO (ρ ((shar s2 1 old) ·) WAIT pause))))
     (check-equal?
      ;; raise-shared
      (apply-reduction-relation
       standard:R
-      `(ρ ((shar ss 1 ready) ·) GO (shared s2 := (+ 1) pause)))
-     (list `(ρ ((shar ss 1 ready) ·) GO (ρ ((shar s2 1 old) ·) WAIT pause))))
+      `(ρ ((shar ss 1 old) ·) GO (shared s2 := (+ 1) pause)))
+     (list `(ρ ((shar ss 1 old) ·) GO (ρ ((shar s2 1 old) ·) WAIT pause))))
 
 
     (check-equal?
@@ -545,9 +556,9 @@
      ;; is-absent
      (apply-reduction-relation
       standard:R
-      `(ρ ((sig S absent) ·) GO (par (seq (present S nothing pause) nothing)
+      `(ρ ((sig S unknown) ·) GO (par (seq (present S nothing pause) nothing)
                                   nothing)))
-     (list `(ρ ((sig S absent) ·) GO (par (seq pause nothing) nothing))))
+     (list `(ρ ((sig S unknown) ·) GO (par (seq pause nothing) nothing))))
 
     (check-equal?
      ;; emit unknown
@@ -730,13 +741,13 @@
      ;; absence
      (apply-reduction-relation
       standard:R
-      `(ρ ((sig S absent) ((var· x 1232) ((sig S2 unknown) ·)))
+      `(ρ ((sig S unknown) ((var· x 1232) ((sig S2 unknown) ·)))
           GO
           (trap (par (suspend (present S2 nothing pause) S3)
                      (suspend pause S4)))))
-     (list `(ρ ((sig S absent) ((sig S2 absent) ((var· x 1232) ·)))
+     (list `(ρ ((sig S unknown) ((var· x 1232) ((sig S2 unknown) ·)))
                GO
-               (trap (par (suspend (present S2 nothing pause) S3) (suspend pause S4))))))
+               (trap (par (suspend pause S3) (suspend pause S4))))))
 
 
 

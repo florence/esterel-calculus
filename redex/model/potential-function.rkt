@@ -20,7 +20,9 @@
  ;; adjusted to operate on L-S, etc.
  Can-θ
  Can Can_K Can_S Can_shared
- ->K ->S ->sh)
+ ->K ->S ->sh
+ all-ready?
+ is-complete?)
 
 (define-metafunction esterel-eval
   Cannot : p θ (S ...) -> (S ...) or ⊥
@@ -167,6 +169,45 @@
              (LU (->sh (Can p θ)) (->sh (Can q θ))))])
 
 (define-metafunction esterel-eval
+  all-ready? : L θ p -> boolean
+  [(all-ready? L θ p)
+   #t
+   (judgment-holds (L⊂ (get-shareds-in L) (Lunflatten (dom θ))))
+   (judgment-holds (distinct (->sh (Can-θ (ρ θ GO p) ·))
+                             L))]
+  [(all-ready? L θ p)
+   #f])
+
+(define-metafunction esterel-eval
+  get-shareds-in : L -> L
+  [(get-shareds-in ()) ()]
+  [(get-shareds-in (s L)) (s (get-shareds-in L))]
+  [(get-shareds-in (_ L)) (get-shareds-in L)])
+
+(module+ test
+  (check-true (term (all-ready? () · nothing)))
+  (check-true (term (all-ready? (x ()) · nothing)))
+  ;; does not care about free vars
+  (check-true (term (all-ready? (s1 ())
+                                ((shar s1 0 old) ((shar s2 0 old) ·))
+                                nothing)))
+  (check-true (term (all-ready? (s1 (s1 ()))
+                                ((shar s1 0 old) ((shar s2 0 old) ·))
+                                nothing)))
+  (check-false (term (all-ready? (s1 (s1 (s2 (s1 ()))))
+                                ((shar s1 0 old) ((shar s2 0 old) ·))
+                                (<= s2 (+ 1)))))
+  (check-true (term (all-ready? (s2 ())
+                                ((shar s1 0 old) ((shar s2 0 old) ·))
+                                nothing)))
+  (check-false (term (all-ready? (s2 ())
+                                ((shar s1 0 old) ((shar s2 0 old) ·))
+                                (<= s2 (+ 1)))))
+  (check-false (term (all-ready? (s3 ())
+                                 ((shar s1 0 old) ((shar s2 0 old) ·))
+                                 nothing))))
+
+(define-metafunction esterel-eval
   Can_S : p θ -> L-S
   [(Can_S p θ) (->S (Can p θ))])
 
@@ -177,6 +218,27 @@
 (define-metafunction esterel-eval
   Can_shared : p θ -> L-s
   [(Can_shared p θ) (->sh (Can p θ))])
+
+
+(define-metafunction esterel-eval
+  is-complete? : p -> boolean
+  [(is-complete? done) #t]
+  [(is-complete? (ρ θ GO done))
+   #t
+   (judgment-holds (distinct (Lunflatten (get-unknown-signals θ)) (->S (Can-θ (ρ θ GO done) ·))))
+   (judgment-holds (distinct (Lunflatten (get-unready-shared θ)) (->sh (Can-θ (ρ θ GO done) ·))))]
+  [(is-complete? _) #f])
+(module+ test
+  (check-true
+   (term (is-complete?
+          (ρ  {(sig SC unknown) {(sig Si unknown) ·}}
+              GO
+              nothing))))
+  (check-false
+   (term (is-complete?
+          (ρ  {(sig SC unknown) {(sig Si unknown) ·}}
+              WAIT
+              nothing)))))
 
 (module+ test
   (check-equal?

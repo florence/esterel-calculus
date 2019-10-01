@@ -244,8 +244,7 @@
                 (def-t ", sh: ")
                 (L-s-pict)
                 (def-t " }")))
-  (define (Lset-all-absent2-name-pict) (def-t "set-absent"))
-  (define (Lset-all-ready-name-pict) (def-t "set-ready"))
+  
   (define (loop^stop-pict)
     (define base-seq (literal-t "loop"))
     (define w (pict-width base-seq))
@@ -538,20 +537,6 @@
      (λ (lws)
        (define arg (list-ref lws 2))
        (list "" arg ""))]
-    ['Lset-all-absent2
-     (λ (lws)
-       (define θ (list-ref lws 2))
-       (define 𝕊 (list-ref lws 3))
-       (list (hbl-append (Lset-all-absent2-name-pict)
-                         (def-t "("))
-             θ " , " 𝕊 ")"))]
-    ['Lset-all-ready
-     (λ (lws)
-       (define θ (list-ref lws 2))
-       (define 𝕊 (list-ref lws 3))
-       (list (hbl-append (Lset-all-ready-name-pict)
-                         (def-t "("))
-             θ " , " 𝕊 ")"))]
     ['max-mf
      (λ (lws)
        (define arg1 (list-ref lws 2))
@@ -745,10 +730,6 @@
 
      ['↓ (λ () (down-super-n))]
      ['harp (λ () (down-super-p))]
-
-     ['Lset-all-absent2 (λ () (Lset-all-absent2-name-pict))]
-     ['Lset-all-ready (λ () (Lset-all-ready-name-pict))]
-
      
      ['next-instant (λ () (sized-↬-pict))]
      ['par-⊓ (λ () (par-⊓-pict))]

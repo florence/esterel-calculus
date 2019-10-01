@@ -45,11 +45,7 @@
 
 (define (spew-std-rule lhs+rhs+rule spew*)
   (match-define (list lhs rhs rule) lhs+rhs+rule)
-  (cond
-    [(member rule (list "absence" "readyness"))
-     (spew-nodecomp-rule lhs rhs rule spew*)]
-    [else
-     (spew-decomp-rule lhs rhs rule spew*)]))
+  (spew-decomp-rule lhs rhs rule spew*))
 
 (define refl "Prop.refl")
 (define ¬p "(λ ())")
@@ -131,27 +127,6 @@
       (spew "std-merge")]))
   (in (list rule inner)))
 
-(define (spew-nodecomp-rule lhs rhs rule spew)
-  (define in
-    (term-match/single
-     esterel-L
-     [("absence" (ρ θ A p))
-      (spew "std-absence ~a ~a ~a"
-            (send-blocked-or-done (term θ) (term p)
-                                  (first
-                                   (build-derivations
-                                    (blocked-or-done θ A p))))
-            ¬p)]
-     [("readyness" (ρ θ A p))
-      (spew "std-readyness ~a ~a ~a"
-            (send-blocked-or-done (term θ) (term A) (term p)
-                                  (first
-                                   (build-derivations
-                                    (blocked-or-done θ A p))))
-            refl
-            ¬p)]))
-  (in (list rule lhs)))
-
 (define ((decomp-rule-spewer E-decomp-label E-leftmost-label spew) name . extras)
   (apply
    spew
@@ -165,13 +140,15 @@
 (define/contract (get-decomp-labels lhs rhs)
   (-> p? p? (values string? string? p? θ? A?))
   (define decomps
+    (error "ug")
+    #;
     (filter values
             ((term-match
               esterel-L
               [((ρ θ A (in-hole E p))
                 (ρ θ_2 A_2 (in-hole E p_!_1)))
                (let ()
-                 (define d (build-derivations (good θ A E)))
+                 (define d (build-derivations (leftmost θ A E)))
                  (if (pair? d)
                      (list (term E) (first d) (term p) (term θ) (term A))
                      #f))])
