@@ -30,8 +30,9 @@
 
 (define-language esterel
   (p q r ::=
-     (signal S p) (seq p q) (emit S) (present S p q) (par p q)
-     nothing pause (loop p) (suspend p S) (trap p) (exit n)
+     nothing (exit n) (emit S) pause
+     (signal S p) (seq p q) (present S p q) (par p q)
+     (loop p) (suspend p S) (trap p)
      (shared s := e p) (<= s e) (var x := e p) (:= x e) (if x p q))
   ;; (<= s e) renders as s += e in the paper
 
