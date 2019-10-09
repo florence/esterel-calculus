@@ -120,7 +120,8 @@
      #:=? result=?/multi
      #:expr1 e1
      #:expr2 e2
-     #:asserts asserts
+     #:given-constraints const
+     #:gened-constraints extra
      #:outputs outputs
      
      (log-circuit-solver-debug "starting multi run for\n~a\nand\n~a"
@@ -145,16 +146,20 @@
        (symbolic-repr-of-eval/multi inputs P1 register-pairs1))
      (define e2
        (symbolic-repr-of-eval/multi inputs P2 register-pairs2))
-     (define (make-asserts e)
+     (define (make-extra e)
        (andmap
-        (lambda (v)
-          (and
-           (equal? #t ((build-expression extra-constraints) v))
-           (equal? #t (constraints v))))
+        (lambda (v) (equal? #t ((build-expression extra-constraints) v)))
         e))
-     (define asserts
-       (and (make-asserts e1)
-            (make-asserts e2)))))
+     (define (make-c e)
+       (andmap
+        (lambda (v) (equal? #t (constraints v)))
+        e))
+     (define extra
+       (and (make-extra e1)
+            (make-extra e2)))
+     (define const
+       (and (make-c e1)
+            (make-c e2)))))
   (define (verify-same/single P1 P2
                               #:constraints [extra-constraints 'true]
                               #:outputs [outputs #f])
@@ -162,39 +167,45 @@
      #:=? result=?
      #:expr1 e1
      #:expr2 e2
-     #:asserts asserts
+     #:given-constraints const
+     #:gened-constraints extra
      #:outputs outputs
      (define inputs (symbolic-inputs (append P1 P2)))
      (log-circuit-solver-debug "inputs: ~a" (pretty-format inputs))
      (log-circuit-solver-debug "extras: ~a" (pretty-format extra-constraints))
      (define e1 (symbolic-repr-of-eval P1 inputs))
      (define e2 (symbolic-repr-of-eval P2 inputs))
-     (define (make-asserts e)
-       (and
-        (equal? #t ((build-expression extra-constraints) e))
-        (equal? #t (constraints e))))
-     (define asserts
-       (and (make-asserts e1)
-            (make-asserts e2)))))
+     (define (make-extra e)
+       (equal? #t ((build-expression extra-constraints) e)))
+     (define (make-c e)
+       (equal? #t (constraints e)))
+     (define extra
+       (and (make-extra e1)
+            (make-extra e2)))
+     (define const
+       (and (constraints e1)
+            (constraints e1)))))
   
   (define-syntax do-verify
     (syntax-parser
       [(_ #:=? =?:id
           #:expr1 e1:id
           #:expr2 e2:id
-          #:asserts asserts:id
+          #:given-constraints given-constraints:id
+          #:gened-constraints gened-constraints:id
           #:outputs outputs:id
           body:expr ...)
        #'(with-asserts*
           body ...
-          (verify/f =? e1 e2 asserts outputs))]))
+          (verify/f =? e1 e2 given-constraints gened-constraints outputs))]))
   
-  (define (verify/f =? e1 e2 asserts* outputs)
+  (define (verify/f =? e1 e2 given-constraints gened-constraints outputs)
     (log-circuit-solver-debug "e1: ~a" (pretty-format e1))
     (log-circuit-solver-debug "e1 vars: ~a" (pretty-format (symbolics e1)))
     (log-circuit-solver-debug "e2: ~a" (pretty-format e2))
     (log-circuit-solver-debug "e2 vars: ~a" (pretty-format (symbolics e2)))
-    (log-circuit-solver-debug "constraints: ~a" (pretty-format (equal? #t asserts*)))
+    (log-circuit-solver-debug "constraints: ~a" (pretty-format (equal? #t given-constraints)))
+    (log-circuit-solver-debug "generated constraints: ~a" (pretty-format (equal? #t gened-constraints)))
     (log-circuit-solver-debug "asserts: ~a" (pretty-format (asserts)))
 
     (define eq (equal? #t (=? e1 e2 #:outputs outputs)))
@@ -206,7 +217,8 @@
        ;; note: this assumes that
        ;; the constraints require strict truth
        ;; not not-falseness
-       #:assume (assert asserts*)
+       #:assume (assert (and (equal? #t given-constraints)
+                             (equal? #t gened-constraints)))
        #:guarantee (assert eq)))
     (when (sat? r)
       (log-circuit-solver-debug
