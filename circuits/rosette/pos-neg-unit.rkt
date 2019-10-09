@@ -44,6 +44,7 @@
      (λ (x)
        (implies
         (and (list? x)
+             (list? (first x))
              (eq? (first (first x)) '+)
              (contains? I `(- ,(second (first x)))))
         (not (and (second x)
@@ -54,6 +55,7 @@
      (lambda (x)
        (implies 
         (and (list? x)
+             (list? (first x))
              (eq? (first (first x)) '+)
              (contains? P `(- ,(second (first x)))))
         (or (second x)

@@ -368,8 +368,63 @@
                (O = pre-out2)))
     (convert `((pre-in = I) (O = pre-out))))))
 
+(define-circuit-test-suite regression-tests
+  (test-case "case found when debugging abort"
+    (define q
+      (convert `((SEL = q_SEL)
+                 (K0 = q_K0)
+                 (Kn = q_Kn))))
+    (define start
+      (convert
+       `(;; p
+         (p_GO = (and GO S))
+         (p_RES = RES)
+         ;; these wires are not needed for the proof, and are never read so we can 
+         ;; ignore them
+         ;(p_SUSP = SUSP)
+         ;(p_KILL = KILL)
+         ;; q
+         (q_GO = (and GO (not S)))
+         (q_RES = RES)
+         ;; these wires are not needed for the proof, and are never read so we can 
+         ;; ignore them
+         ;(q_SUSP = SUSP)
+         ;(q_KILL = KILL)
+         ;; out
+         (SEL = (or p_SEL q_SEL))
+         (K0 = (or p_K0 q_K0))
+         (Kn = (or p_Kn q_Kn)))))
+    (test-case "negative version"
+      (check-pred
+       list?
+       (verify-same
+        #:outputs (convert-names '(SEL Kn K0))
+        #:constraints
+        (convert-term
+         '(and (implies SEL (not GO))
+               (implies (not SEL) (not S))))
+        start
+        q)))
+    (test-case "positive version"
+      (check-pred
+       unsat?
+       (verify-same
+        #:outputs (convert-names '(SEL Kn K0))
+        #:constraints
+        (convert-term
+         '(and (implies SEL (not GO))
+               (and (implies (not SEL) (not S))
+                    (and (implies (not (or p_GO (and p_SEL p_RES)))
+                                  (and (not p_Kn) (not p_K0)))
+                         (implies (not (or p_GO (and p_SEL p_RES)))
+                                  (and (not p_Kn) (not p_K0)))))))
+        start
+        q)))))
+     
+    
+
 (module+ test
-  
+
   ;                                                    
   ;                                                    
   ;                                                    

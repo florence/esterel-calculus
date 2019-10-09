@@ -84,7 +84,10 @@
    (((+ con:a) = (convert-p + con:p))
     ((- con:a) = (convert-p - con:p)))])
 
-(define-metafunction both
+(define-extended-language both+implies both
+  (con:p con:q ::= .... (implies con:p con:q))
+  (class:p class:q ::= .... (implies class:p class:q)))
+(define-metafunction both+implies
   convert-p : class:ann con:p -> class:p
   [(convert-p + (and con:p con:q))
    (and (convert-p + con:p) (convert-p + con:q))]
@@ -111,7 +114,15 @@
   [(convert-p + ⊥)
    false]
   [(convert-p - ⊥)
-   false])
+   false]
+  ;; TODO this are not validated
+  [(convert-p + (implies con:p con:q))
+   (or (convert-p - con:p)
+       (and (convert-p + con:p)
+            (convert-p + con:q)))]
+  [(convert-p - (implies con:p con:q))
+   (and (convert-p + con:p)
+        (convert-p - con:q))])
 
 (module+ test
   (check-equal?
