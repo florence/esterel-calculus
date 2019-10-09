@@ -6,7 +6,8 @@
          (prefix-in calculus: esterel-calculus/redex/model/calculus)
          (prefix-in standard: esterel-calculus/redex/model/reduction)
          redex/pict
-         (only-in pict show-pict scale hc-append))
+         (only-in pict show-pict scale hc-append)
+         (only-in esterel-calculus/redex/test/binding CB))
 
 (define (render)
   (define (show p) (show-pict (scale p 1.2)))
@@ -16,6 +17,8 @@
       (render-reduction-relation calculus:⇀))
      (show
       (render-reduction-relation standard:R))
+     (show
+      (render-judgment-form CB))
      (show
       (hc-append
        (render-language esterel)
