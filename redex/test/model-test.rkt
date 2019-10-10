@@ -28,10 +28,10 @@
 ;; single point of control for all tests
 (define-syntax define-tester-for-pattern
   (syntax-parser
-    [(_ name:id p-check:expr)
+    [(_ nme:id p-check:expr)
      #'
      (...
-      (define (name #:limits? [limits? #f]
+      (define (nme #:limits? [limits? #f]
                     #:count [attempts 10000]
                     #:debug [d #f]
                     #:continue-on-fail? [c? #t]
