@@ -237,6 +237,7 @@
 
 (define-metafunction esterel-eval
   sub1 : n -> n
+  [(sub1 0) 0]
   [(sub1 n) ,(- `n 1)])
 
 (define-metafunction esterel-eval

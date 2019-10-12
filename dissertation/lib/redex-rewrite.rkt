@@ -10,6 +10,7 @@
          redex/pict
          redex/reduction-semantics
          "util.rkt"
+         "proof-extras.rkt"
          syntax/parse/define
          (for-syntax syntax/parse))
 
@@ -24,7 +25,7 @@
 (set-arrow-pict! '--> reduction-arrow)
 
 ;; es short for esterel, in the spirit of @racket[]
-(provide es esblock define/esblock
+(provide es es/unchecked esblock define/esblock
          with-paper-rewriters
          (contract-out
           [rule (-> is-rule-label? pict?)])
@@ -48,10 +49,14 @@
         [(string? x) (set-member? rule-names (string->symbol x))]
         [else #f]))))
 
+(define-syntax es
+  (syntax-parser
+    [(es e)
+     (quasisyntax/loc this-syntax
+       (with-paper-rewriters (term->pict/checked esterel/typeset e)))]))
 (define-syntax-rule
-  (es e)
-  (with-paper-rewriters (term->pict esterel-eval e)))
-
+  (es/unchecked e)
+  (with-paper-rewriters (term->pict esterel/typeset e)))
 (define-syntax (esblock stx)
   (syntax-parse stx
     [(_ e:expr #:run-instants input-env-vss final-program output-signals)
@@ -101,7 +106,12 @@
            expected-present-signals
            actual-present-signals)))
 
-(define-syntax-rule (with-paper-rewriters e1 e ...) (with-paper-rewriters/proc (λ () e1 e ...)))
+(define-syntax with-paper-rewriters
+  (syntax-parser
+    [(_ e1 e ...)
+     (quasisyntax/loc this-syntax
+       (with-paper-rewriters/proc
+        #,(syntax/loc this-syntax (λ () e1 e ...))))]))
 (define (with-paper-rewriters/proc thunk)
   (define (binop op lws)
     (define left (list-ref lws 2))

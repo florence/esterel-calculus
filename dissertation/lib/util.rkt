@@ -2,9 +2,17 @@
 
 (require scriblib/footnote pict racket/draw
          scriblib/figure
-         (only-in scribble/core style element nested-flow)
+         (only-in scribble/core style element nested-flow content? block?
+                  delayed-element)
          scribble/decode
-         scribble/latex-properties)
+         scribble/latex-properties
+         scribble-abbrevs/latex
+         redex/reduction-semantics
+         redex/pict
+         (only-in plot/utils treeof)
+         (for-syntax syntax/parse
+                     racket/list
+                     redex/private/term-fn))
 (module+ test (require rackunit))
 
 (provide (rename-out [-note note])
@@ -15,15 +23,26 @@
          subtitle-font-adjust
          paper-title-style
          get-the-font-size
-         theorem theorem-ref Theorem-ref
          sub-e
          why-do-i-need-this-spacer-thingy?!
          (contract-out
           [format-number (-> natural? string?)])
          with-normal-height
-         proof
+         (contract-out
+          
+          [proof
+           (->*
+            (#:label string? #:statement (treeof pre-flow?))
+            (#:annotations list?
+             #:interpretation (treeof pre-flow?)
+             #:type (or/c 'lemma 'theorem)
+             #:title (or/c #f string?))
+            #:rest (treeof pre-flow?)
+            (treeof pre-flow?))])
          proof-ref
-         Proof-ref)
+         Proof-ref
+         default-term->pict/checked-attempts
+         term->pict/checked)
 
 (define in-footnote? (make-parameter #f))
 (define (get-the-font-size) (if (in-footnote?) 10 13))
@@ -86,7 +105,7 @@
    #"\\setlist[casesp]{align=left, %% alignment of labels
                  %listparindent=\\parindent, %% same indentation as in normal text
                  %parsep=\\parskip, %% same parskip as in normal text
-                 font=\\normalfont\\bfseries, %% font used for labels
+                 font=\\normalfont\\scshape, %% font used for labels
                  %leftmargin=0pt, %% total amount by which text is indented
                  %labelwidth=0pt, %% width of labels (=how much they stick out on the left because align=left)
                  itemindent=0pt,%labelsep=.4em, %% space between label and text
@@ -97,7 +116,6 @@
    #"\\setlist[casesp,1]{label=Case~\\arabic*:,ref=\\arabic*}\n"
    #"\\setlist[casesp,2]{label=Case~\\thecasespi.\\roman*:,ref=\\thecasespi.\\roman*}\n"
    #"\\setlist[casesp,3]{label=Case~\\thecasespii.\\alph*:,ref=\\thecasespii.\\alph*}\n"
-
    (append
     (for/list ([i (in-list right-figure-sizes)])
       (mk-rightfigure i #f))
@@ -128,28 +146,13 @@
 
 (define paper-title-style (style #f (list (tex-addition extra-tex-code))))
 
-(define (theorem #:label label #:break? [break? #f] . args)
-  (nested-flow (style "theorem" '())
-               (cond
-                 [break?
-                  (decode-flow (list* (element (style "relax" '(exact-chars)) '("~"))
-                                      (element "newline" '())
-                                      (element "TheoremSpacer" '())
-                                      (element (style "label" '(exact-chars)) (list label))
-                                      args))]
-                 [else (decode-flow args)])))
-
 (define sub-e
   (element "SubE" '()))
 
-(define (theorem-ref str)
-  (list (element (style "relax" '(exact-chars)) '("theorem~"))
-        (element (style "ref" '(exact-chars)) (list str))))
-
-(define (Theorem-ref str)
-  (list (element (style "relax" '(exact-chars)) '("Theorem~"))
-        (element (style "ref" '(exact-chars)) (list str))))
-
+(define proof-name-table
+  (make-hash))
+(define proof-type-table
+  (make-hash))
 
 (define (proof #:label label
                #:annotations [annotations empty]
@@ -158,11 +161,15 @@
                #:type [type 'lemma]
                #:title [title #f]
                . the-proof)
+  (when (hash-has-key? proof-name-table label)
+    (error 'proof "attempted to make two proofs with the label ~a" label))
+  (hash-set! proof-name-table label title)
+  (hash-set! proof-type-table label type)
   (list
    (wrap-latex-begin-end
     (case type
       [(lemma) "lemma"]
-      [(proof) "theorem"])
+      [(theorem) "theorem"])
     #:followup (and title (string-append "[" title "]"))
     (decode-flow
      (list*
@@ -191,14 +198,43 @@
          (exact-chars-element #f (format "\\end{~a}" env)))))
 
 (define (proof-ref str)
-  (list (element (style "relax" '(exact-chars)) '("proof~"))
-        (element (style "ref" '(exact-chars)) (list (string-append "p:" str)))))
+  (list (proof-type-ref str "lemma~" "theorem~" "undefined theorem~")
+        (element (style "ref" '(exact-chars)) (list (string-append "p:" str)))
+        (proof-title-ref str)))
 
 (define (Proof-ref str)
-  (list (element (style "relax" '(exact-chars)) '("Proof~"))
-        (element (style "ref" '(exact-chars)) (list (string-append "p:" str)))))
+  (list (proof-type-ref str "Lemma~" "Theorem~" "Undefined theorem~")
+        (element (style "ref" '(exact-chars)) (list (string-append "p:" str)))
+        (proof-title-ref str)))
 
+(define (proof-type-ref str l p u)
+  (delayed-element
+         (lambda _
+           (define t (hash-ref proof-type-table str #f))
+           (define label
+             (case t
+               [(lemma) l]
+               [(theorem) p]
+               [(#f)
+                (log-error "undefined theorem: ~a" str)
+                u]))
+           (element (style "relax" '(exact-chars)) (list label)))
+        (lambda () "")
+        (lambda () "")))
 
+(define (proof-title-ref str)
+  (delayed-element
+   (lambda _ (cond
+               [(hash-ref proof-name-table str #f)
+                =>
+                (lambda (x)
+                  (element
+                   #f
+                   (list " "
+                         (sc (~a "(" x ")")))))]
+               [else (list)]))
+   (lambda () "")
+   (lambda () "")))
 (define (format-number n)
   (apply
    string-append
@@ -229,3 +265,52 @@
   (define x (ghost (text "x" Linux-Liberterine-name (get-the-font-size))))
   (inset (refocus (lbl-superimpose x p) x)
          0 0 (- (pict-width p) (pict-width x)) 0))
+
+
+(define default-term->pict/checked-attempts
+  (make-parameter 10))
+
+(define-syntax term->pict/checked
+  (syntax-parser
+    [(_ (~optional (~seq #:attempts attempts:expr)
+                   #:defaults
+                   ([attempts #'(default-term->pict/checked-attempts)]))
+        lang:id term:expr)
+     #'(begin
+         (test-valid-term lang term attempts)
+         (term->pict lang term))]))
+
+(define-syntax test-valid-term
+  (syntax-parser
+    [(_ lang trm at)
+     #:with pats (get-pats #'trm)
+     (cond
+       [(ormap symbol? (flatten (syntax->datum #'pats)))
+        #`(parameterize ([current-output-port (open-output-nowhere)])
+            #,(quasisyntax/loc this-syntax
+                (redex-check
+                 lang pats
+                 #,(if (do-judgment? #'trm)
+                       #'(void (judgment-holds trm))
+                       #'(void (term trm)))
+                 #:attempts at
+                 #:print? #f)))]
+       [else #'(void)])]))
+
+(define-for-syntax (do-judgment? stx)
+  (syntax-parse stx
+    [(x:id . _)
+     (judgment-form? (syntax-local-value #'x (lambda () #f)))]
+    [else #f]))
+  
+
+(define-for-syntax (get-pats trm)
+  (syntax-parse trm
+    [x:id #'x]
+    [(x:id y ...)
+     #:when (or (term-fn? (syntax-local-value #'x (lambda () #f)))
+                (judgment-form? (syntax-local-value #'x (lambda () #f))))
+     (map get-pats (syntax->list #'(y ...)))]
+    [(y ...)
+     (map get-pats (syntax->list #'(y ...)))]
+    [else #f]))

@@ -54,7 +54,8 @@
    lang c
    (unless (or (redex-match? lang pat (term c)) ...)
      (error "missing case!"))
-   #:attempts n))
+   #:attempts n
+   #:print? #f))
 
 (define-simple-macro (render-cases/derivation lang:id c:expr (pat:id body ...) ...)
   (list

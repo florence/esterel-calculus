@@ -3,9 +3,11 @@
 @(require "lib/redex-rewrite.rkt"
           "lib/util.rkt"
           "lib/proofs.rkt"
+          "lib/proof-extras.rkt"
           redex/reduction-semantics
           esterel-calculus/redex/model/shared
-          esterel-calculus/redex/test/generator
+          esterel-calculus/redex/model/lset
+          esterel-calculus/redex/model/potential-function
           scribble-abbrevs/latex)
 
 @title[#:style paper-title-style]{Proofs}
@@ -17,7 +19,7 @@
        @list{For all @es[p] and @es[q], @es[(≡ p q)] implies that
         @es[(≃ (compile p) (compile q))]}
        #:interpretation "is it really?"
-       #:type 'proof]{
+       #:type 'theorem]{
  TODO
 }
 
@@ -31,7 +33,7 @@
        #:type 'lemma]{
  next we do
  @cases[#:of/unchecked @list{derivation of @es[(⇀ p q)]}
-        #:language esterel-check]
+        #:language esterel/typeset]
 }
 
 @proof[#:label "par-swap"
@@ -56,7 +58,7 @@
        @list{as @es[(⇀ (trap stopped) (harp stopped))], show that
         @es[(≃ (compile (trap stopped)) (compile (harp stopped)))]}]{
  @cases[#:of stopped
-        #:language esterel-eval
+        #:language esterel/typeset
         @#:case[nothing]{
           Note that @es[(= (harp nothing) nothing)].
           TODO Draw pictures, which are the same}
@@ -92,6 +94,7 @@
        #:title "par2-exit is sound"
        #:statement
        @list{as @es[(⇀ (par (exit n_1) (exit n_2)) (exit (max-mf n_1 n_2)))], show that
+                
         @es[(≃ (compile (par (exit n_1) (exit n_2))) (compile (exit (max-mf n_1 n_2))))]}]{
  @cases[#:of/unchecked
  @list{@es[(= n_1 n_2)], @es[(> n_1 n_2)], and @es[(< n_1 n_2)]}
@@ -104,7 +107,7 @@
               Note that in this case the @es[lem-n] wire in the
               the synchronizer will be equal to @es[lem],
               as all other exit codes will be @es[0],
-              and therefore @es[(= lem-n (or lem 0 ...))]. The
+              and therefore @es/unchecked[(= lem-n (or lem 0 ...))]. The
               same will hold for @es[rem-n]. We now can see
               that we have a synchronizer of the same shape as
               in the previous subcase. Thus the remainder of this
@@ -114,11 +117,11 @@
           #:induction
           #:checks 20
           @#:case[0]{ Note that all @es[ln] up to
-              @es[l2+n_1] must be @es[0]. Therefore all @es[kn] up to that
+              @es/unchecked[l2+n_1] must be @es[0]. Therefore all @es[kn] up to that
               point must be @es[0]. The notebook [par-2exit] shows
               that the remainder of the synchronizer behaves as @es[(compile (exit n_1))].
              }
-          @#:case[(Suc mat)]{ All @es[kn] up to @es[kn_2]
+          @#:case[(Suc mat)]{ All @es[kn] up to @es/unchecked[kn_2]
               must be zero as there are no corresponding @es[ln] or
               @es[rn] wires. From this point
               we can use analogous reasoning to the previous subcase.}]}
@@ -139,12 +142,12 @@
        #:statement @list{as @es[(⇀ (seq (exit n) q) (exit n))], show that
         @es[(≃ (compile (seq (exit n) q)) (compile (exit n)))]}]{
  Note that @es[(= (of (compile q) GO) 0)]. Thus by @proof-ref["sel-later"],
-           @es[(= (of (compile q) SEL) 0)]. Thus by @proof-ref["activation-condition"]
-           all output wires of @es[(compile q)] are @es[0].
-           Thus the only wire which can be true is @es[K2+n], which in this case will
-           be equal to @es[(of (compile (exit n)) K2+n)]. Thus the two circuits are equal.
-
-           TODO constructivity?
+ @es[(= (of (compile q) SEL) 0)]. Thus by @proof-ref["activation-condition"]
+ all output wires of @es[(compile q)] are @es[0].
+ Thus the only wire which can be true is @es[K2+n], which in this case will
+ be equal to @es[(of (compile (exit n)) K2+n)]. In addition by @proof-ref["activation-constructiveness"]
+ @es[(compile q)] never exhibits non-constructive behavior, thus this circuit is always constructive.
+ Thus the two circuits are equal.
 }
 
 @proof[#:label "signal"
@@ -164,20 +167,20 @@
         
         @es[(≃ (compile (ρ θ GO (in-hole E (emit S)))) (compile (ρ (id-but-typeset-some-parens (<- θ (mtθ+S S present))) GO (in-hole E nothing))))]}]{
  @cases[#:of E
-        #:language esterel-eval
+        #:language esterel/typeset
         #:induction
         @#:case[hole]{
           TODO draw picture}
-        @#:case[(in-hole E1 E)]{ Note that the right hand
-          side of the reduction forces @es[(compile (of θ S))] to
+        @#:case[(in-hole E1 E_i)]{ Note that the right hand
+          side of the reduction forces @es[(compile (θ-get-S θ S))] to
           compile as @es[(compile present)] and it replaces
           @es[(compile (emit S))] a circuit that sets
           @es[(= (of (compile (emit S)) S_o) 0)]. Nothing else is
           changed. By @proof-ref["S-output-irrelevant"] any @es[S_o]
           is only read by its corresponding binder, which in this case
-          is @es[θ] by @proof-ref["S-maintained-across-E"]. Finally
+          is @es[θ] by @proof-ref["S-maintains-across-E"]. Finally
           we know that the @es[(= (of (compile (emit S)) S_o) (of (compile p) GO))]
-          by @proof-ref["GO-maintained-across-E"]. Therefore we change the value
+          by @proof-ref["GO-maintains-across-E"]. Therefore we change the value
           of no wires, so the circuits are the same.
 
           TODO constructivity of other s' wires?
@@ -193,7 +196,7 @@
         when @es[(θ-ref-S θ S present)], show that
         @es[(≃ (compile (ρ θ A (in-hole E (present S p q)))) (compile (ρ θ A (in-hole E p))))]}]{
  As @es[(compile θ)] will force the @es[S] wire to be @es[1],
- by @proof-ref["S-is-consistent-across-E"] we know that
+ by @proof-ref["S-maintains-across-E"] we know that
  @es[(= (of (compile (present S p q)) S) 1)]. Thus it
  suffices to show that
  @es[(≃ (compile (present S p q)) (compile p))] under this
@@ -224,16 +227,16 @@
    
    @es[(= (of (compile p_outer) GO) (of (compile (present S p q)) GO))]
   }
- @item{By @es["Can-S-is-sound"], we know that
+ @item{By @proof-ref["Can-S-is-sound"], we know that
    @es[(= (of (compile p_outer) SEL) 0)] implies @es[(= (of (compile p_outer) S) 0)].}
  @item{by 2 & 3, @es[(= (of (compile p_outer) SEL) 0)] implies
-   @es[(= (of (compile (present S p q) S)) 0)].}
+   @es[(= (of (compile (present S p q)) S) 0)].}
  @item{By @proof-ref["sel-def"],
-   @es[(= (of (compile p_outer) SEL) (or (of (compile p) SEL) (of (compile q) SEL) others ...))]}
+   @es[(= (of (compile p_outer) SEL) (or (of (compile p) SEL) (of (compile q) SEL) w_others ...))]}
  @item{By 4 & 5,
-   @es[(= (or (of (compile p) SEL) (of (compile q) SEL) others ...) (of (compile (present S p q)) SEL))]}
+   @es[(= (or (of (compile p) SEL) (of (compile q) SEL) w_others ...) (of (compile (present S p q)) SEL))]}
  @item{By 1, 2, & 5,
-   @es[(= (or (of (compile p) SEL) (of (compile q) SEL) others ...) 1)]
+   @es[(= (or (of (compile p) SEL) (of (compile q) SEL) w_others ...) 1)]
    implies
    @es[(= (of (compile (present S p q)) SEL) 0)]}
  @item{Under 6, 7, 8, and @proof-ref["activation-condition"]
@@ -244,12 +247,27 @@
 
 }
 
+@proof[#:label "Can-S-is-sound"
+       #:title "Can-S-is-sound"
+       #:statement
+       @list{For any term and environment @es[p] and @es[θ], where @es[(binds θ (compile p))],
+        @es[(= (of (compile p) SEL) 0)] @es[=>] @es[(= (of (compile p) S_o) 0)]}]{
+
+}
+
 @proof[#:label "sel-later"
-       #:title "Selection Laster"
+       #:title "Selection Later"
        #:statement @list{for any term @es[p],
         if @es[(= (of (compile p) GO) 0)] in every instant then
         @es[(= (of (compile p) SEL) 0)]}]{
  TODO
+}
+
+@proof[#:label "sel-def"
+       #:title "Selection Definition"
+       #:statement
+       @list{For any term @es[(= p (in-hole E q))], There exist some wires such that
+        @es[(= (of (compile p) SEL) (or (of (compile q) SEL) w_others ...))]}]{
 }
 
 @proof[#:label "activation-condition"
@@ -258,4 +276,52 @@
         if @es[(= (or (of (compile p) GO) (and (of (compile p) SEL) (of (compile p) RES))) 0)]
         then all output @es[Kn] and all signals in the output environment @es[θ_o] are @es[0].}]{
  TODO
+}
+
+@proof[#:label "activation-constructiveness"
+       #:title "Constructive unless Activated"
+       #:statement @list{for any term @es[p],
+        if @es[(= (or (of (compile p) GO) (and (of (compile p) SEL) (of (compile p) RES))) 0)]
+        then @es[(compile p)] is constructive.}
+       #:interpretation
+       @list{The point of this proof is to show that a circuit can only exhibit non-constructive
+        behavior when they are activated, justifying that dead code can be erased.}]{
+ TODO
+}
+
+@proof[#:label "S-maintains-across-E"
+       #:title "S is maintained across E"
+       #:statement
+       @list{For some term @es[(= p (in-hole E q))] if there is some
+        signal wire @es[S_i] then @es[(= (of (compile q) S) (of (compile p) S))]}]{
+}
+
+@proof[#:label "GO-maintains-across-E"
+       #:title "GO is maintained across E"
+       #:statement
+       @list{For some term @es[(= p (in-hole E q))]
+        then @es[(= (of (compile q) GO) (of (compile p) GO))]}]{
+}
+
+@proof[#:label "context-safety"
+       #:title "Context Safety"
+       #:type 'theorem
+       #:statement
+       @list{For any term @es[(= p (in-hole C q))], if @es[(=> (= (of (compile p) SEL) 1) (= (of (compile p) GO) 0))]
+        then @es[(=> (= (of (compile q) SEL) 1) (= (of (compile q) GO) 0))]}]{
+                                                                              
+Note that this abuses the of notation because of C
+                                                                              
+}
+
+@proof[#:label "S-output-irrelevant"
+       #:title "S output irrelevant"
+       #:statement
+       @list{For any term @es[(= p (in-hole E q))], for any output wire @es[S_o] in
+        @es[(compile q)] there exists no wire @es[w] that is
+        not itself an instance of @es[S_o] in @es[(compile p)] such that
+        depends on @es[S_o]}
+       #:interpretation @list{The point of this theorem is to show
+       that an @es[(emit S)] cannot be "read" by its context until
+       that emit is closed by a @es[signal] or @es[ρ] form.}]{
 }
