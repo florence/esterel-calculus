@@ -4,3 +4,5 @@
 compiled/
 \#*
 .ipynb_checkpoints
+*.pdf
+dissertation/tex
