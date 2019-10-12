@@ -766,6 +766,7 @@
                   (list-ref lws 2)))]
     ['and (curry infix '∧)]
     ['or (curry infix '∨)]
+    ['=> (curry infix '⇒)]
     )
    
 ;                                                              

@@ -54,4 +54,8 @@
 (define-metafunction esterel/typeset
   binds : θ circuit -> boolean
   [(binds _ _) #t])
+
+(define-metafunction esterel/typeset
+  => : any ... -> boolean
+  [(=> _ ...) #t])
   
