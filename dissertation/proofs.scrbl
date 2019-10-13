@@ -33,11 +33,13 @@
        #:type 'lemma]{
  next we do
  @cases[#:of/unchecked @list{derivation of @es[(⇀ p q)]}
-        #:language esterel/typeset]
+        #:language esterel/typeset
+        @#:case["TODO"]{TODO}]
 }
 
 @proof[#:label "par-swap"
        #:title "par-swap is sound"
+       #:interpretation @list{Justify that @rule["par-swap"] is an η-rule}
        #:statement
        @list{as @es[(⇀ (par p q) (par q p))], show that @es[(≃ (compile (par p q)) (compile (par q p)))]}]{
  This can be seen trivally, as the graphs of @es[(compile (par p q))]
@@ -56,7 +58,8 @@
        #:title "trap is sound"
        #:statement
        @list{as @es[(⇀ (trap stopped) (harp stopped))], show that
-        @es[(≃ (compile (trap stopped)) (compile (harp stopped)))]}]{
+        @es[(≃ (compile (trap stopped)) (compile (harp stopped)))]}
+       #:interpretation @list{Justify that @rule["trap"] is an η-rule}]{
  @cases[#:of stopped
         #:language esterel/typeset
         @#:case[nothing]{
@@ -86,7 +89,8 @@
        #:title "seq-done is sound"
        #:statement
        @list{as @es[(⇀ (seq nothing q) q)], show that
-        @es[(≃ (compile (seq nothing q)) (compile q))]}]{
+        @es[(≃ (compile (seq nothing q)) (compile q))]}
+       #:interpretation @list{Justify that @rule["seq-done"] is an η-rule}]{
  TODO draw graphs.
 }
 
@@ -152,6 +156,7 @@
 
 @proof[#:label "signal"
        #:title "signal is sound"
+       #:interpretation @list{Justify that @rule["signal"] is an η-rule}
        #:statement @list{as @es[(⇀ (signal S p) (ρ (mtθ+S S unknown) WAIT p))], show that
                             
                             @es[(≃ (compile (signal S p)) (compile (ρ (mtθ+S S unknown) WAIT p)))]}]{
@@ -252,7 +257,21 @@
        #:statement
        @list{For any term and environment @es[p] and @es[θ], where @es[(binds θ (compile p))],
         @es[(= (of (compile p) SEL) 0)] @es[=>] @es[(= (of (compile p) S_o) 0)]}]{
-
+ @cases[#:of p-pure
+        #:language esterel/typeset
+        @#:case[nothing]{}
+        @#:case[pause]{}
+        @#:case[(exit n)]{}
+        @#:case[(emit S_2)]{}
+        @#:case[(signal S_2 p_i)]{}
+        @#:case[(par p_i q_i)]{}
+        @#:case[(present S_2 p q)]{}
+        @#:case[(suspend p S_2)]{}
+        @#:case[(trap p_i)]{}
+        @#:case[(seq p_i q_i)]{}
+        @#:case[(ρ θ A p_i)]{TODO}
+        @#:case[(loop p_i)]{TODO}
+        @#:case[(loop^stop p_i q_i)]{TODO}]
 }
 
 @proof[#:label "sel-later"

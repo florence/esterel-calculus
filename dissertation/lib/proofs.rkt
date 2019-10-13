@@ -75,21 +75,25 @@
         desc (with-paper-rewriters (term->pict lang c)) ":\n\n"
         (nested-flow (style "casesp" '())
                      (decode-flow
-                      (list
-                       (element "item" '())
-                       (list (with-paper-rewriters (term->pict lang c))
-                             (es =)
-                             (with-paper-rewriters (term->pict lang pat)))
-                       (element "newline" '())
-                       body ...))) ...)]))
+                      (append
+                       (list
+                        (element "item" '())
+                        (list (with-paper-rewriters (term->pict lang c))
+                              (es =)
+                              (with-paper-rewriters (term->pict lang pat)))
+                        (element "newline" '())
+                        body ...)
+                       ...))))]))
 (define-simple-macro (render-cases/basic lang:id of:expr (pat:expr body ...) ...)
   (list
    "Cases of " of ":\n\n"
    (nested-flow (style "casesp" '())
                 (decode-flow
-                 (list (element "item" '())
-                       pat
-                       (element "newline" '())
-                       body ...))) ...))
+                 (append
+                  (list (element "item" '())
+                        pat
+                        (element "newline" '())
+                        body ...)
+                  ...)))))
    
    
