@@ -775,6 +775,7 @@
     ['=> (curry infix '⇒)]
     ['binds
      (curry binop "\\")]
+    ['A->= (curry binop "≥")]
     ['not (curry prefix '¬)])
    
 ;                                                              
