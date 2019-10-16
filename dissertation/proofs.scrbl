@@ -202,6 +202,7 @@
         @es[(≃ (compile (ρ θ A (in-hole E (present S p q)))) (compile (ρ θ A (in-hole E p))))]}]{
  As @es[(compile θ)] will force the @es[S] wire to be @es[1],
  by @proof-ref["S-maintains-across-E"] we know that
+ 
  @es[(= (of (compile (present S p q)) S) 1)]. Thus it
  suffices to show that
  @es[(≃ (compile (present S p q)) (compile p))] under this
@@ -333,6 +334,7 @@
                  @#:case[@es[(= S S_2)]]{
                             In this case the compilation of signal removes @es[S]
                             from the set of output signals, which means
+                            
                             @es[(L¬∈ S (outputs (compile p)))] which violates our hypothesis.
                            }
                  @#:case[@es[(not-= S S_2)]]{
@@ -377,7 +379,9 @@
          }
         @#:case[(present S_2 p q)]{ We know that
           @es[(= (of (compile (present S_2 p_i q_i)) SEL) (or (of (compile p_i) SEL) (of (compile q_i) SEL)) 0)].
-          Therefore @es[(= (of (compile p_i) SEL) 0)] and
+          Therefore
+
+          @es[(= (of (compile p_i) SEL) 0)] and
           @es[(= (of (compile q_i) SEL) 0)]. We also know that
           @es[(= (of (compile (present S_2 p_i q_i)) S_o) (or (of (compile p_i) S_o) (of (compile q_i) S_o)))].
           @cases[#:of/count @es[(θ-get-S θ S_2)] 3
@@ -398,6 +402,7 @@
                                                                 @es[(L∈ S (outputs (compile (present S_2 p_i q_i))))]. Thus
                                                                 we know that @es[(= (of (compile q_i) S_o) 0)] This lets us
                                                                 conclude that
+                                                                
                                                                 @es[(= (of (compile (present S_2 p_i q_i)) S_o) (or 0 (of (compile q_i) S_o)) (or 0 0) 0)].}
                                    @#:case[@es[(L∈ S (outputs (compile p_i)))]]{
                                                                 In this case we can invoke our induction hypothesis to show
