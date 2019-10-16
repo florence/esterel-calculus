@@ -1,7 +1,14 @@
 #lang racket
 (provide esterel/typeset
          of
-         compile)
+         compile
+         =
+         not-=
+         ≃
+         =>
+         outputs
+         parens
+         binds)
 
 (require
   redex/reduction-semantics
@@ -44,18 +51,30 @@
   [(compile #f) wire-value])
 
 (define-metafunction esterel/typeset
-  = : any any -> any
-  [(= _ _) 1])
+  = : any ... -> any
+  [(= _ ...) 1])
 
 (define-metafunction esterel/typeset
   [(≃ circuit circuit) 1]
   [(≃ p-pure q-pure) 1])
 
 (define-metafunction esterel/typeset
-  binds : θ circuit -> boolean
-  [(binds _ _) #t])
-
-(define-metafunction esterel/typeset
   => : any ... -> boolean
   [(=> _ ...) #t])
+
+(define-metafunction esterel/typeset
+  not-= : any any -> any
+  [(not-= _ _) 1])
+
+(define-metafunction esterel/typeset
+  outputs : circuit -> L
+  [(outputs _) ()])
+
+(define-metafunction esterel/typeset
+  parens : any -> any
+  [(parens any) any])
+
+(define-metafunction esterel/typeset
+  binds : circuit θ -> boolean
+  [(binds _ _) #t])
   

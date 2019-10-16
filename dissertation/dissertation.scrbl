@@ -1,4 +1,4 @@
-#lang scribble/acmart @acmsmall
+#lang scribble/book
 
 @(require "lib/redex-rewrite.rkt"
           "lib/util.rkt"
@@ -9,4 +9,7 @@
 
 @title[#:style paper-title-style]{A Calculus for Esterel}
 
+
+@include-section["intro.scrbl"]
+@include-section["notations.scrbl"]
 @include-section["proofs.scrbl"]

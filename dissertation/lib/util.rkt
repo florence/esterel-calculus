@@ -3,13 +3,17 @@
 (require scriblib/footnote pict racket/draw
          scriblib/figure
          (only-in scribble/core style element nested-flow content? block?
-                  delayed-element)
+                  delayed-element
+                  make-paragraph
+                  plain)
          scribble/decode
          scribble/latex-properties
          scribble-abbrevs/latex
          redex/reduction-semantics
          redex/pict
          (only-in plot/utils treeof)
+         racket/runtime-path
+         (only-in scribble/base bold italic)
          (for-syntax syntax/parse
                      racket/list
                      redex/private/term-fn))
@@ -28,6 +32,8 @@
          (contract-out
           [format-number (-> natural? string?)])
          with-normal-height
+         latex-lit
+         definition
          (contract-out
           
           [proof
@@ -43,6 +49,9 @@
          Proof-ref
          default-term->pict/checked-attempts
          term->pict/checked)
+
+(define (latex-lit name #:extras [extras empty] . args)
+  (element (style name (cons 'exact-chars extras)) args))
 
 (define in-footnote? (make-parameter #f))
 (define (get-the-font-size) (if (in-footnote?) 10 13))
@@ -95,20 +104,19 @@
    #"\\newcommand{\\TheoremSpacer}[0]{\\hbox to .3in{}}\n"
    #"\\newcommand{\\SubE}[0]{$_{e}$}\n"
    #"\\newcommand{\\Whydoineedthisspacerthingy}{\\hbox to .1in{}}\n"
-   #"\\setcopyright{rightsretained}\n"
-   #"\\copyrightyear{2019}\n"
+   #"\\usepackage{amsmath, amsthm}"
    #"\\newtheoremstyle{case}{}{}{}{}{}{:}{ }{}\n"
    #"\\theoremstyle{case}\n"
    #"\\newtheorem{case}{Case}\n"
    #"\\usepackage{enumitem}\n"
    #"\\newlist{casesp}{enumerate}{3}\n"
    #"\\setlist[casesp]{align=left, %% alignment of labels
-                 %listparindent=\\parindent, %% same indentation as in normal text
+                 listparindent=\\parindent, %% same indentation as in normal text
                  %parsep=\\parskip, %% same parskip as in normal text
                  font=\\normalfont\\scshape, %% font used for labels
                  %leftmargin=0pt, %% total amount by which text is indented
                  %labelwidth=0pt, %% width of labels (=how much they stick out on the left because align=left)
-                 itemindent=0pt,%labelsep=.4em, %% space between label and text
+                 itemindent=12pt,labelsep=12pt, %% space between label and text
 %                 topsep=??, %% vertical space above and below list
                  %partopsep=0pt, %% extra vertical space above and below if separate paragraph
 %                 itemsep=??, %% vertical space after each item
@@ -116,6 +124,7 @@
    #"\\setlist[casesp,1]{label=Case~\\arabic*:,ref=\\arabic*}\n"
    #"\\setlist[casesp,2]{label=Case~\\thecasespi.\\roman*:,ref=\\thecasespi.\\roman*}\n"
    #"\\setlist[casesp,3]{label=Case~\\thecasespii.\\alph*:,ref=\\thecasespii.\\alph*}\n"
+   #"\\let\\degree\\relax\n"
    (append
     (for/list ([i (in-list right-figure-sizes)])
       (mk-rightfigure i #f))
@@ -144,7 +153,17 @@
                   (Figure-target tag)
                   caption)))))
 
-(define paper-title-style (style #f (list (tex-addition extra-tex-code))))
+(define-runtime-path style.tex "style.tex")
+(define-runtime-path nuthesis.cls "nuthesis.cls")
+(define paper-title-style
+  (style #f
+         (list
+          (latex-defaults         
+           (bytes-append
+            #"\\documentclass{nuthesis}\n"
+            extra-tex-code)
+           style.tex
+           (list nuthesis.cls)))))
 
 (define sub-e
   (element "SubE" '()))
@@ -153,6 +172,28 @@
   (make-hash))
 (define proof-type-table
   (make-hash))
+
+(define (definition
+          #:notation notation
+          #:read-as [read-as #f]
+          . def)
+  (decode-flow
+   (append
+    (list (exact "\\vspace{1ex}\n")
+          (exact "\\noindent")
+          (bold "Definition: "))
+    (flatten notation)
+    (if read-as
+        (list
+         (make-paragraph
+          plain
+          (append
+           (list (italic "read as: "))
+           (flatten read-as))))
+        empty)
+    (list (make-paragraph plain def))
+    (list (exact "\\vspace{1ex}\n")))))
+  
 
 (define (proof #:label label
                #:annotations [annotations empty]
@@ -170,7 +211,7 @@
     (case type
       [(lemma) "lemma"]
       [(theorem) "theorem"])
-    #:followup (and title (string-append "[" title "]"))
+    #:followup (and title (string-append "[\\scshape " title "]"))
     (decode-flow
      (list*
       (element (style "label" '(exact-chars)) (list (string-append "p:" label)))

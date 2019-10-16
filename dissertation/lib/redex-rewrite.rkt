@@ -10,7 +10,7 @@
          redex/pict
          redex/reduction-semantics
          "util.rkt"
-         "proof-extras.rkt"
+         (except-in "proof-extras.rkt" =)
          syntax/parse/define
          (for-syntax syntax/parse))
 
@@ -139,6 +139,9 @@
          (append (do-binop op x y)
                  (loop (cons y rst)))]
         [(list x) (list x "")])))
+  (define (prefix op lws)
+    (define x (list-ref lws 2))
+    (list "" (just-before op x) x))
   (define (replace-font param)
     (let loop ([x (param)])
       (cond
@@ -417,7 +420,9 @@
        (define key (list-ref lws 3))
        (list "" p "(" key ")"))]
     ['=
-     (lambda (x) (binop "=" x))]
+     (curry infix "=")]
+    ['not-=
+     (lambda (x) (binop "≠" x))]
     ['δ
      (λ (lws)
        (define e (list-ref lws 2))
@@ -701,6 +706,7 @@
              (define n (list-ref lws 2))
              (list "" n "+2"))]
     ['id-but-typeset-some-parens (λ (lws) (list "(" (list-ref lws 2) ")"))]
+    ['parens (λ (lws) (list "(" (list-ref lws 2) ")"))]
     ['∀x (λ (lws)
            (match (lw-e (list-ref lws 2))
              ["“(suc n)”" '("n+1")]
@@ -767,7 +773,9 @@
     ['and (curry infix '∧)]
     ['or (curry infix '∨)]
     ['=> (curry infix '⇒)]
-    )
+    ['binds
+     (curry binop "\\")]
+    ['not (curry prefix '¬)])
    
 ;                                                              
 ;                                                              
@@ -853,7 +861,15 @@
                    [non-terminal-style (cons 'bold Linux-Liberterine-name)]
                    [non-terminal-subscript-style (replace-font non-terminal-subscript-style)]
                    [non-terminal-superscript-style (replace-font non-terminal-superscript-style)]
-                   [default-style Linux-Liberterine-name])
+                   [default-style Linux-Liberterine-name]
+                   [white-square-bracket
+                    (lambda (open?)
+                      (let ([text (current-text)])
+                        (scale
+                         (text (if open? "⟬" "⟭")
+                               (default-style)
+                               (default-font-size))
+                         1.05)))])
       (thunk)))))
 
 (define (words str)

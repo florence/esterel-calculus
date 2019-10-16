@@ -40,12 +40,12 @@ no-agda-paper: always
 
 all: agda long
 
-dissertation-unchecked: 
-	(cd dissertation; raco make -v dissertation.scrbl; scribble --pdf dissertation.scrbl)
+dissertation: always
+	(cd dissertation; raco make -v dissertation.scrbl && scribble --pdf dissertation.scrbl)
 
 
-dissertation-debug-tex: 
-	(cd dissertation; raco make -v dissertation.scrbl; scribble --latex --dest tex dissertation.scrbl)
+dissertation-debug-tex: always
+	(cd dissertation; raco make -v dissertation.scrbl && scribble --latex --dest tex dissertation.scrbl)
 
  
 
