@@ -5,7 +5,8 @@
           "../lib/proofs.rkt"
           "../lib/proof-extras.rkt"
           redex/reduction-semantics
-          esterel-calculus/redex/model/shared
+          (except-in esterel-calculus/redex/model/shared FV FV/e)
+          esterel-calculus/redex/test/binding
           esterel-calculus/redex/model/lset
           esterel-calculus/redex/model/potential-function
           (except-in scribble-abbrevs/latex definition))
@@ -88,4 +89,29 @@
         that an @es[(emit S)] cannot be "read" by its context until
         that emit is closed by a @es[signal] or @es[ρ] form.}]{
  TODO
+}
+
+
+
+@proof[#:label "FV-equals-IO"
+       #:title "Free Variables are Input/Outputs"
+       #:statement
+       @list{For any @es[p] and @es[S], @es[(L∈ S (FV p))] if any only if  @es[(L∈ S_i (inputs (compile p)))]
+        or @es[(L∈ S_o (outputs (compile p)))]}
+       #:interpretation @list{This states that the free
+        variables of a term capture exactly the input and output
+        signal wires. That is then notion ``free variable'' exactly corresponds to the non-control
+        part of the circuit interface}]{
+                                        
+ Note that a signal is free only if it occurs in a
+ @es[(present S p q)] or @es[(emit S)] that does not have an
+ outer binder. @es[(compile (present S p q))] will generate
+ an @es[S_i] wires and @es[(emit S)] will generate an
+ @es[S_o] wire. The compilation of all non-binding terms does
+ not change the set of input or output signals. The
+ compilation of @es[(signal S p)] and @es[(ρ θ A p)] remove
+ the @es[S_i] and @es[S_o] wires from the input/output sets
+ for the signals they bind. Thus the input/output sets for
+ signals exactly match the notion of free variables.
+ 
 }

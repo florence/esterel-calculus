@@ -216,7 +216,10 @@
      (list*
       (element (style "label" '(exact-chars)) (list (string-append "p:" label)))
       (decode-flow (list statement)))))
-   (or interp "")
+   (if interp
+       (nested-flow (style "interpretation" '())
+                    (decode-flow (list interp)))
+       "")
    (nested-flow (style "proof" '())
                 (decode-flow the-proof))))
 

@@ -19,7 +19,7 @@ however the most informative theorem is @proof-ref["FullStep"].
 @proof[#:label "FullyAbstract"
        #:title "Fully Abstract Compilation"
        #:statement
-       @list{For all @es[p] and @es[q], @es[(≡ p q)] implies that
+       @list{For all @es[p] and @es[q], @es[(CB p)] and @es[(≡ p q)] implies that
         @es[(≃ (compile p) (compile q))]}
        #:interpretation "is it really?"
        #:type 'theorem]{
@@ -30,7 +30,7 @@ however the most informative theorem is @proof-ref["FullStep"].
 @proof[#:label "FullStep"
        #:title "Fully Abstract Compilation of Step"
        #:statement
-       @list{For all @es[p] and @es[q], @es[(⇀ p q)] implies that
+       @list{For all @es[p] and @es[q], @es[(CB p)] and @es[(⇀ p q)] implies that
         @es[(≃ (compile p) (compile q))]}
        #:interpretation "is it really?"
        #:type 'theorem]{

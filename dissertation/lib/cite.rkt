@@ -5,6 +5,8 @@
 (provide (except-out (all-defined-out) |Robert de Simone|))
 
 (define |Robert de Simone| (author-name "Robert" "de Simone"))
+(define gerard "Gérard Berry")
+
 
 (define-cite ~cite citet generate-bibliography)
 
@@ -16,6 +18,14 @@
    #:location (techrpt-location #:institution "PLT Inc."
                                 #:number "PLT-TR-2010-1")
    #:url      "http://racket-lang.org/tr1/"))
+
+(define bishop
+  (make-bib
+   #:title "Schizophrenia in Contemporary Mathmatics"
+   #:author "Errett Bishop"
+   #:date 1973
+   #:location (book-location #:publisher "American Mathematical Society")
+   #:url "http://prl.ccs.neu.edu/img/sicm.pdf"))
 
 
 (define hiphop
@@ -95,6 +105,20 @@
                                  #:number 2
                                  #:volume 29)))
 
+(define morris
+  (make-bib
+   #:title "Lambda-Calculus Models of Programming Languages"
+   #:author "James Hiram Morris"
+   #:date 1963
+   #:location (dissertation-location #:institution "Massachusetts Institute of Technology")))
+
+(define curry-feys
+  (make-bib
+   #:title "Combinatory Logic I"
+   #:author (authors "Haskell B. Curry" "Robert Feys")
+   #:date 1958
+   #:location (book-location #:publisher "North-Holland Publishing Company, Amsterdam")))
+
 (define felleisen-hieb
   (make-bib
     #:title "The revised report on the syntactic theories of sequential control and state."
@@ -104,6 +128,14 @@
                                  #:number 2
                                  #:volume 103
                                  #:pages (list 235 271))))
+
+(define felleisen-friedman
+  (make-bib
+   #:title "Control operators, the SECD-machine, and the λ-calculus"
+   #:author (authors "Matthias Felleisen" "Daniel P. Friedman")
+   #:date 1986
+   #:location (proceedings-location
+               "Conference on Formal Descriptions of Programming Concepts Part III")))
 
 (define plotkin
   (make-bib
@@ -115,6 +147,16 @@
                #:volume 1
                #:number 2
                #:pages (list 125 159))))
+
+(define ISWIM
+  (make-bib
+   #:title "The mechanical evaluation of expressions"
+   #:author "Peter J. Landin"
+   #:location
+   (journal-location "Computer Journal"
+                     #:volume 6
+                     #:number 4)
+   #:date 1964))
 
 (define esterel-v5
   (make-bib
@@ -190,6 +232,14 @@
                                 #:volume 40
                                 #:pages (list 283 329))))
 
+(define shiple-constructive-circuit
+  (make-bib
+   #:title "Constructive Analysis of Cycle Circuits"
+   #:author (authors "Thomas R. Shiple" gerard "Hervé Touati")
+   #:date 1996
+   #:location (proceedings-location
+               "European design and test conference")))
+
 
 (define barendregt
   (make-bib
@@ -204,3 +254,80 @@
    #:author (authors "Lindsey Kuper" "Ryan R. Newton")
    #:date 2013
    #:location (proceedings-location "Workshop on Functional High-performance Computing (FHPC)")))
+
+(define florence-2019
+  (make-bib
+   #:title "A Calculus for Esterel"
+   #:author (authors "Spencer P. Florence"
+                     "Shu-Hung You"
+                     "Jesse A. Tov"
+                     "Robert Bruce Findler")
+   #:date 2019
+   #:location (journal-location
+               "Proceedings of the ACM on Programming Languages"
+               #:volume 3
+               #:number "POPL")))
+
+
+#|
+Note about the completeness result here:
+Theorem 47. Given constructive Esterel statements E and E′;
+ E=E′ if and only if E≈E′.
+|#
+(define tini-axiomatic
+  (make-bib
+   #:title "An axiomatic semantics for Esterel"
+   #:author "Simone Tini"
+   #:date 2001
+   #:location
+   (journal-location
+    "Theoretical Computer Science"
+    #:volume 296
+    #:pages (list 231 282))))
+
+
+(define pdg
+  (make-bib
+   #:title "The Program Dependence Graph and Its Use In Optimization"
+   #:author (authors "Jeane Ferrante" "Karl J. Ottenstein" "Joe D. Warren")
+   #:date 1987
+   #:location (journal-location
+               "ACM Transactions on Programming Languages and Systems (TOPLAS)"
+               #:volume 9
+               #:number 6
+               #:pages (list 319 349))))
+
+(define zeng-cec
+  (make-bib
+   #:title "Generating Fast Code from Concurrent Program Dependence Graphs"
+   #:author (authors "Jia Zeng" "Cristian Soviani" "Stephan A. Edwards")
+   #:date 2004
+   #:location (proceedings-location
+               "Languages, Compilers, Tools and Theory of Embedded Systems (LCTES)")))
+
+
+(define optimization-coaching
+  (make-bib
+   #:title "Optimization Coaching: Optimizers learn to communicate with Programmers"
+   #:author (authors "Vincent St-Amour" "Same Tobin-Hochstadt" "Matthias Felleisen")
+   #:date 2012
+   #:location (proceedings-location "ACM international conference on Object oriented programming systems languages and applications (OOPSLA)")))
+
+
+(define CRP
+  (make-bib
+   #:title "Communicating Reactive Processes"
+   #:author (authors gerard "S. Ramesh" "Rudrapatna K. Shyamasundar")
+   #:date 1993
+   #:location (proceedings-location "ACM Symposium on Principles of Programming Languages (POPL)")))
+
+
+(define malik-circuit
+  (make-bib
+   #:title "Analysis of cyclic combinational circuits"
+   #:author "Sharad Malik"
+   #:date 1994
+   #:location (journal-location "IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems"
+                                #:volume 13
+                                #:number 7)))
+   

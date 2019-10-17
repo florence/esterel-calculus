@@ -9,6 +9,7 @@
 
 
 @include-section["intro.scrbl"]
+@include-section["background/background.scrbl"]
 @include-section["notations.scrbl"]
 @include-section["proofs/proofs.scrbl"]
 @generate-bibliography[]

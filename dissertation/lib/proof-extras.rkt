@@ -7,6 +7,7 @@
          ≃
          =>
          outputs
+         inputs
          parens
          binds)
 
@@ -69,6 +70,10 @@
 (define-metafunction esterel/typeset
   outputs : circuit -> L
   [(outputs _) ()])
+
+(define-metafunction esterel/typeset
+  inputs : circuit -> L
+  [(inputs _) ()])
 
 (define-metafunction esterel/typeset
   parens : any -> any

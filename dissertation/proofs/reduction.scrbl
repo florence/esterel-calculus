@@ -5,7 +5,8 @@
           "../lib/proofs.rkt"
           "../lib/proof-extras.rkt"
           redex/reduction-semantics
-          esterel-calculus/redex/model/shared
+          (except-in esterel-calculus/redex/model/shared FV FV/e)
+          esterel-calculus/redex/test/binding
           esterel-calculus/redex/model/lset
           esterel-calculus/redex/model/potential-function
           (except-in scribble-abbrevs/latex definition))
@@ -238,8 +239,9 @@ respect to the compilation function.
 @proof[#:label "merge"
        #:title "merge is sound"
        #:statement
-       @list{as @es[(⇀ (ρ θ_1 A_1 (in-hole E (ρ θ_2 A_2 p)) (ρ (<- θ_1 θ_2) A_1 (in-hole E p))))]
+       @list{as @es[(⇀ (ρ θ_1 A_1 (in-hole E (ρ θ_2 A_2 p))) (ρ (<- θ_1 θ_2) A_1 (in-hole E p)))],]
                 when @es[(A->= A_1 A_2)], show that
+        if @es[(CB (ρ θ_1 A_1 (in-hole E (ρ θ_2 A_2 p))))] then
                 
         @es[(≃ (compile (ρ θ_1 A_1 (in-hole E (ρ θ_2 A_2 p)))) (compile (ρ (<- θ_1 θ_2) A_1 (in-hole E p))))]}]{
  This is a direct consequence of @proof-ref["can-lift"] and @proof-ref["immediate-merge"]. TODO explain more.
@@ -251,7 +253,26 @@ respect to the compilation function.
        @list{For all @es[p], @es[θ_1], @es[θ_2], @es[A_1] and @es[A_2],
         if @es[(A->= A_1 A_2)] then
         @es[(≃ (compile (ρ θ_1 A_1 (ρ θ_2 A_2 p))) (compile (ρ (<- θ_1 θ_2) A_1 p)))]}]{
- TODO
+ Note that compilation of @es[ρ] only changes the outputs of its inner circuit in
+ that it closes some of the signal wires, and that it only changes input values of some signals
+ and the GO wire. Thus, we can argue that that equivalence base on three
+ facts. First, that @es[(<- θ_1 θ_2)] closes the same signals as the two nested environments.
+ Second that these signals are closed in the same way: that is they input part of the signal will receive
+ the same value. Third, that the value of the @es[GO] wire does not change.
+
+ First, by the definition of @es/unchecked[<-], @es[(= (Ldom (<- θ_1 θ_2)) (= (LU (Ldom θ_1) (Ldom θ_2))))].
+ As the compilation of @es[ρ] closes only the wires in its @es[θ]'s domain, we can see that
+ the same wires are closed both expressions.
+
+ Second, the compilation of @es[(ρ θ_2 A_2 hole)] will prevent the compilation of @es[(ρ θ_1 A_1 hole)]
+ form modifying any signals in the domain of @es[θ_2], meaning those signals will get values
+ as specified by the compilation of @es[θ_2]. In addition @es[(<- θ_1 θ_2)] keep the value of any signal
+ in @es[θ_2], therefore those signals will compile the same way. Thus the value of no input signal is changed.
+
+                          
+ Finally, as @es[(A->= A_1 A_2)] we know that either
+ both are @es[GO], both are @es[WAIT], or @es[(= A_1 GO)] and @es[(= A_2 WAIT)]. In each case we
+ can see that the actual value on @es[(of (compile p) GO)] remains the same.
 }
 
 @proof[#:label "can-lift"
@@ -261,8 +282,27 @@ respect to the compilation function.
         if either @es[(= A WAIT)] or
         @es[(= A GO)]
         and
-        @es[(= (of (compile (in-hole E (ρ θ A p))) GO) 1)], then
+        @es[(= (of (compile (in-hole E (ρ θ A p))) GO) 1)],
+        and @es[(CB (in-hole E (ρ θ A p)))], then
         
         @es[(≃ (compile (in-hole E (ρ θ A p))) (compile (ρ θ A (in-hole E p))))]}]{
- TODO
+ This proof proceeds in two parts. First, by
+ @proof-ref["GO-maintains-across-E"], we know that lifting
+ @es[A] across won't change the value of the @es[GO] wire of
+ any subcircuit because either @es[(= A WAIT)], in which case
+ its compilation does not change the @es[GO] wire at all, or
+ @es[(= A GO)], in which case it will force the @es[GO] wire
+ to be @es[1]. But in this second case our hypothesis states
+ that the @es[GO] wire was already @es[1], so nothing has changed.
+
+ Second, by @es[(CB (in-hole E (ρ θ A p)))] we know that the
+ free variables of @es[E] and the bound variables of
+ @es[(ρ θ A p)] are distinct. Thus lifting @es[θ] will not
+ capture any new variables, therefore by
+ @proof-ref["FV-equals-IO"], the compilation of @es[θ] will
+ connect the exact same wires resulting in a circuit that is
+ structurally the same after the lift. Thus lifting the
+ signal environment also changes nothing.
+
 }
+
