@@ -13,6 +13,12 @@
 
 @title[#:style paper-title-style]{Circuit Compilation Properties}
 
+
+This section contains proofs and properties about the
+circuit compilation and how it relates to concepts in the
+term writing system like term decomposition and free
+variables.
+
 @proof[#:label "sel-later"
        #:title "Selection Later"
        #:statement @list{for any term @es[p],
