@@ -20,7 +20,6 @@ respect to the compilation function.
 
 @proof[#:label "par-swap"
        #:title "par-swap is sound"
-       #:interpretation @list{Justify that @rule["par-swap"] is an η-rule}
        #:statement
        @list{as @es[(⇀ (par p q) (par q p))], show that @es[(≃ (compile (par p q)) (compile (par q p)))]}]{
  This can be seen trivally, as the graphs of @es[(compile (par p q))]
@@ -40,8 +39,7 @@ respect to the compilation function.
        #:title "trap is sound"
        #:statement
        @list{as @es[(⇀ (trap stopped) (harp stopped))], show that
-        @es[(≃ (compile (trap stopped)) (compile (harp stopped)))]}
-       #:interpretation @list{Justify that @rule["trap"] is an η-rule}]{
+        @es[(≃ (compile (trap stopped)) (compile (harp stopped)))]}]{
  @cases[#:of stopped
         #:language esterel/typeset
         @#:case[nothing]{
@@ -71,8 +69,7 @@ respect to the compilation function.
        #:title "seq-done is sound"
        #:statement
        @list{as @es[(⇀ (seq nothing q) q)], show that
-        @es[(≃ (compile (seq nothing q)) (compile q))]}
-       #:interpretation @list{Justify that @rule["seq-done"] is an η-rule}]{
+        @es[(≃ (compile (seq nothing q)) (compile q))]}]{
  TODO draw graphs.
 }
 
@@ -138,7 +135,6 @@ respect to the compilation function.
 
 @proof[#:label "signal"
        #:title "signal is sound"
-       #:interpretation @list{Justify that @rule["signal"] is an η-rule}
        #:statement @list{as @es[(⇀ (signal S p) (ρ (mtθ+S S unknown) WAIT p))], show that
                             
         @es[(≃ (compile (signal S p)) (compile (ρ (mtθ+S S unknown) WAIT p)))]}]{

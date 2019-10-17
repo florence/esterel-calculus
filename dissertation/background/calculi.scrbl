@@ -5,5 +5,5 @@
           "../lib/proofs.rkt"
           "../lib/cite.rkt")
 
-@title[#:style paper-title-style #:tag "background:calculi"]{Language Calculi}
+@title[#:style paper-title-style #:tag "background-calculi"]{Language Calculi}
 

@@ -155,15 +155,18 @@
 
 (define-runtime-path style.tex "style.tex")
 (define-runtime-path nuthesis.cls "nuthesis.cls")
+(define-runtime-path scribble-load.tex "scribble-load.tex")
 (define paper-title-style
   (style #f
          (list
-          (latex-defaults         
+          (latex-defaults+replacements    
            (bytes-append
             #"\\documentclass{nuthesis}\n"
             extra-tex-code)
            style.tex
-           (list nuthesis.cls)))))
+           (list nuthesis.cls)
+           (hash "scribble-load-replace.tex"
+                 scribble-load.tex)))))
 
 (define sub-e
   (element "SubE" '()))

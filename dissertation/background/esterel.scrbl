@@ -5,5 +5,5 @@
           "../lib/proofs.rkt"
           "../lib/cite.rkt")
 
-@title[#:style paper-title-style #:tag "background:esterel"]{Esterel}
+@title[#:style paper-title-style #:tag "background-esterel"]{Esterel}
 

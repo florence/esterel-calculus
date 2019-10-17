@@ -5,7 +5,7 @@
           "../lib/proofs.rkt"
           "../lib/cite.rkt")
 
-@title[#:style paper-title-style #:tag "background:circuits"]{Circuits}
+@title[#:style paper-title-style #:tag "background-circuits"]{Circuits}
 
 @section{Cycles}
 
