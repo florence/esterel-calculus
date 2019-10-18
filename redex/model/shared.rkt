@@ -174,7 +174,11 @@
   [(par-⊓ paused (exit n)) (exit n)])
 
 (define-metafunction esterel-eval
-  max-mf : n n -> n
+  max-mf : κ κ -> κ
+  [(max-mf nothin κ) κ]
+  [(max-mf κ nothin) κ]
+  [(max-mf paus κ) κ]
+  [(max-mf κ paus) κ]
   [(max-mf n_1 n_2) ,(max `n_1 `n_2)])
 
 (define-metafunction esterel-eval

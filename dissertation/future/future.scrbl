@@ -5,6 +5,6 @@
           "../lib/proofs.rkt"
           "../lib/cite.rkt")
 
-@title[#:style paper-title-style #:tag "background-esterel"]{Esterel}
-
-instantaneous loops
+@title[#:style paper-title-style]{Final Thoughts}
+@section{Future Work}
+@section{Concusion}

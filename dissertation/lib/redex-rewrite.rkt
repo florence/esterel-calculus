@@ -421,7 +421,11 @@
        (list "" p "(" key ")"))]
     ['=
      (curry infix "=")]
+    ['=/checked
+     (curry infix "=")]
     ['not-=
+     (lambda (x) (binop "≠" x))]
+    ['not-=/checked
      (lambda (x) (binop "≠" x))]
     ['δ
      (λ (lws)
@@ -824,6 +828,8 @@
      ;; same with the pure variants
      ['p-pure (λ () (text "p" (non-terminal-style) (default-font-size)))]
      ['q-pure (λ () (text "q" (non-terminal-style) (default-font-size)))]
+     ['p-unex (λ () (text "p" (non-terminal-style) (default-font-size)))]
+     ['q-unex (λ () (text "q" (non-terminal-style) (default-font-size)))]
 
      ['max-mf (λ () (def-t "max"))]
      ['→ (λ () (def-t "→"))]

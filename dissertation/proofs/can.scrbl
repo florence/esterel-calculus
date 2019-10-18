@@ -110,7 +110,7 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
         @#:case[(par p_i q_i)]{
                                
           In this case
-          @es[(= (->S (Can (par p_i q_i) θ)) (LU (->S (Can p_i θ)) (->S (Can q_i θ))))].
+          @es[(=/checked (->S (Can (par p_i q_i) θ)) (LU (->S (Can p_i θ)) (->S (Can q_i θ))))].
           This we can conclude that @es[(L¬∈ S (->S (Can p_i θ)))] and
           @es[(L¬∈ S (->S (Can q_i θ)))]. We also know that
           @es[(= (of (compile (par p_i q_i)) SEL) (or (of (compile p_i) SEL) (of (compile q_i) SEL)))],
@@ -237,7 +237,7 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
                             As @es[S_o] is either no in the outputs or @es[0] in either subcircuit, we can conclude
                             that @es[(= (of (compile (seq p_i q_i)) S_o) 0)].}]
          }
-        @#:case[(ρ θ A p_i)]{This case is shown by @proof-ref["Can-rho-S-is-sound"]}
+        @#:case[(ρ θ A p_i)]{This case is shown by @proof-ref["Can-rho-S-is-sound"].}
         @#:case[(loop p_i)]{TODO}
         @#:case[(loop^stop p_i q_i)]{TODO}]
 }
@@ -253,7 +253,36 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
        #:interpretation
        @list{This theorem states that @es/unchecked[Can] accurately predicts when control wires
         will be set to @es[0].}]{
- TODO
+ @cases[#:of p-pure
+        #:language esterel/typeset
+        #:induction
+        @#:case[nothing]{
+          Note that in this case @es[(= (->K (Can nothing θ)) (L1set 0))].
+          @cases[#:of/count @es[(= κ 0)] 2
+                 @#:case[@es[(= κ 0)]]{
+                            In this case @es[(L∈ κ (->K (Can p θ)))] which violates our hypothesis.
+                           }
+                 @#:case[@es[(not-= κ 0)]]{
+                            There is no @es[Kκ] wire in this case, which violates our induction hypothesis.
+                           }
+                 ]}
+        @#:case[(emit S)]{This is the same as the previous case.}
+        @#:case[(exit n)]{This is the same as the previous
+          two cases, but with @es[n] substituted for @es[0].}
+        @#:case[pause]{ Note that
+          @es[(= (->K (Can pause θ)) (L1set 1))]. In the only @es[K]
+          other wire in @es[(compile pause)] is @es[K0], so we need
+          only concern ourself with that. @es[(= (of (compile pause) K0) (and (of (compile pause) SEL) (of (compile pause) RES)))],
+          so as @es[(= (of (compile p) SEL) 0)], @es[(= (of (compile pause) K0) 0)].}
+        @#:case[(signal S p_i)]{}
+        @#:case[(present S p_i q_i)]{}
+        @#:case[(seq p_i q_i)]{}
+        @#:case[(par p_i q_i)]{}
+        @#:case[(suspend p S)]{}
+        @#:case[(trap p)]{}
+        @#:case[(ρ θ A p_i)]{This case is shown by @proof-ref["Can-rho-K-is-sound"].}
+        @#:case[(loop p_i)]{ TODO }
+        @#:case[(loop^stop p_i q_i)]{ TODO }]
 }
 
 @proof[#:label "Can-rho-S-is-sound"

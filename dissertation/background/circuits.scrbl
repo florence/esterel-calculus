@@ -7,5 +7,12 @@
 
 @title[#:style paper-title-style #:tag "background-circuits"]{Circuits}
 
-@section{Cycles}
+Interpereting circuits
 
+cycles. (Malik)
+
+registers.
+
+bounds.
+
+symbolic interpretation.

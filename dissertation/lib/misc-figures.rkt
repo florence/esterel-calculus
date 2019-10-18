@@ -4,9 +4,11 @@
          esterel-calculus/redex/model/potential-function
          redex/pict
          pict
-         "redex-rewrite.rkt")
+         "redex-rewrite.rkt"
+         (only-in "proof-extras.rkt"
+                  esterel/typeset))
 
-(provide lang supp-lang
+(provide lang/pure lang/state supp-lang
          next-instant-pict
          Can-pict Canθ-pict
          supp-non-terminals
@@ -18,7 +20,30 @@
          theta-stuff-5
          e-stuff)
 
-(define lang
+(define lang/pure
+  (with-paper-rewriters
+   (define lhs-spacer
+     (ghost
+      (hbl-append
+       (text "p" (non-terminal-style) (default-font-size))
+       (text ", " (default-style) (default-font-size))
+       (text "q" (non-terminal-style) (default-font-size))
+       (text " ::=" (default-style) (default-font-size)))))
+   (define (nt-∈-line lhs rhs)
+     (hbl-append (rbl-superimpose
+                  (hbl-append (text lhs (non-terminal-style) (default-font-size))
+                              (text " ∈" (default-style) (default-font-size)))
+                  lhs-spacer)
+                 (text " " (default-style) (default-font-size))
+                 (text rhs (default-style) (default-font-size))))
+   (vl-append
+    (render-language esterel/typeset #:nts '(p-unex q-unex))
+    (htl-append
+     50
+     (vl-append (nt-∈-line "S" "signal variables"))))))
+
+
+(define lang/state
   (with-paper-rewriters
    (define lhs-spacer
      (ghost
@@ -38,8 +63,7 @@
     (render-language esterel #:nts '(p q))
     (htl-append
      50
-     (vl-append (nt-∈-line "S" "signal variables")
-                (nt-∈-line "s" "shared variables"))
+     (vl-append (nt-∈-line "s" "shared variables"))
      (vl-append (nt-∈-line "x" "sequential variables")
                 (nt-∈-line "e" "host expressions"))))))
 
@@ -105,7 +129,7 @@
    (vl-append
     (hbl-append (bords "Resetting Environments")
                 (words ": ")
-                (es (reset-θ θ/c)))
+                (es (reset-θ θ)))
     (indent (vl-append (words "Resetting a complete environment")
                        (hbl-append (words "updates all signals to ")
                                    (es unknown))
@@ -136,7 +160,7 @@
                   (es s)
                   (words " that appear free in ")
                   (es e))
-      (hbl-append (es (δ e θ))
+      (hbl-append (es/unchecked (δ e θ))
                   (words ": evaluation; produces ")
                   (es n)))))))
 
@@ -144,7 +168,7 @@
   (with-paper-rewriters
       (render-language esterel-eval
                     #:nts
-                    '(stopped done paused E p q A complete
+                    '(stopped done paused E p q A
                              status shared-status))))
 
 (define supp-lang
@@ -189,7 +213,7 @@
 (define κmax-stuff
   (with-paper-rewriters
    (frame (inset (vl-append
-                  (hbl-append (es max-mf)
+                  (hbl-append (es/unchecked max-mf)
                               (words " : ")
                               (es κ)
                               (words " ")

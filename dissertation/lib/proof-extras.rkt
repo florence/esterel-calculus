@@ -3,7 +3,9 @@
          of
          compile
          =
+         =/checked
          not-=
+         not-=/checked
          ≃
          =>
          outputs
@@ -31,6 +33,13 @@
           (loop p-pure)
           (loop^stop p-pure q-pure)
           (ρ θ A p-pure))
+  (p-unex q-unex ::=
+          nothing pause
+          (seq p-unex q-unex) (par p-unex p-unex)
+          (loop p-unex)
+          (trap p-unex) (exit n)
+          (signal S p-unex) (emit S)
+          (suspend p-unex S) (present S p-unex p-unex))
   (wire w ::= variable)
   (wire-value
    ::=
@@ -56,6 +65,12 @@
   [(= _ ...) 1])
 
 (define-metafunction esterel/typeset
+  =/checked : any ... -> any
+  [(=/checked any any) 1]
+  [(=/checked any any any_r ...)
+   (=/checked any any_r ...)])
+
+(define-metafunction esterel/typeset
   [(≃ circuit circuit) 1]
   [(≃ p-pure q-pure) 1])
 
@@ -66,6 +81,10 @@
 (define-metafunction esterel/typeset
   not-= : any any -> any
   [(not-= _ _) 1])
+
+(define-metafunction esterel/typeset
+  not-=/checked : any any -> any
+  [(not-=/checked any_1 any_!_1) 1])
 
 (define-metafunction esterel/typeset
   outputs : circuit -> L

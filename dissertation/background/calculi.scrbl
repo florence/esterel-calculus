@@ -7,3 +7,12 @@
 
 @title[#:style paper-title-style #:tag "background-calculi"]{Language Calculi}
 
+what is a semantics?
+
+eval().
+
+eval via reduction relation.
+
+contextual equivalence.
+
+soundness. (external eval)
