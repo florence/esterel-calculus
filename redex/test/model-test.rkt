@@ -1095,6 +1095,13 @@
      '(() (SI) () (SI))
      #:debug? #f #:limits? #f #:external? #t
      #:memory-limits? #f)
+    (execute-test
+     (term (seq (suspend (suspend pause Sr) Sr) (emit SA)))
+     (term (Sr))
+     (term (Sρ Sbl SA))
+     (term ((Sr) () (Sr) () (Sr) () () (Sr) (Sr) (Sr) () () () (Sr) (Sr) () (Sr) (Sr)))
+     #:debug? #f #:limits? #f #:external? #t
+     #:memory-limits? #f)
 
     (test-case "generative"
       (time

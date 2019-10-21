@@ -39,3 +39,5 @@ however the most informative theorem is @proof-ref["FullStep"].
         #:language esterel/typeset
         @#:case["TODO"]{TODO}]
 }
+
+TODO prove that ≃ is a equivalence relation

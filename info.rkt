@@ -1,6 +1,9 @@
 #lang info
 
-(define deps '("ppict"
+(define deps '("circuitous-lib"
+               "plot-lib"
+               "scribble-abbrevs"
+               "ppict"
                "rackunit-abbrevs"
                "base"
                "at-exp-lib"

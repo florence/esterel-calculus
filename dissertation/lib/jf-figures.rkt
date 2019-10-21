@@ -108,7 +108,7 @@
                       (es p)
                       (words " → (Setof «var»)"))
                      (hbl-append
-                      (es FV)
+                      (es/unchecked FV)
                       (words " : ")
                       (es p)
                       (words " → (Setof «var»)")))
