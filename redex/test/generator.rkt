@@ -95,6 +95,7 @@
    (if x (convert p) (convert q))])
 
 (define-extended-language esterel-check esterel-eval*
+  (Stest ::= S1 S2 S3 S4 S5)
   (p-pure q-pure ::=
    nothing
    pause
@@ -107,6 +108,24 @@
    (present S p-pure p-pure)
    (emit S)
    (loop p-pure))
+  (p-pure-ext q-pure-ext ::=
+   nothing
+   pause
+   (seq p-pure-ext p-pure-ext)
+   (par p-pure-ext p-pure-ext)
+   (trap p-pure-ext)
+   (exit n)
+   (signal S p-pure-ext)
+   (suspend p-pure-ext S)
+   (present S p-pure-ext p-pure-ext)
+   (emit S)
+   (loop p-pure-ext)
+   (loop^stop p-pure-ext p-pure-ext)
+   (ρ θ-pure A p-pure-ext))
+  (θ-pure ::=
+          ·
+          {(sig S unknown) θ-pure}
+          {(sig S present) θ-pure})
   (p-check q-check ::=
    nothing
    pause
@@ -247,7 +266,7 @@
 
 (define-judgment-form esterel-check
   #:mode     (loop-safe I)
-  #:contract (loop-safe p-pure)
+  #:contract (loop-safe p-pure-ext)
   [-----
    (loop-safe nothing)]
   [-----
@@ -275,13 +294,22 @@
    -----
    (loop-safe (signal S p))]
   [(loop-safe p)
+   -----
+   (loop-safe (ρ θ A p))]
+  [(loop-safe p)
    (L¬∈ nothin (K p))
    -----
-   (loop-safe (loop p))])
+   (loop-safe (loop p))]
+  [(loop-safe p)
+   (loop-safe q)
+   (L¬∈ nothin (K p))
+   (L¬∈ nothin (K q))
+   -----
+   (loop-safe (loop^stop p q))])
   
 
 (define-metafunction esterel-check
-  K : p-pure -> L ;; of κ
+  K : p-pure-ext -> L ;; of κ
   [(K nothing) (L1set nothin)]
   [(K pause) (L1set paus)]
   [(K (exit n)) (L1set n)]
@@ -293,9 +321,13 @@
    (judgment-holds (L∈ nothin (K p)))]
   [(K (seq p q)) (K p)]
   [(K (loop p)) (Lremove (K p) nothin)]
+  [(K (loop^stop p q))
+   (LU (Lremove (K p) nothin)
+       (Lremove (K q) nothin))]
   [(K (par p q)) (Lmax* (K p) (K q))]
   [(K (trap p)) (Lharp... (K p))]
-  [(K (signal S p)) (K p)])
+  [(K (signal S p)) (K p)]
+  [(K (ρ θ A p)) (K p)])
 
 (module+ test
   (test-case "can-generate-cirucit?"
