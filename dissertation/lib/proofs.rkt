@@ -1,5 +1,5 @@
 #lang racket
-(provide cases state)
+(provide cases state sequenced)
 
 (require (for-syntax syntax/parse)
          syntax/parse/define
@@ -8,7 +8,8 @@
          "redex-rewrite.rkt"
          scribble/core
          scribble/decode
-         scribble-abbrevs/latex)
+         scribble-abbrevs/latex
+         (only-in scribble/base item itemlist))
 
 
 (define-language base
@@ -18,6 +19,19 @@
 
 (define-simple-macro (state e)
   (list (exact "\\newline") (es e) (exact "\\newline")))
+
+(define-syntax sequenced
+  (syntax-parser
+    [(_ _:string ... (~seq (#:step n:id body:expr ...) _:string ...) ...)
+     #:with (c ...)
+     (for/list ([x (in-list (syntax->list #'(n ...)))]
+                [i (in-naturals 1)])
+       #`'#,i)
+     #'(match-let ([n (~a c)] ...)
+         (itemlist
+          #:style 'ordered
+          (item body ...)
+          ...))]))
 
 (define-syntax cases
   (syntax-parser

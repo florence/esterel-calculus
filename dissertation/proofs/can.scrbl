@@ -315,3 +315,9 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
  the @es[signal] case in @es/unchecked[Can]. This holds by the same line of argument there used in that case
  of @proof-ref["Can-K-is-sound"].
 }
+
+@proof[#:label "done-is-k1"
+       #:title "Can K on Done is {1}"
+       #:statement
+       @list{For all @es[done], @es[θ], @es[(= (->K (Can done θ)) (L1set 1))]}]{
+}

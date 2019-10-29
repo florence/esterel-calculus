@@ -9,18 +9,20 @@
 (define-syntax check-verify-same
   (syntax-parser
     [(_ pred b ... c1 c2)
-     #'(let ([x c1]
+     #`(let ([x c1]
              [y c2])
-         (check-pred
-          pred
-          (circ:verify-same
-           b ... x y))
-         (check-pred
-          pred
-          (circ:verify-same
-           b ...
-           (constructive->classical c1)
-           (constructive->classical c2))))]))
+         #,(syntax/loc this-syntax
+             (check-pred
+              pred
+              (circ:verify-same
+               b ... x y)))
+         #,(syntax/loc this-syntax
+             (check-pred
+              pred
+              (circ:verify-same
+               b ...
+               (constructive->classical c1)
+               (constructive->classical c2)))))]))
 (check-verify-same
  unsat?
  (compile-esterel (term (par nothing nothing)))
@@ -69,6 +71,10 @@
  unsat?
  (compile-esterel (term (suspend nothing S)))
  (compile-esterel (term nothing)))
+(check-verify-same
+ unsat?
+ (compile-esterel (term (par pause (exit 0))))
+ (compile-esterel (term (exit 0))))
 (check-verify-same
  unsat?
  (compile-esterel (term (suspend (par pause (exit 0)) S)))
@@ -220,7 +226,11 @@
  unsat?
  (compile-esterel (term (ρ · GO (seq nothing nothing))))
  (compile-esterel (term (ρ · GO nothing))))
-  
+
+(check-verify-same
+ unsat?
+ (compile-esterel (term (seq (exit 1) (suspend pause Sk))))
+ (compile-esterel (term (exit 1))))
     
 (test-case "state and Can"
   (define p

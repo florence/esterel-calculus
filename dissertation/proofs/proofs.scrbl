@@ -15,5 +15,6 @@
 
 @include-section["top.scrbl"]
 @include-section["reduction.scrbl"]
+@include-section["adequacy.scrbl"]
 @include-section["can.scrbl"]
 @include-section["circuit-props.scrbl"]

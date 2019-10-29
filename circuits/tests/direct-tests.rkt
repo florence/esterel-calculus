@@ -23,7 +23,9 @@
  (sort
   (term ((K0 = K0-internal)
          (K0-internal = GO)
-         (SEL = (or false false))))
+         (SEL = (or psel qsel))
+         (psel = false)
+         (qsel = false)))
   variable<?
   #:key first))
 (check-equal?
@@ -59,13 +61,15 @@
     (q-SUSP = SUSP)
     (q-KILL = KILL)
     (q-RES = RES)
-    (SEL = (or false q-SEL))
+    (SEL = (or psel qsel))
     (K0 = qK0)
     (K1 = qK1)
     (K2 = qK2)
     (K3 = qK3)
     (K4 = qK4)
-    (K6 = qK6)))
+    (K6 = qK6)
+    (psel = false)
+    (qsel = q-SEL)))
   variable<?
   #:key first))
 (check-equal?

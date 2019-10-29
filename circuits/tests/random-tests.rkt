@@ -30,7 +30,8 @@
        (compile-esterel/guard (term p-pure)))
       (constructive->classical
        (compile-esterel/guard x))))
-   #;(displayln 'done)))
+   #;(displayln 'done))
+ #:attempts 150)
 
 (redex-check
  esterel-check
@@ -51,7 +52,8 @@
       (constructive->classical
        (compile-esterel/guard (term p-pure-ext)))
       (constructive->classical
-       (compile-esterel/guard x))))))
+       (compile-esterel/guard x)))))
+ #:attempts 150)
 
 (pretty-print
  counter)

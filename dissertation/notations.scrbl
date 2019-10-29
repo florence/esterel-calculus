@@ -32,6 +32,9 @@
 }
 
 @definition[#:notation @es[(= (of (compile p) w) wire-value)]]{
+
+ TODO formalize better
+ 
  @es[(= (of (compile p) w) wire-value)] if and only if,
  given our current assumptions, we can prove that that wire @es[w] in the interface
  of @es[(compile p)] is equivalent to @es[wire-value].
@@ -64,4 +67,11 @@
  When these cases occur I will explicitly point out this
  subtly.
 
+}
+
+@definition[#:notation @es[(complete-with-respect-to θ done)]]{
+ For all @es[(L∈ S (Ldom θ))],
+ @es[(= (get-θ-S θ S) present)] or
+ @es[(= (get-θ-S θ S) unknown)]
+ and @es[(L¬∈ S (->S (Can-θ (ρ θ GO done) ·)))].
 }
