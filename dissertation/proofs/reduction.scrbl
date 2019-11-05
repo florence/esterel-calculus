@@ -249,26 +249,75 @@ respect to the compilation function.
        @list{For all @es[p], @es[θ_1], @es[θ_2], @es[A_1] and @es[A_2],
         if @es[(A->= A_1 A_2)] then
         @es[(≃ (compile (ρ θ_1 A_1 (ρ θ_2 A_2 p))) (compile (ρ (<- θ_1 θ_2) A_1 p)))]}]{
- Note that compilation of @es[ρ] only changes the outputs of its inner circuit in
- that it closes some of the signal wires, and that it only changes input values of some signals
- and the GO wire. Thus, we can argue that that equivalence base on three
- facts. First, that @es[(<- θ_1 θ_2)] closes the same signals as the two nested environments.
- Second that these signals are closed in the same way: that is they input part of the signal will receive
- the same value. Third, that the value of the @es[GO] wire does not change.
 
- First, by the definition of @es/unchecked[<-], @es[(= (Ldom (<- θ_1 θ_2)) (= (LU (Ldom θ_1) (Ldom θ_2))))].
- As the compilation of @es[ρ] closes only the wires in its @es[θ]'s domain, we can see that
- the same wires are closed both expressions.
+ Note that compilation of @es[ρ] only changes the outputs of
+ its inner circuit in that it closes some of the signal
+ wires, and that it only changes input values of some signals
+ and the GO wire. Thus, we can argue that that equivalence
+ base on three facts. First, that @es[(<- θ_1 θ_2)] closes
+ the same signals as the two nested environments. Second that
+ these signals are closed in the same way: that is they input
+ part of the signal will receive the same value. Third, that
+ the value of the @es[GO] wire does not change.
+ 
+ @sequenced{
 
- Second, the compilation of @es[(ρ θ_2 A_2 hole)] will prevent the compilation of @es[(ρ θ_1 A_1 hole)]
- form modifying any signals in the domain of @es[θ_2], meaning those signals will get values
- as specified by the compilation of @es[θ_2]. In addition @es[(<- θ_1 θ_2)] keep the value of any signal
- in @es[θ_2], therefore those signals will compile the same way. Thus the value of no input signal is changed.
+  @#:step[<--closing]{
+                      
+   By the definition of @es/unchecked[<-],
+   @es[(= (Ldom (<- θ_1 θ_2)) (LU (Ldom θ_1) (Ldom θ_2)))].
+
+  }
+   
+  @#:step[ρ-closed]{
+                    
+   by the definition of @es/unchecked[(compile dot)],
+   compiling a @es[ρ] closes only the wires in its @es[θ]'s
+   domain, we can see that the same wires are closed both
+   expressions. TODO lemma by induction over domain of @es[θ].
+
+  }
+
+  @#:step[totally-closed]{
+  By @<--closing and @totally-closed,
+  @es[(= (inputs (compile (ρ θ_1 A_1 (ρ θ_2 A_2 p)))) (inputs (compile (ρ (<- θ_1 θ_2) A_1 p))))]
+  and
+  @es[(= (outputs (compile (ρ θ_1 A_1 (ρ θ_2 A_2 p)))) (outputs (compile (ρ (<- θ_1 θ_2) A_1 p))))]}
+
+  @#:step[clomp-block]{
+
+   The compilation of @es[(ρ θ_2 A_2 hole)] will
+   prevent the compilation of @es[(ρ θ_1 A_1 hole)] from
+   modifying any signals in the domain of @es[θ_2], meaning
+   those signals will get values as specified by the
+   compilation of @es[θ_2]. In addition @es[(<- θ_1 θ_2)] keep
+   the value of any signal in @es[θ_2], therefore those signals
+   will compile the same way. Thus the value of no input signal
+   is changed. TODO lemmaize
+
+  }
+
+  @#:step[inputs/outputs-same]{
+   By @totally-closed and @clomp-block, we know that
+   for all @es[(L∈ S (inputs (compile p)))],
+   @es[1] TODO how do I describe the different @es[p]s?
+  }
+
+  @#:step[lt-block]{
+
+   Finally, as @es[(A->= A_1 A_2)] we know that either both
+   are @es[GO], both are @es[WAIT], or @es[(= A_1 GO)] and
+   @es[(= A_2 WAIT)]. In each case we can see that the actual
+   value on @es[(of (compile p) GO)] remains the same.
+
+  }
+
+ }
+
+
 
                           
- Finally, as @es[(A->= A_1 A_2)] we know that either
- both are @es[GO], both are @es[WAIT], or @es[(= A_1 GO)] and @es[(= A_2 WAIT)]. In each case we
- can see that the actual value on @es[(of (compile p) GO)] remains the same.
+
 }
 
 @proof[#:label "can-lift"

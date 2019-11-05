@@ -32,6 +32,7 @@ variables.
        #:statement
        @list{For any term @es[(= p (in-hole E q))], There exist some wires such that
         @es[(= (of (compile p) SEL) (or (of (compile q) SEL) w_others ...))]}]{
+ TODO
 }
 
 @proof[#:label "activation-condition"
@@ -39,6 +40,13 @@ variables.
        #:statement @list{for any term @es[p],
         if @es[(= (or (of (compile p) GO) (parens (and (of (compile p) SEL) (of (compile p) RES)))) 0)]
         then all output @es[Kn] and all signals in the output environment @es[θ_o] are @es[0].}]{
+ TODO
+}
+
+@proof[#:label "sel-start"
+       #:title "Selection Start"
+       #:statement @list{for any term @es[p], during the first instant
+        @es[(= (of (compile p) SEL) 0)].}]{
  TODO
 }
 
