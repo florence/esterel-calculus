@@ -119,9 +119,15 @@
     (append (do-binop op left right)
             (list right "")))
   (define (do-binop op left right [splice #f])
+    (define space (text " " (default-style) (default-font-size)))
     (append (list  "")
-            (if splice (list splice left) (list left))
-            (list (just-after (~a " " op " ") left))
+            (if splice (list splice (just-after left splice)) (list left))
+            (list
+             (just-after 
+              (if (pict? op)
+                  (hbl-append space op space)
+                  (~a " " op " "))
+              left))
             (if (= (lw-line left)
                    (lw-line right))
                 (list "")
@@ -293,6 +299,23 @@
                                          (blank 0 (* h height-mod)))
                               base-seq)
              base-seq))
+
+  (define (≃-pict x)
+    (hbl-append
+     (text "≃" (metafunction-style) (default-font-size))
+     (text x (cons 'superscript (metafunction-style)) (default-font-size))))
+  (define (eval-pict x)
+    (hbl-append
+     (text "eval" (metafunction-style) (default-font-size))
+     (text x (cons 'superscript (metafunction-style)) (default-font-size))))
+  (define (eval-e-pict)
+    (eval-pict "E"))
+  (define (eval-c-pict)
+    (eval-pict "C"))
+  (define (≃-e-pict)
+    (≃-pict "E"))
+  (define (≃-c-pict)
+    (≃-pict "C"))
 
   (define (sized-↬-pict)
     (define ↬-pict (nt-t "↬"))
@@ -562,9 +585,10 @@
     ['L0set (λ (lws) (list "∅"))]
     ['Ldom
      (λ (lws)
-       (list "dom("
+       (list "dom"
+             ((white-square-bracket) #t)
              (list-ref lws 2)
-             ")"))]
+             ((white-square-bracket) #f)))]
     ['L∈dom
      (λ (lws)
        (list ""
@@ -752,6 +776,13 @@
                 (just-after "." (list-ref lws 3))
                 (list-ref lws 4)
                 (list-ref lws 5)))]
+    ['ρ1 (λ (lws)
+           (list (list-ref lws 0)
+                 (just-after (alt-ρ) (list-ref lws 0))
+                 (list-ref lws 2)
+                 (just-after "." (list-ref lws 2))
+                 (list-ref lws 3)
+                 (list-ref lws 4)))]
     ['A-⊓ (λ (lws) (binop "⊓" lws))]
     ['<- (λ (lws) (binop "←" lws))]
     ;; note: Lset-sub must match Lwithoutdom / restriction's typesetting
@@ -780,7 +811,27 @@
     ['binds
      (curry binop "\\")]
     ['A->= (curry binop "≥")]
-    ['not (curry prefix '¬)])
+    ['not (curry prefix '¬)]
+
+    ['eval^circuit
+     (lambda (lws)
+       (list (eval-c-pict)
+             ((white-square-bracket) #t)
+             (list-ref lws 2)
+             ((white-square-bracket) #f)))]
+    ['eval^esterel
+     (lambda (lws)
+       (list (eval-e-pict)
+             ((white-square-bracket) #t)
+             (list-ref lws 2)
+             ((white-square-bracket) #f)))]
+    ['≃^circuit
+     (lambda (e) (binop (≃-c-pict) e))]
+    ['≃^esterel
+     (lambda (e) (binop (≃-e-pict) e))]
+    ['circ
+     (curry infix "×")])
+             
    
 ;                                                              
 ;                                                              
@@ -815,10 +866,16 @@
      ;; the calculus, we really want `ev` to be just `n`.
      ;['n (λ () (text "n" (default-style) (default-font-size)))]
      ['ev (λ () (text "n" (non-terminal-style) (default-font-size)))]
+
+     ;; because · renders as {} for environment sets.
+     ['dot (λ () (text "·" (default-style) (default-font-size)))]
      
      ;; render nat and mat as n and m for the proofs
      ['nat (λ () (text "n" (non-terminal-style) (default-font-size)))]
      ['mat (λ () (text "m" (non-terminal-style) (default-font-size)))]
+
+     ;; hack to have two ρ forms
+     ['ρ1 (λ () (text "ρ" (non-terminal-style) (default-font-size)))]
      
 
      ;; D is used as a convention to mean a deterministic `E` but
@@ -830,12 +887,18 @@
      ['q-pure (λ () (text "q" (non-terminal-style) (default-font-size)))]
      ['p-unex (λ () (text "p" (non-terminal-style) (default-font-size)))]
      ['q-unex (λ () (text "q" (non-terminal-style) (default-font-size)))]
+     ['wire-value (λ () (text "e" (non-terminal-style) (default-font-size)))]
 
      ['max-mf (λ () (def-t "max"))]
      ['→ (λ () (def-t "→"))]
      ['<- (λ () (text "←" (default-style) (default-font-size)))]
      ['<= (λ () (plus-equals))]
      ['loop^stop (λ () (loop^stop-pict))]
+
+     ['eval^circuit eval-c-pict]
+     ['eval^esterel eval-e-pict]
+     ['≃^circuit ≃-c-pict]
+     ['≃^esterel ≃-e-pict]
 
      ;; we're using boldface for non-terminals now, so maybe this
      ;; extra attempt at clarity the "-p" suffixes isn't needed anymore
@@ -846,6 +909,8 @@
 
      ['↓ (λ () (down-super-n))]
      ['harp (λ () (down-super-p))]
+     ['and (lambda () (def-t "∧"))]
+     ['or (lambda () (def-t "∨"))]
      
      ['next-instant (λ () (sized-↬-pict))]
      ['par-⊓ (λ () (par-⊓-pict))]
@@ -857,7 +922,17 @@
      ['L-x (λ () (L-x-pict))]
      ['L-n (λ () (L-K-pict))]
      ['Can-result (λ () (Can-result-pict))]
-     ['θ/c (λ () (θ/c-pict))])
+     ['θ/c (λ () (θ/c-pict))]
+     ['c
+      (lambda ()
+        (text "ɕ" (non-terminal-style) (default-font-size)))]
+     ['present (λ () (text "1" (default-style) (default-font-size)))]
+     ['absent (λ () (text "0" (default-style) (default-font-size)))]
+     ['unknown (λ () (text "⊥" (default-style) (default-font-size)))]
+     
+     ;; results
+     ['R (lambda ()
+           (text "R" (non-terminal-style) (default-font-size)))])
     (parameterize ([default-font-size (get-the-font-size)]
                    [metafunction-font-size (get-the-font-size)]
                    [label-style Linux-Liberterine-name]

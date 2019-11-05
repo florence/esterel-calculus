@@ -11,11 +11,28 @@
          outputs
          inputs
          parens
-         binds)
+         binds
+         check
+         eval^circuit
+         eval^esterel
+         ≃^circuit
+         ≃^esterel)
 
 (require
   redex/reduction-semantics
-  esterel-calculus/redex/model/shared)
+  esterel-calculus/redex/model/shared
+  scribble/examples
+  (for-syntax syntax/parse))
+
+(define evalor
+  (make-base-eval '(require circuitous esterel-calculus/circuits/compiler redex/reduction-semantics)))
+
+(define-syntax check
+  (syntax-parser
+    [(_ t)
+     #'(examples
+        #:eval evalor
+        t)]))
 
 (define-extended-language esterel/typeset
   esterel-eval
@@ -42,37 +59,37 @@
           (signal S p-unex) (emit S)
           (suspend p-unex S) (present S p-unex p-unex))
   (wire w ::= variable)
+  (c circuit ::= (circ ((w = wire-value) ...) I O))
+  (I O ::= (w ...))
   (wire-value
    ::=
-   w
-   0 1
+   w 0 1
+   (not wire-value)
    (and wire-value wire-value ...)
-   (or wire-value wire-value ...)
-   (not wire-value)))
+   (or wire-value wire-value ...)))
 
 
 (define-metafunction esterel/typeset
-  of : circuit w -> wire-value
   [(of circuit w) w])
 
 (define-metafunction esterel/typeset
-  [(compile p) circuit]
-  [(compile θ) circuit]
-  [(compile status) wire-value]
-  [(compile #f) wire-value])
+  [(compile p) (circ () () ())]
+  [(compile θ) (circ () () ())]
+  [(compile status) 0]
+  [(compile #f) 0])
 
 (define-metafunction esterel/typeset
-  = : any ... -> any
+  = : any any any ... -> any
   [(= _ ...) 1])
 
 (define-metafunction esterel/typeset
-  =/checked : any ... -> any
+  =/checked : any any any ... -> any
   [(=/checked any any) 1]
   [(=/checked any any any_r ...)
    (=/checked any any_r ...)])
 
 (define-metafunction esterel/typeset
-  [(≃ circuit circuit) 1]
+  [(≃ c_1 c_2) 1]
   [(≃ p-pure q-pure) 1])
 
 (define-metafunction esterel/typeset
@@ -102,4 +119,17 @@
 (define-metafunction esterel/typeset
   binds : circuit θ -> boolean
   [(binds _ _) #t])
+
+(define-metafunction esterel/typeset
+  eval^esterel : p -> any
+  [(eval^esterel p) 1])
+(define-metafunction esterel/typeset
+  eval^circuit : circuit -> any
+  [(eval^circuit circuit) 1])
+
+(define-metafunction esterel/typeset
+  [(≃^circuit c_1 c_2) 1])
+(define-metafunction esterel/typeset
+  ≃^esterel : p q -> any
+  [(≃^esterel _ _) 1])
   

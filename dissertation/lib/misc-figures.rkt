@@ -2,6 +2,7 @@
 
 (require esterel-calculus/redex/model/shared
          esterel-calculus/redex/model/potential-function
+         redex/reduction-semantics
          redex/pict
          pict
          "redex-rewrite.rkt"
@@ -18,7 +19,65 @@
          theta-stuff-3
          theta-stuff-4
          theta-stuff-5
-         e-stuff)
+         e-stuff
+         circuit-lang
+         environments1
+         environments1)
+
+(define (nt-∈-line lhs rhs lhs-spacer)
+  (hbl-append (rbl-superimpose
+               (hbl-append (text lhs (non-terminal-style) (default-font-size))
+                           (text " ∈" (default-style) (default-font-size)))
+               lhs-spacer)
+              (text " " (default-style) (default-font-size))
+              (text rhs (default-style) (default-font-size))))
+
+(define environments1
+  (let ()
+    (define-extended-language whatever esterel-eval
+      (p ::= .... (ρ θ A p))
+      (A ::= GO WAIT)
+      (stat ::= present absent unknown))
+    (define spacer1 (ghost (text "stat" (non-terminal-style) (default-font-size))))
+    (define spacer2 (ghost (text " ::=" (default-style) (default-font-size))))
+    (define spacer (hbl-append spacer1 spacer2))
+    (with-paper-rewriters
+     (vl-append
+      (render-language whatever)
+      (nt-∈-line "S" "Signal Names" spacer)
+      (hbl-append
+       (rbl-superimpose
+        spacer
+        (hbl-append (es θ) (text " : " (default-style) (default-font-size))))
+       #;(rbl-superimpose (es θ) spacer1)
+       #;(lbl-superimpose (text " : " (default-style) (default-font-size)) spacer2)
+       (es S)
+       (text " → " (default-style) (default-font-size))
+       (es status))))))
+  
+(define environments2
+  (let ()
+    (define-extended-language whatever esterel-eval
+      (p ::= .... (ρ θ A p))
+      (A ::= GO WAIT))
+    (with-paper-rewriters
+     (render-language whatever))))
+      
+
+(define circuit-lang
+  (with-paper-rewriters
+   (define lhs-spacer
+     (ghost
+      (hbl-append
+       (text "I" (non-terminal-style) (default-font-size))
+       (text ", " (default-style) (default-font-size))
+       (text "O" (non-terminal-style) (default-font-size))
+       (text " ::=" (default-style) (default-font-size)))))
+   (vl-append
+    (render-language esterel/typeset #:nts '(wire-value c I O))
+    (htl-append 50
+                (nt-∈-line "w" "wire names" lhs-spacer)))))
+  
 
 (define lang/pure
   (with-paper-rewriters
@@ -29,18 +88,13 @@
        (text ", " (default-style) (default-font-size))
        (text "q" (non-terminal-style) (default-font-size))
        (text " ::=" (default-style) (default-font-size)))))
-   (define (nt-∈-line lhs rhs)
-     (hbl-append (rbl-superimpose
-                  (hbl-append (text lhs (non-terminal-style) (default-font-size))
-                              (text " ∈" (default-style) (default-font-size)))
-                  lhs-spacer)
-                 (text " " (default-style) (default-font-size))
-                 (text rhs (default-style) (default-font-size))))
+   
    (vl-append
     (render-language esterel/typeset #:nts '(p-unex q-unex))
     (htl-append
      50
-     (vl-append (nt-∈-line "S" "signal variables"))))))
+     (vl-append (nt-∈-line "S" "signal variables" lhs-spacer))))))
+
 
 
 (define lang/state

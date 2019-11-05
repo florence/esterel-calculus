@@ -27,7 +27,7 @@
      (for/list ([x (in-list (syntax->list #'(n ...)))]
                 [i (in-naturals 1)])
        #`'#,i)
-     #'(match-let ([n (~a c)] ...)
+     #'(match-let ([n (~a "(" c ")")] ...)
          (itemlist
           #:style 'ordered
           (item body ...)

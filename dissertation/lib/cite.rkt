@@ -330,4 +330,22 @@ Theorem 47. Given constructive Esterel statements E and E′;
    #:location (journal-location "IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems"
                                 #:volume 13
                                 #:number 7)))
-   
+
+(define linking-types
+  (make-bib
+   #:title "Linking Types for Multi-Language Software: Have Your Cake and Eat It Too"
+   #:author (authors "Daniel Patterson" "Amal Ahmed")
+   #:date 2017
+   #:location (proceedings-location "2nd Summit on Advances in Programming Languages (SNAPL)")))
+
+(define rosette
+  (make-bib
+   #:title "Growing Solver-Aided Languages with ROSETTE"
+   #:author (authors "Emina Torlak" "Rastislav Bodik")
+   #:date 2013
+   #:location (proceedings-location "Onward!")))
+
+
+#|
+bohm alcune proprietà delle forme normali nel calcolo
+|#

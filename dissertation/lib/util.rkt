@@ -34,6 +34,9 @@
          with-normal-height
          latex-lit
          definition
+         
+         theorem theorem-ref Theorem-ref
+         lemma lemma-ref Lemma-ref
          (contract-out
           
           [proof
@@ -237,12 +240,13 @@
 
 (define (wrap-latex-begin-end env content #:followup [followup #f])
   (decode-flow
-   (list (exact-chars-element #f
-                              (cond
-                                [followup (format "\\begin{~a}~a" env followup)]
-                                [else (format "\\begin{~a}" env)]))
-         content
-         (exact-chars-element #f (format "\\end{~a}" env)))))
+   (list
+    (exact-chars-element #f
+                         (cond
+                           [followup (format "\\begin{~a}~a" env followup)]
+                           [else (format "\\begin{~a}" env)]))
+    content
+    (exact-chars-element #f (format "\\end{~a}" env)))))
 
 (define (proof-ref str)
   (list (proof-type-ref str "lemma~" "theorem~" "undefined theorem~")
@@ -330,9 +334,10 @@
 (define-syntax test-valid-term
   (syntax-parser
     [(_ lang trm at)
-     #:with pats (get-pats #'trm)
+     #:with (pats comps) (get-pats #'trm)
      (cond
-       [(ormap symbol? (flatten (syntax->datum #'pats)))
+       [(and (ormap symbol? (flatten (syntax->datum #'pats)))
+             (not (empty? (flatten (syntax->datum #'comps)))))
         #`(parameterize ([current-output-port (open-output-nowhere)])
             #,(quasisyntax/loc this-syntax
                 (redex-check
@@ -353,11 +358,49 @@
 
 (define-for-syntax (get-pats trm)
   (syntax-parse trm
-    [x:id #'x]
+    [x:id #'(x ())]
     [(x:id y ...)
      #:when (or (term-fn? (syntax-local-value #'x (lambda () #f)))
                 (judgment-form? (syntax-local-value #'x (lambda () #f))))
-     (map get-pats (syntax->list #'(y ...)))]
+     #:with ((pat cmp) ...) (map get-pats (syntax->list #'(y ...)))
+     #`((pat ...)
+        (x cmp ...))]
     [(y ...)
-     (map get-pats (syntax->list #'(y ...)))]
-    [else #f]))
+     #:with ((pat cmp) ...) (map get-pats (syntax->list #'(y ...)))
+     #'((pat ...) (cmp ...))]
+    [else #'(#f ())]))
+(define (theorem #:label label . args)
+  (list
+   (nested-flow
+    (style "theorem" '())
+    (decode-flow (list* (element (style "relax" '(exact-chars)) '("~"))
+                        (element "newline" '())
+                        (element (style "label" '(exact-chars)) (list label))
+                        args)))
+   (element (style #f '(exact-chars))
+            (list "\\vspace{-16pt}\n\n"))))
+
+(define (theorem-ref str)
+  (list (element (style #f '(exact-chars)) '("theorem~"))
+        (element (style "ref" '(exact-chars)) (list str))))
+
+(define (Theorem-ref str)
+  (list (element (style #f '(exact-chars)) '("Theorem~"))
+        (element (style "ref" '(exact-chars)) (list str))))
+
+
+(define (lemma #:label label . args)
+  (nested-flow
+   (style "lemma" '())
+   (decode-flow (list* (element (style #f '(exact-chars)) '("~"))
+                       (element "newline" '())
+                       (element (style "label" '(exact-chars)) (list label))
+                       args))))
+
+(define (lemma-ref str)
+  (list (element (style "relax" '(exact-chars)) '("lemma~"))
+        (element (style "ref" '(exact-chars)) (list str))))
+
+(define (Lemma-ref str)
+  (list (element (style "relax" '(exact-chars)) '("Lemma~"))
+        (element (style "ref" '(exact-chars)) (list str))))
