@@ -830,7 +830,15 @@
     ['≃^esterel
      (lambda (e) (binop (≃-e-pict) e))]
     ['circ
-     (curry infix "×")])
+     (curry infix "×")]
+    ['present
+     (lambda (lws)
+       (match lws
+         [(list* o _ r)
+          (list* o
+                 (text "if" (literal-style) (default-font-size))
+                 " "
+                 r)]))])
              
    
 ;                                                              
