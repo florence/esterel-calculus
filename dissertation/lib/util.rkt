@@ -34,6 +34,7 @@
          with-normal-height
          latex-lit
          definition
+         noindent newline
          
          theorem theorem-ref Theorem-ref
          lemma lemma-ref Lemma-ref
@@ -52,6 +53,9 @@
          Proof-ref
          default-term->pict/checked-attempts
          term->pict/checked)
+
+(define noindent (element "noindent" '()))
+(define newline (element "newline" '()))
 
 (define (latex-lit name #:extras [extras empty] . args)
   (element (style name (cons 'exact-chars extras)) args))
@@ -335,10 +339,11 @@
   (syntax-parser
     [(_ lang trm at)
      #:with (pats comps) (get-pats #'trm)
+     
      (cond
        [(and (ormap symbol? (flatten (syntax->datum #'pats)))
              (not (empty? (flatten (syntax->datum #'comps)))))
-        #`(parameterize ([current-output-port (open-output-nowhere)])
+        #`(parameterize ()
             #,(quasisyntax/loc this-syntax
                 (redex-check
                  lang pats
@@ -358,10 +363,13 @@
 
 (define-for-syntax (get-pats trm)
   (syntax-parse trm
+    #:literals (in-hole)
+    [in-hole #'(#f '())]
     [x:id #'(x ())]
     [(x:id y ...)
      #:when (or (term-fn? (syntax-local-value #'x (lambda () #f)))
-                (judgment-form? (syntax-local-value #'x (lambda () #f))))
+                (judgment-form? (syntax-local-value #'x (lambda () #f)))
+                (free-identifier=? #'in-hole #'x))
      #:with ((pat cmp) ...) (map get-pats (syntax->list #'(y ...)))
      #`((pat ...)
         (x cmp ...))]
