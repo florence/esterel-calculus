@@ -301,13 +301,26 @@
              base-seq))
 
   (define (≃-pict x)
-    (hbl-append
-     (text "≃" (metafunction-style) (default-font-size))
-     (text x (cons 'superscript (metafunction-style)) (default-font-size))))
+    (define = (ghost (text "=" (metafunction-style) (default-font-size))))
+    (define sim (text "≃" (metafunction-style) (default-font-size)))
+    (define eq (refocus (lbl-superimpose sim =) =))
+    (define raise (text x (cons 'superscript (metafunction-style)) (default-font-size)))
+    (inset
+     (hbl-append eq raise)
+     0
+     (- (abs (- (pict-height raise) (pict-height eq))))
+     (- (/ (pict-width raise) 4)) ;; yay manual kerning!
+     0))
+     
   (define (eval-pict x)
-    (hbl-append
-     (text "eval" (metafunction-style) (default-font-size))
-     (text x (cons 'superscript (metafunction-style)) (default-font-size))))
+    (define eval (text "eval" (metafunction-style) (default-font-size)))
+    (define raise (text x (cons 'superscript (metafunction-style)) (default-font-size)))
+    (inset
+     (hbl-append eval raise)
+     0
+     (- (abs (- (pict-height eval) (pict-height raise))))
+     0
+     0))
   (define (eval-e-pict)
     (eval-pict "E"))
   (define (eval-c-pict)
@@ -436,7 +449,9 @@
     ['compile
      (λ (lws)
        (define p (list-ref lws 2))
-       (list "⟦" p "⟧"))]
+       (list "⟦"
+             p
+             "⟧"))]
     ['of
      (λ (lws)
        (define p (list-ref lws 2))
@@ -941,6 +956,7 @@
      ;; results
      ['R (lambda ()
            (text "R" (non-terminal-style) (default-font-size)))])
+    (define owsb (white-square-bracket))
     (parameterize ([default-font-size (get-the-font-size)]
                    [metafunction-font-size (get-the-font-size)]
                    [label-style Linux-Liberterine-name]
@@ -955,11 +971,16 @@
                    [white-square-bracket
                     (lambda (open?)
                       (let ([text (current-text)])
-                        (scale
-                         (text (if open? "⟬" "⟭")
-                               (default-style)
-                               (default-font-size))
-                         1.05)))])
+                        (define s (ghost (owsb open?)))
+                        (refocus
+                         (lbl-superimpose
+                          (scale
+                           (text (if open? "⟬" "⟭")
+                                 (default-style)
+                                 (default-font-size))
+                           1.05)
+                          s)
+                         s)))])
       (thunk)))))
 
 (define (words str)
