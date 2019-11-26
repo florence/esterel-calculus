@@ -182,3 +182,26 @@
          }
         @#:case[(loop^stop paused q)]{}
         ]}
+
+
+@proof[#:label "blocked is non-constructive"
+       #:title "blocked is non-constructive"
+       #:statement
+       @list{For all @es[θ], @es[A], @es[q], @es[E], and @es[p],
+        where @es[(= q (in-hole E p))],
+        @es[(binds (compile q) θ)], @es[(binds (compile q) A)],
+        @es[(closed (ρ θ A q))],
+        and @es[(blocked θ A E p)],
+        there exists some @es[S] and @es[E_i]
+        such that
+        @itemlist[#:style 'ordered
+                  @item{@es[(L∈ S (outputs (compile q)))] and}
+                  @item{@es[(= (θ-get-S θ S) ⊥)] and}
+                  @item{either @es[(= A WAIT)] and
+                           @es[(= p (in-hole E_1 (emit S)))] or
+                           @es[(= p (in-hole E_1 (present S p_i q_i)))] and}
+                  @item{@es[(= (of (compile q) S) ⊥)]}]}]{
+
+ TODO
+
+}

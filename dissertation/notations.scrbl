@@ -4,6 +4,7 @@
           "lib/util.rkt"
           "lib/proofs.rkt"
           "lib/proof-extras.rkt"
+          "lib/jf-figures.rkt"
           redex/reduction-semantics
           esterel-calculus/redex/model/shared
           esterel-calculus/redex/model/lset
@@ -29,6 +30,11 @@
  @es[(compile p_i)] than @es[(mtθ+S S absent)]. This also
  means that @es[(binds (compile p) ·)] always holds.
 
+}
+
+@definition[#:notation @es[(binds (compile p) A)]
+            #:read-as @list{@es[A] binds @es[(compile p)]}]{
+ @es[(binds (compile p) A)] if and only if @es[(= A GO)] implies that @es[(= (of (compile p) GO) 1)].
 }
 
 @definition[#:notation @es[(= (of (compile p) w) wire-value)]]{
@@ -71,7 +77,13 @@
 
 @definition[#:notation @es[(complete-with-respect-to θ done)]]{
  For all @es[(L∈ S (Ldom θ))],
- @es[(= (get-θ-S θ S) present)] or
- @es[(= (get-θ-S θ S) unknown)]
+ @es[(= (θ-get-S θ S) present)] or
+ @es[(= (θ-get-S θ S) unknown)]
  and @es[(L¬∈ S (->S (Can-θ (ρ θ GO done) ·)))].
+}
+
+@definition[#:notation @es[(blocked θ A E p)]
+            #:read-as @list{The term @es[p] cannot reduce (is blocked)
+             in the context @es[(ρ θ A (in-hole E p))]}]{
+ @pure-blocked-pict
 }

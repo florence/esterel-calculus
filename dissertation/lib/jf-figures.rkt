@@ -10,12 +10,13 @@
          redex/reduction-semantics
          redex/pict)
 
-(provide standard-meta-pict
-         CB-pict
-         standard-reduction-aux-pict
+(provide CB-pict
          eval-pict
          ≡e-pict
-         →-pict)
+         →-pict
+         blocked-pict
+         pure-blocked-pict
+         blocked-e-pict)
          
 
 (define (with-layout layout render-the-judgment-form
@@ -29,7 +30,7 @@
              25
              (for/list ([this-case (in-list this-line-cases)])
                (parameterize ([judgment-form-cases (list this-case)]
-                              [judgment-form-show-rule-names #f])
+                              [judgment-form-show-rule-names #t])
                  (render-the-judgment-form))))))))
 
 
@@ -124,31 +125,44 @@
        (λ () (render-judgment-form CB)))
      0 10 0 0))))
 
+
+(define blocked-layout
+  '(("var" "set-seq")
+    ("emit-wait" "set-shared-wait")
+    ("if"  "suspend" "trap")
+    ("par-both" "parl" "parr")
+    ("seq" "loop^stop")
+    ("shared" "set-shared")))
+
+(check-the-names 'blocked
+                 (collection-file-path "reduction.rkt" "esterel-calculus" "redex" "model")
+                 blocked-layout)
+
+(define pure-blocked-layout
+  '(("if" "emit-wait")
+    ("suspend" "trap")
+    ("seq" "loop^stop")
+    ("parl" "parr")
+    ("par-both")))
+
+(define blocked-pict (with-layout blocked-layout (λ () (render-judgment-form S:blocked))))
+(define pure-blocked-pict (with-layout pure-blocked-layout (λ () (render-judgment-form S:blocked))))
+
+(define blocked-e-layout
+  '(("not ready")))
+
+(check-the-names 'blocked-e
+                 (collection-file-path "reduction.rkt" "esterel-calculus" "redex" "model")
+                 blocked-e-layout)
+
+(define blocked-e-pict (with-layout blocked-e-layout (λ () (render-judgment-form S:blocked-e))))
+
+
+#;
 (define-values (standard-reduction-aux-pict standard-meta-pict)
   (with-paper-rewriters
    (parameterize ([current-reduction-arrow 'standard-reduction])
     
-     (define blocked-layout
-       '(("var" "set-seq")
-         ("present"  "suspend" "trap")
-         ("par-both" "parl" "parr")
-         ("seq" "loop^stop")
-         ("shared" "set-shared")))
-
-     (check-the-names 'blocked
-                      (collection-file-path "reduction.rkt" "esterel-calculus" "redex" "model")
-                      blocked-layout)
-
-     (define blocked-pict (with-layout blocked-layout (λ () (render-judgment-form S:blocked))))
-
-     (define blocked-e-layout
-       '(("old" "new")))
-
-     (check-the-names 'blocked-e
-                      (collection-file-path "reduction.rkt" "esterel-calculus" "redex" "model")
-                      blocked-e-layout)
-
-     (define blocked-e-pict (with-layout blocked-e-layout (λ () (render-judgment-form S:blocked-e))))
 
      (define good-layout
        '(("seq" "loop^stop" "hole")
@@ -161,8 +175,7 @@
 
      (define good-pict (with-layout good-layout (λ () (render-judgment-form S:leftmost))))
 
-     (define blocked-type (inset (relation-type-frame (es (blocked θ p))) 0 -5 0 0))
-     (define blocked-e-type (relation-type-frame (es (blocked-e θ e))))
+     
      (define good-type (inset (relation-type-frame (es (good θ E))) 0 -10 0 0))
      (define without-labels
        (vc-append

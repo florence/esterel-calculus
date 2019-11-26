@@ -117,8 +117,9 @@
   [(parens any) any])
 
 (define-metafunction esterel/typeset
-  binds : circuit θ -> boolean
-  [(binds _ _) #t])
+  ;binds : circuit θ -> boolean
+  [(binds circuit θ) #t]
+  [(binds circuit A) #t])
 
 (define-metafunction esterel/typeset
   eval^esterel : p -> any

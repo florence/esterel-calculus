@@ -218,7 +218,7 @@
 
   (define (in-dom-st-thing-is who what dom-ele equals-what lws)
     (define θ (list-ref lws 2))
-    (assert-no-underscore who what (lw-e θ))
+    #;(assert-no-underscore who what (lw-e θ))
     (define θc-pict (text (~a (lw-e θ)) (non-terminal-style) (default-font-size)))
     (list
      (hbl-append
@@ -505,9 +505,15 @@
      (λ (lws)
        (list ""
              (list-ref lws 2)
-             (text " ⊢ " (default-style) (default-font-size))
+             "; "
              (list-ref lws 3)
-             " blocked"))]
+             "; "
+             (list-ref lws 4)
+             (hbl-append
+              (text " ⊢" (default-style) (default-font-size))
+              (text "B" (cons 'subscript (default-style)) (default-font-size)))
+             " "
+             (list-ref lws 5)))]
 
     ['blocked-e
      (λ (lws)
@@ -608,9 +614,9 @@
      (λ (lws)
        (list ""
              (list-ref lws 2)
-             " ∈ dom("
+             " ∈ dom" ((white-square-bracket) #t)
              (list-ref lws 3)
-             ")"))]
+             ((white-square-bracket) #f)))]
     ['Lwithoutdom
      (λ (lws)
        (define θ (list-ref lws 2))
@@ -624,9 +630,18 @@
              (def-t "})")))]
     ['LFV/e
      (λ (lws)
-       (list "FV("
+       (list "FV"
+             ((white-square-bracket) #t)
              (list-ref lws 2)
-             ")"))]
+             ((white-square-bracket) #f)))]
+    ['closed
+     (lambda (lws)
+       (list "FV"
+             ((white-square-bracket) #t)
+             (list-ref lws 2)
+             ((white-square-bracket) #f)
+             " = ∅"))]
+             
     ['Lmax*
      (λ (lws)
        (define arg1 (list-ref lws 2))

@@ -141,12 +141,12 @@
   (check-false (judgment-holds
                 (blocked ((shar s 1 new) ·)
                          GO
-                         (shared s2 := (+ s) pause)
+                         hole
                          (shared s2 := (+ s) pause))))
   (check-true (judgment-holds
                (blocked ((shar s 1 new) ·)
                         GO
-                        (shared s2 := (+ s) (<= s (+ 1)))
+                        hole
                         (shared s2 := (+ s) (<= s (+ 1))))))
   )
 
@@ -154,110 +154,109 @@
 (define-judgment-form esterel-standard
   #:mode     (leftmost I I I I)
   #:contract (leftmost θ A p D)
-  [(leftmost* θ A (in-hole D p) D)
+  [(leftmost* θ A p hole D)
    ---------- 
    (leftmost θ A p D)])
 
 (define-judgment-form esterel-standard
-  #:mode     (leftmost* I I I I)
-  #:contract (leftmost* θ A p D)
+  #:mode     (leftmost* I I I I I)
+  #:contract (leftmost* θ A p E D)
   [---------- "hole"
-   (leftmost* θ A p hole)]
+   (leftmost* θ A p_o E hole)]
 
-  [(leftmost* θ A p D)
+  [(leftmost* θ A p_o (in-hole E (seq hole q)) D)
    ---------- "seq"
-   (leftmost* θ A p (seq D q))]
+   (leftmost* θ A p_o E (seq D q))]
 
-  [(leftmost* θ A p D)
+  [(leftmost* θ A p_o (in-hole E (loop^stop hole q)) D)
    ---------- "loop^stop"
-   (leftmost* θ A p (loop^stop D q))]
+   (leftmost* θ A p_o E (loop^stop D q))]
 
-  [(leftmost* θ A p D)
+  [(leftmost* θ A p_o (in-hole E (par hole q)) D)
    ---------- "parl"
-   (leftmost* θ A p (par D q))]
+   (leftmost* θ A p_o E (par D q))]
 
-  [(leftmost* θ A p D)
+  [(leftmost* θ A p_o (in-hole E (par done hole)) D)
    ---------- "par-done"
-   (leftmost* θ A p (par done D))]
+   (leftmost* θ A p_o E (par done D))]
 
-  [(leftmost* θ A q D) (blocked θ A q p)
+  [(leftmost* θ A p_o (in-hole E (par p hole)) D) (blocked θ A (in-hole E (par hole p_o)) p)
    ---------- "par-blocked"
-   (leftmost* θ A q (par p D))]
+   (leftmost* θ A p_o E (par p D))]
 
-  [(leftmost* θ A p D)
+  [(leftmost* θ A p_o (in-hole E (suspend hole S)) D)
    ---------- "suspend"
-   (leftmost* θ A p (suspend D S))]
+   (leftmost* θ A p_o E (suspend D S))]
 
-  [(leftmost* θ A p D)
+  [(leftmost* θ A p_o (in-hole E (trap hole)) D)
    ---------- "trap"
-   (leftmost* θ A p (trap D))])
+   (leftmost* θ A p_o E (trap D))])
 
 (define-judgment-form esterel-standard
-  #:mode     (blocked-or-done I I I I)
-  #:contract (blocked-or-done θ A p p)
+  #:mode     (blocked-or-done I I I)
+  #:contract (blocked-or-done θ A p)
   [---------- "done"
-   (blocked-or-done θ A p done)]
-  [(blocked θ A q p)
+   (blocked-or-done θ A done)]
+  [(blocked θ A hole p)
    --------- "blocked"
-   (blocked-or-done θ A q p)])
+   (blocked-or-done θ A p)])
 
 (define-judgment-form esterel-standard
   #:mode     (blocked I I I I)
-  #:contract (blocked θ A p p)
-  [(θ-ref-S θ S unknown)
-   (L∈ S (->S (Can-θ (ρ θ A q_outer) ·)))
-   ---------- "present"
-   (blocked θ A q_outer (present S p q))]
+  #:contract (blocked θ A E p)
+  [(θ-ref-S θ S unknown) (L∈ S (->S (Can-θ (ρ θ A (in-hole E (present S p q))) ·)))
+   ---------- "if"
+   (blocked θ A E (present S p q))]
 
-  [(blocked θ A q_outer p) (blocked θ A q_outer q)
+  [(blocked θ A (in-hole E (par hole q)) p) (blocked θ A (in-hole E (par p hole)) q)
    ---------- "par-both"
-   (blocked θ A q_outer (par p q))]
+   (blocked θ A E (par p q))]
 
-  [(blocked θ A q_outer p)
+  [(blocked θ A (in-hole E (par hole done)) p)
    ---------- "parl"
-   (blocked θ A q_outer (par p done))]
+   (blocked θ A E (par p done))]
 
-  [(blocked θ A q_outer q)
+  [(blocked θ A (in-hole E (par done hole)) q)
    ---------- "parr"
-   (blocked θ A q_outer (par done q))]
+   (blocked θ A E (par done q))]
 
-  [(blocked θ A q_outer p)
+  [(blocked θ A (in-hole E (seq hole q)) p)
    --------- "seq"
-   (blocked θ A q_outer (seq p q))]
+   (blocked θ A E (seq p q))]
 
-  [(blocked θ A q_outer p)
+  [(blocked θ A (in-hole E (loop^stop hole q)) p)
    --------- "loop^stop"
-   (blocked θ A q_outer (loop^stop p q))]
+   (blocked θ A E (loop^stop p q))]
 
-  [(blocked θ A q_outer p)
+  [(blocked θ A (in-hole E (suspend hole S)) p)
    --------- "suspend"
-   (blocked θ A q_outer (suspend p S))]
+   (blocked θ A E (suspend p S))]
 
-  [(blocked θ A q_outer p)
+  [(blocked θ A (in-hole E (trap hole)) p)
    --------- "trap"
-   (blocked θ A q_outer (trap p))]
+   (blocked θ A E (trap p))]
 
-  [(blocked-e θ A q_outer e)
+  [(blocked-e θ A (in-hole E (shared s := e p)) e)
    -------- "shared"
-   (blocked θ A q_outer (shared s := e p))]
+   (blocked θ A E (shared s := e p))]
 
-  [(blocked-e θ A q_outer e)
+  [(blocked-e θ A (in-hole E (<= s e)) e)
    -------- "set-shared"
-   (blocked θ A q_outer (<= s e))]
+   (blocked θ A E (<= s e))]
   
   [-------- "set-shared-wait"
-   (blocked θ WAIT q_outer (<= s e))]
+   (blocked θ WAIT E (<= s e))]
   
   [-------- "emit-wait"
-   (blocked θ WAIT q_outer (emit S))]
+   (blocked θ WAIT E (emit S))]
 
-  [(blocked-e θ A q_outer e)
+  [(blocked-e θ A (in-hole E (var x := e p)) e)
    -------- "var"
-   (blocked θ A q_outer (var x := e p))]
+   (blocked θ A E (var x := e p))]
 
-  [(blocked-e θ A q_outer e)
+  [(blocked-e θ A (in-hole E (:= x e)) e)
    -------- "set-seq"
-   (blocked θ A q_outer (:= x e))])
+   (blocked θ A E (:= x e))])
 
 (module+ test
   (check-false
@@ -305,7 +304,7 @@
                   ((sig Sw unknown)
                    ((sig Sxw unknown) ·)))))))))))))))
      GO
-     (seq (present Srandom-signal1618 pause nothing) nothing)
+     hole
      (seq (present Srandom-signal1618 pause nothing) nothing))))
   (check-true
    (judgment-holds
@@ -326,7 +325,7 @@
                   ((sig Sw unknown)
                    ((sig Sxw unknown) ·)))))))))))))))
      GO
-     (seq (present Srandom-signal1618 pause nothing) (emit Srandom-signal1618))
+     hole
      (seq (present Srandom-signal1618 pause nothing) (emit Srandom-signal1618)))))
   (check-false
    (judgment-holds
@@ -347,7 +346,7 @@
                   ((sig Sw unknown)
                    ((sig Sxw unknown) ·)))))))))))))))
      WAIT
-     (seq (present Srandom-signal1618 pause nothing) nothing)
+     hole
      (seq (present Srandom-signal1618 pause nothing) nothing))))
   (check-true
    (judgment-holds
@@ -368,7 +367,7 @@
                   ((sig Sw unknown)
                    ((sig Sxw unknown) ·)))))))))))))))
      WAIT
-     (seq (present Srandom-signal1618 pause nothing) (emit Srandom-signal1618))
+     hole
      (seq (present Srandom-signal1618 pause nothing) (emit Srandom-signal1618)))))
   (check-false
    (judgment-holds
@@ -389,9 +388,7 @@
                   ((sig Sw unknown)
                    ((sig Sxw unknown) ·)))))))))))))))
      GO
-     (suspend
-      (present Srandom-signal1618 pause nothing)
-      Srandom-signal1618)
+     hole
      (suspend
       (present Srandom-signal1618 pause nothing)
       Srandom-signal1618))))
@@ -414,9 +411,7 @@
                   ((sig Sw unknown)
                    ((sig Sxw unknown) ·)))))))))))))))
      GO
-     (suspend
-      (present Srandom-signal1618 pause (emit Srandom-signal1618))
-      Srandom-signal1618)
+     hole
      (suspend
       (present Srandom-signal1618 pause (emit Srandom-signal1618))
       Srandom-signal1618))))
@@ -439,9 +434,7 @@
                   ((sig Sw unknown)
                    ((sig Sxw unknown) ·)))))))))))))))
      WAIT
-     (suspend
-      (present Srandom-signal1618 pause nothing)
-      Srandom-signal1618)
+     hole
      (suspend
       (present Srandom-signal1618 pause nothing)
       Srandom-signal1618))))
@@ -464,9 +457,7 @@
                   ((sig Sw unknown)
                    ((sig Sxw unknown) ·)))))))))))))))
      WAIT
-     (suspend
-      (present Srandom-signal1618 pause (emit Srandom-signal1618))
-      Srandom-signal1618)
+     hole
      (suspend
       (present Srandom-signal1618 pause (emit Srandom-signal1618))
       Srandom-signal1618))))
@@ -500,9 +491,6 @@
      GO
      (suspend
       (seq (present Srandom-signal2266 pause nothing) nothing)
-      Srandom-signal2266)
-     (suspend
-      (seq (present Srandom-signal2266 pause nothing) nothing)
       Srandom-signal2266))))
   (check-true
    (judgment-holds
@@ -511,18 +499,12 @@
      GO
      (suspend
       (seq (present Srandom-signal2266 pause nothing) (emit Srandom-signal2266))
-      Srandom-signal2266)
-     (suspend
-      (seq (present Srandom-signal2266 pause nothing) (emit Srandom-signal2266))
       Srandom-signal2266))))
   (check-false
    (judgment-holds
     (blocked-or-done
      ((sig Srandom-signal2266 unknown) ·)
      WAIT
-     (suspend
-      (seq (present Srandom-signal2266 pause nothing) nothing)
-      Srandom-signal2266)
      (suspend
       (seq (present Srandom-signal2266 pause nothing) nothing)
       Srandom-signal2266))))
@@ -533,18 +515,12 @@
      WAIT
      (suspend
       (seq (present Srandom-signal2266 pause nothing) (emit Srandom-signal2266))
-      Srandom-signal2266)
-     (suspend
-      (seq (present Srandom-signal2266 pause nothing) (emit Srandom-signal2266))
       Srandom-signal2266))))
   (check-false
    (judgment-holds
     (blocked-or-done
      ((sig SS unknown) ·)
      WAIT
-     (par
-      (present SS nothing nothing)
-      nothing)
      (par
       (present SS nothing nothing)
       nothing))))
@@ -553,9 +529,6 @@
     (blocked-or-done
      ((sig SS unknown) ·)
      WAIT
-     (par
-      (present SS nothing nothing)
-      (emit SS))
      (par
       (present SS nothing nothing)
       (emit SS)))))
@@ -566,18 +539,12 @@
      GO
      (par
       (present SS nothing nothing)
-      nothing)
-     (par
-      (present SS nothing nothing)
       nothing))))
   (check-false
    (judgment-holds
     (blocked-or-done
      ((sig SS unknown) ·)
      GO
-     (par
-      (present SS nothing nothing)
-      (emit SS))
      (par
       (present SS nothing nothing)
       (emit SS)))))
@@ -588,9 +555,6 @@
      GO
      (par
       (present SS nothing (emit SS))
-      nothing)
-     (par
-      (present SS nothing (emit SS))
       nothing))))
   (check-false
    (judgment-holds
@@ -601,11 +565,6 @@
       (suspend
        (seq (present Srandom-signal2266 pause nothing) nothing)
        Srandom-signal2266)
-      nothing)
-     (par
-      (suspend
-       (seq (present Srandom-signal2266 pause nothing) nothing)
-       Srandom-signal2266)
       nothing))))
   (check-false
    (judgment-holds
@@ -615,12 +574,7 @@
      (par
       (suspend
        (seq (present Srandom-signal2266 pause nothing) nothing)
-       Srandom-signal2266)
-      (emit Srandom-signal2266))
-     (par
-      (suspend
-       (seq (present Srandom-signal2266 pause nothing) nothing)
-       Srandom-signal2266)
+       Srandom-signaql2266)
       (emit Srandom-signal2266)))))
   (check-true
    (judgment-holds
@@ -631,11 +585,6 @@
       (suspend
        (seq (present Srandom-signal2266 pause nothing) (emit Srandom-signal2266))
        Srandom-signal2266)
-      nothing)
-     (par
-      (suspend
-       (seq (present Srandom-signal2266 pause nothing) (emit Srandom-signal2266))
-       Srandom-signal2266)
       nothing))))
   (check-false
    (judgment-holds
@@ -646,22 +595,12 @@
       (suspend
        (seq (present Srandom-signal2266 pause nothing) nothing)
        Srandom-signal2266)
-      nothing)
-     (par
-      (suspend
-       (seq (present Srandom-signal2266 pause nothing) nothing)
-       Srandom-signal2266)
       nothing))))
   (check-true
    (judgment-holds
     (blocked-or-done
      ((sig Srandom-signal2266 unknown) ·)
      WAIT
-     (par
-      (suspend
-       (seq (present Srandom-signal2266 pause nothing) nothing)
-       Srandom-signal2266)
-      (emit Srandom-signal2266))
      (par
       (suspend
        (seq (present Srandom-signal2266 pause nothing) nothing)
@@ -673,14 +612,12 @@
     (blocked-or-done
      ·
      GO
-     (par pause nothing)
      (par pause nothing))))
   (check-false
    (judgment-holds
     (blocked-or-done
      ·
      WAIT
-     (par pause nothing)
      (par pause nothing))))
 
   (check-false
@@ -695,7 +632,6 @@
            ((sig Sr unknown)
             ((sig SsA unknown) ·))))))))
      GO
-     (suspend (<= sg3233 (+ 9)) SA)
      (suspend (<= sg3233 (+ 9)) SA))))
   (check-true
    (judgment-holds
@@ -709,7 +645,6 @@
            ((sig Sr unknown)
             ((sig SsA unknown) ·))))))))
      WAIT
-     (suspend (<= sg3233 (+ 9)) SA)
      (suspend (<= sg3233 (+ 9)) SA))))
   
 
@@ -719,7 +654,6 @@
      ((sig Sx unknown)
       ((shar sa 0 old) ·))
      GO
-     (present Sx pause pause)
      (present Sx pause pause))))
   (check-true
    (judgment-holds
@@ -727,7 +661,6 @@
      ((sig Sx unknown)
       ((shar sa 0 old) ·))
      GO
-     (present Sx pause (emit Sx))
      (present Sx pause (emit Sx)))))
   (check-false
    (judgment-holds
@@ -735,7 +668,6 @@
      ((sig Sx unknown)
       ((shar sa 0 old) ·))
      WAIT
-     (present Sx pause pause)
      (present Sx pause pause))))
   (check-true
    (judgment-holds
@@ -743,7 +675,6 @@
      ((sig Sx unknown)
       ((shar sa 0 old) ·))
      WAIT
-     (present Sx pause (emit Sx))
      (present Sx pause (emit Sx)))))
   (check-false
    (judgment-holds
@@ -751,7 +682,6 @@
      ((sig Sx unknown)
       ((shar sa 0 old) ·))
      GO
-     (trap (var xv := ((rfunc ,+) sa) (if xv pause pause)))
      (trap (var xv := ((rfunc ,+) sa) (if xv pause pause))))))
   (check-true
    (judgment-holds
@@ -759,7 +689,6 @@
      ((sig Sx unknown)
       ((shar sa 0 old) ·))
      GO
-     (trap (var xv := ((rfunc ,+) sa) (<= sa (+))))
      (trap (var xv := ((rfunc ,+) sa) (<= sa (+)))))))
   (check-false
    (judgment-holds
@@ -767,7 +696,6 @@
      ((sig Sx unknown)
       ((shar sa 0 old) ·))
      WAIT
-     (trap (var xv := ((rfunc ,+) sa) (if xv pause pause)))
      (trap (var xv := ((rfunc ,+) sa) (if xv pause pause))))))
   (check-true
    (judgment-holds
@@ -775,7 +703,6 @@
      ((sig Sx unknown)
       ((shar sa 0 old) ·))
      WAIT
-     (trap (var xv := ((rfunc ,+) sa) (<= sa (+))))
      (trap (var xv := ((rfunc ,+) sa) (<= sa (+)))))))
   (check-false
    (judgment-holds
@@ -783,9 +710,6 @@
      ((sig Sx unknown)
       ((shar sa 0 old) ·))
      GO
-     (par (seq (trap (var xv := ((rfunc ,+) sa) (if xv pause pause)))
-               (loop pause))
-          (present Sx pause pause))
      (par (seq (trap (var xv := ((rfunc ,+) sa) (if xv pause pause)))
                (loop pause))
           (present Sx pause pause)))))
@@ -797,9 +721,6 @@
      GO
      (par (seq (trap (var xv := ((rfunc ,+) sa) (if xv nothing pause)))
                (loop (seq (<= sa (+)) pause)))
-          (present Sx pause pause))
-     (par (seq (trap (var xv := ((rfunc ,+) sa) (if xv nothing pause)))
-               (loop (seq (<= sa (+)) pause)))
           (present Sx pause pause)))))
   (check-true
    (judgment-holds
@@ -807,9 +728,6 @@
      ((sig Sx unknown)
       ((shar sa 0 old) ·))
      GO
-     (par (seq (trap (var xv := ((rfunc ,+) sa) (if xv nothing pause)))
-               (loop (seq (<= sa (+)) (seq (emit Sx) pause))))
-          (present Sx pause pause))
      (par (seq (trap (var xv := ((rfunc ,+) sa) (if xv nothing pause)))
                (loop (seq (<= sa (+)) (seq (emit Sx) pause))))
           (present Sx pause pause)))))
@@ -821,9 +739,6 @@
      WAIT
      (par (seq (trap (var xv := ((rfunc ,+) sa) (if xv pause pause)))
                (loop pause))
-          (present Sx pause pause))
-     (par (seq (trap (var xv := ((rfunc ,+) sa) (if xv pause pause)))
-               (loop pause))
           (present Sx pause pause)))))
   (check-true
    (judgment-holds
@@ -831,9 +746,6 @@
      ((sig Sx unknown)
       ((shar sa 0 old) ·))
      WAIT
-     (par (seq (trap (var xv := ((rfunc ,+) sa) (if xv nothing pause)))
-               (loop (seq (<= sa (+)) (seq (emit Sx) pause))))
-          (present Sx pause pause))
      (par (seq (trap (var xv := ((rfunc ,+) sa) (if xv nothing pause)))
                (loop (seq (<= sa (+)) (seq (emit Sx) pause))))
           (present Sx pause pause))))))
@@ -854,17 +766,11 @@
     GO
     (loop^stop
      (present S1 pause pause)
-     (present S1 pause pause))
-    (loop^stop
-     (present S1 pause pause)
      (present S1 pause pause))))
-  (test-judgment-holds
+  (test-judgment-does-not-hold
    (blocked-or-done
     ((sig S1 unknown) ·)
     GO
-    (loop^stop
-     (present S1 pause (emit S1))
-     (present S1 pause pause))
     (loop^stop
      (present S1 pause pause)
      (present S1 pause pause))))
@@ -874,19 +780,11 @@
     WAIT
     (loop^stop
      (present S1 pause pause)
-     (present S1 pause pause))
-    (loop^stop
-     (present S1 pause pause)
      (present S1 pause pause))))
-  (test-judgment-holds
+  (test-judgment-does-not-hold
    (blocked-or-done
     ((sig S1 unknown) ·)
     WAIT
-    (loop^stop
-     (seq
-      (present S1 nothing pause)
-      (emit S1))
-     (present S1 pause pause))
     (loop^stop
      (seq
       (present S1 pause pause)
