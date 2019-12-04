@@ -134,10 +134,6 @@
     ("seq" "loop^stop")
     ("shared" "set-shared")))
 
-(check-the-names 'blocked
-                 (collection-file-path "reduction.rkt" "esterel-calculus" "redex" "model")
-                 blocked-layout)
-
 (define pure-blocked-layout
   '(("if" "emit-wait")
     ("suspend" "trap")
@@ -145,8 +141,13 @@
     ("parl" "parr")
     ("par-both")))
 
+
+(check-the-names 'blocked-pure
+                 (collection-file-path "reduction.rkt" "esterel-calculus" "redex" "model")
+                 pure-blocked-layout)
+
 (define blocked-pict (with-layout blocked-layout (λ () (render-judgment-form S:blocked))))
-(define pure-blocked-pict (with-layout pure-blocked-layout (λ () (render-judgment-form S:blocked))))
+(define pure-blocked-pict (with-layout pure-blocked-layout (λ () (render-judgment-form S:blocked-pure))))
 
 (define blocked-e-layout
   '(("not ready")))

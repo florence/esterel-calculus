@@ -89,6 +89,14 @@
   [(FV/e (+ s/l n)) (FV/e (+ s/l))]
   [(FV/e (+ s/l_1 s/l_2)) (L2set s/l_1 s/l_2)])
 
+
+(define-judgment-form esterel-eval
+  #:mode (closed I)
+  #:contract (closed p)
+  [(where () (FV p))
+   -----
+   (closed p)])
+
 (define-judgment-form esterel-L
   #:mode (CB I)
   #:contract (CB p)

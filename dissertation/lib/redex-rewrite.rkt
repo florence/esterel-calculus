@@ -424,6 +424,8 @@
              (hbl-append (def-t " ") (reduction-arrow) (def-t " "))
              (list-ref lws 3)
              ""))]
+    ['⟶
+     (curry binop '⟶)]
     ['→
      (λ (lws)
        (list ""
@@ -501,7 +503,7 @@
              (hbl-append
               (def-t " ∈ ")
               (nt-t "done"))))]
-    ['blocked
+    ['blocked-pure
      (λ (lws)
        (list ""
              (list-ref lws 2)
@@ -944,6 +946,11 @@
      ;['done (λ () (text "done-p" (non-terminal-style) (default-font-size)))]
      ;['stopped (λ () (text "stopped-p" (non-terminal-style) (default-font-size)))]
      ;['paused (λ () (text "paused-p" (non-terminal-style) (default-font-size)))]
+
+     ['hole (lambda ()
+              (text "☐"
+                    (default-style) (default-font-size)))]
+                    
 
      ['↓ (λ () (down-super-n))]
      ['harp (λ () (down-super-p))]

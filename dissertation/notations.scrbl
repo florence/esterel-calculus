@@ -5,6 +5,7 @@
           "lib/proofs.rkt"
           "lib/proof-extras.rkt"
           "lib/jf-figures.rkt"
+          "lib/misc-figures.rkt"
           redex/reduction-semantics
           esterel-calculus/redex/model/shared
           esterel-calculus/redex/model/lset
@@ -82,8 +83,17 @@
  and @es[(L¬∈ S (->S (Can-θ (ρ θ GO done) ·)))].
 }
 
-@definition[#:notation @es[(blocked θ A E p)]
+@definition[#:notation @es[(blocked-pure θ A E p)]
             #:read-as @list{The term @es[p] cannot reduce (is blocked)
              in the context @es[(ρ θ A (in-hole E p))]}]{
  @pure-blocked-pict
+}
+
+
+@definition[#:notation @es[(Can p θ)]]{
+ @Can-pict
+}
+
+@definition[#:notation @es[(Canθ p θ)]]{
+ @Canθ-pict
 }

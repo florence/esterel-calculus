@@ -1,12 +1,17 @@
 #lang racket
 (provide cases state sequenced)
 
-(require (for-syntax syntax/parse)
+(require (for-syntax syntax/parse
+                     redex/private/term-fn
+                     racket/list)
+         racket/stxparam
          syntax/parse/define
          redex/reduction-semantics
          redex/pict
+         pict
          "redex-rewrite.rkt"
-         scribble/core
+         esterel-calculus/redex/model/shared
+         (except-in scribble/core table)
          scribble/decode
          scribble-abbrevs/latex
          (only-in scribble/base item itemlist))
@@ -20,6 +25,42 @@
 (define-simple-macro (state e)
   (list (exact "\\newline") (es e) (exact "\\newline")))
 
+(define-syntax derive
+  (syntax-parser
+    [(_ e)
+     #'(with-paper-rewriters
+        (let ()
+          (define devs (build-derivations e))
+          (if (empty? devs)
+              (text "no derivations")
+              (render-derivation (first devs)))))]))
+
+(define (render-derivation r)
+  (match-define (derivation term name subs) r)
+  (define t (render-term/pretty-write esterel-eval term))
+  (define child (apply hbl-append 10 (map render-derivation subs)))
+  (define line-width (max (pict-width t) (pict-width child)))
+  (define nam (if name (text (string-append " [" name "]")) (blank)))
+  (inset
+   (vc-append
+    child
+    (inset (hc-append (hline line-width 5) nam) 0 0 (- (pict-width nam)) 0)
+    t)
+   0 0 (pict-width nam) 0))
+
+
+(define-for-syntax (do-judgment? stx)
+  (syntax-parse stx
+    [(x:id _ ...)
+     (judgment-form? (syntax-local-value #'x (lambda () #f)))]
+    [x:id
+     (judgment-form? (syntax-local-value #'x (lambda () #f)))]
+    [else #f]))
+
+(define-syntax dj?
+  (lambda (stx)
+    (datum->syntax stx (do-judgment? stx))))
+
 (define-syntax sequenced
   (syntax-parser
     [(_ _:string ... (~seq (#:step n:id body:expr ...) _:string ...) ...)
@@ -32,6 +73,57 @@
           #:style 'ordered
           (item body ...)
           ...))]))
+
+(define-for-syntax basic-subcases
+  (lambda (stx)
+    (raise-syntax-error 'subcases
+                        "Not used within a lexicographic induction"
+                        stx)))
+(define-syntax-parameter subcases basic-subcases)
+
+(define-for-syntax (make-subcases-expander ps fst? lang checks)
+  (with-syntax ([(pst ...) ps]
+                [box box]
+                [lang lang])
+    #`(syntax-parser
+        [(...
+          (_ [#:case (pat:expr ...) body ...] ...))
+         #:when
+         (...
+          (for/and ([l1 (in-list (syntax->list #'((pat ...) ...)))])
+            (equal? (length (syntax->list (first (syntax->list #'((pat ...) ...)))))
+                    (length (syntax->list l1)))))
+         #:do
+         [(define nl (- (length (syntax->list #'(pst ...)))
+                        (length (syntax->list (first (syntax->list (... #'((pat ...) ...))))))))
+          (define-values (now later)
+            (split-at (syntax->list #'(pst ...))
+                      (- (length (syntax->list #'(pst ...)))
+                         nl)))]
+         #:with new-sc
+         (cond
+           [(< nl 0) (raise-syntax-error 'subcases "too many patterns" this-syntax)]
+           [(zero? nl)
+            #'basic-subcases]
+           [(> nl 0)
+            (make-subcases-expander later
+                                    #f
+                                    #'lang
+                                    #'checks)])
+         #:with (... (n ...)) now
+         #:with (... ((prot ...) ...))
+         (apply map list
+                (map syntax->list (syntax->list #'(... ((pat ...) ...)))))
+               
+         #'(...
+            (syntax-parameterize ([subcases new-sc])
+              (test-cases-covered #:checks #,checks lang n (prot ...)) ...
+              (render-cases #,@(if fst? #'(#:lexicographic (pst ...)) #'(#:lexicographic-sub (... (n ...))))
+                            lang
+                            (n ...)
+                            ((pat ...) body ...) ...)))])))
+         
+            
 
 (define-syntax cases
   (syntax-parser
@@ -50,6 +142,23 @@
      #'(begin
          (test-cases-covered #:checks n lang c (p ...))
          (render-cases (~? i) lang c (p body ...) ...))]
+     
+    [(_
+      (~alt
+       (~once
+        (~optional
+         (~seq #:language lang:id)
+         #:defaults ([lang #'base])))
+       (~once (~seq #:of (c:expr ...)))
+       (~once #:lexicographic)
+       (~once (~optional (~seq #:checks n)
+                         #:defaults ([n #'1000]))))
+      ...
+      [#:case (p:expr ...) body ...] ...)
+     
+     #:with sc (make-subcases-expander  #'(c ...) #t #'lang #'n)
+     #'(syntax-parameterize ([subcases sc])
+         (subcases [#:case (p ...) body ...] ...))]
     [(_
       (~alt
        (~once
@@ -86,14 +195,27 @@
                            (p body ...)
                            ...)]))
 
-
-(define-simple-macro (test-cases-covered #:checks n lang:id c:expr (pat:expr ...))
-  (redex-check
-   lang c
-   (unless (or (redex-match? lang pat (term c)) ...)
-     (error "missing case!"))
-   #:attempts n
-   #:print? #f))
+(define-syntax test-cases-covered
+  (syntax-parser
+    [(test-cases-covered #:checks n lang:id (j _ ...) p)
+     #:when (do-judgment? #'j)
+     #:with (~and ~! (names ...)) (judgment-form-rule-names (syntax-local-value #'j))
+     #:with (clause:id ...) #'p
+     #:fail-unless (andmap values (syntax->list #'(names ...)))
+     "Cannot check cases for a judgment form where some cases are not named"
+     #'(unless (equal? (set (~a 'clause) ...)
+                       (set 'names ...))
+         (error 'cases
+                "missing or unexpected case. Expected ~a, got ~a"
+                (map string->symbol '(names ...))
+                '(clause ...)))]
+    [(test-cases-covered #:checks n lang:id c:expr (pat:expr ...))
+     #'(redex-check
+        lang c
+        (unless (or (redex-match? lang pat (term c)) ...)
+          (error "missing case!"))
+        #:attempts n
+        #:print? #f)]))
 
 (define-simple-macro (render-cases/derivation lang:id c:expr (pat:id body ...) ...)
   (list
@@ -103,14 +225,69 @@
                 (decode-flow
                  (list (list "[" (symbol->string 'pat) "]")
                        (nested-flow (style "nopar" '(command))
-                                     (decode-flow (list body ...))))))
+                                    (decode-flow (list body ...))))))
    ...))
 
+(define (tuplize . p)
+  (if (= 1 (length p))
+      (first p)
+      (apply hbl-append
+             (with-paper-rewriters (text "⟨" (default-style) (default-font-size)))
+             (append
+              (add-between (map (lambda (x)
+                                  (if (string? x)
+                                      (text x (default-style) (default-font-size))
+                                      x))
+                                p)
+                           (text ", " (default-style) (default-font-size)))
+              (list (with-paper-rewriters (with-paper-rewriters (text "⟩" (default-style) (default-font-size)))))))))
+
+(define-syntax cfst
+  (syntax-parser
+    [(x:id _ ...)
+     #''x]))
 (define-syntax render-cases
   (syntax-parser
+    [(_ (~and l (~or (~and #:lexicographic) #:lexicographic-sub))
+        (all:expr ...)
+        lang:id (c:expr ...) ((pat:expr ...) body ...) ...)
+     #:with desc #`#,(if (equal? (syntax-e #'l) '#:lexicographic)
+                         "Lexicographic Induction over " "Cases of ")
+     #:with (item-label ...)
+     #'((list
+         (tuplize
+          (if (dj? c)
+              (~a "[" (~a (cfst c) "]"))
+              (with-paper-rewriters (term->pict lang c)))
+          ...)
+         (es =)
+         (tuplize (with-paper-rewriters (term->pict lang pat)) ...))
+        ...)
+     #`(list
+        "\n" (exact "\\noindent")
+        desc (tuplize (with-paper-rewriters (term->pict lang all)) ...) ":"
+        (exact "\\noindent")
+        (nested-flow (style "casesp" '())
+                     (decode-flow
+                      (append
+                       (list
+                      (element "item" '())
+                      item-label
+                      (nested-flow (style "nopar" '(command))
+                                   (decode-flow (list body ...))))
+                     ...))))]
     [(_ (~optional (~and #:induction i))
         lang:id c:expr (pat:expr body ...) ...)
      #:with desc #`#,(if (attribute i) "Induction on " "Cases of ")
+     #:with (item-label ...)
+     (if (do-judgment? #'c)
+         #'((with-paper-rewriters (text (~a "[" (~a 'pat) "]") (default-style) (default-font-size))) ...)
+         #'((list (with-paper-rewriters (term->pict lang c))
+                  (es =)
+                  (with-paper-rewriters (term->pict lang pat)))
+            ...))
+         
+     
      #'(list
         "\n" (exact "\\noindent")
         desc (with-paper-rewriters (term->pict lang c)) ":"
@@ -120,9 +297,7 @@
                       (append
                        (list
                         (element "item" '())
-                        (list (with-paper-rewriters (term->pict lang c))
-                              (es =)
-                              (with-paper-rewriters (term->pict lang pat)))
+                        item-label
                         (nested-flow (style "nopar" '(command))
                                      (decode-flow (list body ...))))
                        ...))))]))
@@ -140,5 +315,4 @@
                         (nested-flow (style "nopar" '(command))
                                      (decode-flow (list body ...))))
                   ...)))))
-   
    

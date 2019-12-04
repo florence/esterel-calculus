@@ -320,4 +320,18 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
        #:title "Can K on Done is {1}"
        #:statement
        @list{For all @es[done], @es[θ], @es[(= (->K (Can done θ)) (L1set 1))]}]{
+ TODO.
+}
+
+@proof[#:label "can-rho-idempotent"
+       #:title "Can Rho is idempotent"
+       #:statement
+       @list{For all @es[θ_1], @es[θ_2], @es[p], @es[A], @es[S],
+       if
+        @es[(= (θ-get-S θ_1 S) ⊥)] and
+        @es[(L¬∈ S (->S (Can-θ (ρ θ_1 A p) θ_2)))]
+       then @es[(= (->S (Can-θ (ρ θ_1 A p) θ_2))
+                   (->S (Can-θ (ρ (<- θ_1 (mtθ+S S absent)) A p) θ_2)))]}]{
+ TODO
+ Sketch: as @es[Can-θ] takes signal of that form an sets it to absent, nothing changes.
 }
