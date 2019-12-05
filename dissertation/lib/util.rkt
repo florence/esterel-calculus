@@ -16,6 +16,7 @@
          (only-in scribble/base bold italic)
          (for-syntax syntax/parse
                      racket/list
+                     (except-in redex/reduction-semantics judgment-form?)
                      redex/private/term-fn))
 (module+ test (require rackunit))
 
@@ -322,14 +323,21 @@
          0 0 (- (pict-width p) (pict-width x)) 0))
 
 
-(define default-term->pict/checked-attempts
-  (make-parameter 10))
+(define-syntax the-default-term->pict/checked-attempts (box 10))
+(define-syntax default-term->pict/checked-attempts
+  (syntax-parser
+    [(_) #`#,(unbox (syntax-local-value #'the-default-term->pict/checked-attempts))]
+    [(_ x:nat)
+     (set-box!
+      (syntax-local-value #'the-default-term->pict/checked-attempts)
+      (syntax-e #'x))
+     #'(void)]))
 
 (define-syntax term->pict/checked
   (syntax-parser
-    [(_ (~optional (~seq #:attempts attempts:expr)
+    [(_ (~optional (~seq #:attempts attempts:nat)
                    #:defaults
-                   ([attempts #'(default-term->pict/checked-attempts)]))
+                   ([attempts #`#,(unbox (syntax-local-value #'the-default-term->pict/checked-attempts))]))
         lang:id term:expr)
      #'(begin
          (test-valid-term lang term attempts)
@@ -339,19 +347,44 @@
   (syntax-parser
     [(_ lang trm at)
      #:with (pats comps) (get-pats #'trm)
-     
+     (define forms-to-require
+       (let loop ([l #'(lang trm)])
+         (syntax-parse l
+           [i:id
+            (define x (identifier-binding #'i))
+            (cond
+              [(and (list? x) (not (empty? x))
+                    (module-path-index? (first x))
+                    (path? (resolved-module-path-name (module-path-index-resolve (third x)))))
+               (list
+                (syntax-local-introduce
+                 (datum->syntax #'i
+                                `(only ,(resolved-module-path-name (module-path-index-resolve (third x)))
+                                       ,#'i))))]
+              [else empty])]
+           [(a . b) (append (loop #'a) (loop #'b))]
+           [else empty])))
      (cond
        [(and (ormap symbol? (flatten (syntax->datum #'pats)))
              (not (empty? (flatten (syntax->datum #'comps)))))
-        #`(parameterize ()
-            #,(quasisyntax/loc this-syntax
-                (redex-check
-                 lang pats
-                 #,(if (do-judgment? #'trm)
-                       #'(void (judgment-holds trm))
-                       #'(void (term trm)))
-                 #:attempts at
-                 #:print? #f)))]
+        (syntax-local-lift-require
+         #`(for-meta #,(add1 (syntax-local-phase-level))
+                     #,@forms-to-require)
+         (syntax-local-introduce
+          #`(let-syntax
+                ([whatever
+                  (lambda (_)
+                    #,(quasisyntax/loc this-syntax
+                        (redex-check
+                         lang
+                         pats
+                         #,(if (do-judgment? #'trm)
+                               #`(void (judgment-holds trm))
+                               #`(void (term trm)))
+                         #:attempts at
+                         #:print? #f))
+                    #'(void))])
+              (whatever trm))))]
        [else #'(void)])]))
 
 (define-for-syntax (do-judgment? stx)
