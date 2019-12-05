@@ -4,6 +4,11 @@
 (require (for-syntax syntax/parse
                      redex/private/term-fn
                      racket/list)
+         (only-in redex/private/struct
+                  metafunc-proc-cases)
+         (only-in redex/private/reduction-semantics
+                  metafunction
+                  metafunction-proc)
          racket/stxparam
          syntax/parse/define
          redex/reduction-semantics
@@ -57,6 +62,14 @@
      (judgment-form? (syntax-local-value #'x (lambda () #f)))]
     [else #f]))
 
+(define-for-syntax (do-mf? stx)
+  (syntax-parse stx
+    [(x:id _ ...)
+     (term-fn? (syntax-local-value #'x (lambda () #f)))]
+    [x:id
+     (term-fn? (syntax-local-value #'x (lambda () #f)))]
+    [else #f]))
+
 (define-syntax dj?
   (lambda (stx)
     (datum->syntax stx (do-judgment? stx))))
@@ -77,7 +90,7 @@
 (define-for-syntax basic-subcases
   (lambda (stx)
     (raise-syntax-error 'subcases
-                        "Not used within a lexicographic induction"
+                        "No subcases remaining"
                         stx)))
 (define-syntax-parameter subcases basic-subcases)
 
@@ -87,7 +100,7 @@
                 [lang lang])
     #`(syntax-parser
         [(...
-          (_ [#:case (pat:expr ...) body ...] ...))
+          (_ (~seq [#:case (pat:expr ...) body ...] _:string ...) ...))
          #:when
          (...
           (for/and ([l1 (in-list (syntax->list #'((pat ...) ...)))])
@@ -138,7 +151,7 @@
        (~once (~optional (~seq #:checks n)
                          #:defaults ([n #'1000]))))
       ...
-      [#:case p:expr body ...] ...)
+      (~seq [#:case p:expr body ...] _:string ...) ...)
      #'(begin
          (test-cases-covered #:checks n lang c (p ...))
          (render-cases (~? i) lang c (p body ...) ...))]
@@ -154,7 +167,7 @@
        (~once (~optional (~seq #:checks n)
                          #:defaults ([n #'1000]))))
       ...
-      [#:case (p:expr ...) body ...] ...)
+      (~seq [#:case (p:expr ...) body ...]  _:string ...) ...)
      
      #:with sc (make-subcases-expander  #'(c ...) #t #'lang #'n)
      #'(syntax-parameterize ([subcases sc])
@@ -165,20 +178,23 @@
         (~optional
          (~seq #:language lang:id)
          #:defaults ([lang #'base])))
-       (~once (~seq #:of/count of (~commit n:nat)))
-       (~once (~optional (~and #:induction i))))
+       (~once (~seq #:of/count of:expr n:nat))
+       (~once (~optional (~and #:induction i)))
+       (~once (~optional (~and #:simple-cases s))))
       ...
-      [#:case p body ...] ...)
+      (~seq [#:case p body ...] _:string ...) ...)
      #:fail-when (not (equal? (length (syntax->list #'(p ...)))
                               (syntax-e #'n)))
      (format "Expected ~a cases, found ~a cases"
              (length (syntax->list #'(p ...)))
              (syntax-e #'n))
-     #'(render-cases/basic (~? i)
-                           lang
-                           of
-                           (p body ...)
-                           ...)]
+     #'(render-cases (~? i)
+                     (~? s)
+                     #:just-render
+                     lang
+                     of
+                     (p body ...)
+                     ...)]
     [(_
       (~alt
        (~once
@@ -186,17 +202,33 @@
          (~seq #:language lang:id)
          #:defaults ([lang #'base])))
        (~once (~seq #:of/unchecked of))
-       (~once (~optional (~and #:induction i))))
+       (~once (~optional (~and #:induction i)))
+       (~once (~optional (~and #:simple-cases s))))
       ...
-      [#:case p body ...] ...)
-     #'(render-cases/basic (~? i)
-                           lang
-                           of
-                           (p body ...)
-                           ...)]))
+      (~seq [#:case p body ...] _:string ...) ...)
+     #'(render-cases (~? i)
+                     (~? s)
+                     lang
+                     of
+                     (p body ...)
+                     ...)]))
 
 (define-syntax test-cases-covered
   (syntax-parser
+    [(test-cases-covered #:checks n lang:id (mf _ ...) p)
+     #:when (do-mf? #'mf)
+     #:fail-unless
+     (andmap (lambda (x) (eq? (syntax-e x) '_))
+             (syntax->list #'p))
+     "Expected only `_` for patterns when checking a metafunction"
+     #'(unless
+           (equal? (length 'p)
+                   (length (metafunc-proc-cases (metafunction-proc (metafunction mf)))))
+         (error 'cases
+                "wrong number of cases for metafunction ~a. Expected ~a got ~a."
+                'mf
+                (length (metafunc-proc-cases (metafunction-proc (metafunction mf))))
+                (length 'p)))]
     [(test-cases-covered #:checks n lang:id (j _ ...) p)
      #:when (do-judgment? #'j)
      #:with (~and ~! (names ...)) (judgment-form-rule-names (syntax-local-value #'j))
@@ -210,6 +242,7 @@
                 (map string->symbol '(names ...))
                 '(clause ...)))]
     [(test-cases-covered #:checks n lang:id c:expr (pat:expr ...))
+     #:when (and (not (do-mf? #'c)) (not (do-judgment? #'c)))
      #'(redex-check
         lang c
         (unless (or (redex-match? lang pat (term c)) ...)
@@ -271,21 +304,34 @@
                      (decode-flow
                       (append
                        (list
-                      (element "item" '())
-                      item-label
-                      (nested-flow (style "nopar" '(command))
-                                   (decode-flow (list body ...))))
-                     ...))))]
+                        (element "item" '())
+                        item-label
+                        (nested-flow (style "nopar" '(command))
+                                     (decode-flow (list body ...))))
+                       ...))))]
     [(_ (~optional (~and #:induction i))
+        (~optional (~and #:simple-cases s))
+        (~optional (~and #:just-render j))
         lang:id c:expr (pat:expr body ...) ...)
-     #:with desc #`#,(if (attribute i) "Induction on " "Cases of ")
+     #:with desc
+     #`#,(string-append
+          (if (attribute i) "Induction on " "Cases of ")
+          (if (and (not (attribute j)) (do-mf? #'c))
+              "the clauses of "
+              ""))
      #:with (item-label ...)
-     (if (do-judgment? #'c)
-         #'((with-paper-rewriters (text (~a "[" (~a 'pat) "]") (default-style) (default-font-size))) ...)
-         #'((list (with-paper-rewriters (term->pict lang c))
-                  (es =)
-                  (with-paper-rewriters (term->pict lang pat)))
-            ...))
+     (cond
+       [(attribute s)
+        #'((with-paper-rewriters (term->pict lang pat)) ...)]
+       [(and (not (attribute j)) (do-mf? #'c))
+        (for/list ([_ (in-list (syntax->list #'(pat ...)))])
+          #'"")]
+       [(and (not (attribute j)) (do-judgment? #'c))
+        #'((with-paper-rewriters (text (~a "[" (~a 'pat) "]") (default-style) (default-font-size))) ...)]
+       [else #'((list (with-paper-rewriters (term->pict lang c))
+                      (es =)
+                      (with-paper-rewriters (term->pict lang pat)))
+                ...)])
          
      
      #'(list
