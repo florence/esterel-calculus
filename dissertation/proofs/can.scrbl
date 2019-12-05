@@ -16,8 +16,8 @@ This section contains lemmas and proofs about @es/unchecked[Can] and its
 relation to the circuit translation. The core theorem here is @proof-ref["Can-S-is-sound"].
 
 @(define emit-not-equal-case
-   @cases[#:of/count @es[(L∈ S_2 (->S (Can p_i (<- θ (mtθ+S S_2 unknown)))))] 2
-          #:language esterel/typeset
+   @cases[#:language esterel/typeset
+          #:of/count @es[(L∈ S_2 (->S (Can p_i (<- θ (mtθ+S S_2 unknown)))))] 2
           @#:case[@es[(L∈ S_2 (->S (Can p_i (<- θ (mtθ+S S_2 unknown)))))]]{
            In this case
            @es[(= (->S (Can (signal S_2 p_i) θ)) (Lset-sub (->S (Can p_i (<- θ (mtθ+S S_2 unknown)))) (L1set S)))].

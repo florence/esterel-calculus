@@ -201,8 +201,8 @@
 @proof[#:label "blocked-implies-can"
        #:title "blocked implies can"
        #:statement
-       @list{For all @es[p], @es[θ], @es[A], @es[E],
-        @es[(blocked-pure θ A E p)]
+       @list{For all @es[p], @es[θ], @es[E],
+        @es[(blocked-pure θ GO E p)]
         implies that
         there exits some @es[S] such that
         @es[(L∈ S (->S (Can (in-hole E p) θ)))]}]{
@@ -237,17 +237,70 @@
         @#:case[loop^stop]{TODO}]
 }
 
-@proof[#:label "blocked-gives-bot"
-       #:title "blocked and can give non-constructiveness"
+@proof[#:label "blocked-rho-gives-bot"
+       #:title "blocked and can-rho give non-constructiveness"
        #:statement
-       @list{For all @es[p], @es[θ_1], @es[θ_2], @es[A], @es[E], @es[S]
+       @list{For all @es[θ_1], @es[θ_2], @es[p], @es[E], @es[S]
                      
-        if @es[(blocked-pure (parens (<- θ_1 θ_2)) A hole (in-hole E p))],
+        if @es[(blocked-pure (parens (<- θ_1 θ_2)) GO hole (in-hole E p))],
+        @es[(distinct (Ldom θ_1) (Ldom θ_2))],
         @es[(binds (compile (in-hole E p)) (parens (<- θ_1 θ_2)))],
-        and @es[(L∈ S (->S (Can-θ (ρ θ_1 A (in-hole E p)) θ_2)))]
+        and @es[(L∈ S (->S (Can-θ (ρ θ_1 GO (in-hole E p)) θ_2)))]
         
         then @es[(= (of (compile (in-hole E p)) S) ⊥)]}]{
-TODO
+ @cases[#:language esterel/typeset
+        #:of/count (Ldom θ_1) 2
+        #:induction
+        @#:case[(L0set)]{
+          This case is given by @proof-ref["blocked-can-gives-bot"].}
+        @#:case[(LU (L1set S_1) L-S)]{
+          @cases[#:language esterel/typeset
+                 #:of/count (= S S_1) 2
+                 #:simple-cases]{
+           @#:case[(not-= S S_1)]{
+            @cases[#:language esterel/typeset
+                   #:of/count (L∈ S (->S (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S unknown))))) 2
+                   #:simple-cases]{
+             @#:case[(L¬∈ S (->S (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S unknown)))))]{TODO}
+             @#:case[(L∈ S (->S (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S unknown)))))]{
+              Let @es[(= θ_3 (Lwithoutdom θ_1 S))] and @es/unchecked[(= θ_4 (<- θ_2 (mtθ+S S (θ-get-S θ_1 S))))].
+              @sequenced{
+               @#:step[same]{Note that 
+                @es[(= (<- θ_1 θ_2) (<- θ_3 θ_4))]
+                as the domains of the two are distinct, thus all have have done is copied
+                an element from one map to the other, leaving its value in the overall result unchanged.}
+               @#:step[distinct]{
+                As we have removed an element from one map and added it to the other
+                we can conclude that @es[(distinct (Ldom θ_3) (Ldom θ_4))].}
+               @#:step[binds]{By @same we can conclude that @es[(binds (compile (in-hole E p)) (parens (<- θ_3 θ_4)))].}
+               @#:step[blocked]{By @same we can conclude that @es[(blocked-pure (parens (<- θ_3 θ_4)) GO hole (in-hole E p))].}
+               @#:step[can-unchanged]{By the definition of
+                @es[Can-θ] we can conclude that
+                @es/unchecked[(= (Can-θ (ρ θ_1 GO (in-hole E p)) θ_2) (Can-θ (ρ θ_3 GO (in-hole E p)) θ_4))].}
+               @#:step[induction]{By @distinct through @can-unchanged we can invoke our induction
+                hypothesis on @es[θ_3] and @es[θ_4]
+                to conclude that @es[(= (of (compile (in-hole E p)) S) ⊥)].}
+           }}}}
+           @#:case[(= S S_1)]{
+            }}}]}
+       
+
+
+@proof[#:label "blocked-can-gives-bot"
+       #:title "blocked and can give non-constructiveness"
+       #:statement
+       @list{For all @es[p], @es[θ], @es[E], @es[S]
+                     
+        if @es[(blocked-pure θ GO hole (in-hole E p))],
+        @es[(binds (compile (in-hole E p)) θ)],
+        and @es[(L∈ S (->S (Can (in-hole E p) θ)))]
+        
+        then @es[(= (of (compile (in-hole E p)) S) ⊥)]}]{
+ @cases[#:language esterel/typeset
+        #:of/count (Ldom θ) 2
+        #:induction
+        @#:case[(L0set)]{TODO}
+        @#:case[_]{TODO}]
 }
 
 @proof[#:label "blocked-respects-can"

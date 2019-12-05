@@ -94,6 +94,6 @@
  @Can-pict
 }
 
-@definition[#:notation @es[(Canθ p θ)]]{
+@definition[#:notation @es[(Can-θ (ρ θ_1 A p) θ_2)]]{
  @Canθ-pict
 }
