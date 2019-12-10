@@ -41,11 +41,11 @@ no-agda-paper: always
 all: agda long
 
 dissertation: always
-	(cd dissertation; raco make -v dissertation.scrbl && scribble --pdf dissertation.scrbl)
+	(cd dissertation; raco make -v dissertation.scrbl lib/redex-rewrite-dynamic.rkt && scribble --pdf dissertation.scrbl)
 
 
 dissertation-debug-tex: always
-	(cd dissertation; raco make -v dissertation.scrbl && scribble --latex --dest tex dissertation.scrbl)
+	(cd dissertation; raco make -v dissertation.scrbl lib/redex-rewrite-dynamic.rkt && scribble --latex --dest tex dissertation.scrbl)
 
  
 
