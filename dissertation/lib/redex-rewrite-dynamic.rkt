@@ -30,26 +30,92 @@
 
 
 
-(define (render-op p)
-  (define s (~a p))
-  (define head (first (string-split s #rx"(_|\\^)")))
+(define (render-op p [x #f])
+  (define s (~a (if x x p)))
+  (define head
+    (hbl-append
+     (if x p (blank))
+     (match (regexp-match* #rx"^[^^_]*" s)
+       [(cons r _) (words r)]
+       [_ (blank)])))
   (define tails (regexp-match* #rx"(_|\\^)[^^_]*" s))
-  (apply hbl-append
-         (words head)
-         (for/list ([s (in-list tails)])
-           (define-values (type val)
-             (match s
-               [(regexp #rx"\\^(.*)" (list _ r))
-                (values 'superscript r)]
-               [(regexp #rx"_(.*)" (list _ r))
-                (values 'subscript r)]))
-           (text val
-                 (cons type (default-style))
-                 (default-font-size)))))  (define (binop op lws)
-                                            (define left (list-ref lws 2))
-                                            (define right (list-ref lws 3))
-                                            (append (do-binop op left right)
-                                                    (list right "")))
+  (typeset-super+sub head tails))
+
+(define (typeset-super+sub base ss)
+  (define-values (supers subs)
+    (for/fold ([super empty]
+               [sub empty]
+               #:result (values (reverse super) (reverse sub)))
+              ([s (in-list ss)])
+      (match s
+        [(regexp #rx"\\^(.*)" (list _ r))
+         (values (cons r super) sub)]
+        [(regexp #rx"_(.*)" (list _ r))
+         (values super (cons r sub))])))
+  (define the-super (typeset-supers supers))
+  (define the-sub (typeset-subs subs))
+  (define afters
+    (vl-append
+     (inset the-super
+            0 (* 1/2 (pict-height the-super))
+            0 (* -1/2 (pict-height the-super)))
+     
+     (lift-above-baseline the-sub
+                          (* -1/5 (pict-height the-sub)))))
+  (define too-much-space-above/below
+    (hbl-append base afters))
+  (define x (ghost base))
+  (inset (refocus (lbl-superimpose (ghost x) too-much-space-above/below)
+                  x)
+         0
+         0
+         (- (pict-width too-much-space-above/below) (pict-width x))
+         0))
+(define (typeset-supers s)
+  (render-word-sequence (blank) s))
+(define (typeset-subs s)
+  (render-word-sequence (inset (blank) 0 (pict-height (ghost (scale (alt-ρ) .7)))) s))
+(define (render-word-sequence base s)
+  (for/fold ([p base])
+            ([s (in-list s)])
+    (hbl-append
+     p
+     (scale (words s) .7))))
+
+#|
+
+  (define the-rho
+    (if do-rho?
+        (scale (alt-ρ) .7)
+        (ghost (scale (alt-ρ) .7))))
+  (define the-super
+    (if super
+        (scale (text super (default-style) (default-font-size)) .7)
+        (blank)))
+  (define can (mf-t "Can"))
+  (define lifted-rho
+    (lift-above-baseline the-rho
+                         (* -1/5 (pict-height the-rho))))
+  (define too-much-space-below
+    (hbl-append
+     can
+     (vl-append
+      (inset the-super 0 (* 1/2 (pict-height the-super)) 0 (* -1/2 (pict-height the-super)))
+      lifted-rho)))
+  (define x (mf-t "x"))
+  (inset (refocus (lbl-superimpose (ghost x) too-much-space-below)
+                  x)
+         0
+         0
+         (- (pict-width too-much-space-below) (pict-width x))
+         0)
+|#
+
+(define (binop op lws)
+  (define left (list-ref lws 2))
+  (define right (list-ref lws 3))
+  (append (do-binop op left right)
+          (list right "")))
 (define (do-binop op left right [splice #f])
   (define space (text " " (default-style) (default-font-size)))
   (append (list  "")
@@ -127,27 +193,7 @@
   (define x (list-ref lws 3))
   (define ev (list-ref lws 4))
   (list "" θ "(" x ") ≠ " ev ""))
-#;
-(define (restriction θ S)
-  ;; this should match Lset-sub 's typesetting
-  (define θ-pict (nt-t (~a θ)))
-  (define S-pict (nt-t (~a S)))
-  (define spacer (inset (ghost θ-pict) 0 0 (- (pict-width θ-pict)) 0))
-  (define drop-amount 10)
-  (hbl-append
-   (inset (refocus
-           (ct-superimpose
-            (frame (blank 0 (+ (pict-height θ-pict) drop-amount)))
-            spacer)
-           spacer)
-          2 0)
-   (drop-below-ascent
-    (hbl-append (def-t "dom(")
-                θ-pict
-                (def-t ") \\ { ")
-                S-pict
-                (def-t " }"))
-    drop-amount)))
+
 (define (assert-no-underscore who what s)
   (unless (no-underscore? s)
     (error 'redex-rewrite.rkt
@@ -186,7 +232,8 @@
     equals-what
     (def-t " }"))))
 
-(define (alt-ρ) (text "ϱ" (default-style) (default-font-size)))
+(define alt-ρ-text "ϱ")
+(define (alt-ρ) (text alt-ρ-text (default-style) (default-font-size)))
 
 (define (in-dom-st-signals-are who what equals-what lws)
   (in-dom-st-thing-is who what "S"
@@ -297,31 +344,10 @@
   (Can-name-pict #t super))
 
 (define (Can-name-pict do-rho? [super #f])
-  (define the-rho
-    (if do-rho?
-        (scale (alt-ρ) .7)
-        (ghost (scale (alt-ρ) .7))))
-  (define the-super
-    (if super
-        (scale (text super (default-style) (default-font-size)) .7)
-        (blank)))
-  (define can (mf-t "Can"))
-  (define lifted-rho
-    (lift-above-baseline the-rho
-                         (* -1/5 (pict-height the-rho))))
-  (define too-much-space-below
-    (hbl-append
-     can
-     (vl-append
-      (inset the-super 0 (* 1/2 (pict-height the-super)) 0 (* -1/2 (pict-height the-super)))
-      lifted-rho)))
-  (define x (mf-t "x"))
-  (inset (refocus (lbl-superimpose (ghost x) too-much-space-below)
-                  x)
-         0
-         0
-         (- (pict-width too-much-space-below) (pict-width x))
-         0))
+  (render-op (mf-t "Can")
+             (~a 
+              (if do-rho? (~a "_" alt-ρ-text) "")
+              (if super (~a "^" super) ""))))
 
 (define (CB-judgment-pict)
   (hbl-append
@@ -398,9 +424,9 @@
     ['⟶
      (curry binop '⟶)]
     ['⟶^s
-     (curry binop '⟶^s)]
+     (curry binop '⟶^S)]
     ['⟶^r
-     (curry binop '⟶^r)]
+     (curry binop '⟶^R)]
     ['→
      (λ (lws)
        (list ""

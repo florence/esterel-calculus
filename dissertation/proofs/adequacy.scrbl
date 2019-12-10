@@ -405,4 +405,9 @@
         there exists some @es[r]
         such that @es[(⟶^s q (⟶^r r (ρ θ_o A (in-hole E p_o))))]}]{
  TODO
+ @;{
+    For Par
+    (! Blocked[p] && ! Blocked[q] && ! Pause[p]) || (! Blocked[p] && ! 
+    Blocked[q] && ! Pause[q]) || (! Blocked[p] && ! Pause[p] && ! 
+    Term[p]) || (! Blocked[q] && ! Pause[q] && ! Term[q])}
 }
