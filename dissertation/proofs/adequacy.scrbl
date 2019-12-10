@@ -404,10 +404,26 @@
         or
         there exists some @es[r]
         such that @es[(⟶^s q (⟶^r r (ρ θ_o A (in-hole E p_o))))]}]{
- TODO
+ @cases[#:of p-pure
+        #:induction
+        #:language esterel/typeset
+        ;; terminal cases
+        @#:case[nothing]{TODO}
+        @#:case[(exit n)]{TODO}
+        @#:case[(emit S)]{TODO}
+        @#:case[pause]{TODO}
+        ;; E cases
+        @#:case[(seq p_o q_o)]{TODO}
+        @#:case[(par p_o q_o)]{
  @;{
-    For Par
     (! Blocked[p] && ! Blocked[q] && ! Pause[p]) || (! Blocked[p] && ! 
     Blocked[q] && ! Pause[q]) || (! Blocked[p] && ! Pause[p] && ! 
     Term[p]) || (! Blocked[q] && ! Pause[q] && ! Term[q])}
+         }
+        @#:case[(trap p_o)]{TODO}
+        @#:case[(suspend p_o S)]{TODO}
+        @#:case[(loop^stop p_o q_o)]{TODO}
+        ;; the rest
+        @#:case[(signal S p_o)]{TODO}
+        @#:case[(present S p_o q_o)]{TODO}]
 }
