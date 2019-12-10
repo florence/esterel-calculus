@@ -45,313 +45,313 @@
                 (values 'subscript r)]))
            (text val
                  (cons type (default-style))
-                 (default-font-size)))))
-(define (with-paper-rewriters/proc thunk)
-  (define (binop op lws)
-    (define left (list-ref lws 2))
-    (define right (list-ref lws 3))
-    (append (do-binop op left right)
-            (list right "")))
-  (define (do-binop op left right [splice #f])
-    (define space (text " " (default-style) (default-font-size)))
-    (append (list  "")
-            (if splice (list splice (just-after left splice)) (list left))
-            (list
-             (just-after
-              (hbl-append
-               space
-               (if (pict? op) op (render-op op))
-               space)
-              left))
-            (if (= (lw-line left)
-                   (lw-line right))
-                (list "")
-                (list))))
-  (define (infix op lws)
-    (define all (reverse (rest (reverse (rest (rest lws))))))
-    (let loop ([all all])
-      (match all
-        [(list* x (and dots (struct* lw ([e (or '... "...")]))) y rst)
-         (append (do-binop op dots y x)
-                 (loop (cons y rst)))]
-        [(list* x (and dots (struct* lw ([e (or '... "...")]))) rst)
-         (list x dots "")]
-        [(list* x y rst)
-         (append (do-binop op x y)
-                 (loop (cons y rst)))]
-        [(list x) (list x "")])))
-  (define (prefix op lws)
-    (define x (list-ref lws 2))
-    (list "" (just-before op x) x))
-  (define (replace-font param)
-    (let loop ([x (param)])
-      (cond
-        [(cons? x) (cons (car x) (loop (cdr x)))]
-        [else Linux-Liberterine-name])))
-  (define (def-t str) (text str (default-style) (default-font-size)))
-  (define (mf-t str) (text str (metafunction-style) (metafunction-font-size)))
-  (define (nt-t str) (text str (non-terminal-style) (default-font-size)))
-  (define (nt-sub-t str) (text str (cons 'subscript (non-terminal-style)) (default-font-size)))
-  (define (literal-t str) (text str (literal-style) (default-font-size)))
-  (define (par-⊓-pict) (hbl-append (def-t "⊓") (inset (def-t "∥") 0 0 0 -6)))
-  (define (index-notation lws field)
-    (match lws
-      [(list open -> (lw can a b c d e f) close)
-       (render-can can field)]))
-  (define (render-can lws [super? #f])
-    (define arg1 (list-ref lws 2))
-    (define do-rho?
-      (match (lw-e (list-ref lws 1))
-        ['Can-θ #t]
-        ['Can #f]))
-    (define arg2 (list-ref lws 3))
-    (list (hbl-append (Can-name-pict do-rho? super?)
-                      ((white-square-bracket) #t))
-          arg1
-          ", "
-          arg2
-          ((white-square-bracket) #f)))
-  (define (down-super-n)
-    (hbl-append (def-t "↓")
-                (text "κ" (cons 'superscript (default-style)) (default-font-size))
-                (def-t " ")))
-  (define (down-super-p)
-    (hbl-append (def-t "↓")
-                (text "p" (cons 'superscript (default-style)) (default-font-size))
-                (def-t " ")))
-  (define (θ-ref-x-typeset lws)
-    (define θ (list-ref lws 2))
-    (define x (list-ref lws 3))
-    (define ev (list-ref lws 4))
-    (list "" θ "(" x ") = " ev ""))
-  (define (¬θ-ref-x-typeset lws)
-    (define θ (list-ref lws 2))
-    (define x (list-ref lws 3))
-    (define ev (list-ref lws 4))
-    (list "" θ "(" x ") ≠ " ev ""))
-  #;
-  (define (restriction θ S)
-    ;; this should match Lset-sub 's typesetting
-    (define θ-pict (nt-t (~a θ)))
-    (define S-pict (nt-t (~a S)))
-    (define spacer (inset (ghost θ-pict) 0 0 (- (pict-width θ-pict)) 0))
-    (define drop-amount 10)
-    (hbl-append
-     (inset (refocus
-             (ct-superimpose
-              (frame (blank 0 (+ (pict-height θ-pict) drop-amount)))
-              spacer)
-             spacer)
-            2 0)
-     (drop-below-ascent
-      (hbl-append (def-t "dom(")
-                  θ-pict
-                  (def-t ") \\ { ")
-                  S-pict
-                  (def-t " }"))
-      drop-amount)))
-  (define (assert-no-underscore who what s)
-    (unless (no-underscore? s)
-      (error 'redex-rewrite.rkt
-             "cannot typeset ~a unless the ~a argument is an identifier with no _, got ~s"
-             who
-             what
-             s)))
-  (define (no-underscore? s)
-    (and (symbol? s)
-         (not (regexp-match #rx"_" (symbol->string s)))))
+                 (default-font-size)))))  (define (binop op lws)
+                                            (define left (list-ref lws 2))
+                                            (define right (list-ref lws 3))
+                                            (append (do-binop op left right)
+                                                    (list right "")))
+(define (do-binop op left right [splice #f])
+  (define space (text " " (default-style) (default-font-size)))
+  (append (list  "")
+          (if splice (list splice (just-after left splice)) (list left))
+          (list
+           (just-after
+            (hbl-append
+             space
+             (if (pict? op) op (render-op op))
+             space)
+            left))
+          (if (= (lw-line left)
+                 (lw-line right))
+              (list "")
+              (list))))
+(define (infix op lws)
+  (define all (reverse (rest (reverse (rest (rest lws))))))
+  (let loop ([all all])
+    (match all
+      [(list* x (and dots (struct* lw ([e (or '... "...")]))) y rst)
+       (append (do-binop op dots y x)
+               (loop (cons y rst)))]
+      [(list* x (and dots (struct* lw ([e (or '... "...")]))) rst)
+       (list x dots "")]
+      [(list* x y rst)
+       (append (do-binop op x y)
+               (loop (cons y rst)))]
+      [(list x) (list x "")])))
+(define (prefix op lws)
+  (define x (list-ref lws 2))
+  (list "" (just-before op x) x))
+(define (replace-font param)
+  (let loop ([x (param)])
+    (cond
+      [(cons? x) (cons (car x) (loop (cdr x)))]
+      [else Linux-Liberterine-name])))
+(define (def-t str) (text str (default-style) (default-font-size)))
+(define (mf-t str) (text str (metafunction-style) (metafunction-font-size)))
+(define (nt-t str) (text str (non-terminal-style) (default-font-size)))
+(define (nt-sub-t str) (text str (cons 'subscript (non-terminal-style)) (default-font-size)))
+(define (literal-t str) (text str (literal-style) (default-font-size)))
+(define (par-⊓-pict) (hbl-append (def-t "⊓") (inset (def-t "∥") 0 0 0 -6)))
+(define (index-notation lws field)
+  (match lws
+    [(list open -> (lw can a b c d e f) close)
+     (render-can can field)]))
+(define (render-can lws [super? #f])
+  (define arg1 (list-ref lws 2))
+  (define do-rho?
+    (match (lw-e (list-ref lws 1))
+      ['Can-θ #t]
+      ['Can #f]))
+  (define arg2 (list-ref lws 3))
+  (list (hbl-append (Can-name-pict do-rho? super?)
+                    ((white-square-bracket) #t))
+        arg1
+        ", "
+        arg2
+        ((white-square-bracket) #f)))
+(define (down-super-n)
+  (hbl-append (def-t "↓")
+              (text "κ" (cons 'superscript (default-style)) (default-font-size))
+              (def-t " ")))
+(define (down-super-p)
+  (hbl-append (def-t "↓")
+              (text "p" (cons 'superscript (default-style)) (default-font-size))
+              (def-t " ")))
+(define (θ-ref-x-typeset lws)
+  (define θ (list-ref lws 2))
+  (define x (list-ref lws 3))
+  (define ev (list-ref lws 4))
+  (list "" θ "(" x ") = " ev ""))
+(define (¬θ-ref-x-typeset lws)
+  (define θ (list-ref lws 2))
+  (define x (list-ref lws 3))
+  (define ev (list-ref lws 4))
+  (list "" θ "(" x ") ≠ " ev ""))
+#;
+(define (restriction θ S)
+  ;; this should match Lset-sub 's typesetting
+  (define θ-pict (nt-t (~a θ)))
+  (define S-pict (nt-t (~a S)))
+  (define spacer (inset (ghost θ-pict) 0 0 (- (pict-width θ-pict)) 0))
+  (define drop-amount 10)
+  (hbl-append
+   (inset (refocus
+           (ct-superimpose
+            (frame (blank 0 (+ (pict-height θ-pict) drop-amount)))
+            spacer)
+           spacer)
+          2 0)
+   (drop-below-ascent
+    (hbl-append (def-t "dom(")
+                θ-pict
+                (def-t ") \\ { ")
+                S-pict
+                (def-t " }"))
+    drop-amount)))
+(define (assert-no-underscore who what s)
+  (unless (no-underscore? s)
+    (error 'redex-rewrite.rkt
+           "cannot typeset ~a unless the ~a argument is an identifier with no _, got ~s"
+           who
+           what
+           s)))
+(define (no-underscore? s)
+  (and (symbol? s)
+       (not (regexp-match #rx"_" (symbol->string s)))))
 
-  (define (θ/c-pict)
-    (hbl-append (text "θ" (non-terminal-style) (default-font-size))
-                (text "c"
-                      (cons 'superscript (default-style))
-                      (round (* #e1.2 (default-font-size))))))
+(define (θ/c-pict)
+  (hbl-append (text "θ" (non-terminal-style) (default-font-size))
+              (text "c"
+                    (cons 'superscript (default-style))
+                    (round (* #e1.2 (default-font-size))))))
 
-  (define (in-dom-st-thing-is who what dom-ele equals-what lws)
-    (define θ (list-ref lws 2))
-    #;(assert-no-underscore who what (lw-e θ))
-    (define θc-pict (text (~a (lw-e θ)) (non-terminal-style) (default-font-size)))
-    (list
-     (hbl-append
-      (def-t "{ ")
-      (text dom-ele (non-terminal-style))
-      (def-t " ∈ dom("))
-     θ
-     (hbl-append
-      (blank 2 0)
-      (def-t ") | ")
-      (θ/c-pict)
-      (blank 1 0)
-      (def-t "(")
-      (text dom-ele (non-terminal-style) (default-font-size))
-      (def-t ") = ")
-      equals-what
-      (def-t " }"))))
+(define (in-dom-st-thing-is who what dom-ele equals-what lws)
+  (define θ (list-ref lws 2))
+  #;(assert-no-underscore who what (lw-e θ))
+  (define θc-pict (text (~a (lw-e θ)) (non-terminal-style) (default-font-size)))
+  (list
+   (hbl-append
+    (def-t "{ ")
+    (text dom-ele (non-terminal-style))
+    (def-t " ∈ dom("))
+   θ
+   (hbl-append
+    (blank 2 0)
+    (def-t ") | ")
+    (θ/c-pict)
+    (blank 1 0)
+    (def-t "(")
+    (text dom-ele (non-terminal-style) (default-font-size))
+    (def-t ") = ")
+    equals-what
+    (def-t " }"))))
 
-  (define (alt-ρ) (text "ϱ" (default-style) (default-font-size)))
+(define (alt-ρ) (text "ϱ" (default-style) (default-font-size)))
 
-  (define (in-dom-st-signals-are who what equals-what lws)
-    (in-dom-st-thing-is who what "S"
-                        (text equals-what (literal-style) (default-font-size))
+(define (in-dom-st-signals-are who what equals-what lws)
+  (in-dom-st-thing-is who what "S"
+                      (text equals-what (literal-style) (default-font-size))
+                      lws))
+
+(define (in-dom-st-shrd-are-unready who what lws)
+  (define res
+    (in-dom-st-thing-is who what "s"
+                        (hbl-append (def-t "⟨")
+                                    (nt-t "ev")
+                                    (def-t " , ")
+                                    (nt-t "shared-status")
+                                    (def-t "⟩"))
                         lws))
+  (define extension
+    (hbl-append (def-t ", ")
+                (nt-t "shared-status")
+                (def-t " ∈ {")
+                (literal-t "new")
+                (def-t " , ")
+                (literal-t "old")
+                (def-t "}")))
+  (append (reverse (cdr (reverse res)))
+          (list (hbl-append (last res) extension))))
 
-  (define (in-dom-st-shrd-are-unready who what lws)
-    (define res
-      (in-dom-st-thing-is who what "s"
-                          (hbl-append (def-t "⟨")
-                                      (nt-t "ev")
-                                      (def-t " , ")
-                                      (nt-t "shared-status")
-                                      (def-t "⟩"))
-                          lws))
-    (define extension
-      (hbl-append (def-t ", ")
-                  (nt-t "shared-status")
-                  (def-t " ∈ {")
-                  (literal-t "new")
-                  (def-t " , ")
-                  (literal-t "old")
-                  (def-t "}")))
-    (append (reverse (cdr (reverse res)))
-            (list (hbl-append (last res) extension))))
-
-  (define (L-S-pict) (Setof-an-nt "S"))
-  (define (L-s-pict) (Setof-an-nt "s"))
-  (define (L-x-pict) (Setof-an-nt "x"))
-  (define (L-K-pict) (Setof-an-nt "κ"))
-  (define (Setof-an-nt nt-name)
-    (nt-t
-     (case nt-name
-       [("S") "𝕊"]
-       [("s") "𝕤"]
-       [("x") "𝕩"]
-       [("κ") "𝕜"])))
-  (define (Can-result-pict)
-    (hbl-append (def-t "{ S: ")
-                (L-S-pict)
-                (def-t ", K: ")
-                (L-K-pict)
-                (def-t ", sh: ")
-                (L-s-pict)
-                (def-t " }")))
+(define (L-S-pict) (Setof-an-nt "S"))
+(define (L-s-pict) (Setof-an-nt "s"))
+(define (L-x-pict) (Setof-an-nt "x"))
+(define (L-K-pict) (Setof-an-nt "κ"))
+(define (Setof-an-nt nt-name)
+  (nt-t
+   (case nt-name
+     [("S") "𝕊"]
+     [("s") "𝕤"]
+     [("x") "𝕩"]
+     [("κ") "𝕜"])))
+(define (Can-result-pict)
+  (hbl-append (def-t "{ S: ")
+              (L-S-pict)
+              (def-t ", K: ")
+              (L-K-pict)
+              (def-t ", sh: ")
+              (L-s-pict)
+              (def-t " }")))
   
-  (define (loop^stop-pict)
-    (define base-seq (literal-t "loop"))
-    (define w (pict-width base-seq))
-    (define h (pict-height base-seq))
-    (define height-mod #e.5)
-    (define w-inset #e.1)
-    ;; a little more space to avoid the `l`
-    (define w-left-offset #e.12)
-    (define bar
-      (dc
-       (λ (dc dx dy)
-         (send dc draw-line
-               (+ dx (* w (+ w-left-offset w-inset)))
-               dy
-               (- (+ dx w) (* w w-inset))
-               dy))
-       w 1))
-    (refocus (lbl-superimpose (vc-append (linewidth (round (* h 1/10)) bar)
-                                         (blank 0 (* h height-mod)))
-                              base-seq)
-             base-seq))
+(define (loop^stop-pict)
+  (define base-seq (literal-t "loop"))
+  (define w (pict-width base-seq))
+  (define h (pict-height base-seq))
+  (define height-mod #e.5)
+  (define w-inset #e.1)
+  ;; a little more space to avoid the `l`
+  (define w-left-offset #e.12)
+  (define bar
+    (dc
+     (λ (dc dx dy)
+       (send dc draw-line
+             (+ dx (* w (+ w-left-offset w-inset)))
+             dy
+             (- (+ dx w) (* w w-inset))
+             dy))
+     w 1))
+  (refocus (lbl-superimpose (vc-append (linewidth (round (* h 1/10)) bar)
+                                       (blank 0 (* h height-mod)))
+                            base-seq)
+           base-seq))
 
-  (define (≃-pict x)
-    (define = (ghost (text "=" (metafunction-style) (default-font-size))))
-    (define sim (text "≃" (metafunction-style) (default-font-size)))
-    (define eq (refocus (lbl-superimpose sim =) =))
-    (define raise (text x (cons 'superscript (metafunction-style)) (default-font-size)))
-    (inset
-     (hbl-append eq raise)
-     0
-     (- (abs (- (pict-height raise) (pict-height eq))))
-     (- (/ (pict-width raise) 4)) ;; yay manual kerning!
-     0))
+(define (≃-pict x)
+  (define = (ghost (text "=" (metafunction-style) (default-font-size))))
+  (define sim (text "≃" (metafunction-style) (default-font-size)))
+  (define eq (refocus (lbl-superimpose sim =) =))
+  (define raise (text x (cons 'superscript (metafunction-style)) (default-font-size)))
+  (inset
+   (hbl-append eq raise)
+   0
+   (- (abs (- (pict-height raise) (pict-height eq))))
+   (- (/ (pict-width raise) 4)) ;; yay manual kerning!
+   0))
      
-  (define (eval-pict x)
-    (define eval (text "eval" (metafunction-style) (default-font-size)))
-    (define raise (text x (cons 'superscript (metafunction-style)) (default-font-size)))
-    (inset
-     (hbl-append eval raise)
-     0
-     (- (abs (- (pict-height eval) (pict-height raise))))
-     0
-     0))
-  (define (eval-e-pict)
-    (eval-pict "E"))
-  (define (eval-c-pict)
-    (eval-pict "C"))
-  (define (≃-e-pict)
-    (≃-pict "E"))
-  (define (≃-c-pict)
-    (≃-pict "C"))
+(define (eval-pict x)
+  (define eval (text "eval" (metafunction-style) (default-font-size)))
+  (define raise (text x (cons 'superscript (metafunction-style)) (default-font-size)))
+  (inset
+   (hbl-append eval raise)
+   0
+   (- (abs (- (pict-height eval) (pict-height raise))))
+   0
+   0))
+(define (eval-e-pict)
+  (eval-pict "E"))
+(define (eval-c-pict)
+  (eval-pict "C"))
+(define (≃-e-pict)
+  (≃-pict "E"))
+(define (≃-c-pict)
+  (≃-pict "C"))
 
-  (define (sized-↬-pict)
-    (define ↬-pict (nt-t "↬"))
-    (define x-pict (nt-t "x"))
-    (inset (refocus (lbl-superimpose ↬-pict (ghost x-pict))
-                    x-pict)
-           0 0
-           (- (pict-width ↬-pict) (pict-width x-pict))
-           0))
-  (define (Can-θ-name-pict [super #f])
-    (Can-name-pict #t super))
+(define (sized-↬-pict)
+  (define ↬-pict (nt-t "↬"))
+  (define x-pict (nt-t "x"))
+  (inset (refocus (lbl-superimpose ↬-pict (ghost x-pict))
+                  x-pict)
+         0 0
+         (- (pict-width ↬-pict) (pict-width x-pict))
+         0))
+(define (Can-θ-name-pict [super #f])
+  (Can-name-pict #t super))
 
-  (define (Can-name-pict do-rho? [super #f])
-    (define the-rho
-      (if do-rho?
-          (scale (alt-ρ) .7)
-          (ghost (scale (alt-ρ) .7))))
-    (define the-super
-      (if super
-          (scale (text super (default-style) (default-font-size)) .7)
-          (blank)))
-    (define can (mf-t "Can"))
-    (define lifted-rho
-      (lift-above-baseline the-rho
-                           (* -1/5 (pict-height the-rho))))
-    (define too-much-space-below
-      (hbl-append
-       can
-       (vl-append
-        (inset the-super 0 (* 1/2 (pict-height the-super)) 0 (* -1/2 (pict-height the-super)))
-        lifted-rho)))
-    (define x (mf-t "x"))
-    (inset (refocus (lbl-superimpose (ghost x) too-much-space-below)
-                    x)
-           0
-           0
-           (- (pict-width too-much-space-below) (pict-width x))
-           0))
-
-  (define (CB-judgment-pict)
+(define (Can-name-pict do-rho? [super #f])
+  (define the-rho
+    (if do-rho?
+        (scale (alt-ρ) .7)
+        (ghost (scale (alt-ρ) .7))))
+  (define the-super
+    (if super
+        (scale (text super (default-style) (default-font-size)) .7)
+        (blank)))
+  (define can (mf-t "Can"))
+  (define lifted-rho
+    (lift-above-baseline the-rho
+                         (* -1/5 (pict-height the-rho))))
+  (define too-much-space-below
     (hbl-append
-     (text "⊢" (default-style) (default-font-size))
-     (text "CB" (cons 'subscript (default-style)) (default-font-size))))
+     can
+     (vl-append
+      (inset the-super 0 (* 1/2 (pict-height the-super)) 0 (* -1/2 (pict-height the-super)))
+      lifted-rho)))
+  (define x (mf-t "x"))
+  (inset (refocus (lbl-superimpose (ghost x) too-much-space-below)
+                  x)
+         0
+         0
+         (- (pict-width too-much-space-below) (pict-width x))
+         0))
 
-  (define (plus-equals) (hbl-append -1 (def-t "+") (def-t "=")))
+(define (CB-judgment-pict)
+  (hbl-append
+   (text "⊢" (default-style) (default-font-size))
+   (text "CB" (cons 'subscript (default-style)) (default-font-size))))
+
+(define (plus-equals) (hbl-append -1 (def-t "+") (def-t "=")))
   
-;                                                                                  
-;                                                                                  
-;                                                                                  
-;      ;;;;                                                                     ;  
-;    ;;   ;;                                                                    ;  
-;    ;                                                                          ;  
-;   ;;          ;;;;    ; ;; ;;    ; ;;;      ;;;;     ;    ;    ; ;;;      ;;; ;  
-;   ;;         ;;  ;;   ;; ;; ;;   ;;  ;;    ;;  ;;    ;    ;    ;;  ;;    ;;  ;;  
-;   ;         ;;    ;   ;  ;   ;   ;    ;   ;;    ;    ;    ;    ;    ;   ;;    ;  
-;   ;         ;;    ;   ;  ;   ;   ;    ;   ;;    ;    ;    ;    ;    ;   ;;    ;  
-;   ;;        ;;    ;   ;  ;   ;   ;    ;   ;;    ;    ;    ;    ;    ;   ;;    ;  
-;   ;;        ;;    ;   ;  ;   ;   ;    ;   ;;    ;    ;    ;    ;    ;   ;;    ;  
-;    ;        ;;    ;   ;  ;   ;   ;    ;   ;;    ;    ;    ;    ;    ;   ;;    ;  
-;    ;;   ;;   ;;  ;;   ;  ;   ;   ;;  ;;    ;;  ;;    ;   ;;    ;    ;    ;;  ;;  
-;      ;;;;     ;;;;    ;  ;   ;   ;;;;;      ;;;;     ;;;; ;    ;    ;     ;;; ;  
-;                                  ;                                               
-;                                  ;                                               
-;                                  ;                                               
-;                                                                                  
-;                                                                                  
+(define (with-paper-rewriters/proc thunk)
+
+  ;                                                                                  
+  ;                                                                                  
+  ;                                                                                  
+  ;      ;;;;                                                                     ;  
+  ;    ;;   ;;                                                                    ;  
+  ;    ;                                                                          ;  
+  ;   ;;          ;;;;    ; ;; ;;    ; ;;;      ;;;;     ;    ;    ; ;;;      ;;; ;  
+  ;   ;;         ;;  ;;   ;; ;; ;;   ;;  ;;    ;;  ;;    ;    ;    ;;  ;;    ;;  ;;  
+  ;   ;         ;;    ;   ;  ;   ;   ;    ;   ;;    ;    ;    ;    ;    ;   ;;    ;  
+  ;   ;         ;;    ;   ;  ;   ;   ;    ;   ;;    ;    ;    ;    ;    ;   ;;    ;  
+  ;   ;;        ;;    ;   ;  ;   ;   ;    ;   ;;    ;    ;    ;    ;    ;   ;;    ;  
+  ;   ;;        ;;    ;   ;  ;   ;   ;    ;   ;;    ;    ;    ;    ;    ;   ;;    ;  
+  ;    ;        ;;    ;   ;  ;   ;   ;    ;   ;;    ;    ;    ;    ;    ;   ;;    ;  
+  ;    ;;   ;;   ;;  ;;   ;  ;   ;   ;;  ;;    ;;  ;;    ;   ;;    ;    ;    ;;  ;;  
+  ;      ;;;;     ;;;;    ;  ;   ;   ;;;;;      ;;;;     ;;;; ;    ;    ;     ;;; ;  
+  ;                                  ;                                               
+  ;                                  ;                                               
+  ;                                  ;                                               
+  ;                                                                                  
+  ;                                                                                  
 
   (with-compound-rewriters
    (['≡e
@@ -852,26 +852,26 @@
                  r)]))])
              
    
-;                                                              
-;                                                              
-;                                              ;;              
-;      ;;                                      ;;              
-;     ;;;       ;;                                             
-;     ; ;       ;;                                             
-;     ; ;;    ;;;;;;      ;;;;    ; ;; ;;    ;;;;        ;;;   
-;     ;  ;      ;;       ;;  ;;   ;; ;; ;;      ;      ;;   ;  
-;    ;;  ;      ;;      ;;    ;   ;  ;   ;      ;      ;       
-;    ;   ;;     ;;      ;;    ;   ;  ;   ;      ;      ;       
-;    ;   ;;     ;;      ;;    ;   ;  ;   ;      ;     ;;       
-;   ;;;;;;;     ;;      ;;    ;   ;  ;   ;      ;      ;       
-;   ;     ;;    ;;      ;;    ;   ;  ;   ;      ;      ;       
-;   ;     ;;    ;;  ;    ;;  ;;   ;  ;   ;      ;      ;;   ;  
-;  ;;      ;     ;;;;     ;;;;    ;  ;   ;   ;;;;;;     ;;;;   
-;                                                              
-;                                                              
-;                                                              
-;                                                              
-;                                                              
+   ;                                                              
+   ;                                                              
+   ;                                              ;;              
+   ;      ;;                                      ;;              
+   ;     ;;;       ;;                                             
+   ;     ; ;       ;;                                             
+   ;     ; ;;    ;;;;;;      ;;;;    ; ;; ;;    ;;;;        ;;;   
+   ;     ;  ;      ;;       ;;  ;;   ;; ;; ;;      ;      ;;   ;  
+   ;    ;;  ;      ;;      ;;    ;   ;  ;   ;      ;      ;       
+   ;    ;   ;;     ;;      ;;    ;   ;  ;   ;      ;      ;       
+   ;    ;   ;;     ;;      ;;    ;   ;  ;   ;      ;     ;;       
+   ;   ;;;;;;;     ;;      ;;    ;   ;  ;   ;      ;      ;       
+   ;   ;     ;;    ;;      ;;    ;   ;  ;   ;      ;      ;       
+   ;   ;     ;;    ;;  ;    ;;  ;;   ;  ;   ;      ;      ;;   ;  
+   ;  ;;      ;     ;;;;     ;;;;    ;  ;   ;   ;;;;;;     ;;;;   
+   ;                                                              
+   ;                                                              
+   ;                                                              
+   ;                                                              
+   ;                                                              
 
    (with-atomic-rewriters
     (['ρ (λ () (alt-ρ))]
