@@ -16,12 +16,16 @@
          eval^circuit
          eval^esterel
          ≃^circuit
-         ≃^esterel)
+         ≃^esterel
+         ⟶^r
+         ⟶^s)
 
 (require
   redex/reduction-semantics
   esterel-calculus/redex/model/shared
   scribble/examples
+  (only-in esterel-calculus/redex/model/reduction
+           blocked)
   (for-syntax syntax/parse))
 
 (define evalor
@@ -36,7 +40,7 @@
 
 (define-extended-language esterel/typeset
   esterel-eval
-  (p-pure q-pure ::=
+  (p-pure q-pure r-pure ::=
           nothing
           pause
           (seq p-pure p-pure)
@@ -133,4 +137,17 @@
 (define-metafunction esterel/typeset
   ≃^esterel : p q -> any
   [(≃^esterel _ _) 1])
-  
+(define-metafunction esterel/typeset
+  ⟶^r : p q -> p
+  [(⟶^r p q) q])
+
+(define-metafunction esterel/typeset
+  ⟶^s : p q -> p
+  [(⟶^s p q) q])
+
+(define-judgment-form esterel/typeset
+  #:contract (not-blocked θ A E p)
+  #:mode     (not-blocked I I I I)
+  [(where #f ,(judgment-holds (blocked θ A E p)))
+   -------------------
+   (not-blocked θ A E p)])

@@ -1,5 +1,5 @@
 #lang racket
-(provide cases state sequenced)
+(provide cases state sequenced base)
 
 (require (for-syntax syntax/parse
                      redex/private/term-fn
@@ -15,6 +15,7 @@
          redex/pict
          pict
          "redex-rewrite.rkt"
+         (only-in "util.rkt" lift-to-compile-time-for-effect!)
          esterel-calculus/redex/model/shared
          (except-in scribble/core table)
          scribble/decode
@@ -221,34 +222,37 @@
      (andmap (lambda (x) (eq? (syntax-e x) '_))
              (syntax->list #'p))
      "Expected only `_` for patterns when checking a metafunction"
-     #'(unless
-           (equal? (length 'p)
-                   (length (metafunc-proc-cases (metafunction-proc (metafunction mf)))))
-         (error 'cases
-                "wrong number of cases for metafunction ~a. Expected ~a got ~a."
-                'mf
-                (length (metafunc-proc-cases (metafunction-proc (metafunction mf))))
-                (length 'p)))]
+     #'(lift-to-compile-time-for-effect!
+        (unless
+            (equal? (length 'p)
+                    (length (metafunc-proc-cases (metafunction-proc (metafunction mf)))))
+          (error 'cases
+                 '"wrong number of cases for metafunction ~a. Expected ~a got ~a."
+                 'mf
+                 (length (metafunc-proc-cases (metafunction-proc (metafunction mf))))
+                 (length 'p))))]
     [(test-cases-covered #:checks n lang:id (j _ ...) p)
      #:when (do-judgment? #'j)
      #:with (~and ~! (names ...)) (judgment-form-rule-names (syntax-local-value #'j))
      #:with (clause:id ...) #'p
      #:fail-unless (andmap values (syntax->list #'(names ...)))
      "Cannot check cases for a judgment form where some cases are not named"
-     #'(unless (equal? (set (~a 'clause) ...)
-                       (set 'names ...))
-         (error 'cases
-                "missing or unexpected case. Expected ~a, got ~a"
-                (map string->symbol '(names ...))
-                '(clause ...)))]
+     #'(lift-to-compile-time-for-effect!
+        (unless (equal? (set (~a 'clause) ...)
+                        (set 'names ...))
+          (error 'cases
+                 '"missing or unexpected case. Expected ~a, got ~a"
+                 (map string->symbol '(names ...))
+                 '(clause ...))))]
     [(test-cases-covered #:checks n lang:id c:expr (pat:expr ...))
      #:when (and (not (do-mf? #'c)) (not (do-judgment? #'c)))
-     #'(redex-check
-        lang c
-        (unless (or (redex-match? lang pat (term c)) ...)
-          (error "missing case!"))
-        #:attempts n
-        #:print? #f)]))
+     #'(lift-to-compile-time-for-effect!
+        (redex-check
+         lang c
+         (unless (or (redex-match? lang pat (term c)) ...)
+           (error "missing case!"))
+         #:attempts 'n
+         #:print? '#f))]))
 
 (define-simple-macro (render-cases/derivation lang:id c:expr (pat:id body ...) ...)
   (list

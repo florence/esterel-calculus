@@ -16,6 +16,7 @@
          (only-in scribble/base bold italic)
          (for-syntax syntax/parse
                      racket/list
+                     racket/format
                      (except-in redex/reduction-semantics judgment-form?)
                      redex/private/term-fn))
 (module+ test (require rackunit))
@@ -33,6 +34,7 @@
          (contract-out
           [format-number (-> natural? string?)])
          with-normal-height
+         lift-to-compile-time-for-effect!
          latex-lit
          definition
          noindent newline
@@ -347,45 +349,64 @@
   (syntax-parser
     [(_ lang trm at)
      #:with (pats comps) (get-pats #'trm)
-     (define forms-to-require
-       (let loop ([l #'(lang trm)])
-         (syntax-parse l
-           [i:id
-            (define x (identifier-binding #'i))
-            (cond
-              [(and (list? x) (not (empty? x))
-                    (module-path-index? (first x))
-                    (path? (resolved-module-path-name (module-path-index-resolve (third x)))))
-               (list
-                (syntax-local-introduce
-                 (datum->syntax #'i
-                                `(only ,(resolved-module-path-name (module-path-index-resolve (third x)))
-                                       ,#'i))))]
-              [else empty])]
-           [(a . b) (append (loop #'a) (loop #'b))]
-           [else empty])))
+     
      (cond
        [(and (ormap symbol? (flatten (syntax->datum #'pats)))
              (not (empty? (flatten (syntax->datum #'comps)))))
-        (syntax-local-lift-require
-         #`(for-meta #,(add1 (syntax-local-phase-level))
-                     #,@forms-to-require)
-         (syntax-local-introduce
-          #`(let-syntax
-                ([whatever
-                  (lambda (_)
-                    #,(quasisyntax/loc this-syntax
-                        (redex-check
-                         lang
-                         pats
-                         #,(if (do-judgment? #'trm)
-                               #`(void (judgment-holds trm))
-                               #`(void (term trm)))
-                         #:attempts at
-                         #:print? #f))
-                    #'(void))])
-              (whatever trm))))]
+        #`(lift-to-compile-time-for-effect!
+           #,(quasisyntax/loc this-syntax
+               (redex-check
+                lang
+                pats
+                #,(if (do-judgment? #'trm)
+                      #`(void (judgment-holds trm))
+                      #`(void (term trm)))
+                #:attempts at
+                #:print? #f)))]
        [else #'(void)])]))
+
+(define-syntax lift-to-compile-time-for-effect!
+  (syntax-parser
+    [(_ e:expr)
+     (define forms-to-require
+       (list*
+        (syntax-local-introduce
+         (datum->syntax #'e '(only racket/base #%datum)))
+        (syntax-local-introduce
+         (datum->syntax  #'e '(only racket/base #%app)))
+        (let loop ([l #'e])
+          (syntax-parse l
+            [i:id
+             (define x (identifier-binding #'i))
+             (cond
+               [(and (list? x) (not (empty? x))
+                     (module-path-index? (first x)))
+                (define p (resolved-module-path-name (module-path-index-resolve (first x))))
+                (define (enquote p)
+                  (cond
+                    [(and (symbol? p)
+                          (regexp-match? #rx"^#%" (~a p)))
+                     `(quote ,p)]
+                    [else p]))
+                (define rp
+                  (cond
+                    [(list? p)
+                     (cons (enquote (first p)) (rest p))]
+                    [else (enquote p)]))
+                (list
+                 (syntax-local-introduce
+                  (datum->syntax #'i `(rename ,rp ,#'i ,(fourth x)))))]
+               [else empty])]
+            [(a . b) (append (loop #'a) (loop #'b))]
+            [else empty]))))
+     (syntax-local-lift-require
+      #`(for-meta #,(add1 (syntax-local-phase-level))
+                  #,@forms-to-require)
+      (syntax-local-introduce
+       #`(let-syntax
+             ([whatever
+               (lambda (_) e #'(void))])
+           (whatever trm))))]))
 
 (define-for-syntax (do-judgment? stx)
   (syntax-parse stx

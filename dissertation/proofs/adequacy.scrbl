@@ -261,7 +261,20 @@
             @cases[#:language esterel/typeset
                    #:of/count (L∈ S (->S (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S unknown))))) 2
                    #:simple-cases]{
-             @#:case[(L¬∈ S (->S (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S unknown)))))]{TODO}
+             @#:case[(L¬∈ S (->S (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S unknown)))))]{
+              Let @es[(= θ_3 (Lwithoutdom θ_1 S))] and @es/unchecked[(= θ_4 (<- θ_2 (mtθ+S S absent)))].
+             @sequenced{
+               @#:step[eql]{
+               @es[(= (<- θ_3 θ_4) (<- θ_1 θ_4) (<- (parens (<- θ_1 θ_2)) (mtθ+S S absent)))]}
+               @#:step[bound1]{By the same argument as @proof-ref["Can-rho-S-is-sound"],
+                                                       
+                we can conclude that
+                @es[(binds (compile (in-hole E p)) (<- (parens (<- θ_1 θ_2)) (mtθ+S S absent)))].}
+               @#:step[bound]{By @eql and @bound we can conclude that @es[(binds (compile (in-hole E p)) (parens (<- θ_3 θ_4)))].}
+               @#:step[distinct]{
+                As we have removed an element from one map and added it to the other
+                we can conclude that @es[(distinct (Ldom θ_3) (Ldom θ_4))].}
+             }}
              @#:case[(L∈ S (->S (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S unknown)))))]{
               Let @es[(= θ_3 (Lwithoutdom θ_1 S))] and @es/unchecked[(= θ_4 (<- θ_2 (mtθ+S S (θ-get-S θ_1 S))))].
               @sequenced{
@@ -374,4 +387,22 @@
         @#:case[(loop^stop E_3 q)]{TODO}
         ]
 
+}
+
+
+@proof[#:title "Not values must step"
+       #:label "nv-must-step"
+       #:statement
+       @list{For all @es[(= q (ρ θ A (in-hole E p)))],
+        If @es[(closed q)],
+        @es/unchecked[(L¬∈ q complete)],
+        @es[(not-blocked θ A E p)]
+        then there exists
+        some @es[θ_o] and @es[p_o]
+        such that
+        @es[(⟶^r q (ρ θ_o A (in-hole E p_o)))]
+        or
+        there exists some @es[r]
+        such that @es[(⟶^s q (⟶^r r (ρ θ_o A (in-hole E p_o))))]}]{
+ TODO
 }

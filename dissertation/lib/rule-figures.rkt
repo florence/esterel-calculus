@@ -8,14 +8,13 @@
 
 (provide calculus-side-condition-beside-rules
          calculus-rule-groups
-         standard-rule-groups
          reduction-relation-pict
-         standard-reduction-pict
          render-rules)
 
 ;; approximate, determined by experimentation via `frame`
-;; and running latex and eyeballing the output
-(define page-width 490)
+;; and running latex and eyeballing the output,
+;; and then some random twiddling
+(define page-width 520)
 
 (define (render-rules name-for-error reduction-relation rule-groups side-condition-beside-rules
                       #:only-one-rule? [only-one-rule? #f]
@@ -111,12 +110,12 @@
    (rtl-superimpose (blank full-width 0) rule-label)))
 
 (define calculus-side-condition-beside-rules
-  (set 'is-present 'is-absent
+  (set 'is-present
        'if-true 'if-false))
 
 (define calculus-rule-groups
-  '(("signals" signal emit absence is-present is-absent)
-    ("shared variables" shared set-old set-new readyness)
+  '(("signals" signal emit is-present is-absent)
+    ("shared variables" shared set-old set-new)
     ("sequential variables" var set-var if-true if-false)
     ("ϱ" merge)
     ("seq" seq-done seq-exit)
@@ -131,17 +130,6 @@
        'parl 'parr 'if-true 'if-false
        'signal 'loop 'loop^stop-exit))
 
-(define standard-rule-groups
-  '(("signals" signal emit absence is-present is-absent)
-    ("shared variables" shared set-new set-old readyness)
-    ("sequential variables" var set-var if-true if-false)
-    ("ϱ" merge)
-    ("seq" seq-done seq-exit)
-    ("trap" trap)
-    ("par" parr parl)
-    ("" suspend)
-    ("" loop loop^stop-exit)))
-
 (define reduction-relation-pict
   (with-paper-rewriters
    (parameterize ([rule-pict-style (render-rules 'calculus
@@ -149,12 +137,3 @@
                                                  calculus-rule-groups
                                                  calculus-side-condition-beside-rules)])
      (render-reduction-relation R*))))
-
-(define standard-reduction-pict
-  (parameterize ([current-reduction-arrow 'standard-reduction])
-    (with-paper-rewriters
-     (parameterize ([rule-pict-style (render-rules 'standard
-                                                   S:R
-                                                   standard-rule-groups
-                                                   standard-side-condition-beside-rules)])
-       (render-reduction-relation S:R)))))

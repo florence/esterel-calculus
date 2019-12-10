@@ -6,6 +6,7 @@
           "lib/proof-extras.rkt"
           "lib/jf-figures.rkt"
           "lib/misc-figures.rkt"
+          "lib/rule-figures.rkt"
           redex/reduction-semantics
           esterel-calculus/redex/model/shared
           esterel-calculus/redex/model/lset
@@ -16,11 +17,15 @@
 
 @title[#:style paper-title-style]{Definitions}
 
+@section[#:tag "sec:defcirc" "Circuits"]
+
 @definition[#:notation @es[(binds (compile p) θ)]
             #:read-as @list{@es[θ] binds @es[(compile p)]}]{
  @es[(binds (compile p) θ)] if and only if
  @es[∀] @es[(L∈ S (Ldom θ))],
- @es[(= (θ-get-S θ S) present)] if and only if @es[(= (of (compile p) S_i) 1)]
+ @es[(= (of (compile p) S_o) (of (compile p) S_i))],
+ and
+ @es[(= (θ-get-S θ S) present)] if and only if @es[(= (of (compile p) S_i) 1)],
  and
  @es[(= (θ-get-S θ S) absent)] if any only if @es[(= (of (compile p) S_i) 0)].
 
@@ -38,49 +43,20 @@
  @es[(binds (compile p) A)] if and only if @es[(= A GO)] implies that @es[(= (of (compile p) GO) 1)].
 }
 
-@definition[#:notation @es[(= (of (compile p) w) wire-value)]]{
+@definition[#:notation @es[(= (of c w) wire-value)]]{
 
- TODO formalize better
- 
- @es[(= (of (compile p) w) wire-value)] if and only if,
- given our current assumptions, we can prove that that wire @es[w] in the interface
- of @es[(compile p)] is equivalent to @es[wire-value].
-
- For example: @es[(= (of (compile p) S_o) 1)] would mean that
- @es[(compile p)] is guaranteed to emit @es[S].
- @es[(= (of (compile (emit S)) S_o) (of (compile (emit S)) GO))]
- means that @es[(compile (emit S))] will emit @es[S] exactly when it's
- @es[GO] wire is @es[1]. Note that if we prove @es[(= (of (compile (emit S)) GO) 1)]
- Then we can also state that @es[(= (of (compile (emit S)) S_o) 1)].
-
- I will, at times, write this in terms of subterms of a given term. For example
- @es[(= (of (compile (signal S p_i)) SEL) (of (compile p_i) SEL))], which means
- that the @es[SEL] wire of compiling @es[(signal S p_i)] is given by the @es[SEL] wire
- of compiling @es[p_i]. In this case the notation is clean and unambiguous as @es[(compile p_i)]
- only shows up once in the compilation of @es[(signal S p_i)].
-
- In in case where the subterm is within a @es[loop] the
- notation would be ambiguous however. For example saying
- @es[(= (of (compile (loop p_i)) SEL) (of (compile p_i) SEL))]
- is meaningless as @es[(compile p_i)] shows up twice in the
- @es[(compile (loop p_i))], thus its ambiguous which @es[SEL]
- wire we are referring to. In these cases
- @es[(of (compile p) w)] will never appear on the right hand
- side of @es/unchecked[=]. If it
- shows up on the left hand side it is be interpreted as
- all instances of the given wire, e.g. in the given example
- @es[(= (of (compile p_i) S_o) 0)] means that the @es[S_o]
- wire of both instances of @es[(compile p_i)] will be zero.
- When these cases occur I will explicitly point out this
- subtly.
+ @es[c] is contextually equivalent to a circuit
+ in which the definition of the wire @es[w]
+ is replace by @es[wire-value].
 
 }
 
-@definition[#:notation @es[(complete-with-respect-to θ done)]]{
- For all @es[(L∈ S (Ldom θ))],
- @es[(= (θ-get-S θ S) present)] or
- @es[(= (θ-get-S θ S) unknown)]
- and @es[(L¬∈ S (->S (Can-θ (ρ θ GO done) ·)))].
+@section[#:tag "sec:defcalc" "Calculus"]
+
+@definition[#:notation @list{@es[p], @es[q]} lang/state]
+
+@definition[#:notation @es[(⇀ p q)]]{
+ @reduction-relation-pict
 }
 
 @definition[#:notation @es[(blocked-pure θ A E p)]
@@ -96,4 +72,11 @@
 
 @definition[#:notation @es[(Can-θ (ρ θ_1 A p) θ_2)]]{
  @Canθ-pict
+}
+
+@definition[#:notation @es[(complete-with-respect-to θ done)]]{
+ For all @es[(L∈ S (Ldom θ))],
+ @es[(= (θ-get-S θ S) present)] or
+ @es[(= (θ-get-S θ S) unknown)]
+ and @es[(L¬∈ S (->S (Can-θ (ρ θ GO done) ·)))].
 }

@@ -17,8 +17,9 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
 
 @(define emit-not-equal-case
    @cases[#:language esterel/typeset
-          #:of/count @es[(L∈ S_2 (->S (Can p_i (<- θ (mtθ+S S_2 unknown)))))] 2
-          @#:case[@es[(L∈ S_2 (->S (Can p_i (<- θ (mtθ+S S_2 unknown)))))]]{
+          #:of/count (L∈ S_2 (->S (Can p_i (<- θ (mtθ+S S_2 unknown))))) 2
+          #:simple-cases
+          @#:case[(L∈ S_2 (->S (Can p_i (<- θ (mtθ+S S_2 unknown)))))]{
            In this case
            @es[(= (->S (Can (signal S_2 p_i) θ)) (Lset-sub (->S (Can p_i (<- θ (mtθ+S S_2 unknown)))) (L1set S)))].
            As @es[(not-= S S_2)], from this we can conclude that
@@ -34,7 +35,7 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
            Again, as  @es[(compile (signal S_2 p_i))] leaves all non-@es[S_2] outputs
            unchanged, we can conclude that 
            @es[(= (of (compile p_i) S_o) (of (compile (signal S_2 p_i)) S_o) 0)].}
-          @#:case[@es[(L¬∈ S_2 (->S (Can p_i (<- θ (mtθ+S S_2 unknown)))))]]{
+          @#:case[(L¬∈ S_2 (->S (Can p_i (<- θ (mtθ+S S_2 unknown)))))]{
            In this case
            @es[(= (->S (Can (signal S_2 p_i) θ)) (Lset-sub (->S (Can p_i (<- θ (mtθ+S S_2 absent)))) (L1set S)))].
            The argument for this case follows exactly along the same
@@ -82,11 +83,12 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
         @#:case[(emit S_2)]{
           @cases[#:of/count @es[(= S S_2)] 2
                  #:language esterel/typeset
-                 @#:case[@es[(= S S_2)]]{
+                 #:simple-cases
+                 @#:case[(= S S_2)]{
                             In this case @es[(L∈ S (->S (Can p θ)))], which violates
                             our hypothesis.
                            }
-                 @#:case[@es[(not-= S S_2)] ]{
+                 @#:case[(not-= S S_2)]{
                             In this case @es[(compile (emit S_2))]
                             does define an @es[S_2] wire, therefore
                             @es[(L¬∈ S (outputs (compile (emit S_2))))],
@@ -94,14 +96,15 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
                             }]
          }
         @#:case[(signal S_2 p_i)]{
-          @cases[#:of/count @es[(= S S_2)] 2
-                 @#:case[@es[(= S S_2)]]{
+          @cases[#:of/count (= S S_2) 2
+                 #:simple-cases
+                 @#:case[(= S S_2)]{
                             In this case the compilation of signal removes @es[S]
                             from the set of output signals, which means
                             
                             @es[(L¬∈ S (outputs (compile p)))] which violates our hypothesis.
                            }
-                 @#:case[@es[(not-= S S_2)]]{
+                 @#:case[(not-= S S_2)]{
                             In this case we can see that there are two cases for @es/unchecked[Can]:
                                                                                  
                             @emit-not-equal-case
@@ -148,8 +151,8 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
           @es[(= (of (compile p_i) SEL) 0)] and
           @es[(= (of (compile q_i) SEL) 0)]. We also know that
           @es[(= (of (compile (present S_2 p_i q_i)) S_o) (or (of (compile p_i) S_o) (of (compile q_i) S_o)))].
-          @cases[#:of/count @es[(θ-get-S θ S_2)] 3
-                 @#:case[@es[(= (θ-get-S θ S_2) present)]]{
+          @cases[#:of/count (θ-get-S θ S_2) 3
+                 @#:case[present]{
                             In this case we know that
                             @es[(= (->S (Can (present S_2 p_i q_i) θ)) (->S (Can p_i θ)))].
                             In addition not that @es[(= (θ-get-S θ S_2) present)] means
@@ -174,13 +177,13 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
                                                                 similar chain of reasoning to the previous case to argue
                                                                 that @es[(= (of (compile (present S_2 p_i q_i)) S_o) 0)].
                                                                 }]}
-                 @#:case[@es[(= (θ-get-S θ S_2) absent)]]{
+                 @#:case[absent]{
                             This case is analogous to the previous one, that we are
                             looking at the else clause, and know that
                             @es[(= (of (compile (present S_2 p_i q_i)) S_2i) 0)],
                             suppressing the activation of @es[(compile p_i)].
                            }
-                 @#:case[@es[(= (θ-get-S θ S_2) unknown)]]{
+                 @#:case[unknown]{
                             In this case we know that
                             @es[(= (->S (Can (present S_2 p_i q_i) θ)) (LU (->S (Can p_i θ)) (->S (Can q_i θ))))].
                             Thus we can conclude that @es[(L¬∈ S (->S (Can p_i θ)))] and @es[(L¬∈ S (->S (Can q_i θ)))].
@@ -217,7 +220,7 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
           or @es[(compile q_i)].
           From the definition of @es/unchecked[Can] we have two cases:
           @cases[#:of/count @es[(L∈ 0 (->K (Can p_i θ)))] 2
-                 @#:case[@es[(L¬∈ 0 (->K (Can p_i θ)))]]{
+                 @#:case[(L¬∈ 0 (->K (Can p_i θ)))]{
                             In this case we have @es[(= (->S (Can (seq p_i q_i) θ)) (->S (Can p_i θ)))].
                             By induction we can conclude that either @es[(L¬∈ S_o (outputs (compile p_i)))] or @es[(= (of (compile p_i) S_o) 0)].
                             In addition by @proof-ref["Can-K-is-sound"] we can conclude that either

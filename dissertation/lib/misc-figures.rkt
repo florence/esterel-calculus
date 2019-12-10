@@ -117,7 +117,8 @@
     (render-language esterel #:nts '(p q))
     (htl-append
      50
-     (vl-append (nt-∈-line "s" "shared variables"))
+     (vl-append (nt-∈-line "S" "signal variables")
+                (nt-∈-line "s" "shared variables"))
      (vl-append (nt-∈-line "x" "sequential variables")
                 (nt-∈-line "e" "host expressions"))))))
 
