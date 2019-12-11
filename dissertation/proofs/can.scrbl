@@ -97,6 +97,7 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
          }
         @#:case[(signal S_2 p_i)]{
           @cases[#:of/count (= S S_2) 2
+                 #:language esterel/typeset
                  #:simple-cases
                  @#:case[(= S S_2)]{
                             In this case the compilation of signal removes @es[S]
@@ -128,17 +129,19 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
 
           We also know that @es[(L∈ S_o (outputs (compile (par p_i q_i))))] means that
           @es[S_o] must be in at least one of the outputs of @es[(compile p_i)] and @es[(compile q_i)].
-          @cases[#:of/count @list{@es[(L∈ S_o (outputs (compile p_i)))] and @es[(L∈ S_o (outputs (compile q_i)))]}
+          @cases[#:of/count ((L∈ S_o (outputs (compile p_i))) (L∈ S_o (outputs (compile q_i))))
                  3
-                 @#:case[@list{@es[(L∈ S_o (outputs (compile p_i)))] and @es[(L¬∈ S_o (outputs (compile q_i)))]}]{
+                 #:language esterel/typeset
+                 #:tuplize
+                 @#:case[((L∈ S_o (outputs (compile p_i))) (L¬∈ S_o (outputs (compile q_i))))]{
                             In this case @es[(= (of (compile (par p_i q_i)) S_o) (or (of (compile p_i) S_o) 0) (of (compile p_i) S_o))]
                             which, as in this case we have @es[(L∈ S_o (outputs (compile p_i)))], lets us conclude
                             @es[(= (of (compile (par p_i q_i)) S_o) 0)]
                            }
-                 @#:case[@list{@es[(L∈ S_o (outputs (compile p_i)))] and @es[(L¬∈ S_o (outputs (compile q_i)))]}]{
+                 @#:case[((L∈ S_o (outputs (compile p_i))) (L¬∈ S_o (outputs (compile q_i))))]{
                             This case is analogous to the previous one.
                            }
-                 @#:case[@list{@es[(L∈ S_o (outputs (compile p_i)))] and @es[(L∈ S_o (outputs (compile q_i)))]}]{
+                 @#:case[((L∈ S_o (outputs (compile p_i))) (L∈ S_o (outputs (compile q_i))))]{
                             In this case we have @es[(= (of (compile (par p_i q_i)) S_o) (or (of (compile p_i) S_o) (of (compile q_i) S_o)))]
                             As in this case we know that @es[(L∈ S_o (outputs (compile p_i)))] and @es[(L∈ S_o (outputs (compile q_i)))]
                             we can conclude that @es[(= (of (compile (par p_i q_i)) S_o) (or 0 0) 0)]
@@ -152,6 +155,7 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
           @es[(= (of (compile q_i) SEL) 0)]. We also know that
           @es[(= (of (compile (present S_2 p_i q_i)) S_o) (or (of (compile p_i) S_o) (of (compile q_i) S_o)))].
           @cases[#:of/count (θ-get-S θ S_2) 3
+                 #:language esterel/typeset
                  @#:case[present]{
                             In this case we know that
                             @es[(= (->S (Can (present S_2 p_i q_i) θ)) (->S (Can p_i θ)))].
@@ -162,8 +166,10 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
                             @es[(= (of (compile q_i) GO) (and (of (compile (present S_2 p_i q_i)) GO) (not (of (compile (present S_2 p_i q_i)) S_2i))) 0)].
                             Therefore by @proof-ref["activation-condition"] we know that
                             @es[(=> (L∈ S (outputs (compile q_i))) (= (of (compile q_i) S_o) 0))].
-                            @cases[#:of/count @es[(L∈ S (outputs (compile p_i)))] 2
-                                   @#:case[@es[(L¬∈ S (outputs (compile p_i)))]]{
+                            @cases[#:of/count (L∈ S (outputs (compile p_i))) 2
+                                   #:language esterel/typeset
+                                   #:simple-cases
+                                   @#:case[(L¬∈ S (outputs (compile p_i)))]{
                                                                 This implies that @es[(L∈ S (outputs (compile q_i)))] as we
                                                                 know that
                                                                 @es[(L∈ S (outputs (compile (present S_2 p_i q_i))))]. Thus
@@ -171,7 +177,7 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
                                                                 conclude that
                                                                 
                                                                 @es[(= (of (compile (present S_2 p_i q_i)) S_o) (or 0 (of (compile q_i) S_o)) (or 0 0) 0)].}
-                                   @#:case[@es[(L∈ S (outputs (compile p_i)))]]{
+                                   @#:case[(L∈ S (outputs (compile p_i)))]{
                                                                 In this case we can invoke our induction hypothesis to show
                                                                 that @es[(= (of (compile p_i) S_o) 0)]. Thus we can use a
                                                                 similar chain of reasoning to the previous case to argue
@@ -219,7 +225,8 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
           In addition as before @es[S_o] must be in the outputs of either @es[(compile p_i)]
           or @es[(compile q_i)].
           From the definition of @es/unchecked[Can] we have two cases:
-          @cases[#:of/count @es[(L∈ 0 (->K (Can p_i θ)))] 2
+          @cases[#:of/count (L∈ 0 (->K (Can p_i θ))) 2
+                 #:language esterel/typeset
                  @#:case[(L¬∈ 0 (->K (Can p_i θ)))]{
                             In this case we have @es[(= (->S (Can (seq p_i q_i) θ)) (->S (Can p_i θ)))].
                             By induction we can conclude that either @es[(L¬∈ S_o (outputs (compile p_i)))] or @es[(= (of (compile p_i) S_o) 0)].
@@ -230,7 +237,7 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
                             As @es[S_o] is either no in the outputs or @es[0] in either subcircuit, we can conclude
                             that @es[(= (of (compile (seq p_i q_i)) S_o) 0)].
                            }
-                 @#:case[@es[(L∈ 0 (->K (Can p_i θ)))]]{
+                 @#:case[(L∈ 0 (->K (Can p_i θ)))]{
                             In this case we have @es[(= (->S (Can (seq p_i q_i) θ)) (LU (->S (Can p_i θ)) (->S (Can q_i θ))))].
                             From this we know that
 

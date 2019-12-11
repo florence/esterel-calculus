@@ -965,7 +965,7 @@
               (text "☐"
                     (default-style) (default-font-size)))]
                     
-
+     ['A->= (lambda () (render-op "≥"))]
      ['↓ (λ () (down-super-n))]
      ['harp (λ () (down-super-p))]
      ['and (lambda () (def-t "∧"))]
@@ -988,6 +988,13 @@
      ['present (λ () (text "1" (default-style) (default-font-size)))]
      ['absent (λ () (text "0" (default-style) (default-font-size)))]
      ['unknown (λ () (text "⊥" (default-style) (default-font-size)))]
+
+     ['⟶
+     (lambda () (render-op '⟶))]
+    ['⟶^s
+     (lambda () (render-op '⟶^S))]
+    ['⟶^r
+     (lambda () (render-op '⟶^R))]
      
      ;; results
      ['R (lambda ()

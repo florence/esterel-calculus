@@ -17,7 +17,8 @@
          redex/pict
          pict
          "redex-rewrite.rkt"
-         (only-in "util.rkt" lift-to-compile-time-for-effect! render-case-body)
+         (only-in "util.rkt" lift-to-compile-time-for-effect! render-case-body
+                  term->pict/checked)
          esterel-calculus/redex/model/shared
          (except-in scribble/core table)
          scribble/decode
@@ -83,11 +84,13 @@
   (syntax-parser
     [(_ _:string ... (~seq (#:step n:id body:expr ...) _:string ...) ...)
      #:with prefix
-     (or (~a (syntax-parameter-value #'in-sequence) ".") "")
+     (if (syntax-parameter-value #'in-sequence)
+         (~a (syntax-parameter-value #'in-sequence) ".")
+         "")
      #:with (c ...)
      (for/list ([x (in-list (syntax->list #'(n ...)))]
                 [i (in-naturals 1)])
-       #`'(~a prefix #,i))
+       #`(~a 'prefix '#,i))
      #`(match-let ([n (~a "(" c ")")] ...)
          (itemlist
           #:style 'ordered
@@ -155,14 +158,18 @@
          (~seq #:language lang:id)
          #:defaults ([lang #'base])))
        (~once (~seq #:of c:expr))
+       (~once (~optional
+               (~seq #:drawn-from d:expr)))
        (~once (~optional (~and #:induction i)))
+       (~once (~optional (~and #:tuplize t)))
        (~once (~optional (~seq #:checks n)
                          #:defaults ([n #'1000]))))
       ...
+      _:string ... 
       (~seq [#:case p:expr body ...] _:string ...) ...)
      #'(begin
-         (test-cases-covered #:checks n lang c (p ...))
-         (render-cases (~? i) lang c (p body ...) ...))]
+         (test-cases-covered #:checks n lang (~? d c) (p ...))
+         (render-cases (~? i) (~? t) lang c (p body ...) ...))]
      
     [(_
       (~alt
@@ -175,6 +182,7 @@
        (~once (~optional (~seq #:checks n)
                          #:defaults ([n #'1000]))))
       ...
+      _:string ... 
       (~seq [#:case (p:expr ...) body ...]  _:string ...) ...)
      
      #:with sc (make-subcases-expander  #'(c ...) #t #'lang #'n)
@@ -188,17 +196,22 @@
          #:defaults ([lang #'base])))
        (~once (~seq #:of/count of:expr n:nat))
        (~once (~optional (~and #:induction i)))
+       (~once (~optional (~and #:no-check nc)))
+       (~once (~optional (~and #:tuplize t)))
        (~once (~optional (~and #:simple-cases s))))
       ...
+      _:string ... 
       (~seq [#:case p body ...] _:string ...) ...)
      #:fail-when (not (equal? (length (syntax->list #'(p ...)))
                               (syntax-e #'n)))
      (format "Expected ~a cases, found ~a cases"
              (length (syntax->list #'(p ...)))
              (syntax-e #'n))
-     #'(render-cases (~? i)
+     #`(render-cases (~? i)
                      (~? s)
+                     (~? t)
                      #:just-render
+                     #,@(if (attribute nc) #'() #'(#:do-check))
                      lang
                      of
                      (p body ...)
@@ -213,6 +226,7 @@
        (~once (~optional (~and #:induction i)))
        (~once (~optional (~and #:simple-cases s))))
       ...
+      _:string ... 
       (~seq [#:case p body ...] _:string ...) ...)
      #'(render-cases (~? i)
                      (~? s)
@@ -260,17 +274,6 @@
            (error "missing case!"))
          #:attempts 'n
          #:print? '#f))]))
-
-(define-simple-macro (render-cases/derivation lang:id c:expr (pat:id body ...) ...)
-  (list
-   "\nCases of " (with-paper-rewriters (term->pict lang c)) ":"
-   (exact "\\noindent")
-   (nested-flow (style "case" '())
-                (decode-flow
-                 (list (list "[" (symbol->string 'pat) "]")
-                       (nested-flow (style "nopar" '(command))
-                                    (decode-flow (list body ...))))))
-   ...))
 
 (define (tuplize . p)
   (if (= 1 (length p))
@@ -322,7 +325,9 @@
                        ...))))]
     [(_ (~optional (~and #:induction i))
         (~optional (~and #:simple-cases s))
+        (~optional (~and #:tuplize t))
         (~optional (~and #:just-render j))
+        (~optional (~and #:do-check chk))
         lang:id c:expr (pat:expr body ...) ...)
      #:with desc
      #`#,(string-append
@@ -330,24 +335,31 @@
           (if (and (not (attribute j)) (do-mf? #'c))
               "the clauses of "
               ""))
+     #:with tz (if (attribute t) #'tuplize #'values)
+     #:with ((pat1 ...) ...)
+     (if (attribute t) #'(pat ...) #'((pat) ...))
+     #:with (c1 ...)
+     (if (attribute t) #'c #'(c))
+     #:with trm->
+     (if (attribute chk) #'term->pict/checked #'term->pict)
      #:with (item-label ...)
      (cond
        [(attribute s)
-        #'((with-paper-rewriters (term->pict lang pat)) ...)]
-       [(and (not (attribute j)) (do-mf? #'c))
+        #'((tz (with-paper-rewriters (trm-> lang pat1)) ...) ...)]
+       [(and (not (attribute j)) (not (attribute t)) (do-mf? #'c))
         (for/list ([_ (in-list (syntax->list #'(pat ...)))])
           #'"")]
-       [(and (not (attribute j)) (do-judgment? #'c))
+       [(and (not (attribute j)) (not (attribute t)) (do-judgment? #'c))
         #'((with-paper-rewriters (text (~a "[" (~a 'pat) "]") (default-style) (default-font-size))) ...)]
-       [else #'((list (with-paper-rewriters (term->pict lang c))
+       [else #'((list (tz (with-paper-rewriters (term->pict lang c1)) ...)
                       (es =)
-                      (with-paper-rewriters (term->pict lang pat)))
+                      (tz (with-paper-rewriters (trm-> lang pat1)) ...))
                 ...)])
          
      
      #'(list
         "\n" (exact "\\noindent")
-        desc (with-paper-rewriters (term->pict lang c)) ":"
+        desc (with-paper-rewriters (trm-> lang c)) ":"
         (exact "\\noindent")
         (nested-flow (style "casesp" '())
                      (decode-flow

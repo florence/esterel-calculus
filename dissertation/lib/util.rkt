@@ -120,7 +120,7 @@
    #"\\theoremstyle{case}\n"
    #"\\newtheorem{case}{Case}\n"
    #"\\usepackage{enumitem}\n"
-   #"\\newlist{casesp}{enumerate}{3}\n"
+   #"\\newlist{casesp}{enumerate}{6}\n"
    #"\\setlist[casesp]{align=left, %% alignment of labels
                  listparindent=\\parindent, %% same indentation as in normal text
                  %parsep=\\parskip, %% same parskip as in normal text
@@ -135,6 +135,9 @@
    #"\\setlist[casesp,1]{label=Case~\\arabic*:,ref=\\arabic*}\n"
    #"\\setlist[casesp,2]{label=Case~\\thecasespi.\\roman*:,ref=\\thecasespi.\\roman*}\n"
    #"\\setlist[casesp,3]{label=Case~\\thecasespii.\\alph*:,ref=\\thecasespii.\\alph*}\n"
+   #"\\setlist[casesp,4]{label=Case~\\thecasespiii.\\alph*:,ref=\\thecasespii.\\arabic*}\n"
+   #"\\setlist[casesp,5]{label=Case~\\thecasespiv.\\alph*:,ref=\\thecasespii.\\roman*}\n"
+   #"\\setlist[casesp,6]{label=Case~\\thecasespv.\\alph*:,ref=\\thecasespii.\\alph*}\n"
    #"\\let\\degree\\relax\n"
    (append
     (for/list ([i (in-list right-figure-sizes)])
@@ -343,7 +346,7 @@
                    ([attempts #`#,(unbox (syntax-local-value #'the-default-term->pict/checked-attempts))]))
         lang:id term:expr)
      #`(begin
-         #,(quasisyntax/loc this-syntax (test-valid-term lang term attempts))
+         #,(quasisyntax/loc #'term (test-valid-term lang term attempts))
          (term->pict lang term))]))
 
 (define-syntax test-valid-term
@@ -407,7 +410,7 @@
        #`(let-syntax
              ([whatever
                (lambda (_)
-                 (convert-to-syntax-error! #'e e)
+                 (convert-to-syntax-error! (quote-syntax e) e)
                  #'(void))])
            (whatever trm))))]))
 
