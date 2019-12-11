@@ -41,6 +41,7 @@
          
          theorem theorem-ref Theorem-ref
          lemma lemma-ref Lemma-ref
+         render-case-body
          (contract-out
           
           [proof
@@ -234,7 +235,7 @@
                     (decode-flow (list interp)))
        "")
    (nested-flow (style "proof" '())
-                (decode-flow the-proof))))
+                (render-case-body the-proof))))
 
 (define (exact-chars-element styl . strs)
   (match (cons styl strs)
@@ -466,3 +467,13 @@
 (define (Lemma-ref str)
   (list (element (style "relax" '(exact-chars)) '("Lemma~"))
         (element (style "ref" '(exact-chars)) (list str))))
+
+
+(define (render-case-body body)
+  (define (whitespace? s)
+    (and (string? s)
+         (regexp-match #px"^\\s*$" s)))
+  (decode-flow
+   (if (andmap whitespace? body)
+       (list "TODO")
+       body)))

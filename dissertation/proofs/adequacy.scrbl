@@ -6,6 +6,7 @@
           "../lib/proof-extras.rkt"
           redex/reduction-semantics
           redex/pict
+          pict
           (except-in esterel-calculus/redex/model/shared FV FV/e)
           esterel-calculus/redex/test/binding
           esterel-calculus/redex/model/lset
@@ -113,7 +114,7 @@
 
            @#:step[kill-0]{
                            
-           By the definition of @es/unchecked[(compile dot)],
+            By the definition of @es/unchecked[(compile dot)],
             @es[(= (of (compile paused) KILL) (of (compile (suspend paused S)) KILL) 0)].
 
            }
@@ -231,9 +232,9 @@
         @#:case[suspend]{This case proceeds analogously to the previous case.}
         @#:case[trap]{This case proceeds analogously to the previous case.}
         @#:case[par-both]{There are two branches of the
-         @es[par] we may induct on here, but as we only need to show the existence of some
-         @es[S] we can select either one. As I am right handed I'll pick the right branch.
-         The remainder of this case proceeds analogously to the previous case.}
+          @es[par] we may induct on here, but as we only need to show the existence of some
+          @es[S] we can select either one. As I am right handed I'll pick the right branch.
+          The remainder of this case proceeds analogously to the previous case.}
         @#:case[loop^stop]{TODO}]
 }
 
@@ -263,9 +264,9 @@
                    #:simple-cases]{
              @#:case[(L¬∈ S (->S (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S unknown)))))]{
               Let @es[(= θ_3 (Lwithoutdom θ_1 S))] and @es/unchecked[(= θ_4 (<- θ_2 (mtθ+S S absent)))].
-             @sequenced{
+              @sequenced{
                @#:step[eql]{
-               @es[(= (<- θ_3 θ_4) (<- θ_1 θ_4) (<- (parens (<- θ_1 θ_2)) (mtθ+S S absent)))]}
+                @es[(= (<- θ_3 θ_4) (<- θ_1 θ_4) (<- (parens (<- θ_1 θ_2)) (mtθ+S S absent)))]}
                @#:step[bound1]{By the same argument as @proof-ref["Can-rho-S-is-sound"],
                                                        
                 we can conclude that
@@ -294,7 +295,7 @@
                 hypothesis on @es[θ_3] and @es[θ_4]
                 to conclude that @es[(= (of (compile (in-hole E p)) S) ⊥)].}
            }}}}
-           @#:case[(= S S_1)]{
+           @#:case[(= S S_1)]{TODO
             }}}]}
        
 
@@ -327,15 +328,15 @@
         and @es[(L¬∈ S (->S (Can-θ (ρ θ A (in-hole E p)) ·)))]
 
         then @es[(blocked-pure (<- θ (mtθ+S S absent)) A hole (in-hole E p))]}]{
-@cases[#:language esterel/typeset
+ @cases[#:language esterel/typeset
         #:of (blocked-pure θ A E p)
         #:induction
         @#:case[if]{This this case we can invoke
-        @proof-ref["can-rho-idempotent"] using @es[θ] as
-        @es[θ_1] and @es[·] as @es[θ_2] to obtain the needed
-        premise to reconstruct the proof that the term is blocked.}
+          @proof-ref["can-rho-idempotent"] using @es[θ] as
+          @es[θ_1] and @es[·] as @es[θ_2] to obtain the needed
+          premise to reconstruct the proof that the term is blocked.}
         @#:case[emit-wait]{As this case does not rely
-        on @es[θ], the theorem still holds.}
+          on @es[θ], the theorem still holds.}
         @#:case[parl]{TODO}
         @#:case[parr]{TODO}
         @#:case[seq]{TODO}
@@ -357,7 +358,7 @@
        #:label "blocked is final"
        #:statement
        @list{for all @es[p], @es[θ], @es[A], @es[E],
-                     @es[p_1], @es[θ_1], @es[A_1], and @es[E_1],
+        @es[p_1], @es[θ_1], @es[A_1], and @es[E_1],
                      
         if @es[(blocked-pure θ A E p)] and @es[(⟶ (ρ θ A (in-hole E p)) (ρ θ_1 A_1 (in-hole E_1 p_1)))]
         then @es[(blocked-pure θ_1 A_1 E_1 p_1)].}]{
@@ -378,7 +379,7 @@
         #:induction
         #:language esterel/typeset
         @#:case[hole]{Trivial, as @es[(= (in-hole hole p) p)]
-         and @es[(= (in-hole E_1 hole) E_1)].}
+          and @es[(= (in-hole E_1 hole) E_1)].}
         @#:case[(suspend E_3 S)]{TODO}
         @#:case[(trap E_3)]{TODO}
         @#:case[(seq E_3 q)]{TODO}
@@ -415,15 +416,60 @@
         ;; E cases
         @#:case[(seq p_o q_o)]{TODO}
         @#:case[(par p_o q_o)]{
- @;{
-    (! Blocked[p] && ! Blocked[q] && ! Pause[p]) || (! Blocked[p] && ! 
-    Blocked[q] && ! Pause[q]) || (! Blocked[p] && ! Pause[p] && ! 
-    Term[p]) || (! Blocked[q] && ! Pause[q] && ! Term[q])}
+          Given the definitions of @es[blocked] and @es[done],
+          we know that it must be the case that:
+                                   
+          @(let ()
+             (define pause @es/unchecked[(not (parens (and (L∈ p_o paused) (L∈ q_o paused))))])
+             (define b1 (es/unchecked (parens (and (blocked-pure θ A (in-hole E (par hole q_o)) p_o) (blocked-pure θ A (in-hole E (par p_o hole)) q_o)))))
+             (define b2 (es/unchecked (parens (and (blocked-pure θ A (in-hole E (par hole q_o)) p_o) (L∈ q_o done)))))
+             (define b3 (es/unchecked (parens (and (L∈ p_o done) (blocked-pure θ A (in-hole E (par p_o hole)) q_o)))))
+             (define on (hbl-append @es[not] (words "(")))
+             (vl-append
+              b1
+              @es/unchecked[and]
+              (hbl-append on b1)
+              (hbl-append (ghost on) @es[or])
+              (hbl-append (ghost on) b2)
+              (hbl-append (ghost on) @es[or])
+              (hbl-append (ghost on) b3 (words ")"))))
+                                   
+          
+                                                                                            
+          Note that a term which is @es[paused] is also @es[done]. Given this an taking the disjuctive
+          normal form of the above expression we obtain four cases:
+
+          @es/unchecked[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ p_o paused))]
+          
+          @es/unchecked[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ q_o paused))]
+          
+          @es/unchecked[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (L¬∈ p done))]
+          
+          @es/unchecked[(and (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ q done))]
+
+          This gives us the our subcases.
+
+          @cases[#:of/count ? 4
+                 #:simple-cases
+                 #:language esterel/typeset
+                 @#:case[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ p_o paused))]{}
+                 @#:case[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ q_o paused))]{
+
+                            This case is the same as the previous, but finding a reduction
+                            in the other branch.
+
+                           }
+                 @#:case[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (L¬∈ p done))]{}
+                 @#:case[(and (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ q done))]{
+
+                            This case is the same as the previous, but finding a reduction
+                            in the other branch.
+
+                            }]
+                                               
          }
-        @#:case[(trap p_o)]{TODO}
-        @#:case[(suspend p_o S)]{TODO}
-        @#:case[(loop^stop p_o q_o)]{TODO}
-        ;; the rest
-        @#:case[(signal S p_o)]{TODO}
-        @#:case[(present S p_o q_o)]{TODO}]
-}
+        @#:case[(trap p_o)]{TODO} @#:case[(suspend p_o S)]{TODO}
+        @#:case[(loop^stop p_o q_o)]{TODO} ;; the rest
+        @#:case[(signal S p_o)]{TODO} @#:case[(ρ θ_o A_o p_o)]{TODO}
+        @#:case[(present S p_o q_o)]{TODO} @#:case[(loop p_o)]{
+          TODO}]}

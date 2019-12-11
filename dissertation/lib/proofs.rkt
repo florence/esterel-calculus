@@ -15,7 +15,7 @@
          redex/pict
          pict
          "redex-rewrite.rkt"
-         (only-in "util.rkt" lift-to-compile-time-for-effect!)
+         (only-in "util.rkt" lift-to-compile-time-for-effect! render-case-body)
          esterel-calculus/redex/model/shared
          (except-in scribble/core table)
          scribble/decode
@@ -311,7 +311,7 @@
                         (element "item" '())
                         item-label
                         (nested-flow (style "nopar" '(command))
-                                     (decode-flow (list body ...))))
+                                     (render-case-body (list body ...))))
                        ...))))]
     [(_ (~optional (~and #:induction i))
         (~optional (~and #:simple-cases s))
@@ -349,20 +349,5 @@
                         (element "item" '())
                         item-label
                         (nested-flow (style "nopar" '(command))
-                                     (decode-flow (list body ...))))
+                                     (render-case-body (list body ...))))
                        ...))))]))
-(define-simple-macro (render-cases/basic lang:id of:expr (pat:expr body ...) ...)
-  (list
-   "\n"
-   (exact "\\noindent")
-   "Cases of " of ":"
-   (exact "\\noindent")
-   (nested-flow (style "casesp" '())
-                (decode-flow
-                 (append
-                  (list (element "item" '())
-                        pat
-                        (nested-flow (style "nopar" '(command))
-                                     (decode-flow (list body ...))))
-                  ...)))))
-   

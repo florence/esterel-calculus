@@ -37,7 +37,8 @@
          current-reduction-arrow
          indent
          words bords ;; bords = bold words
-         leading-∀)
+         leading-∀
+         es/unchecked/dynamic)
 
 (define (rule name)
   (define (t s) (text s Linux-Liberterine-name))
@@ -62,6 +63,10 @@
 (define-syntax-rule
   (es/unchecked e)
   (with-paper-rewriters (term->pict esterel/typeset e)))
+(define-syntax es/unchecked/dynamic
+  (syntax-parser
+    [(es/unchecked/dynamic e)
+     #`(es/unchecked #,(datum->syntax #'e (syntax->datum #'e)))]))
 (define-syntax (esblock stx)
   (syntax-parse stx
     [(_ e:expr #:run-instants input-env-vss final-program output-signals)

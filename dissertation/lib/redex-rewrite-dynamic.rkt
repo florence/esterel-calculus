@@ -127,26 +127,32 @@
              (if (pict? op) op (render-op op))
              space)
             left))
-          (if (= (lw-line left)
-                 (lw-line right))
-              (list "")
-              (list))))
+          (list "")))
 (define (infix op lws)
   (define all (reverse (rest (reverse (rest (rest lws))))))
-  (let loop ([all all])
-    (match all
-      [(list* x (and dots (struct* lw ([e (or '... "...")]))) y rst)
-       (append (do-binop op dots y x)
-               (loop (cons y rst)))]
-      [(list* x (and dots (struct* lw ([e (or '... "...")]))) rst)
-       (list x dots "")]
-      [(list* x y rst)
-       (append (do-binop op x y)
-               (loop (cons y rst)))]
-      [(list x) (list x "")])))
+  (collapse-consecutive-spaces
+   (let loop ([all all])
+     (match all
+       [(list* x (and dots (struct* lw ([e (or '... "...")]))) y rst)
+        (append (do-binop op dots y x)
+                (loop (cons y rst)))]
+       [(list* x (and dots (struct* lw ([e (or '... "...")]))) rst)
+        (list x dots "")]
+       [(list* x y rst)
+        (append (do-binop op x y)
+                (loop (cons y rst)))]
+       [(list x) (list x "")]))))
+
+(define (collapse-consecutive-spaces l)
+  (match l
+    [(or (list _) (list)) l]
+    [(list* "" "" r)
+     (collapse-consecutive-spaces (cons "" r))]
+    [(cons a b)
+     (cons a (collapse-consecutive-spaces b))]))
 (define (prefix op lws)
   (define x (list-ref lws 2))
-  (list "" (just-before op x) x))
+  (list "" (render-op op) #;(just-before op x) x))
 (define (replace-font param)
   (let loop ([x (param)])
     (cond
@@ -513,7 +519,7 @@
              "; "
              (list-ref lws 4)
              (hbl-append
-              (text " ⊬" (default-style) (default-font-size))
+              (text " ⊢" (default-style) (default-font-size))
               (text "B" (cons 'subscript (default-style)) (default-font-size)))
              " "
              (list-ref lws 5)))]
@@ -526,7 +532,7 @@
              "; "
              (list-ref lws 4)
              (hbl-append
-              (text " ⊢" (default-style) (default-font-size))
+              (text " ⊬" (default-style) (default-font-size))
               (text "B" (cons 'subscript (default-style)) (default-font-size)))
              " "
              (list-ref lws 5)))]
@@ -771,7 +777,8 @@
              (define n (list-ref lws 2))
              (list "" n "+2"))]
     ['id-but-typeset-some-parens (λ (lws) (list "(" (list-ref lws 2) ")"))]
-    ['parens (λ (lws) (list "(" (list-ref lws 2) ")"))]
+    ['parens (λ (lws)
+               (list "(" (list-ref lws 2) ")"))]
     ['∀x (λ (lws)
            (match (lw-e (list-ref lws 2))
              ["“(suc n)”" '("n+1")]
@@ -945,6 +952,8 @@
      ['≃^circuit ≃-c-pict]
      ['≃^esterel ≃-e-pict]
 
+     ['not (lambda () (words "¬"))]
+     
      ;; we're using boldface for non-terminals now, so maybe this
      ;; extra attempt at clarity the "-p" suffixes isn't needed anymore
      ;['complete (λ () (text "complete-p" (non-terminal-style) (default-font-size)))]
