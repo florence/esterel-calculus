@@ -58,8 +58,9 @@
 (define-syntax es
   (syntax-parser
     [(es e)
-     (quasisyntax/loc this-syntax
-       (with-paper-rewriters (term->pict/checked esterel/typeset e)))]))
+     #`(with-paper-rewriters
+        #,(quasisyntax/loc this-syntax
+            (term->pict/checked esterel/typeset e)))]))
 (define-syntax-rule
   (es/unchecked e)
   (with-paper-rewriters (term->pict esterel/typeset e)))

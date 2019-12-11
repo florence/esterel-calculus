@@ -3,7 +3,9 @@
 
 (require (for-syntax syntax/parse
                      redex/private/term-fn
-                     racket/list)
+                     racket/list
+                     racket/stxparam-exptime
+                     racket/format)
          (only-in redex/private/struct
                   metafunc-proc-cases)
          (only-in redex/private/reduction-semantics
@@ -75,17 +77,22 @@
   (lambda (stx)
     (datum->syntax stx (do-judgment? stx))))
 
+(define-syntax-parameter in-sequence #f)
+
 (define-syntax sequenced
   (syntax-parser
     [(_ _:string ... (~seq (#:step n:id body:expr ...) _:string ...) ...)
+     #:with prefix
+     (or (~a (syntax-parameter-value #'in-sequence) ".") "")
      #:with (c ...)
      (for/list ([x (in-list (syntax->list #'(n ...)))]
                 [i (in-naturals 1)])
-       #`'#,i)
-     #'(match-let ([n (~a "(" c ")")] ...)
+       #`'(~a prefix #,i))
+     #`(match-let ([n (~a "(" c ")")] ...)
          (itemlist
           #:style 'ordered
-          (item body ...)
+          (syntax-parameterize ([in-sequence c])                 
+            (item body ...))
           ...))]))
 
 (define-for-syntax basic-subcases

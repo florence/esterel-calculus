@@ -342,8 +342,8 @@
                    #:defaults
                    ([attempts #`#,(unbox (syntax-local-value #'the-default-term->pict/checked-attempts))]))
         lang:id term:expr)
-     #'(begin
-         (test-valid-term lang term attempts)
+     #`(begin
+         #,(quasisyntax/loc this-syntax (test-valid-term lang term attempts))
          (term->pict lang term))]))
 
 (define-syntax test-valid-term
@@ -406,8 +406,23 @@
       (syntax-local-introduce
        #`(let-syntax
              ([whatever
-               (lambda (_) e #'(void))])
+               (lambda (_)
+                 (convert-to-syntax-error! #'e e)
+                 #'(void))])
            (whatever trm))))]))
+
+(begin-for-syntax
+  (require (for-syntax racket/base syntax/parse))
+  (define-syntax convert-to-syntax-error!
+    (syntax-parser
+      [(_ loc e)
+       #'(with-handlers ([exn:fail?
+                          (lambda (exn)
+                            (raise-syntax-error
+                             #f
+                             (exn-message exn)
+                             loc))])
+           e)])))
 
 (define-for-syntax (do-judgment? stx)
   (syntax-parse stx
