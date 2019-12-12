@@ -407,9 +407,8 @@ with respect to the circuit translation.
         give us our}
        #:statement
        @list{For all @es[(= q (ρ θ A (in-hole E p)))],
-        If @es[(closed q)],
-        @es/unchecked[(L¬∈ q complete)],
-        @es/unchecked[(L¬∈ p done)],
+        If @es[(closed q)] and
+        @es/unchecked[(L¬∈ p done)] and
         @es[(not-blocked θ A E p)]
         then there exists
         some @es[θ_o] and @es[p_o]
@@ -430,8 +429,7 @@ with respect to the circuit translation.
           @sequenced{
                      
            @#:step[A]{
-            As we know that @es[(not-blocked θ A E p)], and the only way to have @es[(blocked θ A E (emit S))]
-            is to have @es[(= A WAIT)], It must be the case that @es[(= A GO)]}
+            By the definition of @es[closed], it must be the case that @es[(= A GO)]}
            @#:step[bound]{
                           
             As @es[(closed q)] and as @es[E] contains no binders,
@@ -465,6 +463,10 @@ with respect to the circuit translation.
            }
 
            @#:step[_]{
+
+            We by @paused know that @es[p_o] is not @es[paused], but
+            we must consider of @es[p_o] is @es[done]. By the definition
+            of @es[done], this gives:
 
             @cases[#:of/count (L∈ p_o stopped) 2
                    #:simple-cases
@@ -511,8 +513,26 @@ with respect to the circuit translation.
          }}}}}}}
         
         @#:case[(par p_o q_o)]{
-          Given the definitions of @es[blocked] and @es[done],
-          we know that it must be the case that:
+          There is only one way for a @es[par] to @es[done], thus we know that
+          @es/unchecked[(not (parens (and (L∈ p_o paused) (L∈ q_o paused))))].           
+                                                     
+          There are three ways for an @es[par] to be @es[blocked], thus
+          we know that
+          
+          @(let ()
+             (define b1 (es/unchecked (parens (and (blocked-pure θ A (in-hole E (par hole q_o)) p_o) (blocked-pure θ A (in-hole E (par p_o hole)) q_o)))))
+             (define b2 (es/unchecked (parens (and (blocked-pure θ A (in-hole E (par hole q_o)) p_o) (L∈ q_o done)))))
+             (define b3 (es/unchecked (parens (and (L∈ p_o done) (blocked-pure θ A (in-hole E (par p_o hole)) q_o)))))
+             (define on (hbl-append @es[not] (words "(")))
+             (vl-append
+             (hbl-append on b1)
+             (hbl-append (ghost on) @es[or])
+             (hbl-append (ghost on) b2)
+             (hbl-append (ghost on) @es[or])
+             (hbl-append (ghost on) b3 (words ")"))))
+
+          On the whole this gives us the following expression:
+          
                                    
           @(let ()
              (define pause @es/unchecked[(not (parens (and (L∈ p_o paused) (L∈ q_o paused))))])
@@ -531,8 +551,8 @@ with respect to the circuit translation.
                                    
           
                                                                                             
-          Note that a term which is @es[paused] is also @es[done]. Given this an taking the disjuctive
-          normal form of the above expression we obtain four cases:
+          Note that a term which is @es[paused] is also @es[done]. Given this, we can find the the disjuctive
+          normal form of the above expression, giving us four cases:
 
           @es/unchecked[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ p_o paused))]
           
@@ -541,11 +561,8 @@ with respect to the circuit translation.
           @es/unchecked[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (L¬∈ p_o done))]
           
           @es/unchecked[(and (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ q_o done))]
-
-          This gives us the our subcases.
-
-
-          @cases[#:of/count ? 4
+          
+          @cases[#:of/count the\ above 4
                  #:simple-cases
                  #:no-check
                  #:language esterel/typeset]{
@@ -617,7 +634,7 @@ with respect to the circuit translation.
 
                   We may invoke our induction hypothesis on
                   @es[(in-hole E (par p_o hole))] and @es[q_o]. This gives us
-                  that exists some @es[θ_o1] and @es[p_o1] using @paused and @blocked and @not-done such that
+                  that exists some @es[θ_o1] and @es[p_o1] using @blocked and @not-done such that
                   @es[(⟶^r q (ρ θ_o1 A (in-hole E p_o1)))] or there exists
                   some @es[r] such that
                   @es[(⟶^s q (⟶^r r (ρ θ_o1 A (in-hole (in-hole E (par p_o hole)) p_o1))))].
@@ -628,9 +645,9 @@ with respect to the circuit translation.
                   In this case we can take the result from
                   @exists and shift The @es[(par p_o hole)] over to @es[p_o1].
                   Giving us a resulting @es[(= p_o2 (par p_o p_o1))], and an
-                  unchanged @es[θ_o1]. As the overall terms have not changed
-                  the reductions form @final are unchanged, so we may return
-                  these unchanged.
+                  unchanged @es[θ_o1]. As the overall terms have not changed,
+                  the reductions form @exists are unchanged. Thus we return those
+                  reductions.
 
            }}}}}}}
                                  
@@ -692,7 +709,7 @@ with respect to the circuit translation.
         @#:case[(ρ θ_o A_o p_o)]{
           In this case we may reduce by @rule["merge"],
           as by @es[(closed q)] we know that @es[(= A GO)],
-          which must be @es[>=-A] @es[A_o]. }
+          which must be @es[A->=] @es[A_o]. }
         @#:case[(present S p_o q_o)]{
           By @es[(closed q)] and @es[E] not containing
           any binders we know that @es[(L∈ S (Ldom θ))].

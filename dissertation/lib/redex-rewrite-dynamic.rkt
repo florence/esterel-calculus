@@ -521,6 +521,19 @@
              (hbl-append
               (def-t " ∈ ")
               (nt-t "done"))))]
+    ['blocked
+     (λ (lws)
+       (list ""
+             (list-ref lws 2)
+             "; "
+             (list-ref lws 3)
+             "; "
+             (list-ref lws 4)
+             (hbl-append
+              (words " ")
+              (blocked-pict))
+             " "
+             (list-ref lws 5)))]
     ['blocked-pure
      (λ (lws)
        (list ""
@@ -665,6 +678,7 @@
              ((white-square-bracket) #t)
              (list-ref lws 2)
              ((white-square-bracket) #f)))]
+    #;
     ['closed
      (lambda (lws)
        (list "FV"

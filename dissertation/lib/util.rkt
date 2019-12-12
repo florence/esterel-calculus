@@ -137,9 +137,9 @@
    #"\\setlist[casesp,1]{label=Case~\\arabic*:,ref=\\arabic*}\n"
    #"\\setlist[casesp,2]{label=Case~\\thecasespi.\\roman*:,ref=\\thecasespi.\\roman*}\n"
    #"\\setlist[casesp,3]{label=Case~\\thecasespii.\\alph*:,ref=\\thecasespii.\\alph*}\n"
-   #"\\setlist[casesp,4]{label=Case~\\thecasespiii.\\alph*:,ref=\\thecasespii.\\arabic*}\n"
-   #"\\setlist[casesp,5]{label=Case~\\thecasespiv.\\alph*:,ref=\\thecasespii.\\roman*}\n"
-   #"\\setlist[casesp,6]{label=Case~\\thecasespv.\\alph*:,ref=\\thecasespii.\\alph*}\n"
+   #"\\setlist[casesp,4]{label=Case~\\thecasespiii.\\arabic*:,ref=\\thecasespiii.\\arabic*}\n"
+   #"\\setlist[casesp,5]{label=Case~\\thecasespiv.\\roman*:,ref=\\thecasespiv.\\roman*}\n"
+   #"\\setlist[casesp,6]{label=Case~\\thecasespv.\\alph*:,ref=\\thecasespv.\\alph*}\n"
    #"\\let\\degree\\relax\n"
    (append
     (for/list ([i (in-list right-figure-sizes)])

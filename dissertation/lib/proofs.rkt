@@ -366,7 +366,7 @@
      
      #'(list
         "\n" (exact "\\noindent")
-        desc (with-paper-rewriters (trm-> lang c)) ":"
+        desc (tz (with-paper-rewriters (trm-> lang c1)) ...) ":"
         (exact "\\noindent")
         (nested-flow (style "casesp" '())
                      (decode-flow
