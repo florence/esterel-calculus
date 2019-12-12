@@ -1,7 +1,7 @@
 #lang racket
 (require redex/reduction-semantics
          rackunit
-         "../compiler.rkt"
+         esterel-calculus/circuits/compiler
          esterel-calculus/redex/test/generator
          esterel-calculus/redex/model/calculus
          circuitous)

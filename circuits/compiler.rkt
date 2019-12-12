@@ -441,21 +441,13 @@
   [(compile (ρ {(sig e:S_b present) e:θ} e:A e:p) c:entropy)
    ((++/P
      ((c:a_S = true))
-     (rename** c:P [e:S_b any_srename]))
+     (rename** c:P [e:S_b c:a_S]))
     ,(filter (lambda (x) (not (eq? (term e:S_b) x))) (term (e:S_o ...)))
     (c:n ...)
     ((c:a_preg-in c:a_reg-out) ...))
    (where/error (c:P (e:S_o ...) (c:n ...) ((c:a_reg-in c:a_reg-out) ...))
                 (compile (ρ e:θ e:A e:p) c:entropy))
-   (where c:a_S (maybe-afresh c:P e:S_b e:S_b (c:P c:entropy)))]
-  [(compile (ρ {(sig e:S_b present) e:θ} e:A e:p) c:entropy)
-   (c:P
-    ,(filter (lambda (x) (not (eq? (term e:S_b) x))) (term (e:S_o ...)))
-    (c:n ...)
-    ((c:a_reg-in c:a_reg-out) ...))
-   (where/error (c:P (e:S_o ...) (c:n ...) ((c:a_reg-in c:a_reg-out) ...))
-                (compile (ρ e:θ e:A e:p) c:entropy))
-   (where/error false (maybe-afresh c:P e:S_b e:S_b (c:P c:entropy)))])
+   (where c:a_S (afresh e:S_b (c:P c:entropy)))])
    
 
 

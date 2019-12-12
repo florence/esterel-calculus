@@ -38,3 +38,5 @@
 (test-term (term (seq (trap (par nothing pause)) nothing)))
 (test-term (term (seq (par nothing pause) pause)))
 (test-term (term (seq (trap (par nothing pause)) pause)))
+
+(test-term (term (ρ ((sig SX present) ·) GO (present SX nothing (exit 3)))))
