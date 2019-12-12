@@ -126,11 +126,11 @@
   [(binds circuit A) #t])
 
 (define-metafunction esterel/typeset
-  eval^esterel : p -> any
-  [(eval^esterel p) 1])
+  eval^esterel : O p -> any
+  [(eval^esterel O p) 1])
 (define-metafunction esterel/typeset
-  eval^circuit : circuit -> any
-  [(eval^circuit circuit) 1])
+  eval^circuit : O circuit -> any
+  [(eval^circuit O circuit) 1])
 
 (define-metafunction esterel/typeset
   [(≃^circuit c_1 c_2) 1])

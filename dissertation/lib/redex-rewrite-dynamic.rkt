@@ -5,10 +5,8 @@
          esterel-calculus/redex/model/eval
          (prefix-in calculus: esterel-calculus/redex/model/calculus)
          (prefix-in standard: esterel-calculus/redex/model/reduction)
-         scribble/base
          pict
          redex/pict
-         redex/reduction-semantics
          "util.rkt"
          (except-in "proof-extras.rkt" =)
          syntax/parse/define
@@ -39,18 +37,20 @@
        [(cons r _) (words r)]
        [_ (blank)])))
   (define tails (regexp-match* #rx"(_|\\^)[^^_]*" s))
-  (typeset-super+sub head tails))
+  (render-op/instructions head tails))
 
-(define (typeset-super+sub base ss)
+(define (render-op/instructions base ss)
   (define-values (supers subs)
     (for/fold ([super empty]
                [sub empty]
                #:result (values (reverse super) (reverse sub)))
               ([s (in-list ss)])
       (match s
-        [(regexp #rx"\\^(.*)" (list _ r))
+        [(or (regexp #rx"\\^(.*)" (list _ r))
+             (list 'superscript r))
          (values (cons r super) sub)]
-        [(regexp #rx"_(.*)" (list _ r))
+        [(or (regexp #rx"_(.*)" (list _ r))
+             (list 'subscript r))
          (values super (cons r sub))])))
   (define the-super (typeset-supers supers))
   (define the-sub (typeset-subs subs))
@@ -80,7 +80,7 @@
             ([s (in-list s)])
     (hbl-append
      p
-     (scale (words s) .7))))
+     (scale (if (string? s) (words s) s) .7))))
 
 #|
 
@@ -320,7 +320,15 @@
    (- (/ (pict-width raise) 4)) ;; yay manual kerning!
    0))
      
-(define (eval-pict x)
+(define (eval-pict x o)
+  (render-op/instructions
+   (text "eval" (metafunction-style) (default-font-size))
+   `((subscript ,x)
+     (superscript
+      ,(cond [(string? o) (text o (non-terminal-style) (default-font-size))]
+             [(lw? o) (render-lw esterel/typeset o)]
+             [(pict? o) o])))))
+#|
   (define eval (text "eval" (metafunction-style) (default-font-size)))
   (define raise (text x (cons 'superscript (metafunction-style)) (default-font-size)))
   (inset
@@ -328,11 +336,12 @@
    0
    (- (abs (- (pict-height eval) (pict-height raise))))
    0
-   0))
-(define (eval-e-pict)
-  (eval-pict "E"))
-(define (eval-c-pict)
-  (eval-pict "C"))
+   0)
+|#
+(define (eval-e-pict o)
+  (eval-pict "E" o))
+(define (eval-c-pict o)
+  (eval-pict "C" o))
 (define (≃-e-pict)
   (≃-pict "E"))
 (define (≃-c-pict)
@@ -884,15 +893,15 @@
 
     ['eval^circuit
      (lambda (lws)
-       (list (eval-c-pict)
+       (list (eval-c-pict (list-ref lws 2))
              ((white-square-bracket) #t)
-             (list-ref lws 2)
+             (list-ref lws 3)
              ((white-square-bracket) #f)))]
     ['eval^esterel
      (lambda (lws)
-       (list (eval-e-pict)
+       (list (eval-e-pict (list-ref lws 2))
              ((white-square-bracket) #t)
-             (list-ref lws 2)
+             (list-ref lws 3)
              ((white-square-bracket) #f)))]
     ['≃^circuit
      (lambda (e) (binop (≃-c-pict) e))]
@@ -972,8 +981,8 @@
      ['<= (λ () (plus-equals))]
      ['loop^stop (λ () (loop^stop-pict))]
 
-     ['eval^circuit eval-c-pict]
-     ['eval^esterel eval-e-pict]
+     ['eval^circuit (lambda () (eval-c-pict "O"))]
+     ['eval^esterel (lambda () (eval-e-pict "O"))]
      ['≃^circuit ≃-c-pict]
      ['≃^esterel ≃-e-pict]
 
