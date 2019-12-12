@@ -38,6 +38,8 @@
          latex-lit
          definition
          noindent newline
+         exact-chars-element
+         wrap-latex-begin-end
          
          theorem theorem-ref Theorem-ref
          lemma lemma-ref Lemma-ref
@@ -251,13 +253,15 @@
 
 (define (wrap-latex-begin-end env content #:followup [followup #f])
   (decode-flow
-   (list
-    (exact-chars-element #f
-                         (cond
-                           [followup (format "\\begin{~a}~a" env followup)]
-                           [else (format "\\begin{~a}" env)]))
-    content
-    (exact-chars-element #f (format "\\end{~a}" env)))))
+   (append
+    (list
+     (exact-chars-element #f
+                          (cond
+                            [followup (format "\\begin{~a}~a" env followup)]
+                            [else (format "\\begin{~a}" env)])))
+    (if (list? content) content (list content))
+    (list
+     (exact-chars-element #f (format "\\end{~a}" env))))))
 
 (define (proof-ref str)
   (list (proof-type-ref str "lemma~" "theorem~" "undefined theorem~")

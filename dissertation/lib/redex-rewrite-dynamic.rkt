@@ -361,7 +361,18 @@
    (text "CB" (cons 'subscript (default-style)) (default-font-size))))
 
 (define (plus-equals) (hbl-append -1 (def-t "+") (def-t "=")))
-  
+
+
+(define (blocked-pict)
+  (hbl-append
+   (text "⊢" (default-style) (default-font-size))
+   (text "B" (cons 'subscript (default-style)) (default-font-size))))
+(define (not-blocked-pict)
+  (hbl-append
+   (text "⊬" (default-style) (default-font-size))
+   (text "B" (cons 'subscript (default-style)) (default-font-size))))
+
+
 (define (with-paper-rewriters/proc thunk)
 
   ;                                                                                  
@@ -519,8 +530,8 @@
              "; "
              (list-ref lws 4)
              (hbl-append
-              (text " ⊢" (default-style) (default-font-size))
-              (text "B" (cons 'subscript (default-style)) (default-font-size)))
+              (words " ")
+              (blocked-pict))
              " "
              (list-ref lws 5)))]
     ['not-blocked
@@ -532,8 +543,8 @@
              "; "
              (list-ref lws 4)
              (hbl-append
-              (text " ⊬" (default-style) (default-font-size))
-              (text "B" (cons 'subscript (default-style)) (default-font-size)))
+              (words " ")
+              (not-blocked-pict))
              " "
              (list-ref lws 5)))]
 
@@ -990,11 +1001,15 @@
      ['unknown (λ () (text "⊥" (default-style) (default-font-size)))]
 
      ['⟶
-     (lambda () (render-op '⟶))]
-    ['⟶^s
-     (lambda () (render-op '⟶^S))]
-    ['⟶^r
-     (lambda () (render-op '⟶^R))]
+      (lambda () (render-op '⟶))]
+     ['⟶^s
+      (lambda () (render-op '⟶^S))]
+     ['⟶^r
+      (lambda () (render-op '⟶^R))]
+    
+     ['blocked blocked-pict]
+     ['blocked-pure blocked-pict]
+     ['not-blocked not-blocked-pict]
      
      ;; results
      ['R (lambda ()

@@ -18,6 +18,11 @@
 
 @title[#:style paper-title-style]{Adequacy}
 
+The goal of this section is to prove computational adequacy of the calculus
+with respect to the circuit translation.
+
+@section["positive"]
+
 
 @proof[#:label "e-v-is-c-v"
        #:title "Esterel Value is Circuit Value"
@@ -390,6 +395,7 @@
 
 }
 
+@section["Negative"]
 
 @proof[#:title "Not values must step"
        #:label "nv-must-step"
@@ -431,13 +437,6 @@
             As @es[(closed q)] and as @es[E] contains no binders,
             It must be the case that @es[(L∈ S (Ldom θ))].
 
-           }
-           @#:step[eq]{
-
-            No @es[θ] in a @es[ρ] may contain a signal set to absent,
-            therefore by this and @es[bound],
-            @es[(L∈ (θ-get-S θ S) (L2set present absent))].
-                          
            }
            @#:step[final]{
 
@@ -522,7 +521,7 @@
              (define b3 (es/unchecked (parens (and (L∈ p_o done) (blocked-pure θ A (in-hole E (par p_o hole)) q_o)))))
              (define on (hbl-append @es[not] (words "(")))
              (vl-append
-              b1
+              pause
               @es/unchecked[and]
               (hbl-append on b1)
               (hbl-append (ghost on) @es[or])
@@ -539,9 +538,9 @@
           
           @es/unchecked[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ q_o paused))]
           
-          @es/unchecked[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (L¬∈ p done))]
+          @es/unchecked[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (L¬∈ p_o done))]
           
-          @es/unchecked[(and (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ q done))]
+          @es/unchecked[(and (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ q_o done))]
 
           This gives us the our subcases.
 
@@ -601,9 +600,12 @@
                  }
                  @#:case[(L¬∈ p_o done)]{
 
-                  In this case we may invoke our induction hypothesis on @es[p_o], as we know
-                  @es[(not-blocked θ A (in-hole E (par hole q_o)) p_o)] and @es/unchecked[(L¬∈ p_o done)].
-                  TODO reassemble.
+                  In this case we may invoke our induction hypothesis on
+                  @es[p_o], as we know
+                  @es[(not-blocked θ A (in-hole E (par hole q_o)) p_o)] and
+                  @es/unchecked[(L¬∈ p_o done)]. As usual we may reassemble
+                  the result of the induction by shifting one frame of the
+                  @es[E] back over and using the same reductions.
 
                  }
                }}
@@ -642,10 +644,17 @@
 
            }
             
-           @#:case[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (L¬∈ p done))]{
+           @#:case[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (L¬∈ p_o done))]{
+                                                                                          
+            As we know that @es[p_o] is not @es[blocked] or @es[done]
+            we can induct on @es[p_o] and
+            @es[(in-hole E (par hole q_o))]. As usual we may reassemble
+            the result of the induction by shifting one frame of the
+            @es[E] back over and using the same reductions.
+               
            }
             
-           @#:case[(and (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ q done))]{
+           @#:case[(and (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ q_o done))]{
 
             This case is the same as the previous, but finding a reduction
             in the other branch.

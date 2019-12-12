@@ -18,7 +18,9 @@
          pict
          "redex-rewrite.rkt"
          (only-in "util.rkt" lift-to-compile-time-for-effect! render-case-body
-                  term->pict/checked)
+                  term->pict/checked
+                  wrap-latex-begin-end
+                  exact-chars-element)
          esterel-calculus/redex/model/shared
          (except-in scribble/core table)
          scribble/decode
@@ -92,11 +94,16 @@
                 [i (in-naturals 1)])
        #`(~a 'prefix '#,i))
      #`(match-let ([n (~a "(" c ")")] ...)
-         (itemlist
-          #:style 'ordered
-          (syntax-parameterize ([in-sequence c])                 
-            (item body ...))
-          ...))]))
+         (wrap-latex-begin-end
+          "enumerate"
+          #:followup "[label*=\\arabic*.]"
+          (append
+           (list
+            (exact-chars-element #f "\\item")
+            (syntax-parameterize ([in-sequence c]) 
+              (nested-flow (style "nopar" '(command))
+                           (render-case-body (list body ...)))))
+           ...)))]))
 
 (define-for-syntax basic-subcases
   (lambda (stx)
