@@ -17,8 +17,6 @@
 
 @title["Negative"]
 
-
-
 @proof[#:title "Non-stepping terms are values"
        #:label "step-is-v"
        #:statement
@@ -34,7 +32,13 @@
         then either
          @es/unchecked[(L∈ p done)]
         or
-        @es[(blocked-pure θ A hole p)]}]{                                       
+        @es[(blocked-pure θ A hole p)]}]{
+ As @es[blocked-pure] and whether or not a term is @es[done] are decidable properties,
+ we may act as if we have the law of the excluded middle here.
+
+ Thus we may take the contrapositive of @proof-ref["nv-must-step"], gives
+ us this exactly.
+ 
 }
 
 @proof[#:title "Not values must step"

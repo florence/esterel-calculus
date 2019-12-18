@@ -7,17 +7,28 @@
           "lib/jf-figures.rkt"
           "lib/misc-figures.rkt"
           "lib/rule-figures.rkt"
+          "lib/circuit-diagrams.rkt"
           redex/reduction-semantics
+          redex/pict
+          (only-in pict hbl-append)
           esterel-calculus/redex/model/shared
           esterel-calculus/redex/model/lset
           esterel-calculus/redex/model/potential-function
-          (except-in scribble-abbrevs/latex definition))
+          (except-in scribble-abbrevs/latex definition)
+          racket/list
+          scribble/core)
 
 @para[#:style 'pretitle]{@latex-lit["appendices"]}
 
 @title[#:style paper-title-style]{Definitions}
 
 @section[#:tag "sec:defcirc" "Circuits"]
+
+@definition[#:notation (hbl-append (es (compile p)) (es ⟶) (es circuit))]{
+                                                                          
+ @add-between[compile-def (element 'newline '())]
+
+}
 
 @definition[#:notation @es[(binds (compile p) θ)]
             #:read-as @list{@es[θ] binds @es[(compile p)]}]{
@@ -59,6 +70,35 @@
  @reduction-relation-pict
 }
 
+@definition[#:notation @es[(⟶ p q)]]{
+ The compatible closure of @es[⇀].
+}
+
+@definition[#:notation @es[(≡ p q)]]{
+ The transitive, reflexive, symmetric, compatible closure of @es[⇀].
+}
+
+@definition[
+ #:notation @list{@es[(eval^esterel O p)] @es[⟶] @es[(tup θ bool)]}
+ #:read-as @list{Evaluate the program @es[p] using the output signals @es[O].}]{
+
+ @with-paper-rewriters[@render-metafunction[eval^esterel]]
+
+}
+
+@definition[
+ #:notation @es[(restrict θ O p)]
+ #:read-as @list{Restrict @es[θ] to signals in @es[O],
+  given a program @es[p].}]{
+
+ @es[(= (restrict θ O p) (restrict-defintion θ O p))]
+
+ where
+
+ @with-paper-rewriters[@render-metafunction[DR #:contract? #t]]
+
+}
+
 @definition[#:notation @es[(blocked-pure θ A E p)]
             #:read-as @list{The term @es[p] cannot reduce (is blocked)
              in the context @es[(ρ θ A (in-hole E p))]}]{
@@ -74,9 +114,9 @@
  @Canθ-pict
 }
 
-@definition[#:notation @es[(complete-with-respect-to θ done)]]{
- For all @es[(L∈ S (Ldom θ))],
- @es[(= (θ-get-S θ S) present)] or
- @es[(= (θ-get-S θ S) unknown)]
- and @es[(L¬∈ S (->S (Can-θ (ρ θ GO done) ·)))].
+@definition[#:notation @es[(complete-with-respect-to θr done)]]{
+ For all @es[(L∈ S (Ldom θr))],
+ @es[(= (θ-get-S θr S) present)] or
+ @es[(= (θ-get-S θr S) unknown)]
+ and @es[(L¬∈ S (->S (Can-θ (ρ θr GO done) ·)))].
 }

@@ -18,11 +18,17 @@
          ≃^circuit
          ≃^esterel
          ⟶^r
-         ⟶^s)
+         ⟶^s
+         DR
+         restrict
+         closed)
 
 (require
   redex/reduction-semantics
   esterel-calculus/redex/model/shared
+  esterel-calculus/redex/model/lset
+  (only-in esterel-calculus/redex/test/binding
+           closed)
   scribble/examples
   (only-in esterel-calculus/redex/model/reduction
            blocked)
@@ -65,6 +71,7 @@
   (wire w ::= variable)
   (c circuit ::= (circ ((w = wire-value) ...) I O))
   (I O ::= (w ...))
+  (bool ::= tt ff)
   (wire-value
    ::=
    w 0 1
@@ -126,8 +133,40 @@
   [(binds circuit A) #t])
 
 (define-metafunction esterel/typeset
-  eval^esterel : O p -> any
-  [(eval^esterel O p) 1])
+  eval^esterel : O p -> (tup L-S bool)
+  [(eval^esterel O p)
+   (tup (restrict θr O p) tt)
+   (where/hidden q p)
+   (side-condition (term (closed p)))
+   (side-condition (term (≡ p q)))
+   (where (ρ θr GO done) q)
+   (side-condition (term (complete-with-respect-to θr done)))]
+  [(eval^esterel O p)
+   (tup (restrict θr O p) ff)
+   (where/hidden q p)
+   (side-condition (term (closed p)))
+   (side-condition (term (≡ p q)))
+   (where (ρ θr A r) q)]
+  [(eval^esterel O p)
+   (tup (L0set) ff)])
+
+(define-metafunction esterel/typeset
+  restrict : θ O p -> L-S
+  [(restrict · O p) ()]
+  [(restrict ((sig S status) θ) (w_r ... S w_r ...) p)
+   ((sig S (DR status S p)) (restrict θ (w_r ... S w_r ...)) p)]
+  [(restrict (_ θ) O p)
+   (restrict θ O p)])
+
+(define-metafunction esterel/typeset
+  DR : status S p -> status
+  [(DR unknown S p)
+   absent
+   (judgment-holds (L¬∈ S (Can-θ p ·)))]
+  [(DR status S p)
+   status])
+  
+   
 (define-metafunction esterel/typeset
   eval^circuit : O circuit -> any
   [(eval^circuit O circuit) 1])

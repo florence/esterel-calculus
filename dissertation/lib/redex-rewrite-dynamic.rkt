@@ -1,12 +1,13 @@
 #lang racket
 
-(require esterel-calculus/redex/model/shared
+(require (except-in esterel-calculus/redex/model/shared quasiquote)
          esterel-calculus/redex/model/instant
          esterel-calculus/redex/model/eval
          (prefix-in calculus: esterel-calculus/redex/model/calculus)
          (prefix-in standard: esterel-calculus/redex/model/reduction)
          pict
          redex/pict
+         pict/convert
          "util.rkt"
          (except-in "proof-extras.rkt" =)
          syntax/parse/define
@@ -25,8 +26,6 @@
 
 ;; es short for esterel, in the spirit of @racket[]
 (provide with-paper-rewriters/proc)
-
-
 
 (define (render-op p [x #f])
   (define s (~a (if x x p)))
@@ -54,62 +53,38 @@
          (values super (cons r sub))])))
   (define the-super (typeset-supers supers))
   (define the-sub (typeset-subs subs))
-  (define afters
-    (vl-append
-     (inset the-super
-            0 (* 1/2 (pict-height the-super))
-            0 (* -1/2 (pict-height the-super)))
-     
-     (lift-above-baseline the-sub
-                          (* -1/5 (pict-height the-sub)))))
-  (define too-much-space-above/below
-    (hbl-append base afters))
-  (define x (ghost base))
-  (inset (refocus (lbl-superimpose (ghost x) too-much-space-above/below)
-                  x)
-         0
-         0
-         (- (pict-width too-much-space-above/below) (pict-width x))
-         0))
+
+  (inset
+   (refocus
+    (hbl-append
+     (refocus (hbl-append base the-sub) base)
+     the-super)
+    base)
+   0
+   0
+   (max (pict-width the-sub) (pict-width the-super))
+   0))
+    
 (define (typeset-supers s)
-  (render-word-sequence (blank) s))
+  (render-word-sequence (blank) s +2/5))
 (define (typeset-subs s)
-  (render-word-sequence (inset (blank) 0 (pict-height (ghost (scale (alt-ρ) .7)))) s))
-(define (render-word-sequence base s)
-  (for/fold ([p base])
-            ([s (in-list s)])
-    (hbl-append
-     p
-     (scale (if (string? s) (words s) s) .7))))
+  (render-word-sequence (blank) s -2/5))
+(define (render-word-sequence base s l)
+  (define p 
+    (for/fold ([p base])
+              ([s (in-list s)])
+      (hbl-append
+       p
+       (scale
+        (cond [(string? s) (words s)]
+              [(pict-convertible? s) s]
+              [(lw? s) (render-lw esterel/typeset s)])
+        .7))))
+  (lift-bottom-relative-to-baseline
+   p
+   (* l (pict-height p))))
 
-#|
-
-  (define the-rho
-    (if do-rho?
-        (scale (alt-ρ) .7)
-        (ghost (scale (alt-ρ) .7))))
-  (define the-super
-    (if super
-        (scale (text super (default-style) (default-font-size)) .7)
-        (blank)))
-  (define can (mf-t "Can"))
-  (define lifted-rho
-    (lift-above-baseline the-rho
-                         (* -1/5 (pict-height the-rho))))
-  (define too-much-space-below
-    (hbl-append
-     can
-     (vl-append
-      (inset the-super 0 (* 1/2 (pict-height the-super)) 0 (* -1/2 (pict-height the-super)))
-      lifted-rho)))
-  (define x (mf-t "x"))
-  (inset (refocus (lbl-superimpose (ghost x) too-much-space-below)
-                  x)
-         0
-         0
-         (- (pict-width too-much-space-below) (pict-width x))
-         0)
-|#
+   
 
 (define (binop op lws)
   (define left (list-ref lws 2))
@@ -309,16 +284,9 @@
            base-seq))
 
 (define (≃-pict x)
-  (define = (ghost (text "=" (metafunction-style) (default-font-size))))
-  (define sim (text "≃" (metafunction-style) (default-font-size)))
-  (define eq (refocus (lbl-superimpose sim =) =))
-  (define raise (text x (cons 'superscript (metafunction-style)) (default-font-size)))
-  (inset
-   (hbl-append eq raise)
-   0
-   (- (abs (- (pict-height raise) (pict-height eq))))
-   (- (/ (pict-width raise) 4)) ;; yay manual kerning!
-   0))
+  (render-op/instructions
+   (text "≃" (metafunction-style) (default-font-size))
+   `((superscript ,(text x (metafunction-style) (default-font-size))))))
      
 (define (eval-pict x o)
   (render-op/instructions
@@ -328,16 +296,7 @@
       ,(cond [(string? o) (text o (non-terminal-style) (default-font-size))]
              [(lw? o) (render-lw esterel/typeset o)]
              [(pict? o) o])))))
-#|
-  (define eval (text "eval" (metafunction-style) (default-font-size)))
-  (define raise (text x (cons 'superscript (metafunction-style)) (default-font-size)))
-  (inset
-   (hbl-append eval raise)
-   0
-   (- (abs (- (pict-height eval) (pict-height raise))))
-   0
-   0)
-|#
+
 (define (eval-e-pict o)
   (eval-pict "E" o))
 (define (eval-c-pict o)
@@ -916,7 +875,57 @@
           (list* o
                  (text "if" (literal-style) (default-font-size))
                  " "
-                 r)]))])
+                 r)]))]
+
+    ['tup
+     (lambda (lws)
+       (append (list "⟨")
+               (infix "," lws)
+               (list "⟩")))]
+    ['restrict
+     (lambda (lws)
+       (match lws
+         [(list _ _ a b c _)
+          (define bar (text "|" (literal-style) (default-font-size)))
+          (define p (translate (render-lw esterel/typeset b) 0 5))
+          (define θ (baseless (render-lw esterel/typeset c)))
+          (list ""
+                a
+                (render-op/instructions
+                 (scale
+                  (refocus
+                   (lc-superimpose
+                    (ghost bar)
+                    (scale (text "|" (literal-style) (default-font-size)) 1 1.3))
+                   bar)
+                  .9 1)
+                 `((subscript ,p)
+                   (superscript ,θ))))]))]
+    ['restrict-defintion
+     (lambda (lws)
+       (match lws
+         [(list _ _ a b c _)
+       
+          (list
+           (hbl-append
+            (words "{ ")
+            (hbl-append
+             (es S)
+             (es ↦)
+             (es/unchecked (DR (θ-get-S θ S) S p)))
+            (words " | ")
+            (es S)
+            (render-op " ∈ ")
+            (words "dom")
+            ((white-square-bracket) #t))
+           a
+           (hbl-append
+            ((white-square-bracket) #f)
+            (words " and ")
+            (es S)
+            (render-op " ∈ "))
+           b
+           (words " }"))]))])
              
    
    ;                                                              
@@ -1033,6 +1042,11 @@
      ['blocked blocked-pict]
      ['blocked-pure blocked-pict]
      ['not-blocked not-blocked-pict]
+     ['θr
+      (lambda ()
+        (render-op/instructions
+         (text "θ" (non-terminal-style) (default-font-size))
+         `((superscript ,(text "r" (non-terminal-style) (default-font-size))))))]
      
      ;; results
      ['R (lambda ()

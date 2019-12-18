@@ -60,8 +60,18 @@
          default-term->pict/checked-attempts
          term->pict/checked)
 
+(define (exact-chars-element styl . strs)
+  (match (cons styl strs)
+    [(cons (? values) (? pair?))
+     (element (style styl '(exact-chars)) strs)]
+    [(cons (? values) '())
+     (element styl "")]
+    [(cons #f (? pair?))
+     (element (style #f '(exact-chars)) strs)]))
+
 (define noindent (element "noindent" '()))
 (define newline (element "newline" '()))
+(define nobreak (element 'no-break '()))
 
 (define (latex-lit name #:extras [extras empty] . args)
   (element (style name (cons 'exact-chars extras)) args))
@@ -202,14 +212,19 @@
           (exact "\\noindent")
           (bold "Definition: "))
     (flatten notation)
+    (list nobreak)
     (if read-as
         (list
          (make-paragraph
           plain
           (append
+           (list nobreak)
            (list (italic "read as: "))
-           (flatten read-as))))
+           (list nobreak)
+           (flatten read-as)
+           (list nobreak))))
         empty)
+    (list nobreak)
     (list (make-paragraph plain def))
     (list (exact "\\vspace{1ex}\n")))))
   
@@ -241,15 +256,6 @@
        "")
    (nested-flow (style "proof" '())
                 (render-case-body the-proof))))
-
-(define (exact-chars-element styl . strs)
-  (match (cons styl strs)
-    [(cons (? values) (? pair?))
-     (element (style styl '(exact-chars)) strs)]
-    [(cons (? values) '())
-     (element styl "")]
-    [(cons #f (? pair?))
-     (element (style #f '(exact-chars)) strs)]))
 
 (define (wrap-latex-begin-end env content #:followup [followup #f])
   (decode-flow
