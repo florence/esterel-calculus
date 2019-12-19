@@ -22,6 +22,7 @@
                   wrap-latex-begin-end
                   exact-chars-element)
          esterel-calculus/redex/model/shared
+         syntax/location
          (except-in scribble/core table)
          scribble/decode
          scribble-abbrevs/latex
@@ -145,11 +146,12 @@
          #:with (... ((prot ...) ...))
          (apply map list
                 (map syntax->list (syntax->list #'(... ((pat ...) ...)))))
+         #:with ps (pst ...)
                
-         #'(...
+         #`(...
             (syntax-parameterize ([subcases new-sc])
-              (test-cases-covered #:checks #,checks lang n (prot ...)) ...
-              (render-cases #,@(if fst? #'(#:lexicographic (pst ...)) #'(#:lexicographic-sub (... (n ...))))
+              #,(syntax-loc this-syntax (begin (test-cases-covered #:checks #,checks lang n (prot ...)) ...))
+              (render-cases #,@(if fst? #'(#:lexicographic ps) #'(#:lexicographic-sub (... (n ...))))
                             lang
                             (n ...)
                             ((pat ...) body ...) ...)))])))
@@ -174,8 +176,8 @@
       ...
       _:string ... 
       (~seq [#:case p:expr body ...] _:string ...) ...)
-     #'(begin
-         (test-cases-covered #:checks n lang (~? d c) (p ...))
+     #`(begin
+         #,(syntax/loc this-syntax (test-cases-covered #:checks n lang (~? d c) (p ...)))
          (render-cases (~? i) (~? t) lang c (p body ...) ...))]
      
     [(_
@@ -250,37 +252,40 @@
      (andmap (lambda (x) (eq? (syntax-e x) '_))
              (syntax->list #'p))
      "Expected only `_` for patterns when checking a metafunction"
-     #'(lift-to-compile-time-for-effect!
-        (unless
-            (equal? (length 'p)
-                    (length (metafunc-proc-cases (metafunction-proc (metafunction mf)))))
-          (error 'cases
-                 '"wrong number of cases for metafunction ~a. Expected ~a got ~a."
-                 'mf
-                 (length (metafunc-proc-cases (metafunction-proc (metafunction mf))))
-                 (length 'p))))]
+     #`(lift-to-compile-time-for-effect!
+        #,(syntax/loc this-syntax
+            (unless
+                (equal? (length 'p)
+                        (length (metafunc-proc-cases (metafunction-proc (metafunction mf)))))
+              (error 'cases
+                     '"wrong number of cases for metafunction ~a. Expected ~a got ~a."
+                     'mf
+                     (length (metafunc-proc-cases (metafunction-proc (metafunction mf))))
+                     (length 'p)))))]
     [(test-cases-covered #:checks n lang:id (j _ ...) p)
      #:when (do-judgment? #'j)
      #:with (~and ~! (names ...)) (judgment-form-rule-names (syntax-local-value #'j))
      #:with (clause:id ...) #'p
      #:fail-unless (andmap values (syntax->list #'(names ...)))
      "Cannot check cases for a judgment form where some cases are not named"
-     #'(lift-to-compile-time-for-effect!
-        (unless (equal? (set (~a 'clause) ...)
-                        (set 'names ...))
-          (error 'cases
-                 '"missing or unexpected case. Expected ~a, got ~a"
-                 (map string->symbol '(names ...))
-                 '(clause ...))))]
+     #`(lift-to-compile-time-for-effect!
+        #,(syntax/loc this-syntax
+            (unless (equal? (set (~a 'clause) ...)
+                            (set 'names ...))
+              (error 'cases
+                     '"missing or unexpected case. Expected ~a, got ~a"
+                     (map string->symbol '(names ...))
+                     '(clause ...)))))]
     [(test-cases-covered #:checks n lang:id c:expr (pat:expr ...))
      #:when (and (not (do-mf? #'c)) (not (do-judgment? #'c)))
-     #'(lift-to-compile-time-for-effect!
-        (redex-check
-         lang c
-         (unless (or (redex-match? lang pat (term c)) ...)
-           (error "missing case!"))
-         #:attempts 'n
-         #:print? '#f))]))
+     #`(lift-to-compile-time-for-effect!
+        #,(syntax/loc this-syntax
+            (redex-check
+             lang c
+             (unless (or (redex-match? lang pat (term c)) ...)
+               (error "missing case!"))
+             #:attempts 'n
+             #:print? '#f)))]))
 
 (define (tuplize . p)
   (if (= 1 (length p))
@@ -304,7 +309,7 @@
   (syntax-parser
     [(_ (~and l (~or (~and #:lexicographic) #:lexicographic-sub))
         (all:expr ...)
-        lang:id (c:expr ...) ((pat:expr ...) body ...) ...)
+        lang:id (c:expr ...) (~and clause-loc ((pat:expr ...) body ...)) ...)
      #:with desc #`#,(if (equal? (syntax-e #'l) '#:lexicographic)
                          "Lexicographic Induction over " "Cases of ")
      #:with (item-label ...)
@@ -328,7 +333,7 @@
                         (element "item" '())
                         item-label
                         (nested-flow (style "nopar" '(command))
-                                     (render-case-body (list body ...))))
+                                     (render-case-body (quote-srcloc-string clause-loc) (list body ...))))
                        ...))))]
     [(_ (~optional (~and #:induction i))
         (~optional (~and #:simple-cases s))

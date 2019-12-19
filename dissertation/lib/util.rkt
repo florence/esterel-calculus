@@ -14,12 +14,15 @@
          (only-in plot/utils treeof)
          racket/runtime-path
          (only-in scribble/base bold italic)
+         syntax/location
          (for-syntax syntax/parse
                      racket/list
                      racket/format
                      (except-in redex/reduction-semantics judgment-form?)
                      redex/private/term-fn))
 (module+ test (require rackunit))
+
+
 
 (provide (rename-out [-note note])
          in-footnote?
@@ -44,21 +47,18 @@
          theorem theorem-ref Theorem-ref
          lemma lemma-ref Lemma-ref
          render-case-body
-         (contract-out
-          
-          [proof
-           (->*
-            (#:label string? #:statement (treeof pre-flow?))
-            (#:annotations list?
-             #:interpretation (treeof pre-flow?)
-             #:type (or/c 'lemma 'theorem)
-             #:title (or/c #f string?))
-            #:rest (treeof pre-flow?)
-            (treeof pre-flow?))])
+         proof
          proof-ref
          Proof-ref
          default-term->pict/checked-attempts
-         term->pict/checked)
+         term->pict/checked
+         log-diss-debug
+         log-diss-info
+         log-diss-warning
+         log-diss-error
+         log-diss-fatal)
+
+(define-logger diss)
 
 (define (exact-chars-element styl . strs)
   (match (cons styl strs)
@@ -229,13 +229,27 @@
     (list (exact "\\vspace{1ex}\n")))))
   
 
-(define (proof #:label label
-               #:annotations [annotations empty]
-               #:statement statement
-               #:interpretation [interp #f]
-               #:type [type 'lemma]
-               #:title [title #f]
-               . the-proof)
+(define-syntax proof
+  (syntax-parser
+    [(_ . a)
+     (quasisyntax/loc this-syntax
+       (prooff (quote-srcloc-string #,this-syntax) . a))]))
+(define/contract (prooff #:label label
+                #:annotations [annotations empty]
+                #:statement statement
+                #:interpretation [interp #f]
+                #:type [type 'lemma]
+                #:title [title #f]
+                loc
+                . the-proof)
+  (->*
+   (any/c #:label string? #:statement (treeof pre-flow?))
+   (#:annotations list?
+    #:interpretation (treeof pre-flow?)
+    #:type (or/c 'lemma 'theorem)
+    #:title (or/c #f string?))
+   #:rest (treeof pre-flow?)
+   (treeof pre-flow?))
   (when (hash-has-key? proof-name-table label)
     (error 'proof "attempted to make two proofs with the label ~a" label))
   (hash-set! proof-name-table label title)
@@ -255,7 +269,7 @@
                     (decode-flow (list interp)))
        "")
    (nested-flow (style "proof" '())
-                (render-case-body the-proof))))
+                (render-proof-item-body loc the-proof))))
 
 (define (wrap-latex-begin-end env content #:followup [followup #f])
   (decode-flow
@@ -497,11 +511,19 @@
         (element (style "ref" '(exact-chars)) (list str))))
 
 
-(define (render-case-body body)
-  (define (whitespace? s)
+
+  
+
+(define (render-proof-item-body location body)
+  (define (whitespace-or-todo? s)
     (and (string? s)
-         (regexp-match #px"^\\s*$" s)))
+         (regexp-match #px"^(\\s*|(?i:todo))$" s)))
+  
   (decode-flow
-   (if (andmap whitespace? body)
-       (list "TODO")
-       body)))
+   (cond
+     [(andmap whitespace-or-todo? body)
+      (log-diss-warning "unproved case at: ~a" location)
+      (list "TODO")]
+     [else body])))
+
+(define render-case-body render-proof-item-body)
