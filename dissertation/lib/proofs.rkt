@@ -319,9 +319,17 @@
   (syntax-parser
     [(_ (~and l (~or (~and #:lexicographic) #:lexicographic-sub))
         (all:expr ...)
-        lang:id (c:expr ...) (~and clause-loc ((pat:expr ...) body ...)) ...)
+        lang:id (c:expr ...) (~and clause-loc* ((pat*:expr ...) body* ...)) ...)
      #:with desc #`#,(if (equal? (syntax-e #'l) '#:lexicographic)
                          "Lexicographic Induction over " "Cases of ")
+     
+     #:with ((~and clause-loc ((pat ...) body ...)) ...)
+     (for/list ([x (in-list (syntax->list #'(clause-loc* ...)))]
+                #:unless
+                (syntax-parse x
+                  [(+ #:ignore _ ...) #t]
+                  [_ #f]))
+       x)
      #:with (item-label ...)
      #'((list
          (tuplize
@@ -350,7 +358,14 @@
         (~optional (~and #:tuplize t))
         (~optional (~and #:just-render j))
         (~optional (~and #:do-check chk))
-        lang:id c:expr (~and cloc (pat:expr body ...)) ...)
+        lang:id c:expr (~and cloc* (pat*:expr body* ...)) ...)
+     #:with ((~and cloc (pat body ...)) ...)
+     (for/list ([x (in-list (syntax->list #'(cloc* ...)))]
+                #:unless
+                (syntax-parse x
+                  [(_ #:ignore _ ...) #t]
+                  [_ #f]))
+       x)
      #:with desc
      #`#,(string-append
           (if (attribute i) "Induction on " "Cases of ")

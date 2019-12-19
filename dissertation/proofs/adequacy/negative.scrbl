@@ -374,5 +374,5 @@
          }}}
         
         ;; loops
-        @#:case[(loop p_o)]{TODO}
-        @#:case[(loop^stop p_o q_o)]{TODO}]}
+        @#:case[(loop p_o) #:ignore]{TODO}
+        @#:case[(loop^stop p_o q_o) #:ignore]{TODO}]}

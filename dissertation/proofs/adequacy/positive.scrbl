@@ -183,7 +183,7 @@
                       
           }
          }
-        @#:case[(loop^stop paused q)]{TODO}
+        @#:case[(loop^stop paused q) #:ignore]{}
         ]}
 
 
@@ -234,7 +234,7 @@
           @es[par] we may induct on here, but as we only need to show the existence of some
           @es[S] we can select either one. As I am right handed I'll pick the right branch.
           The remainder of this case proceeds analogously to the previous case.}
-        @#:case[loop^stop]{TODO}]
+        @#:case[loop^stop #:ignore]{TODO}]
 }
 
 @proof[#:label "blocked-rho-gives-bot"
@@ -294,8 +294,7 @@
                 hypothesis on @es[θ_3] and @es[θ_4]
                 to conclude that @es[(= (of (compile (in-hole E p)) S_o) ⊥)].}
            }}}}
-           @#:case[(= S S_1)]{TODO
-            }}}]}
+           @#:case[(= S S_1)]{TODO}}}]}
        
 
 
@@ -352,7 +351,7 @@
          induction over the premise of the judgment.}
         @#:case[suspend]{analagous to the prevous case.}
         @#:case[trap]{analagous to the prevous case.}
-        @#:case[loop^stop]{TODO}]
+        @#:case[loop^stop #:ignore]{TODO}]
 }
 
 @proof[#:title "blocked-separable"
@@ -375,7 +374,7 @@
         @#:case[(seq E_3 q)]{Same as above.}
         @#:case[(par E_3 q)]{Same as above.}
         @#:case[(par p E_3)]{Same as above.}
-        @#:case[(loop^stop E_3 q)]{TODO}
+        @#:case[(loop^stop E_3 q) #:ignore]{TODO}
         ]
 
 }

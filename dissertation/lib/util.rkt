@@ -515,15 +515,22 @@
   
 
 (define (render-proof-item-body location body)
-  (define (whitespace-or-todo? s)
+  (define (whitespace? s)
     (and (string? s)
-         (regexp-match #px"^(\\s*|(?i:todo))$" s)))
-  
+         (regexp-match? #px"^\\s*$" s)))
+  (define (has-todo? s)
+    (and (string? s)
+         (regexp-match? #px"(?i:todo)" s)))
+         
+    
   (decode-flow
    (cond
-     [(andmap whitespace-or-todo? body)
+     [(andmap whitespace? body)
       (log-diss-warning "unproved case at: ~a" location)
       (list "TODO")]
+     [(ormap has-todo? body)
+      (log-diss-warning "unproved case at: ~a" location)
+      body]
      [else body])))
 
 (define render-case-body render-proof-item-body)

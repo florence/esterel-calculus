@@ -248,8 +248,8 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
                             that @es[(= (of (compile (seq p_i q_i)) S_o) 0)].}]
          }
         @#:case[(ρ θ A p_i)]{This case is shown by @proof-ref["Can-rho-S-is-sound"].}
-        @#:case[(loop p_i)]{TODO}
-        @#:case[(loop^stop p_i q_i)]{TODO}]
+        @#:case[(loop p_i) #:ignore]{TODO}
+        @#:case[(loop^stop p_i q_i) #:ignore]{TODO}]
 }
 
 
@@ -291,8 +291,8 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
         @#:case[(suspend p S)]{}
         @#:case[(trap p)]{}
         @#:case[(ρ θ A p_i)]{This case is shown by @proof-ref["Can-rho-K-is-sound"].}
-        @#:case[(loop p_i)]{ TODO }
-        @#:case[(loop^stop p_i q_i)]{ TODO }]
+        @#:case[(loop p_i) #:ignore]{ TODO }
+        @#:case[(loop^stop p_i q_i) #:ignore]{ TODO }]
 }
 
 @proof[#:label "Can-rho-S-is-sound"
