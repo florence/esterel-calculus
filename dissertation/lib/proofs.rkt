@@ -85,7 +85,7 @@
 
 (define-syntax sequenced
   (syntax-parser
-    [(_ _:string ... (~seq (#:step n:id body:expr ...) _:string ...) ...)
+    [(_ _:string ... (~seq (~and cloc (#:step n:id body:expr ...)) _:string ...) ...)
      #:with prefix
      (if (syntax-parameter-value #'in-sequence)
          (~a (syntax-parameter-value #'in-sequence) ".")
@@ -103,7 +103,7 @@
             (exact-chars-element #f "\\item")
             (syntax-parameterize ([in-sequence c]) 
               (nested-flow (style "nopar" '(command))
-                           (render-case-body (list body ...)))))
+                           (render-case-body (quote-srcloc-string cloc) (list body ...)))))
            ...)))]))
 
 (define-for-syntax basic-subcases
@@ -155,7 +155,13 @@
                             lang
                             (n ...)
                             ((pat ...) body ...) ...)))])))
-         
+
+
+(define-for-syntax (cases+loc cc)
+  (for/list ([c (in-list (syntax->list cc))])
+    (syntax-parse c
+      [(#:case p body ...)
+       (syntax/loc c (p body ...))])))
             
 
 (define-syntax cases
@@ -175,10 +181,12 @@
                          #:defaults ([n #'1000]))))
       ...
       _:string ... 
-      (~seq [#:case p:expr body ...] _:string ...) ...)
+      (~seq (~and cc [#:case p:expr body ...]) _:string ...) ...)
+     #:with (cases ...)
+     (cases+loc #'(cc ...))
      #`(begin
          #,(syntax/loc this-syntax (test-cases-covered #:checks n lang (~? d c) (p ...)))
-         (render-cases (~? i) (~? t) lang c (p body ...) ...))]
+         (render-cases (~? i) (~? t) lang c cases ...))]
      
     [(_
       (~alt
@@ -210,12 +218,14 @@
        (~once (~optional (~and #:simple-cases s))))
       ...
       _:string ... 
-      (~seq [#:case p body ...] _:string ...) ...)
+      (~seq (~and cc [#:case p body ...]) _:string ...) ...)
      #:fail-when (not (equal? (length (syntax->list #'(p ...)))
                               (syntax-e #'n)))
      (format "Expected ~a cases, found ~a cases"
              (length (syntax->list #'(p ...)))
              (syntax-e #'n))
+     #:with (cases ...)
+     (cases+loc #'(cc ...))
      #`(render-cases (~? i)
                      (~? s)
                      (~? t)
@@ -223,8 +233,7 @@
                      #,@(if (attribute nc) #'() #'(#:do-check))
                      lang
                      of
-                     (p body ...)
-                     ...)]
+                     cases ...)]
     [(_
       (~alt
        (~once
@@ -236,13 +245,14 @@
        (~once (~optional (~and #:simple-cases s))))
       ...
       _:string ... 
-      (~seq [#:case p body ...] _:string ...) ...)
+      (~seq (~and cc [#:case p body ...]) _:string ...) ...)
+     #:with (cases ...)
+     (cases+loc #'(cc ...))
      #'(render-cases (~? i)
                      (~? s)
                      lang
                      of
-                     (p body ...)
-                     ...)]))
+                     cases ...)]))
 
 (define-syntax test-cases-covered
   (syntax-parser
@@ -340,7 +350,7 @@
         (~optional (~and #:tuplize t))
         (~optional (~and #:just-render j))
         (~optional (~and #:do-check chk))
-        lang:id c:expr (pat:expr body ...) ...)
+        lang:id c:expr (~and cloc (pat:expr body ...)) ...)
      #:with desc
      #`#,(string-append
           (if (attribute i) "Induction on " "Cases of ")
@@ -380,5 +390,5 @@
                         (element "item" '())
                         item-label
                         (nested-flow (style "nopar" '(command))
-                                     (render-case-body (list body ...))))
+                                     (render-case-body (quote-srcloc-string cloc) (list body ...))))
                        ...))))]))

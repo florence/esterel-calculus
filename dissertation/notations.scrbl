@@ -34,7 +34,6 @@
             #:read-as @list{@es[θ] binds @es[(compile p)]}]{
  @es[(binds (compile p) θ)] if and only if
  @es[∀] @es[(L∈ S (Ldom θ))],
- @es[(= (of (compile p) S_o) (of (compile p) S_i))],
  and
  @es[(= (θ-get-S θ S) present)] if and only if @es[(= (of (compile p) S_i) 1)],
  and

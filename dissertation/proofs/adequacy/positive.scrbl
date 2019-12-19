@@ -154,7 +154,7 @@
 
            @#:step[paused-constructive]{
 
-            By @go-1, @kill-0, @susp-0, @kill-0, and @θ-binds,
+            By @go-1, @kill-0, @susp-0, @res-0, and @θ-binds,
             we an invoke our inductive hypothesis
             to conclude that @es[(compile paused)] is constructive.
            }
@@ -247,7 +247,7 @@
         @es[(binds (compile (in-hole E p)) (parens (<- θ_1 θ_2)))],
         and @es[(L∈ S (->S (Can-θ (ρ θ_1 GO (in-hole E p)) θ_2)))]
         
-        then @es[(= (of (compile (in-hole E p)) S) ⊥)]}]{
+        then @es[(= (of (compile (in-hole E p)) S_o) ⊥)]}]{
  @cases[#:language esterel/typeset
         #:of/count (Ldom θ_1) 2
         #:induction
@@ -292,7 +292,7 @@
                 @es/unchecked[(= (Can-θ (ρ θ_1 GO (in-hole E p)) θ_2) (Can-θ (ρ θ_3 GO (in-hole E p)) θ_4))].}
                @#:step[induction]{By @distinct through @can-unchanged we can invoke our induction
                 hypothesis on @es[θ_3] and @es[θ_4]
-                to conclude that @es[(= (of (compile (in-hole E p)) S) ⊥)].}
+                to conclude that @es[(= (of (compile (in-hole E p)) S_o) ⊥)].}
            }}}}
            @#:case[(= S S_1)]{TODO
             }}}]}
@@ -309,12 +309,16 @@
         and @es[(L∈ S (->S (Can (in-hole E p) θ)))]
         
         then @es[(= (of (compile (in-hole E p)) S) ⊥)]}]{
- @cases[#:language esterel/typeset
-        #:of/count (Ldom θ) 2
-        #:induction
-        @#:case[(L0set)]{TODO}
-        @#:case[_]{TODO}]
-}
+ @sequenced{
+  @#:step[breakup]{
+                   By @proof-ref["blocked is separable"]
+  }
+  @#:step[_]{
+   @cases[#:language esterel/typeset
+          #:of p
+          #:induction]{
+    @#:case[_]{} 
+ }}}}
 
 @proof[#:label "blocked-respects-can"
        #:title "blocked respects Can"
@@ -326,7 +330,7 @@
         @es[(= (θ-get-S θ S) unknown)]
         and @es[(L¬∈ S (->S (Can-θ (ρ θ A (in-hole E p)) ·)))]
 
-        then @es[(blocked-pure (<- θ (mtθ+S S absent)) A hole (in-hole E p))]}]{
+        then @es[(blocked-pure (<- θ (mtθ+S S absent)) A E p)]}]{
  @cases[#:language esterel/typeset
         #:of (blocked-pure θ A E p)
         #:induction
@@ -336,34 +340,19 @@
           premise to reconstruct the proof that the term is blocked.}
         @#:case[emit-wait]{As this case does not rely
           on @es[θ], the theorem still holds.}
-        @#:case[parl]{TODO}
-        @#:case[parr]{TODO}
-        @#:case[seq]{TODO}
-        @#:case[suspend]{TODO}
-        @#:case[trap]{TODO}
-        @#:case[par-both]{TODO}
+        @#:case[parl]{
+         Changing @es[θ] does not change that the right branch is
+          @es[done]. Thus this holds by induction over the right branch.}
+        @#:case[parr]{Analagous to the the prevous case.}
+        @#:case[par-both]{
+         This follows directly by induction on both premises
+         of this clause of the judgment.
+         }
+        @#:case[seq]{This follows directly from
+         induction over the premise of the judgment.}
+        @#:case[suspend]{analagous to the prevous case.}
+        @#:case[trap]{analagous to the prevous case.}
         @#:case[loop^stop]{TODO}]
-}
-
-@proof[#:title "values and blocked are disjoint"
-       #:label "vb-disjoint"
-       #:statement
-       @list{For all @es[done], @es[θ], @es[E], @es[A],
-        not @es[(blocked-pure θ A E done)]}]{
- TODO
-}
-
-@proof[#:title "blocked-final"
-       #:label "blocked is final"
-       #:statement
-       @list{for all @es[p], @es[θ], @es[A], @es[E],
-        @es[p_1], @es[θ_1], @es[A_1], and @es[E_1],
-                     
-        if @es[(blocked-pure θ A E p)] and @es[(⟶ (ρ θ A (in-hole E p)) (ρ θ_1 A_1 (in-hole E_1 p_1)))]
-        then @es[(blocked-pure θ_1 A_1 E_1 p_1)].}]{
-
- TODO
-
 }
 
 @proof[#:title "blocked-separable"
@@ -379,11 +368,13 @@
         #:language esterel/typeset
         @#:case[hole]{Trivial, as @es[(= (in-hole hole p) p)]
           and @es[(= (in-hole E_1 hole) E_1)].}
-        @#:case[(suspend E_3 S)]{TODO}
-        @#:case[(trap E_3)]{TODO}
-        @#:case[(seq E_3 q)]{TODO}
-        @#:case[(par E_3 q)]{TODO}
-        @#:case[(par p E_3)]{TODO}
+        @#:case[(suspend E_3 S)]{
+         Try by induction on the premise
+         of this clause of @es[blocked].}
+        @#:case[(trap E_3)]{Same as above.}
+        @#:case[(seq E_3 q)]{Same as above.}
+        @#:case[(par E_3 q)]{Same as above.}
+        @#:case[(par p E_3)]{Same as above.}
         @#:case[(loop^stop E_3 q)]{TODO}
         ]
 
