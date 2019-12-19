@@ -193,7 +193,7 @@
      (do-test
       `(seq
         (ρ
-         ((sig Sg144814 absent) ((sig Sg144815 unknown) ·))
+         ((sig Sg144814 unknown) ((sig Sg144815 unknown) ·))
          GO
          (par
           pause
@@ -203,7 +203,7 @@
      (do-test
       `(seq
         (ρ
-         ((sig Sg144814 absent) ((sig Sg144815 unknown) ·))
+         ((sig Sg144814 unknown) ((sig Sg144815 unknown) ·))
          WAIT
          (par
           pause

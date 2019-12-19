@@ -50,18 +50,21 @@
 (define-extended-language esterel-eval esterel
   (p q r ::= ....
      (loop^stop p q)
-     (ρ θ A p))
+     (ρ θr A p))
 
   ;; later occurrences of duplicate bindings in θ are
   ;; ignored; i.e. only the first one should ever count
   (θ ::= · {env-v θ})
+  (θr ::= · {env-vr θr})
 
   (env-v ::= Sdat shareddat vardat)
+  (env-vr ::= Sdatr shareddat vardat)
   (status ::=
           present
           unknown
           absent)
   (Sdat ::= (sig S status))
+  (Sdatr ::= (sig S present) (sig S unknown))
   ;; go is lionel's `green`. It means control must reach here
   ;; wait is lionel's `gray`. It means control may or may not reach here.
   (A ::= GO WAIT)

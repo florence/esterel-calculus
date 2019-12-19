@@ -45,8 +45,8 @@
   [(BV (:= x e)) {}]
   [(BV (if x p q))
    (LU (BV p) (BV q))]
-  [(BV (ρ θ A p))
-   (LU (BV p) (Ldom θ))])
+  [(BV (ρ θr A p))
+   (LU (BV p) (Ldom θr))])
 
 (define-metafunction esterel-L
   FV : p -> L
@@ -77,8 +77,8 @@
   [(FV (:= x e)) (x (FV/e e))]
   [(FV (if x p q))
    (x (LU (FV p) (FV q)))]
-  [(FV (ρ θ A p))
-   (Lset-sub (FV p) (Ldom θ))])
+  [(FV (ρ θr A p))
+   (Lset-sub (FV p) (Ldom θr))])
 
 (define-metafunction esterel-L
   FV/e : e -> L
@@ -161,7 +161,7 @@
 
   [(CB p)
    ------------ "ρ"
-   (CB (ρ θ A p))])
+   (CB (ρ θr A p))])
 
 (module+ test
   (check-false

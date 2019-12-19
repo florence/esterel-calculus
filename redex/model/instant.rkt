@@ -187,11 +187,11 @@
 
 (module+ test
   (require rackunit)
-  (check-true (standard-implies-calculus (term (ρ ((sig Sr absent) ((sig Sg unknown) ·)) GO (exit 0)))))
+  (check-true (standard-implies-calculus (term (ρ ((sig Sr unknown) ((sig Sg unknown) ·)) GO (exit 0)))))
   (check-true (standard-implies-calculus (term (ρ ((sig Sr unknown) ((sig Sg unknown) ·)) GO (exit 0)))))
   (check-true (standard-implies-calculus (term (trap (loop pause)))))
   (check-true (standard-implies-calculus (term (ρ ((sig SM unknown) ·) WAIT (loop (if xLd nothing pause))))))
-  (check-true (standard-implies-calculus (term (ρ ((sig Sr absent) ((sig Sg unknown) ·)) WAIT (exit 0)))))
+  (check-true (standard-implies-calculus (term (ρ ((sig Sr unknown) ((sig Sg unknown) ·)) WAIT (exit 0)))))
   (check-true (standard-implies-calculus (term (ρ ((sig Sr unknown) ((sig Sg unknown) ·)) WAIT (exit 0)))))
   (check-true (standard-implies-calculus (term (trap (loop pause)))))
   (check-true (standard-implies-calculus (term (ρ ((sig SM unknown) ·) WAIT (loop (if xLd nothing pause))))))

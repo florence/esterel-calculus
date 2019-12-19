@@ -44,7 +44,7 @@
    (--> (ρ θ GO (in-hole D (emit S)))
         (ρ (id-but-typeset-some-parens (<- θ (mtθ+S S present))) GO (in-hole D nothing))
         (judgment-holds (leftmost θ GO (emit S) D))
-        (judgment-holds (θ-ref-S-∈ θ S (L2set present unknown)))
+        (judgment-holds (L∈ S (Ldom θ)))
         emit)
    (--> (ρ θ A (in-hole D (loop p)))
         (ρ θ A (in-hole D (loop^stop p p)))

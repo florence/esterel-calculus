@@ -656,8 +656,8 @@
      ;; signal
      (apply-reduction-relation
       standard:R
-      `(ρ ((sig S absent) ·) GO (trap (signal S2 (emit S2)))))
-     (list `(ρ ((sig S absent) ·) GO (trap (ρ ((sig S2 unknown) ·) WAIT (emit S2))))))
+      `(ρ ((sig S unknown) ·) GO (trap (signal S2 (emit S2)))))
+     (list `(ρ ((sig S unknown) ·) GO (trap (ρ ((sig S2 unknown) ·) WAIT (emit S2))))))
 
     (check-equal?
      ;; raise-var
@@ -670,37 +670,37 @@
      ;; set-var
      (apply-reduction-relation
       standard:R
-      `(ρ ((sig S absent) ((var· x 0) ((sig S2 present) ·)))
+      `(ρ ((sig S unknown) ((var· x 0) ((sig S2 present) ·)))
            GO
           (trap (:= x (+ x 2)))))
-     (list `(ρ ((sig S absent) ((sig S2 present) ((var· x 2) ·)))
+     (list `(ρ ((sig S unknown) ((sig S2 present) ((var· x 2) ·)))
                 GO
                (trap nothing))))
     (check-equal?
      ;; set-var
      (apply-reduction-relation
       standard:R
-      `(ρ ((sig S absent) ((var· x 2) ((sig S2 present) ·)))
+      `(ρ ((sig S unknown) ((var· x 2) ((sig S2 present) ·)))
            GO
           (trap (:= x (dec x)))))
-     (list `(ρ ((sig S absent) ((sig S2 present) ((var· x 1) ·)))
+     (list `(ρ ((sig S unknown) ((sig S2 present) ((var· x 1) ·)))
                GO
                (trap nothing))))
     (check-equal?
      ;; set-var
      (apply-reduction-relation
       standard:R
-      `(ρ ((sig S absent) ((var· x 0) ((sig S2 present) ·)))
+      `(ρ ((sig S unknown) ((var· x 0) ((sig S2 present) ·)))
           GO
           (trap (:= x (dec x)))))
-     (list `(ρ ((sig S absent) ((sig S2 present) ((var· x 0) ·)))
+     (list `(ρ ((sig S unknown) ((sig S2 present) ((var· x 0) ·)))
                GO
                (trap nothing))))
     (check-equal?
      ;; set-var
      (apply-reduction-relation
       standard:R
-      `(ρ ((sig S absent) ((var· x 0) ((sig S2 present) ·)))
+      `(ρ ((sig S unknown) ((var· x 0) ((sig S2 present) ·)))
           GO
           (:= x (+ s 2))))
      ;; doesn't reduce because `s` isn't in the environment
@@ -710,12 +710,12 @@
      ;; if-false
      (apply-reduction-relation
       standard:R
-      `(ρ ((sig S absent) ((var· x 0) ((sig S2 present) ·)))
+      `(ρ ((sig S unknown) ((var· x 0) ((sig S2 present) ·)))
           GO
           (trap (par (suspend (if x pause nothing) S3)
                      (suspend (if x pause nothing) S4)))))
      (list `(ρ
-             ((sig S absent) ((var· x 0) ((sig S2 present) ·)))
+             ((sig S unknown) ((var· x 0) ((sig S2 present) ·)))
              GO
              (trap (par (suspend nothing S3) (suspend (if x pause nothing) S4))))))
 
@@ -730,12 +730,12 @@
      ;; if-true
      (apply-reduction-relation
       standard:R
-      `(ρ ((sig S absent) ((var· x 1232) ((sig S2 present) ·)))
+      `(ρ ((sig S unknown) ((var· x 1232) ((sig S2 present) ·)))
           GO
           (trap (par (suspend (if x pause nothing) S3)
                      (suspend (if x pause nothing) S4)))))
      (list `(ρ
-             ((sig S absent) ((var· x 1232) ((sig S2 present) ·)))
+             ((sig S unknown) ((var· x 1232) ((sig S2 present) ·)))
              GO
              (trap (par (suspend pause S3) (suspend (if x pause nothing) S4))))))
 
