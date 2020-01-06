@@ -12,10 +12,11 @@
           redex/pict
           (only-in pict hbl-append)
           esterel-calculus/redex/model/shared
+          esterel-calculus/redex/model/count
           esterel-calculus/redex/model/lset
           esterel-calculus/redex/model/potential-function
           (except-in scribble-abbrevs/latex definition)
-          racket/list
+          (except-in racket/list count)
           scribble/core)
 
 @para[#:style 'pretitle]{@latex-lit["appendices"]}
@@ -118,4 +119,14 @@
  @es[(= (θ-get-S θr S) present)] or
  @es[(= (θ-get-S θr S) unknown)]
  and @es[(L¬∈ S (->S (Can-θ (ρ θr GO done) ·)))].
+}
+
+
+@definition[
+ #:notation @list{@es[(count p)] @es[⟶] @es[n]}
+ #:read-as @list{An upper bound in the number of @es[⟶^r] steps
+  @es[p] may take}]{
+
+ @with-paper-rewriters[@render-metafunction[count]]
+
 }

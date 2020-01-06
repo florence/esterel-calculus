@@ -20,7 +20,8 @@
          (only-in "util.rkt" lift-to-compile-time-for-effect! render-case-body
                   term->pict/checked
                   wrap-latex-begin-end
-                  exact-chars-element)
+                  exact-chars-element
+                  newline noindent)
          esterel-calculus/redex/model/shared
          syntax/location
          (except-in scribble/core table)
@@ -100,10 +101,13 @@
           #:followup "[label*=\\arabic*.]"
           (append
            (list
-            (exact-chars-element #f "\\item")
-            (syntax-parameterize ([in-sequence c]) 
+            (element "item" '())
+            (syntax-parameterize ([in-sequence c])
+              (render-case-body (quote-srcloc-string cloc) (list body ...))
+              #;
               (nested-flow (style "nopar" '(command))
-                           (render-case-body (quote-srcloc-string cloc) (list body ...)))))
+                           (render-case-body (quote-srcloc-string cloc) (list body ...))))
+            noindent)
            ...)))]))
 
 (define-for-syntax basic-subcases
@@ -254,48 +258,50 @@
                      of
                      cases ...)]))
 
-(define-syntax test-cases-covered
-  (syntax-parser
-    [(test-cases-covered #:checks n lang:id (mf _ ...) p)
-     #:when (do-mf? #'mf)
-     #:fail-unless
-     (andmap (lambda (x) (eq? (syntax-e x) '_))
-             (syntax->list #'p))
-     "Expected only `_` for patterns when checking a metafunction"
-     #`(lift-to-compile-time-for-effect!
-        #,(syntax/loc this-syntax
-            (unless
-                (equal? (length 'p)
-                        (length (metafunc-proc-cases (metafunction-proc (metafunction mf)))))
-              (error 'cases
-                     '"wrong number of cases for metafunction ~a. Expected ~a got ~a."
-                     'mf
-                     (length (metafunc-proc-cases (metafunction-proc (metafunction mf))))
-                     (length 'p)))))]
-    [(test-cases-covered #:checks n lang:id (j _ ...) p)
-     #:when (do-judgment? #'j)
-     #:with (~and ~! (names ...)) (judgment-form-rule-names (syntax-local-value #'j))
-     #:with (clause:id ...) #'p
-     #:fail-unless (andmap values (syntax->list #'(names ...)))
-     "Cannot check cases for a judgment form where some cases are not named"
-     #`(lift-to-compile-time-for-effect!
-        #,(syntax/loc this-syntax
-            (unless (equal? (set (~a 'clause) ...)
-                            (set 'names ...))
-              (error 'cases
-                     '"missing or unexpected case. Expected ~a, got ~a"
-                     (map string->symbol '(names ...))
-                     '(clause ...)))))]
-    [(test-cases-covered #:checks n lang:id c:expr (pat:expr ...))
-     #:when (and (not (do-mf? #'c)) (not (do-judgment? #'c)))
-     #`(lift-to-compile-time-for-effect!
-        #,(syntax/loc this-syntax
-            (redex-check
-             lang c
-             (unless (or (redex-match? lang pat (term c)) ...)
-               (error "missing case!"))
-             #:attempts 'n
-             #:print? '#f)))]))
+(define-syntax (test-cases-covered stx)
+  (if (environment-variables-ref (current-environment-variables) #"ESTNOTEST")
+      #'(void)
+      (syntax-parse stx
+        [(test-cases-covered #:checks n lang:id (mf _ ...) p)
+         #:when (do-mf? #'mf)
+         #:fail-unless
+         (andmap (lambda (x) (eq? (syntax-e x) '_))
+                 (syntax->list #'p))
+         "Expected only `_` for patterns when checking a metafunction"
+         #`(lift-to-compile-time-for-effect!
+            #,(syntax/loc this-syntax
+                (unless
+                    (equal? (length 'p)
+                            (length (metafunc-proc-cases (metafunction-proc (metafunction mf)))))
+                  (error 'cases
+                         '"wrong number of cases for metafunction ~a. Expected ~a got ~a."
+                         'mf
+                         (length (metafunc-proc-cases (metafunction-proc (metafunction mf))))
+                         (length 'p)))))]
+        [(test-cases-covered #:checks n lang:id (j _ ...) p)
+         #:when (do-judgment? #'j)
+         #:with (~and ~! (names ...)) (judgment-form-rule-names (syntax-local-value #'j))
+         #:with (clause:id ...) #'p
+         #:fail-unless (andmap values (syntax->list #'(names ...)))
+         "Cannot check cases for a judgment form where some cases are not named"
+         #`(lift-to-compile-time-for-effect!
+            #,(syntax/loc this-syntax
+                (unless (equal? (set (~a 'clause) ...)
+                                (set 'names ...))
+                  (error 'cases
+                         '"missing or unexpected case. Expected ~a, got ~a"
+                         (map string->symbol '(names ...))
+                         '(clause ...)))))]
+        [(test-cases-covered #:checks n lang:id c:expr (pat:expr ...))
+         #:when (and (not (do-mf? #'c)) (not (do-judgment? #'c)))
+         #`(lift-to-compile-time-for-effect!
+            #,(syntax/loc this-syntax
+                (redex-check
+                 lang c
+                 (unless (or (redex-match? lang pat (term c)) ...)
+                   (error "missing case!"))
+                 #:attempts 'n
+                 #:print? '#f)))])))
 
 (define (tuplize . p)
   (if (= 1 (length p))
@@ -341,9 +347,9 @@
          (tuplize (with-paper-rewriters (term->pict lang pat)) ...))
         ...)
      #`(list
-        "\n" (exact "\\noindent")
+        "\n" noindent
         desc (tuplize (with-paper-rewriters (term->pict lang all)) ...) ":"
-        (exact "\\noindent")
+        noindent
         (nested-flow (style "casesp" '())
                      (decode-flow
                       (append
@@ -351,7 +357,8 @@
                         (element "item" '())
                         item-label
                         (nested-flow (style "nopar" '(command))
-                                     (render-case-body (quote-srcloc-string clause-loc) (list body ...))))
+                                     (decode-flow
+                                     (render-case-body (quote-srcloc-string clause-loc) (list body ...)))))
                        ...))))]
     [(_ (~optional (~and #:induction i))
         (~optional (~and #:simple-cases s))
@@ -395,7 +402,7 @@
          
      
      #'(list
-        "\n" (exact "\\noindent")
+        "\n" ;(exact "\\noindent")
         desc (tz (with-paper-rewriters (trm-> lang c1)) ...) ":"
         (exact "\\noindent")
         (nested-flow (style "casesp" '())
@@ -405,5 +412,6 @@
                         (element "item" '())
                         item-label
                         (nested-flow (style "nopar" '(command))
-                                     (render-case-body (quote-srcloc-string cloc) (list body ...))))
+                                     (decode-flow
+                                     (render-case-body (quote-srcloc-string cloc) (list body ...)))))
                        ...))))]))

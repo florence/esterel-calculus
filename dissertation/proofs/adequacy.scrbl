@@ -10,6 +10,7 @@
           (except-in esterel-calculus/redex/model/shared FV FV/e θ-get-S)
           esterel-calculus/redex/test/binding
           esterel-calculus/redex/model/lset
+          esterel-calculus/redex/model/count
           esterel-calculus/redex/model/potential-function
           (only-in esterel-calculus/redex/model/reduction
                    blocked-pure)
@@ -42,6 +43,7 @@ with respect to the circuit translation. That is:
    such that either @es/unchecked[(L∈ r done)],
    or @es[(blocked-pure θr GO hole r)].
   }
+   
   @#:step[unknown]{
    By @proof-ref["blocked-implies-can-rho"],
    if we are in the case where
@@ -49,6 +51,7 @@ with respect to the circuit translation. That is:
    there there exists some @es[S_u] such that
    @es[(L∈ S (->S (Can-θ (ρ θr GO r) ·)))].
   }
+  
   @#:step[bools]{
    @cases[#:of/count @value 2
           #:no-check
@@ -62,7 +65,7 @@ with respect to the circuit translation. That is:
 
 
 @proof[#:title "Strongly Canonicalizing"
-       #:label "strong-cannibalizing"
+       #:label "strongly-cannibalizing"
        #:statement
        @list{For all @es[p], @es[q],
         if @es[(⟶^r p q)],

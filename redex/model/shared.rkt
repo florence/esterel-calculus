@@ -69,6 +69,21 @@
   ;; wait is lionel's `gray`. It means control may or may not reach here.
   (A ::= GO WAIT)
 
+  (p-pure q-pure r-pure ::=
+          nothing
+          pause
+          (seq p-pure p-pure)
+          (par p-pure p-pure)
+          (trap p-pure)
+          (exit n)
+          (signal S p-pure)
+          (suspend p-pure S)
+          (present S p-pure p-pure)
+          (emit S)
+          (loop p-pure)
+          (loop^stop p-pure q-pure)
+          (ρ θr A p-pure))
+
   (C ::=
      (signal S C)
      (seq C q)
@@ -242,14 +257,15 @@
   add2 : n -> n
   [(add2 n) ,(+ `n 2)])
 
+
 (define-metafunction esterel-eval
   sub1 : n -> n
   [(sub1 0) 0]
   [(sub1 n) ,(- `n 1)])
 
 (define-metafunction esterel-eval
-  Σ : n n -> n
-  [(Σ n_1 n_2) ,(+ `n_1 `n_2)])
+  Σ : n ... -> n
+  [(Σ n ...) ,(apply + (term (n ...)))])
 
 (define-metafunction esterel-eval
   max* : {κ ...} {κ ...} -> {κ ...}

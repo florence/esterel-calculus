@@ -620,7 +620,7 @@
     ['L0set (λ (lws) (list "∅"))]
     ['Ldom
      (λ (lws)
-       (list "dom"
+       (list (mf-t "dom")
              ((white-square-bracket) #t)
              (list-ref lws 2)
              ((white-square-bracket) #f)))]
@@ -628,7 +628,8 @@
      (λ (lws)
        (list ""
              (list-ref lws 2)
-             " ∈ dom" ((white-square-bracket) #t)
+             " ∈ "
+             (hbl-append (mf-t "dom") ((white-square-bracket) #t))
              (list-ref lws 3)
              ((white-square-bracket) #f)))]
     ['Lwithoutdom
@@ -642,14 +643,14 @@
              (def-t "})")))]
     ['LFV/e
      (λ (lws)
-       (list "FV"
+       (list (mf-t "FV")
              ((white-square-bracket) #t)
              (list-ref lws 2)
              ((white-square-bracket) #f)))]
     #;
     ['closed
      (lambda (lws)
-       (list "FV"
+       (list (mf-t "FV")
              ((white-square-bracket) #t)
              (list-ref lws 2)
              ((white-square-bracket) #f)
@@ -681,7 +682,7 @@
      (λ (lws)
        (define arg1 (list-ref lws 2))
        (define arg2 (list-ref lws 3))
-       (list "max(" arg1 " , " arg2 ")"))]
+       (list (mf-t "max") "(" arg1 " , " arg2 ")"))]
     ['par-⊓
      (λ (lws)
        (define arg1 (list-ref lws 2))
@@ -832,8 +833,8 @@
     ['L¬∈ (λ (lws) (binop "∉" lws))]
     ['different (λ (lws) (binop "≠" lws))]
     ['same (λ (lws) (binop "=" lws))]
-    ['Σ (λ (lws) (binop "+" lws))]
-    ['∧ (λ (lws) (binop "∧" lws))]
+    ['Σ (λ (lws) (infix "+" lws))]
+    ['∧ (λ (lws) (infix "∧" lws))]
     ['<= (λ (lws) (list (list-ref lws 0)
                         (hbl-append (plus-equals) (def-t " "))
                         (list-ref lws 2)
@@ -916,7 +917,7 @@
             (words " | ")
             (es S)
             (render-op " ∈ ")
-            (words "dom")
+            (mf-t "dom")
             ((white-square-bracket) #t))
            a
            (hbl-append
@@ -925,7 +926,14 @@
             (es S)
             (render-op " ∈ "))
            b
-           (words " }"))]))])
+           (words " }"))]))]
+    ['count
+     (lambda (lws)
+       (match-define (list _ _ body _) lws)
+       (list "ℒ"
+             ((white-square-bracket) #t)
+             body
+             ((white-square-bracket) #f)))])
              
    
    ;                                                              
@@ -1017,6 +1025,7 @@
      ['next-instant (λ () (sized-↬-pict))]
      ['par-⊓ (λ () (par-⊓-pict))]
      ['Can-θ (λ () (Can-θ-name-pict))]
+     ['Can (λ () (Can-name-pict #f))]
      ['CB (λ () (CB-judgment-pict))]
      ['· (λ () (def-t "{}"))]
      ['L-S (λ () (L-S-pict))]
@@ -1047,18 +1056,20 @@
         (render-op/instructions
          (text "θ" (non-terminal-style) (default-font-size))
          `((superscript ,(text "r" (non-terminal-style) (default-font-size))))))]
-     
+
+     ['tt (lambda () (text "tt" (list* 'italic 'combine (literal-style)) (default-font-size)))]
+     ['ff (lambda () (text "ff" (list* 'italic 'combine (literal-style)) (default-font-size)))]
      ;; results
      ['R (lambda ()
            (text "R" (non-terminal-style) (default-font-size)))])
     (define owsb (white-square-bracket))
-    (parameterize ([default-font-size (get-the-font-size)]
+    (parameterize* ([default-font-size (get-the-font-size)]
                    [metafunction-font-size (get-the-font-size)]
                    [label-style Linux-Liberterine-name]
                    [grammar-style Linux-Liberterine-name]
                    [paren-style Linux-Liberterine-name]
-                   [literal-style Inconsolata-name]
-                   [metafunction-style Inconsolata-name]
+                   [literal-style Linux-Liberterine-name]
+                   [metafunction-style (cons 'italic Linux-Liberterine-name)]
                    [non-terminal-style (cons 'bold Linux-Liberterine-name)]
                    [non-terminal-subscript-style (replace-font non-terminal-subscript-style)]
                    [non-terminal-superscript-style (replace-font non-terminal-superscript-style)]

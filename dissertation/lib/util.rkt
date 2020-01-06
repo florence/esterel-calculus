@@ -70,7 +70,7 @@
      (element (style #f '(exact-chars)) strs)]))
 
 (define noindent (element "noindent" '()))
-(define newline (element "newline" '()))
+(define newline (element 'newline '()))
 (define nobreak (element 'no-break '()))
 
 (define (latex-lit name #:extras [extras empty] . args)
@@ -122,6 +122,7 @@
   (apply
    bytes-append
    #"\\usepackage{wrapfig}\n"
+   #"\\usepackage[parfill]{parskip}"
    #"\\setlength\\intextsep{0pt}\n"
    #"\\newcommand{\\SubTitleFontAdjust}[1]{\\fontsize{10}{14}\\selectfont{}#1}\n"
    #"\\newcommand{\\TheoremSpacer}[0]{\\hbox to .3in{}}\n"
@@ -151,6 +152,11 @@
    #"\\setlist[casesp,5]{label=Case~\\thecasespiv.\\roman*:,ref=\\thecasespiv.\\roman*}\n"
    #"\\setlist[casesp,6]{label=Case~\\thecasespv.\\alph*:,ref=\\thecasespv.\\alph*}\n"
    #"\\let\\degree\\relax\n"
+   #"\\newenvironment{myproof}[1][\\proofname]{%\n"
+   #"\\noindent\\begin{proof}[#1]$ $\\par\\nobreak\\ignorespaces\n"
+   #"}{%\n"
+   #"\\end{proof}\n"
+   #"}\n"
    (append
     (for/list ([i (in-list right-figure-sizes)])
       (mk-rightfigure i #f))
@@ -209,7 +215,7 @@
   (decode-flow
    (append
     (list (exact "\\vspace{1ex}\n")
-          (exact "\\noindent")
+          noindent
           (bold "Definition: "))
     (flatten notation)
     (list nobreak)
@@ -235,13 +241,13 @@
      (quasisyntax/loc this-syntax
        (prooff (quote-srcloc-string #,this-syntax) . a))]))
 (define/contract (prooff #:label label
-                #:annotations [annotations empty]
-                #:statement statement
-                #:interpretation [interp #f]
-                #:type [type 'lemma]
-                #:title [title #f]
-                loc
-                . the-proof)
+                         #:annotations [annotations empty]
+                         #:statement statement
+                         #:interpretation [interp #f]
+                         #:type [type 'lemma]
+                         #:title [title #f]
+                         loc
+                         . the-proof)
   (->*
    (any/c #:label string? #:statement (treeof pre-flow?))
    (#:annotations list?
@@ -262,26 +268,28 @@
     #:followup (and title (string-append "[\\scshape " title "]"))
     (decode-flow
      (list*
+      
       (element (style "label" '(exact-chars)) (list (string-append "p:" label)))
       (decode-flow (list statement)))))
    (if interp
        (nested-flow (style "interpretation" '())
                     (decode-flow (list interp)))
        "")
-   (nested-flow (style "proof" '())
-                (render-proof-item-body loc the-proof))))
+   (nested-flow (style "myproof" '())
+                (decode-flow
+                 (render-proof-item-body loc the-proof)))))
 
 (define (wrap-latex-begin-end env content #:followup [followup #f])
   (decode-flow
    (append
     (list
-     (exact-chars-element #f
-                          (cond
-                            [followup (format "\\begin{~a}~a" env followup)]
-                            [else (format "\\begin{~a}" env)])))
-    (if (list? content) content (list content))
-    (list
-     (exact-chars-element #f (format "\\end{~a}" env))))))
+     (element (style #f '(exact-chars))
+              (cond
+                [followup (format "\\begin{~a}~a" env followup)]
+                [else (format "\\begin{~a}" env)]))
+     (if (list? content) content (list content))
+     (list
+      (element (style #f '(exact-chars)) (format "\\end{~a}" env)))))))
 
 (define (proof-ref str)
   (list (proof-type-ref str "lemma~" "theorem~" "undefined theorem~")
@@ -520,17 +528,14 @@
          (regexp-match? #px"^\\s*$" s)))
   (define (has-todo? s)
     (and (string? s)
-         (regexp-match? #px"(?i:todo)" s)))
-         
-    
-  (decode-flow
-   (cond
-     [(andmap whitespace? body)
-      (log-diss-warning "unproved case at: ~a" location)
-      (list "TODO")]
-     [(ormap has-todo? body)
-      (log-diss-warning "unproved case at: ~a" location)
-      body]
-     [else body])))
+         (regexp-match? #px"(?i:todo)" s))) 
+  (cond
+    [(andmap whitespace? body)
+     (log-diss-warning "unproved case at: ~a" location)
+     (list "TODO")]
+    [(ormap has-todo? body)
+     (log-diss-warning "unproved case at: ~a" location)
+     body]
+    [else body]))
 
 (define render-case-body render-proof-item-body)

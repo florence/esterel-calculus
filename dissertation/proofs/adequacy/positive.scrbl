@@ -15,7 +15,7 @@
                    blocked-pure)
           (except-in scribble-abbrevs/latex definition))
 
-@title["Positive"]
+@title[#:style paper-title-style "Positive"]
 
 
 @proof[#:label "e-v-is-c-v"
@@ -190,13 +190,44 @@
 @proof[#:label "blocked-implies-can-rho"
        #:title "blocked implies can-rho"
        #:statement
-       @list{For all @es[p], @es[E], @es[θ_1], @es[θ_2], @es[A],
+       @list{For all @es[p], @es[θ_1], @es[θ_2], @es[A],
         if
-        @es[(blocked-pure (parens (<- θ_1 θ_2)) A hole (in-hole E p))]
+        @es[(blocked-pure (parens (<- θ_1 θ_2)) A hole p)]
+        and
+        @es[(distinct (Ldom θ_1) (Ldom θ_2))]
         then there exits some @es[S] such that
-        @es[(L∈ S (->S (Can-θ (ρ θ_1 A (in-hole E p)) θ_2)))]}]{
- TODO
-}
+        @es[(L∈ S (->S (Can-θ (ρ θ_1 A p) θ_2)))]}]{
+ @cases[#:of/count (Ldom θ_1) 2
+        #:language esterel/typeset]{
+                       
+  @#:case[(L0set)]{
+   This puts us in the last clause of @es[Can-θ], which just
+   calls @es[Can]. Thus 
+   this case is given by @proof-ref["blocked-implies-can"],
+   where @es[(= E hole)] and @es[(= p p)].
+  }
+  @#:case[(LU (L1set S_1) L-S)]{
+   @cases[#:of/count ((θ-ref-S θ S_1 ⊥) (L¬∈ S_1 (->S (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S unknown))))))
+          2
+          #:language esterel/typeset
+          #:tuplize
+          #:simple-cases]{
+
+    @#:case[(tt tt)]{
+
+     This puts us in the first case of @es[Can-θ].@sequenced{
+      @#:step[blocked]{
+       By @proof-ref["blocked-respects-can"] we know that
+       @es[(blocked-pure (<- (<- θ_1 θ_2) (mtθ+S S_1 absent)) A hole p)].}
+      @#:step[eq]{
+       As the domains of @es[θ_1] and @es[θ_2] are distinct we can also
+       conclude that @newline @es[(= (<- (<- θ_1 θ_2) (mtθ+S S_1 absent)) (<- (<- (Lwithoutdom θ_1 S_1) θ_2) (mtθ+S S_1 absent)))].}
+      @#:step[_]{
+       By @blocked and @eq, this case follows by induction.}}}
+    @#:case[(_ _)]{ This puts us in the second case of @es[Can-θ].
+     This case just copies the value of @es[S_1] from @es[θ_1] to @es[θ_2].
+     As the two maps are the same this leaves @es[(<- θ_1 θ_2)] unchanged.
+     Thus this case follows by induction.}}}}}
 
 @proof[#:label "blocked-implies-can"
        #:title "blocked implies can"
@@ -245,7 +276,7 @@
         if @es[(blocked-pure (parens (<- θ_1 θ_2)) GO hole (in-hole E p))],
         @es[(distinct (Ldom θ_1) (Ldom θ_2))],
         @es[(binds (compile (in-hole E p)) (parens (<- θ_1 θ_2)))],
-        and @es[(L∈ S (->S (Can-θ (ρ θ_1 GO (in-hole E p)) θ_2)))]
+        @es[(L∈ S (->S (Can-θ (ρ θ_1 GO (in-hole E p)) θ_2)))],
         
         then @es[(= (of (compile (in-hole E p)) S_o) ⊥)]}]{
  @cases[#:language esterel/typeset
@@ -294,7 +325,13 @@
                 hypothesis on @es[θ_3] and @es[θ_4]
                 to conclude that @es[(= (of (compile (in-hole E p)) S_o) ⊥)].}
            }}}}
-           @#:case[(= S S_1)]{TODO}}}]}
+           @#:case[(= S S_1)]{
+            This case is imposible by the monotonicity of @es[Can-θ]
+            given by @text["canθₛ-set-sig-monotonic-absence-lemma" 'modern],
+            as our premise states that @es[(L∈ S (->S (Can-θ (ρ θ_1 GO (in-hole E p)) θ_2)))],
+            but this condition requires that
+            @es[(L¬∈ S (->S (Can-θ (ρ θ_1 GO (in-hole E p)) θ_2)))].
+            }}}]}
        
 
 
@@ -314,9 +351,21 @@
   }
   @#:step[_]{
    @cases[#:language esterel/typeset
-          #:of p
+          #:of (in-hole E p-pure)
           #:induction]{
-    @#:case[_]{} 
+    @#:case[nothing]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
+    @#:case[pause]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
+    @#:case[(exit n)]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
+    @#:case[(emit S)]{}
+    @#:case[(present S p q)]{}
+    @#:case[(suspend p S)]{}
+    @#:case[(seq p q)]{}
+    @#:case[(par p q)]{}
+    @#:case[(trap p)]{}
+    @#:case[(signal S p)]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
+    @#:case[(ρ θ A p)]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
+    @#:case[(loop p)]{}
+    @#:case[(loop^stop p q)]{}
  }}}}
 
 @proof[#:label "blocked-respects-can"

@@ -298,8 +298,8 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
 @proof[#:label "Can-rho-S-is-sound"
        #:title "Can rho S is sound"
        #:statement
-       @list{For any term and environment @es[p] and @es[θ] and @es[A], and signal @es[S]
-        @es[(L¬∈ S (->S (Can-θ (ρ θ A p) ·)))] implies that,
+       @list{For all @es[p], @es[θ], @es[A], @es[S],
+        if @es[(L¬∈ S (->S (Can-θ (ρ θ A p) ·)))] then,
         
         @es[(=> (= (of (compile (ρ θ A p)) SEL) 0) (L∈ S_o (outputs (compile (ρ θ A p)))) (= (of (compile (ρ θ A p)) S_o) 0))]}
        #:interpretation

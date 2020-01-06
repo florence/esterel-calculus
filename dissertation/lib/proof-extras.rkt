@@ -46,21 +46,6 @@
 
 (define-extended-language esterel/typeset
   esterel-eval
-  (p-pure q-pure r-pure ::=
-          nothing
-          pause
-          (seq p-pure p-pure)
-          (par p-pure p-pure)
-          (trap p-pure)
-          (exit n)
-          (signal S p-pure)
-          (suspend p-pure S)
-          (present S p-pure p-pure)
-          (emit S)
-          (loop p-pure)
-          (loop^stop p-pure q-pure)
-          (ρ θ A p-pure))
-             
   (p-unex q-unex ::=
           nothing pause
           (seq p-unex q-unex) (par p-unex p-unex)
