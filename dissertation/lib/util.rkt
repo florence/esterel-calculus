@@ -135,12 +135,12 @@
    #"\\usepackage{enumitem}\n"
    #"\\newlist{casesp}{enumerate}{6}\n"
    #"\\setlist[casesp]{align=left, %% alignment of labels
-                 listparindent=\\parindent, %% same indentation as in normal text
+                 %listparindent=\\parindent, %% same indentation as in normal text
                  %parsep=\\parskip, %% same parskip as in normal text
                  font=\\normalfont\\scshape, %% font used for labels
-                 %leftmargin=0pt, %% total amount by which text is indented
+                 leftmargin=0pt, %% total amount by which text is indented
                  %labelwidth=0pt, %% width of labels (=how much they stick out on the left because align=left)
-                 itemindent=12pt,labelsep=12pt, %% space between label and text
+                 itemindent=0pt,labelsep=0pt, %% space between label and text
 %                 topsep=??, %% vertical space above and below list
                  %partopsep=0pt, %% extra vertical space above and below if separate paragraph
 %                 itemsep=??, %% vertical space after each item

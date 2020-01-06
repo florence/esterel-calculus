@@ -358,7 +358,7 @@
                         item-label
                         (nested-flow (style "nopar" '(command))
                                      (decode-flow
-                                     (render-case-body (quote-srcloc-string clause-loc) (list body ...)))))
+                                      (render-case-body (quote-srcloc-string clause-loc) (list body ...)))))
                        ...))))]
     [(_ (~optional (~and #:induction i))
         (~optional (~and #:simple-cases s))
@@ -402,7 +402,7 @@
          
      
      #'(list
-        "\n" ;(exact "\\noindent")
+        noindent ;(exact "\\noindent")
         desc (tz (with-paper-rewriters (trm-> lang c1)) ...) ":"
         (exact "\\noindent")
         (nested-flow (style "casesp" '())
@@ -411,7 +411,6 @@
                        (list
                         (element "item" '())
                         item-label
-                        (nested-flow (style "nopar" '(command))
-                                     (decode-flow
-                                     (render-case-body (quote-srcloc-string cloc) (list body ...)))))
+                        newline noindent
+                        (render-case-body (quote-srcloc-string cloc) (list body ...)))
                        ...))))]))
