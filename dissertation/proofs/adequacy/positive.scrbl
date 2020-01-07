@@ -356,7 +356,8 @@
     @#:case[nothing]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
     @#:case[pause]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
     @#:case[(exit n)]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
-    @#:case[(emit S)]{}
+    @#:case[(emit S)]{As @es[A] is given as @es[GO], this case violates
+    the hypthesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
     @#:case[(present S p q)]{}
     @#:case[(suspend p S)]{}
     @#:case[(seq p q)]{}
@@ -364,8 +365,8 @@
     @#:case[(trap p)]{}
     @#:case[(signal S p)]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
     @#:case[(ρ θ A p)]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
-    @#:case[(loop p)]{}
-    @#:case[(loop^stop p q)]{}
+    @#:case[(loop p) #:ignore]{}
+    @#:case[(loop^stop p q) #:ignore]{}
  }}}}
 
 @proof[#:label "blocked-respects-can"
