@@ -213,6 +213,7 @@
          (~seq #:language lang:id)
          #:defaults ([lang #'base])))
        (~once (~seq #:of/count of:expr n:nat))
+       (~once (~optional (~and #:litteral l)))
        (~once (~optional (~and #:induction i)))
        (~once (~optional (~and #:no-check nc)))
        (~once (~optional (~and #:tuplize t)))
@@ -232,6 +233,7 @@
                      (~? t)
                      #:just-render
                      #,@(if (attribute nc) #'() #'(#:do-check))
+                     (~? l)
                      lang
                      of
                      cases ...)]
@@ -362,6 +364,7 @@
         (~optional (~and #:tuplize t))
         (~optional (~and #:just-render j))
         (~optional (~and #:do-check chk))
+        (~optional (~and #:litteral l))
         lang:id c:expr (~and cloc* (pat*:expr body* ...)) ...)
      #:with ((~and cloc (pat body ...)) ...)
      (for/list ([x (in-list (syntax->list #'(cloc* ...)))]
@@ -373,19 +376,20 @@
      #:with desc
      #`#,(string-append
           (if (attribute i) "Induction on " "Cases of ")
-          (if (and (not (attribute j)) (do-mf? #'c))
+          (if (and (not (attribute j)) (not (attribute l)) (do-mf? #'c))
               "the clauses of "
               ""))
      #:with tz (if (attribute t) #'tuplize #'values)
      #:with ((pat1 ...) ...)
      (if (attribute t) #'(pat ...) #'((pat) ...))
      #:with (c1 ...)
-     (if (attribute t) #'c #'(c))
+     (cond [(attribute t) #'c]
+           [else #'(c)])
      #:with trm->
      (if (attribute chk) #'term->pict/checked #'term->pict)
      #:with (item-label ...)
      (cond
-       [(attribute s)
+       [(or (attribute l) (attribute s))
         #'((tz (with-paper-rewriters (trm-> lang pat1)) ...) ...)]
        [(and (not (attribute j)) (not (attribute t)) (do-mf? #'c))
         (for/list ([_ (in-list (syntax->list #'(pat ...)))])
@@ -398,9 +402,12 @@
                 ...)])
          
      
-     #'(list
+     #`(list
         noindent ;(exact "\\noindent")
-        desc (tz (with-paper-rewriters (trm-> lang c1)) ...) ":"
+        desc
+        #,(if (attribute l)
+              #'(tz c1 ...)
+              #'(tz (with-paper-rewriters (trm-> lang c1)) ...)) ":"
         noindent (element (style #f '(exact-chars)) "\\unpenalty\\unskip\\unpenalty")
         (nested-flow (style "casesp" '())
                      (decode-flow

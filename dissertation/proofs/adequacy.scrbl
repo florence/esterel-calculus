@@ -54,6 +54,7 @@ with respect to the circuit translation. That is:
   
   @#:step[bools]{
    @cases[#:of/count @value 2
+          #:litteral
           #:no-check
           #:language esterel/typeset]{
     @#:case[(L∈ r done)]{}@;{"done-is-constructive"}
