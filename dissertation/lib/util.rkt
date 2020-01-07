@@ -11,6 +11,7 @@
          scribble-abbrevs/latex
          redex/reduction-semantics
          redex/pict
+         (only-in scribble/base linebreak)
          (only-in plot/utils treeof)
          racket/runtime-path
          (only-in scribble/base bold italic)
@@ -72,6 +73,9 @@
 (define noindent (element "noindent" '()))
 (define newline (element 'newline '()))
 (define nobreak (element 'no-break '()))
+(define nopagebreak (element "nopagebreak" '()))
+(define pagebreak0
+  (element (style #f '(exact-chars)) "\\pagebreak[0]"))
 
 (define (latex-lit name #:extras [extras empty] . args)
   (element (style name (cons 'exact-chars extras)) args))
@@ -124,6 +128,7 @@
    #"\\usepackage{wrapfig}\n"
    #"\\usepackage[parfill]{parskip}"
    #"\\setlength\\intextsep{0pt}\n"
+   #"\\raggedbottom\n"
    #"\\newcommand{\\SubTitleFontAdjust}[1]{\\fontsize{10}{14}\\selectfont{}#1}\n"
    #"\\newcommand{\\TheoremSpacer}[0]{\\hbox to .3in{}}\n"
    #"\\newcommand{\\SubE}[0]{$_{e}$}\n"
@@ -212,27 +217,21 @@
           #:notation notation
           #:read-as [read-as #f]
           . def)
-  (decode-flow
-   (append
-    (list (exact "\\vspace{1ex}\n")
-          noindent
-          (bold "Definition: "))
+  (flatten
+   (list
+    (list noindent (bold "Definition: "))
     (flatten notation)
-    (list nobreak)
+    (list (linebreak) nopagebreak noindent)
     (if read-as
-        (list
-         (make-paragraph
-          plain
-          (append
-           (list nobreak)
-           (list (italic "read as: "))
-           (list nobreak)
-           (flatten read-as)
-           (list nobreak))))
+        (append
+         (list nobreak nopagebreak)
+         (list (italic "read as: "))
+         (list nobreak nopagebreak)
+         (flatten read-as)
+         (list (linebreak) nopagebreak noindent))
         empty)
-    (list nobreak)
-    (list (make-paragraph plain def))
-    (list (exact "\\vspace{1ex}\n")))))
+    (list def)
+    pagebreak0)))
   
 
 (define-syntax proof
