@@ -88,14 +88,11 @@
 
 @definition[
  #:notation @es[(restrict θ O p)]
- #:read-as @list{Restrict @es[θ] to signals in @es[O],
-  given a program @es[p].}]{
+ #:read-as @list{Restrict @es[θ] to signals in @es[O], given a program @es[p].}]{
 
  @es[(= (restrict θ O p) (restrict-defintion θ O p))]
-
- where
-
- @with-paper-rewriters[@render-metafunction[DR #:contract? #t]]
+ @(linebreak) where
+ @(linebreak) @with-paper-rewriters[@render-metafunction[DR #:contract? #t]]
 
 }
 
