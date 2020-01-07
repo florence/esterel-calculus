@@ -103,10 +103,7 @@
            (list
             (element "item" '())
             (syntax-parameterize ([in-sequence c])
-              (render-case-body (quote-srcloc-string cloc) (list body ...))
-              #;
-              (nested-flow (style "nopar" '(command))
-                           (render-case-body (quote-srcloc-string cloc) (list body ...))))
+              (render-case-body (quote-srcloc-string cloc) (list body ...)))
             noindent)
            ...)))]))
 
@@ -404,13 +401,13 @@
      #'(list
         noindent ;(exact "\\noindent")
         desc (tz (with-paper-rewriters (trm-> lang c1)) ...) ":"
-        (exact "\\noindent")
+        noindent (element (style #f '(exact-chars)) "\\unpenalty\\unskip\\unpenalty")
         (nested-flow (style "casesp" '())
                      (decode-flow
                       (append
                        (list
                         (element "item" '())
                         item-label
-                        newline noindent
+                        linebreaks
                         (render-case-body (quote-srcloc-string cloc) (list body ...)))
                        ...))))]))
