@@ -13,11 +13,11 @@
 @title[#:style paper-title-style]{Core Theorems}
 
 This section contains the core proofs to justify soundness of the calculus
-with respect to the compilation function. The core theorem @proof-ref["FullyAbstract"],
-however the most informative theorem is @proof-ref["FullStep"].
+with respect to the compilation function. The core theorem @proof-ref["Soundness"],
+however the most informative theorem is @proof-ref["Soundness-step"].
 
-@proof[#:label "FullyAbstract"
-       #:title "Fully Abstract Compilation"
+@proof[#:label "Soundness"
+       #:title "Soundness"
        #:statement
        @list{For all @es[p] and @es[q], @es[(CB p)] and @es[(≡ p q)] implies that
         @es[(≃ (compile p) (compile q))]}
@@ -27,8 +27,8 @@ however the most informative theorem is @proof-ref["FullStep"].
 }
 
 
-@proof[#:label "FullStep"
-       #:title "Fully Abstract Compilation of Step"
+@proof[#:label "Soundness-step"
+       #:title "Soundness of Step"
        #:statement
        @list{For all @es[p] and @es[q], @es[(CB p)] and @es[(⇀ p q)] implies that
         @es[(≃ (compile p) (compile q))]}

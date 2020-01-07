@@ -77,8 +77,10 @@
        p
        (scale
         (cond [(string? s) (words s)]
+              [(symbol? s) (words (~a s))]
               [(pict-convertible? s) s]
-              [(lw? s) (render-lw esterel/typeset s)])
+              [(lw? s) (render-lw esterel/typeset s)]
+              [else (error 'render-op "don't know how to render ~v" s)])
         .7))))
   (lift-bottom-relative-to-baseline
    p
@@ -412,6 +414,9 @@
      (curry binop '⟶^S)]
     ['⟶^r
      (curry binop '⟶^R)]
+    ['⇀^r
+     (curry binop '⇀^R)]
+    
     ['→
      (λ (lws)
        (list ""
@@ -986,8 +991,18 @@
      ['D (λ () (text "E" (non-terminal-style) (default-font-size)))]
 
      ;; same with the pure variants
-     ['p-pure (λ () (text "p" (non-terminal-style) (default-font-size)))]
-     ['q-pure (λ () (text "q" (non-terminal-style) (default-font-size)))]
+     ['p-pure (λ ()
+                (render-op/instructions
+                 (text "p" (non-terminal-style) (default-font-size))
+                 `((superscript p))))]
+     ['q-pure (λ ()
+                (render-op/instructions
+                 (text "q" (non-terminal-style) (default-font-size))
+                 `((superscript p))))]
+     ['C-pure (λ ()
+                (render-op/instructions
+                 (text "C" (non-terminal-style) (default-font-size))
+                 `((superscript p))))]
      ['p-unex (λ () (text "p" (non-terminal-style) (default-font-size)))]
      ['q-unex (λ () (text "q" (non-terminal-style) (default-font-size)))]
      ['wire-value (λ () (text "e" (non-terminal-style) (default-font-size)))]
@@ -1047,6 +1062,7 @@
       (lambda () (render-op '⟶^S))]
      ['⟶^r
       (lambda () (render-op '⟶^R))]
+     ['⇀^r (lambda () (render-op '⇀^R))]
     
      ['blocked blocked-pict]
      ['blocked-pure blocked-pict]
@@ -1061,7 +1077,8 @@
      ['ff (lambda () (text "ff" (list* 'italic 'combine (literal-style)) (default-font-size)))]
      ;; results
      ['R (lambda ()
-           (text "R" (non-terminal-style) (default-font-size)))])
+           (text "R" (non-terminal-style) (default-font-size)))]
+     ['count (lambda () (words "ℒ"))])
     (define owsb (white-square-bracket))
     (parameterize* ([default-font-size (get-the-font-size)]
                    [metafunction-font-size (get-the-font-size)]

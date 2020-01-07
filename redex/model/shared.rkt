@@ -84,6 +84,22 @@
           (loop^stop p-pure q-pure)
           (ρ θr A p-pure))
 
+  (C-pure ::=
+          (signal S C-pure)
+          (seq C-pure q-pure)
+          (seq p-pure C-pure)
+          (loop^stop C-pure q-pure)
+          (loop^stop p-pure C-pure)
+          (present S C-pure q-pure)
+          (present S p-pure C-pure)
+          (par C q-pure)
+          (par p-pure C-pure)
+          (loop C-pure)
+          (suspend C-pure S)
+          (trap C-pure)
+          (ρ θ A C-pure)
+          hole)
+
   (C ::=
      (signal S C)
      (seq C q)

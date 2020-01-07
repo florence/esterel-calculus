@@ -123,10 +123,10 @@
 
 
 @definition[
- #:notation @list{@es[(count p)] @es[⟶] @es[n]}
+ #:notation @list{@es[(count p)]}
  #:read-as @list{An upper bound in the number of @es[⟶^r] steps
   @es[p] may take}]{
 
- @with-paper-rewriters[@render-metafunction[count]]
+ @with-paper-rewriters[@render-metafunction[count #:contract? #t]]
 
 }
