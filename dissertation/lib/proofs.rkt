@@ -27,7 +27,7 @@
          (except-in scribble/core table)
          scribble/decode
          scribble-abbrevs/latex
-         (only-in scribble/base item itemlist))
+         (only-in scribble/base item itemlist linebreak))
 
 
 (define-language base
@@ -408,6 +408,6 @@
                        (list
                         (element "item" '())
                         item-label
-                        linebreaks
+                        (linebreak)
                         (render-case-body (quote-srcloc-string cloc) (list body ...)))
                        ...))))]))

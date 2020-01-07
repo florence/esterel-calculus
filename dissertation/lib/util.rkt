@@ -71,7 +71,6 @@
 
 (define noindent (element "noindent" '()))
 (define newline (element 'newline '()))
-(define linebreak (element 'linebreak '()))
 (define nobreak (element 'no-break '()))
 
 (define (latex-lit name #:extras [extras empty] . args)
