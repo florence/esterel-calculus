@@ -257,11 +257,11 @@
                        [name
                         (~? i)
                         "In this case we have"
-                        (term->pict/checked lang arrow)
+                        (with-paper-rewriters  (term->pict/checked lang arrow))
                         (linebreak)
                         "where"
                         (linebreak)
-                        (term->pict/checked lang converted-clause) ...
+                        (with-paper-rewriters (term->pict/checked lang converted-clause)) ...
                         body ...]
                        ...))]
     [(_
