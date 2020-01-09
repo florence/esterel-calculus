@@ -163,6 +163,22 @@
     (syntax-parse c
       [(#:case p body ...)
        (syntax/loc c (p body ...))])))
+
+(define-syntax with-loc
+  (syntax-parser
+    [(_ #f (a ...))
+     (datum->syntax
+      this-syntax
+      (syntax->list #'(a ...)))]
+    [(_ b (a ...))
+     (syntax/loc #'b
+       (a ...))]))
+
+(define-for-syntax (strip-srcloc x)
+  (syntax-parse x
+    [_:id (datum->syntax x (syntax-e x) #f)]
+    [(_ ...) (datum->syntax x (map strip-srcloc (syntax-e x)) #f)]
+    [_ x]))
             
 
 (define-syntax cases
@@ -206,6 +222,48 @@
      #:with sc (make-subcases-expander  #'(c ...) #t #'lang #'n)
      #'(syntax-parameterize ([subcases sc])
          (subcases [#:case (p ...) body ...] ...))]
+    [(_
+      (~alt
+       (~once
+        (~optional
+         (~seq #:language lang:id)
+         #:defaults ([lang #'base])))
+       (~once (~seq #:of/reduction-relation (~and xx (-> of:expr q))))
+       (~once (~seq #:drawn-from dr:expr))
+       (~once (~optional (~and #:no-check nc)))
+       (~once (~optional (~seq #:checks n)
+                         #:defaults ([n #'1000]))))
+      ...
+      _:string ... 
+      (~seq [#:case (->2 left:expr right:expr clauses:expr ... name:id)
+             (~optional (~and #:ignore i))
+             body:expr ...]
+            _:string ...) ...)
+     #:with ((converted-clause ...) ...)
+     (for/list ([l (in-list (syntax->list #'((clauses ...) ...)))])
+       (for/list ([c (in-list (syntax->list l))])
+         (strip-srcloc (convert-clause c))))
+     #:with (arrow ...)
+     (for/list ([x (in-list (syntax->list #'((->2 left right) ...)))])
+       (strip-srcloc x))
+     #`(begin
+         #,(syntax/loc this-syntax
+             (test-cases-covered #:checks n lang of #:reduction-relation (~? dr ->) (name ...) (left ...)))
+         (render-cases #:simple-cases
+                       #:just-render
+                       #,@(if (attribute nc) #'() #'(#:do-check))
+                       lang
+                       xx
+                       [name
+                        (~? i)
+                        "In this case we have"
+                        (term->pict/checked lang arrow)
+                        (linebreak)
+                        "where"
+                        (linebreak)
+                        (term->pict/checked lang converted-clause) ...
+                        body ...]
+                       ...))]
     [(_
       (~alt
        (~once
@@ -257,6 +315,13 @@
                      of
                      cases ...)]))
 
+(define-for-syntax convert-clause
+  (syntax-parser
+    [((~literal judgment-holds) x) #'x]
+    [((~literal where) a x)
+     (datum->syntax this-syntax (list (datum->syntax #f '= #f) #'a #'x) #f)]
+    [((~literal side-condition) x) #'x]))
+
 (define-syntax (test-cases-covered stx)
   (if (environment-variables-ref (current-environment-variables) #"ESTNOTEST")
       #'(void)
@@ -291,16 +356,28 @@
                          '"missing or unexpected case. Expected ~a, got ~a"
                          (map string->symbol '(names ...))
                          '(clause ...)))))]
-        [(test-cases-covered #:checks n lang:id c:expr (pat:expr ...))
+        [(test-cases-covered #:checks n lang:id c:expr
+                             (~optional (~seq #:reduction-relation r (name ...)))
+                             (pat:expr ...))
          #:when (and (not (do-mf? #'c)) (not (do-judgment? #'c)))
          #`(lift-to-compile-time-for-effect!
-            #,(syntax/loc this-syntax
-                (redex-check
-                 lang c
-                 (unless (or (redex-match? lang pat (term c)) ...)
-                   (error "missing case!"))
-                 #:attempts 'n
-                 #:print? '#f)))])))
+            #,(quasisyntax/loc this-syntax
+                (begin
+                  (~?
+                   (unless (equal? (list->set (reduction-relation->rule-names r))
+                                   (set 'name ...))
+                     (error 'cases
+                            '"missing or unexpected case. Expected ~a, got ~a"
+                            '(name ...)
+                            (reduction-relation->rule-names r))))
+                  #,(syntax/loc this-syntax
+                      (redex-check
+                       lang c
+                       (unless (or (redex-match? lang pat (term c)) ...)
+                         (error "missing case!"))
+                       (~? (~@ #:source r))
+                       #:attempts 'n
+                       #:print? '#f)))))])))
 
 (define (tuplize . p)
   (if (= 1 (length p))
@@ -332,7 +409,7 @@
      (for/list ([x (in-list (syntax->list #'(clause-loc* ...)))]
                 #:unless
                 (syntax-parse x
-                  [(+ #:ignore _ ...) #t]
+                  [(_ #:ignore _ ...) #t]
                   [_ #f]))
        x)
      #:with (item-label ...)

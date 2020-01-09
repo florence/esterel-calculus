@@ -10,6 +10,7 @@
           (except-in esterel-calculus/redex/model/shared FV FV/e θ-get-S)
           esterel-calculus/redex/test/binding
           esterel-calculus/redex/model/lset
+          esterel-calculus/redex/model/calculus
           esterel-calculus/redex/model/count
           esterel-calculus/redex/model/potential-function
           esterel-calculus/redex/model/count
@@ -126,6 +127,113 @@ with respect to the circuit translation. That is:
        #:statement @list{For all @es[p], @es[q],
         if @es[(⇀^r p q)]
         then @es[(> (count p) (count q))].}]{
+
+ @cases[#:of/reduction-relation (⇀^r p-pure q-pure)
+        #:drawn-from ⇀
+        #:language esterel-eval]{
+  @#:case[(⇀ (par nothing done) done par-nothing)]
+  @#:case[(⇀ (par (exit n) paused) (exit n) par-1exit)]
+  @#:case[(⇀ (par (exit n_1) (exit n_2)) (exit (max-mf n_1 n_2)) par-2exit)]
+  
+  @#:case[(⇀ (ρ θr A (in-hole E (present S p q))) (ρ θr A (in-hole E p))
+             (judgment-holds (θ-ref-S θr S present))
+             is-present)]
+
+  @#:case[(⇀ (ρ θr A (in-hole E (present S p q))) (ρ θr A (in-hole E q))
+             (judgment-holds (L∈ S (Ldom θr)))
+             (judgment-holds (θ-ref-S θr S unknown))
+             (judgment-holds (L¬∈ S (->S (Can-θ (ρ θr A (in-hole E (present S p q))) ·))))
+             is-absent)]
+
+  
+
+  @#:case[(⇀ (seq nothing q) q
+             seq-done)]
+
+  @#:case[(⇀ (seq (exit n) q) (exit n)
+             seq-exit)]
+  
+  @#:case[(⇀ (suspend stopped S) stopped
+             suspend)]
+
+  @#:case[(⇀ (trap stopped) (harp stopped)
+             trap)]
+
+  @#:case[(⇀ (signal S p) (ρ (mtθ+S S unknown) WAIT p)
+             signal)]
+
+  @#:case[(⇀ (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p))) (ρ (id-but-typeset-some-parens (<- θr_1 θr_2)) A_1 (in-hole E p))
+             (side-condition (term (A->= A_1 A_2))) 
+             merge)]
+
+  @#:case[(⇀ (ρ θr GO (in-hole E (emit S))) (ρ (id-but-typeset-some-parens (<- θr (mtθ+S S present))) GO (in-hole E nothing))
+             (judgment-holds (L∈ S (Ldom θr)))
+             emit)]
+  @;ignoring loop rules for now
+  @#:case[(⇀ (loop p) (loop^stop p p)
+             loop)
+          #:ignore]
+  @#:case[(⇀ (loop^stop (exit n) q) (exit n)
+             loop^stop-exit)
+          #:ignore]
+  @;ignore par swap
+  @#:case[(⇀ (par p q) (par q p) par-swap) #:ignore]
+  @;ingore the state rules
+  @#:case[(⇀
+           (ρ θr A (in-hole E (shared s := e p)))
+           (ρ θr A (in-hole E (ρ (mtθ+s s ev old) WAIT p)))
+           (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
+           (side-condition (term (all-ready? (LFV/e e) θr (in-hole E (shared s := e p)))))
+           (where ev (δ e θr))
+           shared) #:ignore]
+  @#:case[(⇀
+           (ρ θr A (in-hole E (var x := e p)))
+           (ρ θr A (in-hole E (ρ (mtθ+x x (δ e θr)) WAIT p)))
+           (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
+           (side-condition (term (all-ready? (LFV/e e) θr (in-hole E (var x := e p)))))
+           var) #:ignore]
+  @#:case[(⇀
+           (ρ θr A (in-hole E (:= x e)))
+           (ρ (id-but-typeset-some-parens (<- θr (mtθ+x x (δ e θr)))) A (in-hole E nothing))
+           (judgment-holds (L∈ x (Ldom θr)))
+           (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
+           (side-condition (term (all-ready? (LFV/e e) θr (in-hole E (:= x e)))))
+           set-var) #:ignore]
+   
+   
+  @#:case[(⇀ (ρ θr A (in-hole E (if x p q)))
+             (ρ θr A (in-hole E q))
+             (judgment-holds (θ-ref-x θr x 0))
+             if-false) #:ignore]
+  @#:case[(⇀ (ρ θr A (in-hole E (if x p q)))
+             (ρ θr A (in-hole E p))
+             (judgment-holds (L∈ x (Ldom θr)))
+             (judgment-holds (¬θ-ref-x θr x 0))
+             if-true) #:ignore]
+
+
+
+
+        
+
+  @#:case[(⇀
+           (ρ θr GO (in-hole E (<= s e)))
+           (ρ (id-but-typeset-some-parens (<- θr (mtθ+s s (δ e θr) new))) GO (in-hole E nothing))
+           (judgment-holds (θ-ref-s θr s _ old))
+           (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
+           (side-condition (term (all-ready? (LFV/e e) θr (in-hole E (<= s e)))))
+           set-old) #:ignore]
+
+  @#:case[(⇀
+           (ρ θr GO (in-hole E (<= s e)))
+           (ρ (id-but-typeset-some-parens (<- θr (mtθ+s s (Σ ev (δ e θr)) new))) GO (in-hole E nothing))
+           (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
+           (judgment-holds (θ-ref-s θr s _ new))
+           (side-condition (term (all-ready? (LFV/e e) θr (in-hole E (<= s e)))))
+           (where ev (δ e θr))
+           set-new) #:ignore]
+  
+ }
 }
 
 @include-section["adequacy/positive.scrbl"]
