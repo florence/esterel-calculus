@@ -245,20 +245,23 @@
        (for/list ([c (in-list (syntax->list l))])
          (strip-srcloc (convert-clause c))))
      #:with (arrow ...)
-     (for/list ([x (in-list (syntax->list #'((->2 left right) ...)))])
-       (strip-srcloc x))
+     #'((hbl-append
+         (with-paper-rewriters  (term->pict/checked lang left))
+         (with-paper-rewriters  (term->pict/checked lang ->2))
+         (with-paper-rewriters  (term->pict/checked lang right)))
+        ...)
      #:with (unloced ...)
      #'([name
          (~? i)
-         "In this case we have"
-         (with-paper-rewriters  (term->pict/checked lang arrow))
+         "In this case we have "
+         arrow
          (linebreak)
-         "where"
-         (linebreak)
-         (let ([l (list (with-paper-rewriters (term->pict/checked lang converted-clause)) ...)])
+         (let ([l
+                (flatten
+                 (list (list (with-paper-rewriters (term->pict/checked lang converted-clause)) (linebreak)) ...))])
            (if (empty? l)
                ""
-               (splice (append l (list (linebreak))))))
+               (splice (list* "where" (linebreak) l))))
          (let ([b (list body ...)])
            (if (andmap whitespace? b)
                "TODO"

@@ -687,7 +687,7 @@
      (λ (lws)
        (define arg1 (list-ref lws 2))
        (define arg2 (list-ref lws 3))
-       (list (mf-t "max") "(" arg1 " , " arg2 ")"))]
+       (list (mf-t "max") ((white-square-bracket) #t) arg1 " , " arg2 ((white-square-bracket) #f)))]
     ['par-⊓
      (λ (lws)
        (define arg1 (list-ref lws 2))
@@ -935,7 +935,7 @@
     ['count
      (lambda (lws)
        (match-define (list _ _ body _) lws)
-       (list "ℒ"
+       (list "𝒮"
              ((white-square-bracket) #t)
              body
              ((white-square-bracket) #f)))])
@@ -1078,7 +1078,7 @@
      ;; results
      ['R (lambda ()
            (text "R" (non-terminal-style) (default-font-size)))]
-     ['count (lambda () (words "ℒ"))])
+     ['count (lambda () (words "𝒮"))])
     (define owsb (white-square-bracket))
     (parameterize* ([default-font-size (get-the-font-size)]
                    [metafunction-font-size (get-the-font-size)]
