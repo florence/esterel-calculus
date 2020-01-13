@@ -131,44 +131,72 @@ with respect to the circuit translation. That is:
  @cases[#:of/reduction-relation (⇀^r p-pure q-pure)
         #:drawn-from ⇀
         #:language esterel-eval]{
-  @#:case[(⇀ (par nothing done) done par-nothing)]
-  @#:case[(⇀ (par (exit n) paused) (exit n) par-1exit)]
-  @#:case[(⇀ (par (exit n_1) (exit n_2)) (exit (max-mf n_1 n_2)) par-2exit)]
+  @#:case[(⇀ (par nothing done) done par-nothing)]{
+   This case follows immediately from the definition of @es[count].
+  }
+  @#:case[(⇀ (par (exit n) paused) (exit n) par-1exit)]{
+   This case follows immediately from the definition of @es[count].}
+  @#:case[(⇀ (par (exit n_1) (exit n_2)) (exit (max-mf n_1 n_2)) par-2exit)]{
+   This case follows immediately from the definition of @es[count].}
   
   @#:case[(⇀ (ρ θr A (in-hole E (present S p q))) (ρ θr A (in-hole E p))
              (judgment-holds (θ-ref-S θr S present))
-             is-present)]
+             is-present)]{
+   By @proof-ref["cannibalize-compatible-closure"],
+   we can establish our result if @es[(> (count (present S p q)) p)].
+   This is trivially true.}
 
   @#:case[(⇀ (ρ θr A (in-hole E (present S p q))) (ρ θr A (in-hole E q))
              (judgment-holds (L∈ S (Ldom θr)))
              (judgment-holds (θ-ref-S θr S unknown))
              (judgment-holds (L¬∈ S (->S (Can-θ (ρ θr A (in-hole E (present S p q))) ·))))
-             is-absent)]
-
-  
+             is-absent)]{
+   This case follows by an analgous argument to the previous case.
+  }
 
   @#:case[(⇀ (seq nothing q) q
-             seq-done)]
+             seq-done)]{
+   This case follows immediately from the definition of @es[count].
+  }
 
   @#:case[(⇀ (seq (exit n) q) (exit n)
-             seq-exit)]
+             seq-exit)]{
+   This case follows immediately from the definition of @es[count].
+  }
   
   @#:case[(⇀ (suspend stopped S) stopped
-             suspend)]
+             suspend)]{This case follows immediately from the definition of @es[count].}
 
   @#:case[(⇀ (trap stopped) (harp stopped)
-             trap)]
+             trap)]{
+   This case follows immediately from the definition of @es[count].}
 
   @#:case[(⇀ (signal S p) (ρ (mtθ+S S unknown) WAIT p)
-             signal)]
+             signal)]{
+   This case follows immediately from the definition of @es[count].}
 
-  @#:case[(⇀ (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p))) (ρ (id-but-typeset-some-parens (<- θr_1 θr_2)) A_1 (in-hole E p))
+  @#:case[(⇀ (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p))) (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p))
              (side-condition (term (A->= A_1 A_2))) 
-             merge)]
+             merge)]{
+   @sequenced{
+    @#:step[inner]{@es[(> (count (ρ θr_2 A_2 p)) (count p))], by the definition of @es[count].}
+    @#:step[outer]{for any @es[r].
+     @es[(= (count (ρ θr_1 A_1 (in-hole E r))) (count (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E r))))], by the definition of @es[count].}
+    @#:step[eq]{By @outer on @es[p], @es[(= (count (ρ θr_1 A_1 (in-hole E p))) (count (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p))))].}
+    @#:step[_]{By @eq, @inner, and @proof-ref["cannibalize-compatible-closure"],
+     @es[(> (count (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p)))) (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p)))]
+  }}}
 
-  @#:case[(⇀ (ρ θr GO (in-hole E (emit S))) (ρ (id-but-typeset-some-parens (<- θr (mtθ+S S present))) GO (in-hole E nothing))
+  @#:case[(⇀ (ρ θr GO (in-hole E (emit S))) (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E nothing))
              (judgment-holds (L∈ S (Ldom θr)))
-             emit)]
+             emit)]{
+   @sequenced{
+    @#:step[eq]{For all @es[r], @es[(= (count (ρ θr GO (in-hole E r))) (count (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E r))))],
+     By the definition of @es[count].
+    }
+    @#:step[lt]{@es[(> (count (emit S)) (count nothing))], by the definition of @es[count].}
+    @#:step[_]{@es[(> (count (ρ θr GO (in-hole E (emit S)))) (count (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E nothing))))]
+     by @eq, @lt, and @@proof-ref["cannibalize-compatible-closure"].}}}
   @;ignoring loop rules for now
   @#:case[(⇀ (loop p) (loop^stop p p)
              loop)
