@@ -235,9 +235,10 @@
                          #:defaults ([n #'1000]))))
       ...
       _:string ... 
-      (~seq [#:case (->2 left:expr right:expr clauses:expr ... name:id)
-             (~optional (~and #:ignore i))
-             body:expr ...]
+      (~seq (~and a-case
+                  [#:case (->2 left:expr right:expr clauses:expr ... name:id)
+                   (~optional (~and #:ignore i))
+                   body:expr ...])
             _:string ...) ...)
      #:with ((converted-clause ...) ...)
      (for/list ([l (in-list (syntax->list #'((clauses ...) ...)))])
@@ -246,6 +247,30 @@
      #:with (arrow ...)
      (for/list ([x (in-list (syntax->list #'((->2 left right) ...)))])
        (strip-srcloc x))
+     #:with (unloced ...)
+     #'([name
+         (~? i)
+         "In this case we have"
+         (with-paper-rewriters  (term->pict/checked lang arrow))
+         (linebreak)
+         "where"
+         (linebreak)
+         (let ([l (list (with-paper-rewriters (term->pict/checked lang converted-clause)) ...)])
+           (if (empty? l)
+               ""
+               (splice (append l (list (linebreak))))))
+         (let ([b (list body ...)])
+           (if (andmap whitespace? b)
+               "TODO"
+               (splice b)))]
+        ...)
+     #:with (loced ...)
+     (for/list ([l (in-list (syntax->list #'(unloced ...)))]
+                [c (in-list (syntax->list #'(a-case ...)))])
+       (datum->syntax
+        l
+        (syntax->list l)
+        c))
      #`(begin
          #,(syntax/loc this-syntax
              (test-cases-covered #:checks n lang of #:reduction-relation (~? dr ->) (name ...) (left ...)))
@@ -254,16 +279,7 @@
                        #,@(if (attribute nc) #'() #'(#:do-check))
                        lang
                        xx
-                       [name
-                        (~? i)
-                        "In this case we have"
-                        (with-paper-rewriters  (term->pict/checked lang arrow))
-                        (linebreak)
-                        "where"
-                        (linebreak)
-                        (with-paper-rewriters (term->pict/checked lang converted-clause)) ...
-                        body ...]
-                       ...))]
+                       loced ...))]
     [(_
       (~alt
        (~once

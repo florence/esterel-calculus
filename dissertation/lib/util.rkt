@@ -528,11 +528,17 @@
 
 (define (render-proof-item-body location body)
   (define (whitespace? s)
-    (and (string? s)
-         (regexp-match? #px"^\\s*$" s)))
+    (or
+     (and (string? s)
+          (regexp-match? #px"^\\s*$" s))
+     (and (list? s) (andmap whitespace? s))
+     (and (splice? s) (andmap whitespace? (splice-run s)))))
   (define (has-todo? s)
-    (and (string? s)
-         (regexp-match? #px"(?i:todo)" s))) 
+    (or
+     (and (string? s)
+          (regexp-match? #px"(?i:todo)" s))
+     (and (list? s) (ormap has-todo? s))
+     (and (splice? s) (ormap has-todo? (splice-run s))))) 
   (cond
     [(andmap whitespace? body)
      (log-diss-warning "unproved case at: ~a" location)
