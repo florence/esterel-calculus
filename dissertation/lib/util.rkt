@@ -44,6 +44,7 @@
          noindent newline
          exact-chars-element
          wrap-latex-begin-end
+         override-font-size?
          
          theorem theorem-ref Theorem-ref
          lemma lemma-ref Lemma-ref
@@ -81,7 +82,12 @@
   (element (style name (cons 'exact-chars extras)) args))
 
 (define in-footnote? (make-parameter #f))
-(define (get-the-font-size) (if (in-footnote?) 10 13))
+(define override-font-size? (make-parameter #f))
+(define (get-the-font-size)
+  (cond
+    [(override-font-size?) (default-font-size)]
+    [(in-footnote?) 10]
+    [else 13]))
 
 (define-syntax-rule
   (-note . args)
