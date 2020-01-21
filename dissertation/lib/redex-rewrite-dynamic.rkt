@@ -963,7 +963,14 @@
    ;                                                              
 
    (with-atomic-rewriters
-    (['ρ (λ () (alt-ρ))]
+    (;; for poster
+     ['C^esterel (lambda () (render-op/instructions (nt-t "C") `((superscript E))))]
+     ['C^js (lambda () (render-op/instructions (nt-t "C") `((superscript JS))))]
+     ['e^js (lambda () (render-op/instructions (nt-t "e") `((superscript JS))))]
+
+
+     
+     ['ρ (λ () (alt-ρ))]
 
      ;; bring this a bit more together
      [':= (λ () (hbl-append -1 (def-t ":") (def-t "=")))]
@@ -1036,6 +1043,7 @@
      ['harp (λ () (down-super-p))]
      ['and (lambda () (def-t "∧"))]
      ['or (lambda () (def-t "∨"))]
+     
      
      ['next-instant (λ () (sized-↬-pict))]
      ['par-⊓ (λ () (par-⊓-pict))]
