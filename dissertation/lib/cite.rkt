@@ -345,6 +345,14 @@ Theorem 47. Given constructive Esterel statements E and E′;
    #:date 2013
    #:location (proceedings-location "Onward!")))
 
+(define felleisen-expressive
+  (make-bib
+   #:title "On the expressive power of programming languages"
+   #:author "Matthias Felleisen"
+   #:date 1991
+   #:location (proceedings-location
+               "European Symposium on Programming")))
+
 
 #|
 bohm alcune proprietà delle forme normali nel calcolo

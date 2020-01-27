@@ -304,9 +304,9 @@
 (define (eval-c-pict o)
   (eval-pict "C" o))
 (define (≃-e-pict)
-  (≃-pict "E"))
+  (≃-pict "Est"))
 (define (≃-c-pict)
-  (≃-pict "C"))
+  (≃-pict "Circ"))
 
 (define (sized-↬-pict)
   (define ↬-pict (nt-t "↬"))
