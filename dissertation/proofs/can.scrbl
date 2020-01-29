@@ -344,4 +344,4 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
                    (->S (Can-θ (ρ (<- θ_1 (mtθ+S S absent)) A p) θ_2)))]}]{
  TODO
  Sketch: as @es[Can-θ] takes signal of that form an sets it to absent, nothing changes.
-}
+}                    

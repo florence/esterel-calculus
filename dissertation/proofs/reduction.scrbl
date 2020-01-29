@@ -122,9 +122,10 @@ respect to the compilation function.
 
 @proof[#:label "seq-exit"
        #:title "seq-exit is sound"
-       #:statement @list{as @es[(⇀ (seq (exit n) q) (exit n))], show that
+       #:statement @list{as @es[(⇀ (seq (exit n) q) (exit n))],
+        if @es[(= (of (compile (seq (exit n) q)) SEL) 0)] then
         @es[(≃ (compile (seq (exit n) q)) (compile (exit n)))]}]{
- Note that @es[(= (of (compile q) GO) 0)]. Thus by @proof-ref["sel-later"],
+ By @es[(= (of (compile (seq (exit n) q)) SEL) 0)], it must be that
  @es[(= (of (compile q) SEL) 0)]. Thus by @proof-ref["activation-condition"]
  all output wires of @es[(compile q)] are @es[0].
  Thus the only wire which can be true is @es[K2+n], which in this case will
@@ -175,8 +176,8 @@ respect to the compilation function.
        #:title "is-present is sound"
        #:statement
        @list{as @es[(⇀ (ρ θ A (in-hole E (present S p q))) (ρ θ A (in-hole E p)))]
-
-        when @es[(θ-ref-S θ S present)], show that
+        if @es[(= (of (compile (ρ θ A (in-hole E (present S p q)))) SEL) 0)]
+        and @es[(θ-ref-S θ S present)], show that
         @es[(≃ (compile (ρ θ A (in-hole E (present S p q)))) (compile (ρ θ A (in-hole E p))))]}]{
  As @es[(compile θ)] will force the @es[S] wire to be @es[1],
  by @proof-ref["S-maintains-across-E"] we know that
@@ -191,42 +192,32 @@ respect to the compilation function.
        #:title "is-absent is sound"
        #:statement
        @list{as @es[(⇀ (ρ θ A (in-hole E (present S p q))) (ρ θ A (in-hole E q)))]
-
-        when @es[(θ-ref-S θ S unknown)] and @es[(L¬∈ S (->S (Can-θ (ρ θ A (in-hole E (present S p q))) ·)))], show that
+        if @es[(= (of (compile (ρ θ A (in-hole E (present S p q)))) SEL) 0)],
+        @es[(θ-ref-S θ S unknown)],
+        and @es[(L¬∈ S (->S (Can-θ (ρ θ A (in-hole E (present S p q))) ·)))], then
 
         @es[(≃ (compile (ρ θ A (in-hole E (present S p q)))) (compile (ρ θ A (in-hole E q))))]}]{
 
  Let @es[p_outer] be @es[(ρ θ A (in-hole E (present S p q)))], the left hand side of the reduction.
  This can be proved by the following steps:
- 
- @itemlist[
- #:style 'ordered
- @item{By @proof-ref["context-safety"]
-   @es[(= (of (compile p_outer) SEL) 1)] implies
-   @es[(= (of (compile p_outer) GO) 0)]}
- @item{By @proof-ref["S-maintains-across-E"] and
+
+ @sequenced{
+  @#:step[maintain]{By @proof-ref["S-maintains-across-E"] and
    @proof-ref["GO-maintains-across-E"] we know that
    @es[(= (of (compile p_outer) S) (of (compile (present S p q)) S))]
    and
-   
    @es[(= (of (compile p_outer) GO) (of (compile (present S p q)) GO))]
   }
- @item{By @proof-ref["Can-S-is-sound"], we know that
-   @es[(= (of (compile p_outer) SEL) 0)] implies @es[(= (of (compile p_outer) S) 0)].}
- @item{by 2 & 3, @es[(= (of (compile p_outer) SEL) 0)] implies
-   @es[(= (of (compile (present S p q)) S) 0)].}
- @item{By @proof-ref["sel-def"],
+  @#:step[sound]{By @proof-ref["Can-S-is-sound"] and our premise that @es[(= (of (compile p_outer) SEL) 0)],
+   we know that @es[(= (of (compile p_outer) S) 0)].}
+  @#:step[is-zero]{by @maintain & @sound, @es[(= (of (compile (present S p q)) S) 0)].}
+  @#:step[def]{By @proof-ref["sel-def"],
    @es[(= (of (compile p_outer) SEL) (or (of (compile p) SEL) (of (compile q) SEL) w_others ...))]}
- @item{By 4 & 5,
-   @es[(= (or (of (compile p) SEL) (of (compile q) SEL) w_others ...) (of (compile (present S p q)) SEL))]}
- @item{By 1, 2, & 5,
-   @es[(= (or (of (compile p) SEL) (of (compile q) SEL) w_others ...) 1)]
-   implies
+  @#:step[imp]{By @def and our premise that @es[(= (of (compile p_outer) SEL) 0)], we know that
    @es[(= (of (compile (present S p q)) SEL) 0)]}
- @item{Under 6, 7, 8, and @proof-ref["activation-condition"]
+  @#:step[_]{Under @imp and @proof-ref["activation-condition"]
    we can show that @es[(≃ (compile (present S p q)) (compile q))].
-   This is done in the [is-absent] notebook.}
- ]
+   This is done in the [is-absent] notebook.}}
                                                                                                  
 
 }

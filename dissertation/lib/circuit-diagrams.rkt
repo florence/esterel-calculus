@@ -18,13 +18,15 @@
                            #:tag-prefix [tag* #f]
                            #:extra-input-signals [si empty]
                            #:extra-output-signals [so empty]
+                           #:add-k3? [add-k3? #f]
                            #:wire-length [wire-length 2])
-  (define wire-spacing 2)
+  (define wire-spacing 3)
   (define tag (or tag* (format-symbol "~a~a" 'INTERFACE (random 10000))))
   (define (tg . t)
     (format-symbol "~a~a" tag (apply ~a t)))
-  (define h (* wire-spacing 6))
-  (define w (* wire-spacing (+ (length (append si so)) 5)))
+  (define h (- (* wire-spacing (if add-k3? 6 5))
+               (* 1/2 wire-spacing)))
+  (define w (* 2 (+ (length (append si so)) 5)))
   (define box
     (with-unit
      (lambda (u)
@@ -45,25 +47,28 @@
     (after
      (save
       (move-up (/ h 2)) (move-left (/ w 2))
-      (move-down wire-spacing) (add-wire 'left 'GO)
+      (move-down (/ wire-spacing 2)) (add-wire 'left 'GO)
       (move-down wire-spacing) (add-wire 'left 'RES)
       (move-down wire-spacing) (add-wire 'left 'SUSP)
       (move-down wire-spacing) (add-wire 'left 'KILL))
      (save (move-up (/ h 2)) (move-left (/ w 2))
-           (move-right (* 2 wire-spacing))
+           (move-right wire-spacing)
            (add-wire 'up 'E_i)
            (for/after ([s (in-list si)])
              (after (move-right wire-spacing) (add-wire 'up s))))
      (save (move-up (/ h 2)) (move-right (/ w 2))
-           (move-left (* 2 wire-spacing)) (add-wire 'up 'E_o)
+           (move-left wire-spacing) (add-wire 'up 'E_o)
            (for/after ([s (in-list so)])
              (after (move-left wire-spacing) (add-wire 'up s))))
      (save (move-up (/ h 2)) (move-right (/ w 2))
-           (move-down wire-spacing) (add-wire 'right 'SEL)
+           (move-down (/ wire-spacing 2)) (add-wire 'right 'SEL)
            (move-down wire-spacing) (add-wire 'right 'K0) 
            (move-down wire-spacing) (add-wire 'right 'K1)
            (move-down wire-spacing) (add-wire 'right 'K2)
-           (move-down wire-spacing) (move-left .5) (tag-location (tg '...-label)))))
+           (if add-k3?
+               (after (move-down wire-spacing) (add-wire 'right 'K3))
+               (img (blank)))
+           (move-down (/ wire-spacing 2)) (move-left .5) (tag-location (tg '...-label)))))
   (define (add-label s align)
     (after (move-to-tag (tg s '-label))
            (img (textify s) align)))
@@ -71,7 +76,7 @@
     (after
      (for/after ([t (in-list '(GO RES SUSP KILL))])
        (add-label t 'lc))
-     (for/after ([t (in-list '(SEL K0 K1 K2 ...))])
+     (for/after ([t (in-list `(SEL K0 K1 K2 ,@(if add-k3? `(K3) `()) ...))])
        (add-label t 'rc))
      (for/after ([t (in-sequences
                      (in-list '(E_o E_i))
@@ -86,10 +91,16 @@
 
 (define input-spacing 3)
 (define fab-four
-  (after (tag-location 'GO)
-         (move-down input-spacing) (tag-location 'RES)
-         (move-down input-spacing) (tag-location 'SUSP)
-         (move-down input-spacing) (tag-location 'KILL)))
+  (after (tag-location 'GO) (label "GO" 'left)
+         (move-down input-spacing)
+         (tag-location 'RES)
+         (label "RES" 'left)
+         (move-down input-spacing)
+         (tag-location 'SUSP)
+         (label "SUSP" 'left)
+         (move-down input-spacing)
+         (label "KILL" 'left)
+         (tag-location 'KILL)))
          
 
 (define basic-interface 
@@ -205,10 +216,6 @@
              (tag-location 'K1))))))))
     (define wire-labels
       (after
-       (move-to-tag 'GO) (img (textify "GO") 'rc)
-       (move-to-tag 'SUSP) (img (textify "SUSP") 'rc)
-       (move-to-tag 'RES) (img (textify "RES") 'rc)
-       (move-to-tag 'KILL) (img (textify "KILL") 'rc)
        (move-to-tag 'K0) (img (textify "K0") 'lc)
        (move-to-tag 'K1) (img (textify "K1") 'lc)
        (move-to-tag 'SEL) (img (textify "SEL") 'lc)))
@@ -264,7 +271,7 @@
     (define inners
       (after
        (save p)
-       (move-down 15)
+       (move-down 16)
        q))
     (define go-wires
       (after
@@ -390,28 +397,270 @@
     (after
      fab-four
      (move-to-tag 'RES)
-     (line-right 3)
+     (line-right 6)
      (move-up 1)
      (and-gate #:tag-in1 'reSEL
                #:tag-out 'dores
-               #:tag-in2 'fromres)
+               #:tag-in3 'fromres)
      (move-to-tag 'dores)
      (split
-      (after (line-right 3)
+      (after (line-right 4)
              (move-down 1)
              (and-gate
               #:tag-in1 '_
               #:tag-in3 'Sres #:in3 #t
               #:tag-out 'resing))
       (after
-       (line-down 8)
+       (save
+        (move-down 7)
+        (move-right 4)
+        (and-gate #:tag-in3 'Ssusp
+                  #:tag-in1 'Snotneg
+                  #:tag-out 'doK1))
+       (line-to-tag 'Ssusp
+                    #:h-first #f)))
+     (move-to-tag 'doK1)
+     (split
+      (after
+       (line-up 1)
        (line-right 3)
-       (and-gate #:tag-in1 'Ssusp
-                 #:tag-in3 '_
-                 #:tag-out 'doK1))))))
+       (move-up 1)
+       (or-gate
+        #:tag-out 'doSusp
+        #:tag-in1 'outerSusp
+        #:tag-in3 'sig))
+      (tag-location 'suspsplit))
+     (save
+      (move-to-tag 'SUSP)
+      (line-to-tag 'outerSusp))
+     (save
+      (with-locations-of
+       'GO 'doSusp 
+       (lambda (gx gy sx sy)
+         (after
+          (move-to sx gy)
+          (move-right 3)
+          (pin-here p 'pGO)))))
+     (save
+      (move-to-tag 'doSusp)
+      (line-to-tag 'pSUSP
+                   #:h-first #f))
+     (save
+      (move-to-tag 'KILL)
+      (line-right 1)
+      (line-down 3)
+      (line-to-tag 'pKILL))
+     (save
+      (move-to-tag 'resing)
+      (line-to-tag 'pRES))
+     (save
+      (move-to-tag 'GO)
+      (line-to-tag 'pGO))
+     (with-locations-of
+      'GO 'pE_i
+      (lambda (gx gy Ex Ey)
+        (after
+         (move-to Ex Ey)
+         (line-up 2)
+         (line-to gx (- Ey 2))
+         (label "E_i" 'left)
+         (move-down 1)
+         (label "S" 'left)
+         (line-to-tag 'Sres)
+         (split
+          (img (blank))
+          (line-to-tag 'Snotneg)))))
+     (save
+      (move-to-tag 'pE_o)
+      (line-up 2)
+      (line-right 12)
+      (label "E_o" 'right))
+     (save
+      (move-to-tag 'pSEL)
+      (split
+       (after
+        (line-right 6)
+        (label "SEL" 'right))
+       (after
+        (line-up 3)
+        (line-to-tag 'reSEL))))
+     (save
+      (move-to-tag 'pK0)
+      (line-right 6)
+      (label "K0" 'right))
+     (save
+      (move-to-tag 'pK2)
+      (line-right 6)
+      (label "K2" 'right))
+     (save
+      (move-to-tag 'pK1)
+      (line-up 1)
+      (line-right 3)
+      (move-down 1)
+      (before
+       (or-gate
+        #:tag-in3 'k1susp)
+       (line-right 3)
+       (label "K1" 'right))
+      (move-to-tag 'k1susp)
+      (line-down 8)
+      (line-to-tag 'suspsplit)))))
 
-suspend-pict
+(define seq-pict
+  (let ()
+    (define p
+      (esterel-interface (es (compile p)) #:tag-prefix 'p))
+    (define q
+      (esterel-interface (es (compile q)) #:tag-prefix 'q))
+    (after
+     fab-four
+     (move-to-tag 'GO)
+     (line-right 10)
+     (pin-here p 'pGO)
+     (move-to-tag 'RES)
+     (line-right 6)
+     (split
+      (line-to-tag 'pRES)
+      (after
+       (line-down 17)
+       (line-right 4)
+       (pin-here q 'qRES)))
+     (move-to-tag 'SUSP)
+     (line-right 4)
+     (split (line-to-tag 'pSUSP #:h-first #f)
+            (line-to-tag 'qSUSP #:h-first #f))
+     (move-to-tag 'KILL)
+     (line-right 2)
+     (split (line-to-tag 'pKILL)
+            (line-to-tag 'qKILL #:h-first #f))
+     (move-to-tag 'pK0)
+     (line-down 10)
+     (line-to-tag 'qGO)
+     (move-to-tag 'pE_i)
+     (with-locations-of
+      'GO 'pE_i
+      (lambda (gx gy ex ey)
+        (after
+         (line-to
+          (+ gx 7) ey)
+        (split
+         (after (line-left 7)
+                (label "E_i" 'left))
+         (line-to-tag
+          'qE_i #:h-first #f)))))
+     (move-to-tag 'pSEL)
+     (line-right 8)
+     (move-down 1)
+     (or-gate
+      #:tag-in3 'qselin
+      #:tag-out 'sel)
+     (move-to-tag 'sel)
+     (label "SEL" 'right)
+     (move-to-tag 'qSEL)
+     (line-right 2)
+     (line-to-tag 'qselin #:h-first #f)
+     (move-to-tag 'qK0)
+     (line-right 3)
+     (line-up 10)
+     (line-right 8)
+     (label "K0" 'right)
+     (move-to-tag 'pK1)
+     (line-right 5)
+     (line-down 8)
+     (line-right 4)
+     (move-down 1)
+     (or-gate
+      #:tag-in3 'qk1in
+      #:tag-out 'k1)
+     (move-to-tag 'k1)
+     (label "K1" 'right)
+     (move-to-tag 'qK1)
+     (line-right 4)
+     (line-to-tag 'qk1in #:h-first #f)
+     (move-to-tag 'pK2)
+     (line-right 6)
+     (line-down 10)
+     (line-right 3)
+     (move-down 1)
+     (or-gate
+      #:tag-out 'k2o
+      #:tag-in3 'k2i)
+     (move-to-tag 'k2o)
+     (label "K2" 'right)
+     (move-to-tag 'qK2)
+     (line-right 6)
+     (line-to-tag 'k2i #:h-first #f)
+     (move-to-tag 'qE_o)
+     (line-right 6)
+     (line-up 15)
+     (line-right 7)
+     (move-up 1)
+     (or-gate
+      #:tag-out 'E_o
+      #:tag-in1 'E_i)
+     (move-to-tag 'E_o)
+     (label "E_o" 'right)
+     (move-to-tag 'E_i)
+     (line-to-tag 'pE_o))))
 
+(define trap-pict
+  (let ()
+    (define p
+      (esterel-interface
+       (es (compile p))
+       #:tag-prefix 'p
+       #:add-k3? #t))
+    (after
+     fab-four
+     (move-to-tag 'GO)
+     (line-right 6)
+     (pin-here p 'pGO)
+     (move-to-tag 'RES)
+     (line-to-tag 'pRES)
+     (move-to-tag 'SUSP)
+     (line-to-tag 'pSUSP)
+     (move-to-tag 'KILL)
+     (line-right 3)
+     (move-down 1)
+     (or-gate
+      #:tag-out 'dokill
+      #:tag-in3 'k2kill)
+     (move-to-tag 'dokill)
+     (line-to-tag 'pKILL)
+     (move-to-tag 'pK2)
+     (line-right 1)
+     (split
+      (after
+       (line-up 5)
+       (line-right 3)
+       (move-up 1)
+       (or-gate
+        #:tag-out 'k0o
+        #:tag-in1 'k0i))
+      (after
+       (line-down 7)
+       (line-to-tag 'k2kill)))
+     (move-to-tag 'pK0)
+     (line-to-tag 'k0i)
+     (move-to-tag 'k0o)
+     (label "K0" 'right)
+     (move-to-tag 'pK3)
+     (line-right 2)
+     (line-up 3)
+     (line-right 5)
+     (label "K2" 'right)
+     (move-to-tag 'pK1)
+     (line-right 7)
+     (label "K1" 'right)
+     (move-to-tag 'pSEL)
+     (line-right 7)
+     (label "SEL" 'right)
+     (move-to-tag 'pE_o)
+     (line-right 12)
+     (label "E_o" 'right)
+     (move-to-tag 'pE_i)
+     (line-left 11)
+     (label "E_i" 'left))))
 
 (define-simple-macro (clause term pict)
   (clausef (es/unchecked term) pict))
@@ -430,4 +679,6 @@ suspend-pict
    (clause (compile pause) pause)
    (clause (compile (signal S p)) signal-pict)
    (clause (compile (present S p q)) present-pict)
-   (clause (compile (suspend p s)) suspend-pict)))
+   (clause (compile (suspend p s)) suspend-pict)
+   (clause (compile (seq p q)) seq-pict)
+   (clause (compile (trap p)) trap-pict)))

@@ -87,7 +87,7 @@ with respect to the circuit translation. That is:
        #:statement
        @list{For all @es[p], @es[q],
         if @es[(⟶^r p q)],
-        then @es[(> (count p) (count q))].}
+        then @es[(> (count p-pure+GO) (count p-pure+GO))].}
        #:interpretation
        @list{As @es[count] only returns
         natural numbers, by this we can conclude that
@@ -98,13 +98,13 @@ with respect to the circuit translation. That is:
         #:language esterel/typeset
         #:simple-cases]{
                                     
-  @#:case[(⇀^r p-pure q-pure)]{
+  @#:case[(⇀^r p-pure+GO p-pure+GO)]{
    This case is given by @proof-ref["cannibalize-compatible-closure"]. }
-  @#:case[(⟶^r (in-hole C p-pure_i) (in-hole C q-pure_i))]{
+  @#:case[(⟶^r (in-hole C-pure+GO p-pure+GO_i) (in-hole C-pure+GO q-pure+GO_i))]{
                   
-   In this case we have @es[(⟶^r p-pure_i q-pure_i)]. By induction @es[(> (count p-pure_i) (count q-pure_i))].
+   In this case we have @es[(⟶^r p-pure+GO_i q-pure+GO_i)]. By induction @es[(> (count p-pure+GO_i) (count q-pure+GO_i))].
    Thus by  @proof-ref["cannibalize-compatible-closure"]
-   we can conclude that @es[(> (count (in-hole C p-pure_i)) (count (in-hole C q-pure_i)))].
+   we can conclude that @es[(> (count (in-hole C p-pure+GO_i)) (count (in-hole C q-pure+GO_i)))].
                         
   }
  }
@@ -112,23 +112,23 @@ with respect to the circuit translation. That is:
 
 @proof[#:title "Strongly Canonicalizing on Compatible Closure"
        #:label "cannibalize-compatible-closure"
-       #:statement @list{For all @es[C-pure], @es[p-pure], @es[q-pure],
-        if @es[(> (count p-pure) (count q-pure))] then
-        @es[(> (count (in-hole C-pure p-pure)) (count (in-hole C-pure q-pure)))]}]{
+       #:statement @list{For all @es[C-pure+GO], @es[p-pure+GO], @es[q-pure+GO],
+        if @es[(> (count p-pure+GO) (count q-pure+GO))] then
+        @es[(> (count (in-hole C-pure+GO p-pure+GO)) (count (in-hole C-pure+GO q-pure+GO)))]}]{
                                                                
- This follows by a trivial induction over @es[C-pure], as
- each case of @es[(count p)] only addes constants to the
+ This follows by a trivial induction over @es[C-pure+GO], as
+ each case of @es[(count p-pure+GO)] only addes constants to the
  @es[count] of the subterms.
   
 }
 
 @proof[#:title "Strongly Canonicalizing on single step"
        #:label "cannibalize-step"
-       #:statement @list{For all @es[p], @es[q],
-        if @es[(⇀^r p q)]
-        then @es[(> (count p) (count q))].}]{
+       #:statement @list{For all @es[p-pure+GO], @es[q-pure+GO],
+        if @es[(⇀^r p-pure+GO q-pure+GO)]
+        then @es[(> (count p-pure+GO) (count q-pure+GO))].}]{
 
- @cases[#:of/reduction-relation (⇀^r p-pure q-pure)
+ @cases[#:of/reduction-relation (⇀^r p-pure+GO q-pure+GO)
         #:drawn-from ⇀
         #:language esterel-eval]{
   @#:case[(⇀ (par nothing done) done par-nothing)]{
@@ -139,27 +139,27 @@ with respect to the circuit translation. That is:
   @#:case[(⇀ (par (exit n_1) (exit n_2)) (exit (max-mf n_1 n_2)) par-2exit)]{
    This case follows immediately from the definition of @es[count].}
   
-  @#:case[(⇀ (ρ θr A (in-hole E (present S p q))) (ρ θr A (in-hole E p))
+  @#:case[(⇀ (ρ θr A (in-hole E (present S p-pure+GO q-pure+GO))) (ρ θr A (in-hole E p-pure+GO))
              (judgment-holds (θ-ref-S θr S present))
              is-present)]{
    By @proof-ref["cannibalize-compatible-closure"],
-   we can establish our result if @es[(> (count (present S p q)) p)].
+   we can establish our result if @es[(> (count (present S p-pure+GO q-pure+GO)) p-pure+GO)].
    This is trivially true.}
 
-  @#:case[(⇀ (ρ θr A (in-hole E (present S p q))) (ρ θr A (in-hole E q))
+  @#:case[(⇀ (ρ θr A (in-hole E (present S p-pure+GO q-pure+GO))) (ρ θr A (in-hole E q-pure+GO))
              (judgment-holds (L∈ S (Ldom θr)))
              (judgment-holds (θ-ref-S θr S unknown))
-             (judgment-holds (L¬∈ S (->S (Can-θ (ρ θr A (in-hole E (present S p q))) ·))))
+             (judgment-holds (L¬∈ S (->S (Can-θ (ρ θr A (in-hole E (present S p-pure+GO q-pure+GO))) ·))))
              is-absent)]{
    This case follows by an analgous argument to the previous case.
   }
 
-  @#:case[(⇀ (seq nothing q) q
+  @#:case[(⇀ (seq nothing q-pure+GO) q-pure+GO
              seq-done)]{
    This case follows immediately from the definition of @es[count].
   }
 
-  @#:case[(⇀ (seq (exit n) q) (exit n)
+  @#:case[(⇀ (seq (exit n) q-pure+GO) (exit n)
              seq-exit)]{
    This case follows immediately from the definition of @es[count].
   }
@@ -171,27 +171,27 @@ with respect to the circuit translation. That is:
              trap)]{
    This case follows immediately from the definition of @es[count].}
 
-  @#:case[(⇀ (signal S p) (ρ (mtθ+S S unknown) WAIT p)
+  @#:case[(⇀ (signal S p-pure+GO) (ρ (mtθ+S S unknown) WAIT p-pure+GO)
              signal)]{
    This case follows immediately from the definition of @es[count].}
 
-  @#:case[(⇀ (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p))) (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p))
+  @#:case[(⇀ (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p-pure+GO))) (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p-pure+GO))
              (side-condition (term (A->= A_1 A_2))) 
              merge)]{
    @sequenced{
-    @#:step[inner]{@es[(> (count (ρ θr_2 A_2 p)) (count p))], by the definition of @es[count].}
+    @#:step[inner]{@es[(> (count (ρ θr_2 A_2 p-pure+GO)) (count p-pure+GO))], by the definition of @es[count].}
     @#:step[outer]{for any @es[r].
-     @es[(= (count (ρ θr_1 A_1 (in-hole E r))) (count (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E r))))], by the definition of @es[count].}
-    @#:step[eq]{By @outer on @es[p], @es[(= (count (ρ θr_1 A_1 (in-hole E p))) (count (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p))))].}
+     @es[(= (count (ρ θr_1 A_1 (in-hole E r))) (count (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E r-pure+GO))))], by the definition of @es[count].}
+    @#:step[eq]{By @outer on @es[p], @es[(= (count (ρ θr_1 A_1 (in-hole E p-pure+GO))) (count (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p-pure+GO))))].}
     @#:step[_]{By @eq, @inner, and @proof-ref["cannibalize-compatible-closure"],
-     @es[(> (count (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p)))) (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p)))]
+     @es[(> (count (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p-pure+GO)))) (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p-pure+GO)))]
   }}}
 
   @#:case[(⇀ (ρ θr GO (in-hole E (emit S))) (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E nothing))
              (judgment-holds (L∈ S (Ldom θr)))
              emit)]{
    @sequenced{
-    @#:step[eq]{For all @es[r], @es[(= (count (ρ θr GO (in-hole E r))) (count (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E r))))],
+    @#:step[eq]{For all @es[r], @es[(= (count (ρ θr GO (in-hole E r-pure+GO))) (count (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E r-pure+GO))))],
      By the definition of @es[count].
     }
     @#:step[lt]{@es[(> (count (emit S)) (count nothing))], by the definition of @es[count].}

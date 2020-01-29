@@ -240,12 +240,9 @@
  @cases[#:language esterel/typeset
         #:of (blocked-pure θ A E p)
         #:induction
-        @#:case[if]{
-          TODO fill out.
-          True by @es[Canθₛ⊆Canₛ]}
+        @#:case[if]{This follows from @es[Canθₛ⊆Canₛ].}
         @#:case[emit-wait]{
-          TODO fill out.
-          True by @es[canₛ-capture-emit-signal].}
+          This follows from @es[canₛ-capture-emit-signal].}
         @#:case[parl]{In this case
           We have @es[(= p (par p_1 done))].
           The premise of the judgment gives us
@@ -338,33 +335,82 @@
 @proof[#:label "blocked-can-gives-bot"
        #:title "blocked and can give non-constructiveness"
        #:statement
-       @list{For all @es[p], @es[θ], @es[E], @es[S]
+       @list{For all @es[p], @es[θr], @es[E], @es[S]
                      
-        if @es[(blocked-pure θ GO hole (in-hole E p))],
-        @es[(binds (compile (in-hole E p)) θ)],
-        and @es[(L∈ S (->S (Can (in-hole E p) θ)))]
-        
-        then @es[(= (of (compile (in-hole E p)) S) ⊥)]}]{
+        if @es[(blocked-pure θr GO hole (in-hole E p))],
+        @es[(binds (compile (in-hole E p)) θr)],
+        and @es[(θ-ref-S θr S unknown)],
+        and @es[(L∈ S (->S (Can (in-hole E p) θr)))],
+        and @es[(L∈ S (->S (Can p θr)))]
+        then @es[(= (of (compile p) S) ⊥)]}]{
  @sequenced{
   @#:step[breakup]{
-                   By @proof-ref["blocked is separable"]
+   By @proof-ref["blocked-separable"], we can arrive
+   at @es[(blocked-pure θr GO E p)].
   }
   @#:step[_]{
    @cases[#:language esterel/typeset
           #:of (in-hole E p-pure)
           #:induction]{
-    @#:case[nothing]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
-    @#:case[pause]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
-    @#:case[(exit n)]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
+    @#:case[nothing]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))]
+     via @|breakup|.}
+    @#:case[pause]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))]
+     via @|breakup|.}
+    @#:case[(exit n)]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))]
+     via @|breakup|.}
     @#:case[(emit S)]{As @es[A] is given as @es[GO], this case violates
-    the hypthesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
-    @#:case[(present S p q)]{}
-    @#:case[(suspend p S)]{}
-    @#:case[(seq p q)]{}
-    @#:case[(par p q)]{}
-    @#:case[(trap p)]{}
-    @#:case[(signal S p)]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
-    @#:case[(ρ θ A p)]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))].}
+    the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))]
+     via @|breakup|.}
+    @#:case[(present S_p p-pure q-pure)]{
+     @sequenced{
+      @#:step[both]{By the fact that this term is @es[blocked-pure],yø
+       and the definition of @es[Can], we know that
+       @es[(= (->S (Can (present S_p p-pure q-pure) θ))
+              (LU (->S (Can p-pure θ))
+                  (->S (Can q-pure θ))))]}
+       @#:step[p-pure-inaccessable]{}
+       @#:step[_]{TODO}
+                              
+   }}
+   @#:case[(suspend p S)]{This case follows directly by induction.}
+   @#:case[(seq p q)]{TODO}
+   @#:case[(par p q)]{
+    @sequenced{ 
+     @#:step[either]{
+      By the definition of @es[Can],
+      @es[(= (->S (Can (par p q) θ))
+             (LU (->S (Can p θ))
+                 (->S (Can q θ))))]}
+     @#:step[LorR]{
+      By @either and laws of sets,
+      this means that @es[S] must be in at least one of
+      @es[(L∈ S (->S (Can p θ)))] or
+      @es[(L∈ S (->S (Can q θ)))].}
+     @#:step[either-blocked]{
+      By the definition of @es[blocked-pure] and @breakup, at least one of
+      @es[p-pure] or @es[q-pure] must be blocked.
+     }
+     @#:step[one-done]{
+      By the definition of @es[blocked-pure] and @breakup, if @es[p-pure]
+      or @es[q-pure] are not @es[blocked-pure], it must be @es[done].}
+      @#:step[rec]{
+       By @es[canₛ-done], the terms from @LorR must not be the terms
+       which are @es[done]. Thus by induction using @LorR and @one-done,
+       the @es[S] wire in one of the subbranches must be @es[unknown].}
+      @#:step[sum]{
+       For the other branch (if one exists) the @es[S] must be @es[0].
+       If that term is @es[done], then it is @es[0] by @es[canₛ-done]
+       and @es["Can-S-is-sound"].
+       If that term is @es[blocked-pure] then it is @es[0] by
+       @es["Can-S-is-sound"].}
+      @#:step[or]{By the definition of @es[compile],
+    @es[(= (of (compile (par p q)) S) (or (of (compile p) S) (of (compile q) S)))]}
+      @#:step[_]{by @rec, @sum, and @or, @es[(= (of (compile (par p q)) S) ⊥)].}}}
+   @#:case[(trap p)]{This case follows directly by induction.}
+   @#:case[(signal S p)]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))]
+     via @|breakup|.}
+    @#:case[(ρ θ A p)]{This case violates the hypothesis that @es[(blocked-pure θ GO hole (in-hole E p))]
+     via @|breakup|.}
     @#:case[(loop p) #:ignore]{}
     @#:case[(loop^stop p q) #:ignore]{}
  }}}}
@@ -404,8 +450,8 @@
         @#:case[loop^stop #:ignore]{TODO}]
 }
 
-@proof[#:title "blocked-separable"
-       #:label "blocked is separable"
+@proof[#:label "blocked-separable"
+       #:title "blocked is separable"
        #:statement
        @list{for all @es[p], @es[θ], @es[A], @es[E_1], and @es[E_2]
         @es[(blocked-pure θ A E_1 (in-hole E_2 p))]

@@ -69,6 +69,20 @@
   ;; wait is lionel's `gray`. It means control may or may not reach here.
   (A ::= GO WAIT)
 
+  (p-pure+GO q-pure+GO r-pure+GO ::=
+             nothing
+             pause
+             (seq p-pure+GO p-pure+GO)
+             (par p-pure+GO p-pure+GO)
+             (trap p-pure+GO)
+             (exit n)
+             (signal S p-pure+GO)
+             (suspend p-pure+GO S)
+             (present S p-pure+GO p-pure+GO)
+             (emit S)
+             (loop p-pure+GO)
+             (loop^stop p-pure+GO q-pure+GO)
+             (ρ θr A p-pure+GO))
   (p-pure q-pure r-pure ::=
           nothing
           pause
@@ -82,7 +96,22 @@
           (emit S)
           (loop p-pure)
           (loop^stop p-pure q-pure)
-          (ρ θr A p-pure))
+          (ρ θr WAIT p-pure))
+  (C-pure+GO ::=
+          (signal S C-pure)
+          (seq C-pure q-pure)
+          (seq p-pure C-pure)
+          (loop^stop C-pure q-pure)
+          (loop^stop p-pure C-pure)
+          (present S C-pure q-pure)
+          (present S p-pure C-pure)
+          (par C q-pure)
+          (par p-pure C-pure)
+          (loop C-pure)
+          (suspend C-pure S)
+          (trap C-pure)
+          (ρ θ GO C-pure)
+          hole)
 
   (C-pure ::=
           (signal S C-pure)
@@ -97,7 +126,7 @@
           (loop C-pure)
           (suspend C-pure S)
           (trap C-pure)
-          (ρ θ A C-pure)
+          (ρ θ WAIT C-pure)
           hole)
 
   (C ::=
@@ -154,6 +183,15 @@
       (par p hole)
       (suspend hole S)
       (trap hole))
+
+  (E-pure ::=
+          (seq E-pure q-pure)
+          (loop^stop E-pure q-pure)
+          (par E-pure q-pure)
+          (par p-pure E-pure)
+          (suspend E-pure S)
+          (trap E-pure)
+          hole)
 
   (κ ::= nothin paus n)
 

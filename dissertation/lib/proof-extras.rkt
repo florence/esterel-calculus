@@ -27,6 +27,8 @@
   redex/reduction-semantics
   esterel-calculus/redex/model/shared
   esterel-calculus/redex/model/lset
+  (only-in esterel-calculus/dissertation/lib/util
+           lift-to-compile-time-for-effect!)
   (only-in esterel-calculus/redex/test/binding
            closed)
   scribble/examples

@@ -998,6 +998,21 @@
      ['D (λ () (text "E" (non-terminal-style) (default-font-size)))]
 
      ;; same with the pure variants
+     ['p-pure+GO
+      (λ ()
+        (render-op/instructions
+         (text "p" (non-terminal-style) (default-font-size))
+         `((superscript p) (subscript GO))))]
+     ['q-pure+GO
+      (λ ()
+        (render-op/instructions
+         (text "q" (non-terminal-style) (default-font-size))
+         `((superscript p) (subscript GO))))]
+     ['r-pure+GO
+      (λ ()
+        (render-op/instructions
+         (text "r" (non-terminal-style) (default-font-size))
+         `((superscript p) (subscript GO))))]
      ['p-pure (λ ()
                 (render-op/instructions
                  (text "p" (non-terminal-style) (default-font-size))
@@ -1009,6 +1024,14 @@
      ['C-pure (λ ()
                 (render-op/instructions
                  (text "C" (non-terminal-style) (default-font-size))
+                 `((superscript p))))]
+     ['C-pure+GO (λ ()
+                (render-op/instructions
+                 (text "C" (non-terminal-style) (default-font-size))
+                 `((superscript p) (subscript GO))))]
+     ['E-pure (λ ()
+                (render-op/instructions
+                 (text "E" (non-terminal-style) (default-font-size))
                  `((superscript p))))]
      ['p-unex (λ () (text "p" (non-terminal-style) (default-font-size)))]
      ['q-unex (λ () (text "q" (non-terminal-style) (default-font-size)))]

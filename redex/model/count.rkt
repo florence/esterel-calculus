@@ -4,7 +4,7 @@
 
 
 (define-metafunction esterel-eval
-  count : p-pure -> n
+  count : p-pure+GO -> n
   [(count nothing) 0]
   [(count pause) 0]
   ;; zero, as its step is accounted for by `trap`
