@@ -269,10 +269,11 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
         @#:case[nothing]{
           Note that in this case @es[(= (->K (Can nothing θ)) (L1set 0))].
           @cases[#:of/count @es[(= κ 0)] 2
-                 @#:case[@es[(= κ 0)]]{
+                 #:simple-cases
+                 @#:case[(= κ 0)]{
                             In this case @es[(L∈ κ (->K (Can p θ)))] which violates our hypothesis.
                            }
-                 @#:case[@es[(not-= κ 0)]]{
+                 @#:case[(not-= κ 0)]{
                             There is no @es[Kκ] wire in this case, which violates our induction hypothesis.
                            }
                  ]}
