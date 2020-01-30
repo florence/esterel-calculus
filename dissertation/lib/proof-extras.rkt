@@ -37,7 +37,8 @@
   (for-syntax syntax/parse))
 
 (define evalor
-  (make-base-eval '(require circuitous esterel-calculus/circuits/compiler redex/reduction-semantics)))
+  (make-base-eval '(require circuitous esterel-calculus/circuits/compiler redex/reduction-semantics
+                            esterel-calculus/redex/model/shared)))
 
 (define-syntax check
   (syntax-parser

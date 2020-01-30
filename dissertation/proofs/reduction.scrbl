@@ -43,18 +43,20 @@ respect to the compilation function.
  @cases[#:of stopped
         #:language esterel/typeset
         @#:case[nothing]{
-          Note that @es[(= (harp nothing) nothing)].
-          TODO Draw pictures, which are the same}
+          @check[(assert-same
+                  (compile-esterel (term (trap nothing)))
+                  (compile-esterel (term (harp nothing))))].}
         @#:case[(exit 0)]{
-          Note that @es[(= (harp (exit 0)) nothing)].
-          TODO draw pictures, which are the same.
+          @check[(assert-same
+                  (compile-esterel (term (trap (exit 0))))
+                  (compile-esterel (term (harp (exit 0)))))].
          }
         @#:case[(exit n)]{
           Where @es[(> n 0)].
 
           Note that @es[(= (harp (exit n)) (exit (sub1 n)))].
-          TODO draw pictures, which are the same.
-          ]}
+          When you draw the pictures of the two
+          circuits they are the same circuit.}
         ]}
 
 @proof[#:label "suspend"
@@ -70,7 +72,10 @@ respect to the compilation function.
        #:statement
        @list{as @es[(⇀ (seq nothing q) q)], show that
         @es[(≃ (compile (seq nothing q)) (compile q))]}]{
- TODO draw graphs.
+ @es[(compile (seq nothing q))] just connections
+ the @es[GO] wire to @es[(of (compile q) GO)],
+ which is exactly @es[(compile q)]. Thus the
+ two circuits are identical.
 }
 
 @proof[#:label "par2-exit"
@@ -139,7 +144,9 @@ respect to the compilation function.
        #:statement @list{as @es[(⇀ (signal S p) (ρ (mtθ+S S unknown) WAIT p))], show that
                             
         @es[(≃ (compile (signal S p)) (compile (ρ (mtθ+S S unknown) WAIT p)))]}]{
- TODO draw graphs.
+ @es[(compile (signal S p))] connects the input and output @es[S] wires to each other,
+ and passes @es[GO] along unchanged. @es[(compile (ρ (mtθ+S S unknown) WAIT p))] does the
+ same, therefore the two circuits are identical.
 }
 
 @proof[#:label "emit"
@@ -210,7 +217,7 @@ respect to the compilation function.
   }
   @#:step[sound]{By @proof-ref["Can-S-is-sound"] and our premise that @es[(= (of (compile p_outer) SEL) 0)],
    we know that @es[(= (of (compile p_outer) S) 0)].}
-  @#:step[is-zero]{by @maintain & @sound, @es[(= (of (compile (present S p q)) S) 0)].}
+  @#:step[is-zero]{By @maintain & @sound, @es[(= (of (compile (present S p q)) S) 0)].}
   @#:step[def]{By @proof-ref["sel-def"],
    @es[(= (of (compile p_outer) SEL) (or (of (compile p) SEL) (of (compile q) SEL) w_others ...))]}
   @#:step[imp]{By @def and our premise that @es[(= (of (compile p_outer) SEL) 0)], we know that
