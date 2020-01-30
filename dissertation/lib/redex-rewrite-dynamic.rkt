@@ -1026,9 +1026,9 @@
                  (text "C" (non-terminal-style) (default-font-size))
                  `((superscript p))))]
      ['C-pure+GO (λ ()
-                (render-op/instructions
-                 (text "C" (non-terminal-style) (default-font-size))
-                 `((superscript p) (subscript GO))))]
+                   (render-op/instructions
+                    (text "C" (non-terminal-style) (default-font-size))
+                    `((superscript p) (subscript GO))))]
      ['E-pure (λ ()
                 (render-op/instructions
                  (text "E" (non-terminal-style) (default-font-size))
@@ -1109,7 +1109,9 @@
      ;; results
      ['R (lambda ()
            (text "R" (non-terminal-style) (default-font-size)))]
-     ['count (lambda () (words "𝒮"))])
+     ['count (lambda () (words "𝒮"))]
+     ['compile
+      (λ () (es/unchecked (compile ·)))])
     (define owsb (white-square-bracket))
     (parameterize* ([default-font-size (get-the-font-size)]
                    [metafunction-font-size (get-the-font-size)]

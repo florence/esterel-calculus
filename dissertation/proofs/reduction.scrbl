@@ -160,8 +160,9 @@ respect to the compilation function.
  @cases[#:of E
         #:language esterel/typeset
         #:induction
-        @#:case[hole]{
-          TODO draw picture}
+        @#:case[hole]{This follows trivially, as an empty context connects
+         @es[GO] directly so the signal, which is forced to be @es[1] by
+         our environment.}
         @#:case[(in-hole E1 E_i)]{ Note that the right hand
           side of the reduction forces @es[(compile (θ-get-S θ S))] to
           compile as @es[(compile present)] and it replaces
@@ -233,82 +234,93 @@ respect to the compilation function.
 @proof[#:label "merge"
        #:title "merge is sound"
        #:statement
-       @list{as @es[(⇀ (ρ θ_1 A_1 (in-hole E (ρ θ_2 A_2 p))) (ρ (<- θ_1 θ_2) A_1 (in-hole E p)))],]
+       @list{as @es[(⇀ (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p-pure))) (ρ (<- θr_1 θr_2) A_1 (in-hole E-pure p-pure)))],]
                 when @es[(A->= A_1 A_2)], show that
-        if @es[(CB (ρ θ_1 A_1 (in-hole E (ρ θ_2 A_2 p))))] then
+        if @es[(CB (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p-pure))))] then
                 
-        @es[(≃ (compile (ρ θ_1 A_1 (in-hole E (ρ θ_2 A_2 p)))) (compile (ρ (<- θ_1 θ_2) A_1 (in-hole E p))))]}]{
- This is a direct consequence of @proof-ref["can-lift"] and @proof-ref["immediate-merge"]. TODO explain more.
+        @es[(≃ (compile (ρ θr_1 A_1 (in-hole E-pure (ρ θr_2 A_2 p-pure)))) (compile (ρ (<- θr_1 θr_2) A_1 (in-hole E-pure p-pure))))]}]{
+ This is a direct consequence of @proof-ref["can-lift"] and @proof-ref["immediate-merge"].
 }
 
 @proof[#:label "immediate-merge"
        #:title "Merge Adjacent Environments"
        #:statement
-       @list{For all @es[p], @es[θ_1], @es[θ_2], @es[A_1] and @es[A_2],
+       @list{For all @es[p-pure], @es[θr_1], @es[θr_2], @es[A_1] and @es[A_2],
         if @es[(A->= A_1 A_2)] then
-        @es[(≃ (compile (ρ θ_1 A_1 (ρ θ_2 A_2 p))) (compile (ρ (<- θ_1 θ_2) A_1 p)))]}]{
+        @es[(≃ (compile (ρ θr_1 A_1 (ρ θr_2 A_2 p-pure))) (compile (ρ (<- θr_1 θr_2) A_1 p-pure)))]}]{
 
- Note that compilation of @es[ρ] only changes the outputs of
+ Sketch: The compilation of @es[ρ] only changes the outputs of
  its inner circuit in that it closes some of the signal
  wires, and that it only changes input values of some signals
  and the GO wire. Thus, we can argue that that equivalence
- base on three facts. First, that @es[(<- θ_1 θ_2)] closes
+ base on three facts. First, that @es[(<- θr_1 θr_2)] closes
  the same signals as the two nested environments. Second that
  these signals are closed in the same way: that is they input
  part of the signal will receive the same value. Third, that
- the value of the @es[GO] wire does not change.
+ the value of the @es[GO] wire does not change. In a sense, this means
+ that the only effect of this rule is to move wires from one "spot" in the circuit
+ to another, without changing their connections.
  
  @sequenced{
 
   @#:step[<--closing]{
                       
    By the definition of @es/unchecked[<-],
-   @es[(= (Ldom (<- θ_1 θ_2)) (LU (Ldom θ_1) (Ldom θ_2)))].
+   @es[(= (Ldom (<- θr_1 θr_2)) (LU (Ldom θr_1) (Ldom θr_2)))].
 
   }
    
   @#:step[ρ-closed]{
                     
    by the definition of @es/unchecked[(compile dot)],
-   compiling a @es[ρ] closes only the wires in its @es[θ]'s
+   compiling a @es[ρ] closes only the wires in its @es[θr]'s
    domain, we can see that the same wires are closed both
-   expressions. TODO lemma by induction over domain of @es[θ].
+   expressions.
 
   }
 
   @#:step[totally-closed]{
-  By @<--closing and @totally-closed,
-  @es[(= (inputs (compile (ρ θ_1 A_1 (ρ θ_2 A_2 p)))) (inputs (compile (ρ (<- θ_1 θ_2) A_1 p))))]
-  and
-  @es[(= (outputs (compile (ρ θ_1 A_1 (ρ θ_2 A_2 p)))) (outputs (compile (ρ (<- θ_1 θ_2) A_1 p))))]}
+  By @<--closing and @ρ-closed,
+  @es[(= (inputs (compile (ρ θr_1 A_1 (ρ θr_2 A_2 p-pure)))) (inputs (compile (ρ (<- θr_1 θr_2) A_1 p-pure))))]
+  and@(linebreak)
+  @es[(= (outputs (compile (ρ θr_1 A_1 (ρ θr_2 A_2 p-pure)))) (outputs (compile (ρ (<- θr_1 θr_2) A_1 p-pure))))]}
 
   @#:step[clomp-block]{
 
-   The compilation of @es[(ρ θ_2 A_2 hole)] will
-   prevent the compilation of @es[(ρ θ_1 A_1 hole)] from
+   The compilation of @es[(ρ θr_2 A_2 hole)] will
+   prevent the compilation of @es[(ρ θr_1 A_1 hole)] from
    modifying any signals in the domain of @es[θ_2], meaning
    those signals will get values as specified by the
-   compilation of @es[θ_2]. In addition @es[(<- θ_1 θ_2)] keep
-   the value of any signal in @es[θ_2], therefore those signals
+   compilation of @es[θr_2]. In addition @es[(<- θr_1 θr_2)] keep
+   the value of any signal in @es[θr_2], therefore those signals
    will compile the same way. Thus the value of no input signal
-   is changed. TODO lemmaize
+   is changed.
 
   }
 
   @#:step[inputs/outputs-same]{
    By @totally-closed and @clomp-block, we know that
    for all @es[(L∈ S (inputs (compile p)))],
-   @es[1] TODO how do I describe the different @es[p]s?
+   in @es[(compile (ρ θr_1 A_1 (ρ θr_2 A_2 p)))]
+   @es[(binds (compile p-pure) (<- θr_1 θr_2))], and in
+   @es[(compile (ρ (<- θr_1 θr_2) A_1 p))],
+   @es[(binds (compile p-pure) (<- θr_1 θr_2))].
   }
 
   @#:step[lt-block]{
 
-   Finally, as @es[(A->= A_1 A_2)] we know that either both
+   As @es[(A->= A_1 A_2)] we know that either both
    are @es[GO], both are @es[WAIT], or @es[(= A_1 GO)] and
    @es[(= A_2 WAIT)]. In each case we can see that the actual
-   value on @es[(of (compile p) GO)] remains the same.
+   value on @es[(of (compile p-pure) GO)] remains the same. That is, in both
+   cases, @es[(binds (compile p-pure) A_1)].
 
   }
+  @#:step[other-control]{The compilation of @es[ρ] does not change
+   the other control inputs and outputs of @es[(compile p-pure)].}
+  @#:step[final]{By @inputs/outputs-same, @lt-block, and @other-control, the inputs
+   and outputs of @es[(compile p-pure)] are not changed, thus
+   the behavior of the circuit is not changed.}
 
  }
 
@@ -329,6 +341,7 @@ respect to the compilation function.
         and @es[(CB (in-hole E (ρ θ A p)))], then
         
         @es[(≃ (compile (in-hole E (ρ θ A p))) (compile (ρ θ A (in-hole E p))))]}]{
+ TODO more formal (ug).
  This proof proceeds in two parts. First, by
  @proof-ref["GO-maintains-across-E"], we know that lifting
  @es[A] across won't change the value of the @es[GO] wire of
