@@ -1110,6 +1110,8 @@
      ['R (lambda ()
            (text "R" (non-terminal-style) (default-font-size)))]
      ['count (lambda () (words "𝒮"))]
+     ['paused
+      (lambda () (text "p̂" (cons 'no-combine (non-terminal-style)) (default-font-size)))]
      ['compile
       (λ () (es/unchecked (compile ·)))])
     (define owsb (white-square-bracket))

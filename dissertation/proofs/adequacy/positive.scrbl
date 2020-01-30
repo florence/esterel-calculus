@@ -70,8 +70,8 @@
             to show that all wires in @es[pause] are defined.}
           
            @#:step[k0]{
-            by @proof-ref["done-is-k1"] we know that, for any possible
-            binding evironment @es[θ], @es[(L¬∈ 0 (->K (Can paused θ)))].
+            by @proof-ref["paused-is-k1"] we know that, for any possible
+            binding environment @es[θ], @es[(L¬∈ 0 (->K (Can paused θ)))].
            }
 
            @#:step[is-zero]{

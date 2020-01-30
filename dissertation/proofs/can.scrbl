@@ -327,22 +327,48 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
  of @proof-ref["Can-K-is-sound"].
 }
 
-@proof[#:label "done-is-k1"
-       #:title "Can K on Done is {1}"
+@proof[#:label "paused-is-k1"
+       #:title "Can K on paused is {1}"
        #:statement
-       @list{For all @es[done], @es[θ], @es[(= (->K (Can done θ)) (L1set 1))]}]{
- TODO.
-}
+       @list{For all @es[paused], @es[θ], @es[(=/checked (->K (Can paused θ)) (L1set paus))]}]{
+ @cases[#:of paused_o
+        #:language esterel/typeset
+        #:induction]{
+  @#:case[pause]{Follows by the definition of @es[Can].}
+  @#:case[(suspend paused S)]{
+   By the definition of @es[Can],
+   @es[(=/checked (->K (Can (suspend p S) θ)) (->K (Can p θ)))], thus this follows by induction.}
+  @#:case[(seq paused q)]{
+   By induction we know that @es[(=/checked (->K (Can paused θ)) (L1set paus))].
+   By the definition of @es[Can], this means @es[(=/checked (->K (Can (seq paused q) θ)) (->K (Can paused θ)))].
+   Therefore, @es[(=/checked (->K (Can (seq paused q) θ)) (L1set paus))]. }
+  @#:case[(par paused_1 paused_2)]{By induction
+   @es[(=/checked (->K (Can paused_1 θ)) (->K (Can paused_2 θ)) (L1set paus))].
+   Thus, by the definition of @es[Can],
+   @es[(=/checked (->K (Can (par paused_1 paused_2) θ)) (L1set paus))].}
+  @#:case[(trap paused)]{
+  By induction @es[(=/checked (->K (Can paused θ)) (L1set paus))].
+  By the definition of @es[↓] and @es[Can],@(linebreak)
+   @es[(=/checked (->K (Can (trap paused) θ)) (Lharp... (->K (Can paused θ))) (Lharp... (L1set paus)) (L1set paus))].} 
+  @#:case[(loop^stop paused q) #:ignore]
+}}
 
 @proof[#:label "can-rho-idempotent"
        #:title "Can Rho is idempotent"
        #:statement
        @list{For all @es[θ_1], @es[θ_2], @es[p], @es[A], @es[S],
-       if
+        if
         @es[(= (θ-get-S θ_1 S) ⊥)] and
         @es[(L¬∈ S (->S (Can-θ (ρ θ_1 A p) θ_2)))]
-       then @es[(= (->S (Can-θ (ρ θ_1 A p) θ_2))
-                   (->S (Can-θ (ρ (<- θ_1 (mtθ+S S absent)) A p) θ_2)))]}]{
- TODO
+        then@(linebreak)
+        @es[(= (->S (Can-θ (ρ θ_1 A p) θ_2)) (->S (Can-θ (ρ (<- θ_1 (mtθ+S S absent)) A p) θ_2)))]}]{
+ @cases[#:of/count (Ldom θ_1) 2
+        #:language esterel/typeset
+        #:induction]{
+  @#:case[(L1set S)]{
+  By @[es (= (θ-get-S θ_1 S) ⊥)], this must be our base case.
+  In this case,  @es[Can-θ] will test if TODO}
+   @#:case[(LU L-S (L1set S))]{}
+ }
  Sketch: as @es[Can-θ] takes signal of that form an sets it to absent, nothing changes.
 }                    
