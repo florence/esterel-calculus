@@ -1117,7 +1117,9 @@
      ['paused
       (lambda () (text "p̂" (cons 'no-combine (non-terminal-style)) (default-font-size)))]
      ['compile
-      (λ () (es/unchecked (compile ·)))])
+      (λ () (es/unchecked (compile ·)))]
+     ['So (λ () (render-op "S^o"))]
+     ['Si (λ () (render-op "S^i"))])
     (define owsb (white-square-bracket))
     (parameterize* ([default-font-size (get-the-font-size)]
                    [metafunction-font-size (get-the-font-size)]

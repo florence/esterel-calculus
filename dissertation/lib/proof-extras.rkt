@@ -60,6 +60,7 @@
   (c circuit ::= (circ ((w = wire-value) ...) I O))
   (I O ::= (w ...))
   (bool ::= tt ff)
+  (So Si ::= S)
   (wire-value
    ::=
    w 0 1

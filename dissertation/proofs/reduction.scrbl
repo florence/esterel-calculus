@@ -187,12 +187,12 @@ respect to the compilation function.
         if @es[(= (of (compile (ρ θ A (in-hole E (present S p q)))) SEL) 0)]
         and @es[(θ-ref-S θ S present)], show that
         @es[(≃^circuit (compile (ρ θ A (in-hole E (present S p q)))) (compile (ρ θ A (in-hole E p))))]}]{
- As @es[(compile θ)] will force the @es[S] wire to be @es[1],
+ As @es[(compile θ)] will force the @es[Si] wire to be @es[1],
  by @proof-ref["S-maintains-across-E"] we know that
  
- @es[(= (of (compile (present S p q)) S) 1)]. Thus it
+ @es[(= (of (compile (present S p q)) Si) 1)]. Thus it
  suffices to show that
- @es[(≃^circuit (compile (present S p q)) (compile p))] under this
+ @es[(≃^circuit (compile (present Si p q)) (compile p))] under this
  condition. This proof is given in the [is-present] notebook.
 }
 
@@ -212,13 +212,13 @@ respect to the compilation function.
  @sequenced{
   @#:step[maintain]{By @proof-ref["S-maintains-across-E"] and
    @proof-ref["GO-maintains-across-E"] we know that
-   @es[(= (of (compile p_outer) S) (of (compile (present S p q)) S))]
+   @es[(= (of (compile p_outer) Si) (of (compile (present S p q)) Si))]
    and
    @es[(= (of (compile p_outer) GO) (of (compile (present S p q)) GO))]
   }
   @#:step[sound]{By @proof-ref["Can-S-is-sound"] and our premise that @es[(= (of (compile p_outer) SEL) 0)],
-   we know that @es[(= (of (compile p_outer) S) 0)].}
-  @#:step[is-zero]{By @maintain & @sound, @es[(= (of (compile (present S p q)) S) 0)].}
+   we know that @es[(= (of (compile p_outer) So) 0)].}
+  @#:step[is-zero]{By @maintain & @sound, @es[(= (of (compile (present S p q)) Si) 0)].}
   @#:step[def]{By @proof-ref["sel-def"],
    @es[(= (of (compile p_outer) SEL) (or (of (compile p) SEL) (of (compile q) SEL) w_others ...))]}
   @#:step[imp]{By @def and our premise that @es[(= (of (compile p_outer) SEL) 0)], we know that
