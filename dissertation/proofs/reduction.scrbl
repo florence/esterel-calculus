@@ -192,7 +192,7 @@ respect to the compilation function.
  
  @es[(= (of (compile (present S p q)) Si) 1)]. Thus it
  suffices to show that
- @es[(≃^circuit (compile (present Si p q)) (compile p))] under this
+ @es[(≃^circuit (compile (present S p q)) (compile p))] under this
  condition. This proof is given in the [is-present] notebook.
 }
 
@@ -218,7 +218,9 @@ respect to the compilation function.
   }
   @#:step[sound]{By @proof-ref["Can-S-is-sound"] and our premise that @es[(= (of (compile p_outer) SEL) 0)],
    we know that @es[(= (of (compile p_outer) So) 0)].}
-  @#:step[is-zero]{By @maintain & @sound, @es[(= (of (compile (present S p q)) Si) 0)].}
+  @#:step[eq]{By the definition of @es[compile] on @es[ρ], we know
+   that @es[(= (of (compile (present S p q)) Si) (of (compile (present S p q)) So))]}
+  @#:step[is-zero]{By @maintain, @sound & @eq, @es[(= (of (compile (present S p q)) Si) 0)].}
   @#:step[def]{By @proof-ref["sel-def"],
    @es[(= (of (compile p_outer) SEL) (or (of (compile p) SEL) (of (compile q) SEL) w_others ...))]}
   @#:step[imp]{By @def and our premise that @es[(= (of (compile p_outer) SEL) 0)], we know that

@@ -1087,6 +1087,9 @@
      ['c
       (lambda ()
         (text "ɕ" (non-terminal-style) (default-font-size)))]
+     ['circuit
+      (lambda ()
+        (text "ɕ" (non-terminal-style) (default-font-size)))]
      ['present (λ () (text "1" (default-style) (default-font-size)))]
      ['absent (λ () (text "0" (default-style) (default-font-size)))]
      ['unknown (λ () (text "⊥" (default-style) (default-font-size)))]
@@ -1117,7 +1120,7 @@
      ['paused
       (lambda () (text "p̂" (cons 'no-combine (non-terminal-style)) (default-font-size)))]
      ['compile
-      (λ () (es/unchecked (compile ·)))]
+      (λ () (es/unchecked (compile dot)))]
      ['So (λ () (render-op "S^o"))]
      ['Si (λ () (render-op "S^i"))])
     (define owsb (white-square-bracket))

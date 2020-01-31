@@ -82,14 +82,14 @@ however the most informative theorem is @proof-ref["Soundness-step"].
   @#:case[(⇀ (par (exit n) paused) (exit n) par-1exit)]{This is given by @proof-ref["par1-exit"].}
   @#:case[(⇀ (par (exit n_1) (exit n_2)) (exit (max-mf n_1 n_2)) par-2exit)]{This is given by @proof-ref["par2-exit"].}
   
-  @#:case[(⇀ (ρ θr A (in-hole E (present S p-pure q-pure))) (ρ θr A (in-hole E p-pure))
+  @#:case[(⇀ (ρ θr A (in-hole E-pure (present S p-pure q-pure))) (ρ θr A (in-hole E-pure p-pure))
              (judgment-holds (θ-ref-S θr S present))
              is-present)]{This is given by @proof-ref["is-present"].}
 
-  @#:case[(⇀ (ρ θr A (in-hole E (present S p-pure q-pure))) (ρ θr A (in-hole E q-pure))
+  @#:case[(⇀ (ρ θr A (in-hole E-pure (present S p-pure q-pure))) (ρ θr A (in-hole E-pure q-pure))
              (judgment-holds (L∈ S (Ldom θr)))
              (judgment-holds (θ-ref-S θr S unknown))
-             (judgment-holds (L¬∈ S (->S (Can-θ (ρ θr A (in-hole E (present S p-pure q-pure))) ·))))
+             (judgment-holds (L¬∈ S (->S (Can-θ (ρ θr A (in-hole E-pure (present S p-pure q-pure))) ·))))
              is-absent)]{This is given by @proof-ref["is-absent"].}
 
   @#:case[(⇀ (seq nothing q-pure) q-pure
@@ -107,11 +107,11 @@ however the most informative theorem is @proof-ref["Soundness-step"].
   @#:case[(⇀ (signal S p-pure) (ρ (mtθ+S S unknown) WAIT p-pure)
              signal)]{This is given by @proof-ref["signal"].}
 
-  @#:case[(⇀ (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p-pure))) (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p-pure))
+  @#:case[(⇀ (ρ θr_1 A_1 (in-hole E-pure (ρ θr_2 A_2 p-pure))) (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E-pure p-pure))
              (side-condition (term (A->= A_1 A_2))) 
              merge)]{This is given by @proof-ref["merge"].}
 
-  @#:case[(⇀ (ρ θr GO (in-hole E (emit S))) (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E nothing))
+  @#:case[(⇀ (ρ θr GO (in-hole E-pure (emit S))) (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E-pure nothing))
              (judgment-holds (L∈ S (Ldom θr)))
              emit)]{This is given by @proof-ref["emit"].}
   @;ignoring loop rules for now
