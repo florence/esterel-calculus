@@ -26,8 +26,9 @@ however the most informative theorem is @proof-ref["Soundness-step"].
         @es[(= (of (compile p-pure) SEL) 0)], and
         @es[(= (of (compile q-pure) SEL) 0)]
         then
-        @es[(≃ (compile p) (compile q))]}
-       #:interpretation "is it really?"
+        @es[(≃^circuit (compile p) (compile q))]}
+       #:interpretation @list{This theorem says that, at least for the
+       first instant/cycle @es[≡] agrees with @es[≃^circuit].}
        #:type 'theorem]{
  @cases[#:of/count ≡ 5
         #:language esterel/typeset
@@ -35,16 +36,16 @@ however the most informative theorem is @proof-ref["Soundness-step"].
   @#:case[sym]{
    In this case we have @es[(≡ p-pure q-pure)]
    because @es[(≡ q-pure p-pure)]. This
-   case follows by induction and the symmetry of @es[≃^circuit].}
+   case follows by induction and by @proof-ref["circ-sym"].}
   @#:case[trans]{
    In this case we have @es[(≡ p-pure q-pure)] there exists
    some @es[r-pure] where @es[(≡ p-pure r-pure)] and
    @es[(≡ r-pure q-pure)]. This case
-   case follows induction and by the transitivity of @es[≃^circuit].}
+   case follows induction and by @proof-ref["circ-trans"].}
   @#:case[refl]{
    In this case we have @es[(≡ p-pure q-pure)] because
    @es[(= p-pure q-pure)]. This
-   case follows by the reflexively of @es[≃^circuit].
+   case follows by @proof-ref["circ-refl"].
   }
   @#:case[ctx]{
    @es[(≡ p-pure q-pure)] because
@@ -67,10 +68,11 @@ however the most informative theorem is @proof-ref["Soundness-step"].
         @es[(= (of (compile p-pure) SEL) 0)], and
         @es[(= (of (compile q-pure) SEL) 0)]
         then
-        @es[(≃ (compile p-pure) (compile q-pure))]}
-       #:interpretation "is it really?"
+        @es[(≃^circuit (compile p-pure) (compile q-pure))]}
+       #:interpretation @list{This theorem says that, at least for the
+        first instant/cycle @es[⇀] agrees with @es[≃^circuit].}
        #:type 'theorem]{
- @cases[#:of/reduction-relation (⇀^r p-pure q-pure)
+ @cases[#:of/reduction-relation (⇀ p-pure q-pure)
         #:drawn-from ⇀
         #:language esterel-eval]{
                                  
@@ -177,4 +179,28 @@ however the most informative theorem is @proof-ref["Soundness-step"].
  }
 }
 
-TODO prove that ≃ is a equivalence relation
+
+@proof[#:title "Symmetry of circuit contextual equality"
+       #:label "circ-sym"
+       #:statement @list{For all @es[circuit_1], @es[circuit_2],
+        if @es[(≃^circuit circuit_1 circuit_2)] then
+        @es[(≃^circuit  circuit_2 circuit_1)]}]{
+                                                
+ As @es[≃^circuit] is defined, at its core, on equality of
+ sequences of booleans, and that equality is symmetric, @es[≃^circuit] must be as well.
+}
+@proof[#:title "Transitivity of  circuit contextual equality"
+       #:label "circ-trans"
+       
+       #:statement @list{For all @es[circuit_1], @es[circuit_2], @es[circuit_3]
+        if @es[(≃^circuit circuit_1 circuit_2)] and @es[(≃^circuit circuit_2 circuit_3)] then
+        @es[(≃^circuit circuit_1 circuit_3)]}]{
+ As @es[≃^circuit] is defined, at its core, on equality of
+ sequences of Booleans, and that equality is transitive, @es[≃^circuit] must be as well.}
+@proof[#:title "Reflexivity of circuit contextual equality"
+       #:label "circ-refl"
+       #:statement @list{For all @es[circuit], @es[(≃^circuit circuit circuit)] }]{
+ This follows directly from the definition of @es[≃^circuit], which relies on running the
+ two circuits. As, in this case, the two circuits are the same then they will behave the same on
+ all inputs.
+}
