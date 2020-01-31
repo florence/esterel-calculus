@@ -67,7 +67,7 @@ with respect to the circuit translation. That is:
      @proof-ref["done-is-constructive"], @es[eval^circuit] must
      do the same.
 
-     By the definitino of
+     By the definition of
      @es[(complete-with-respect-to θr r)], all signals wires must
      be @es[present] or @es[absent]. By @proof-ref["Soundness"],
      both evaluators must

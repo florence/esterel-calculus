@@ -1021,6 +1021,10 @@
                 (render-op/instructions
                  (text "q" (non-terminal-style) (default-font-size))
                  `((superscript p))))]
+     ['r-pure (λ ()
+                (render-op/instructions
+                 (text "r" (non-terminal-style) (default-font-size))
+                 `((superscript p))))]
      ['C-pure (λ ()
                 (render-op/instructions
                  (text "C" (non-terminal-style) (default-font-size))
