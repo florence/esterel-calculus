@@ -21,7 +21,7 @@ respect to the compilation function.
 @proof[#:label "par-swap"
        #:title "par-swap is sound"
        #:statement
-       @list{as @es[(⇀ (par p q) (par q p))], show that @es[(≃ (compile (par p q)) (compile (par q p)))]}]{
+       @list{as @es[(⇀ (par p q) (par q p))], show that @es[(≃^circuit (compile (par p q)) (compile (par q p)))]}]{
  This can be seen trivally, as the graphs of @es[(compile (par p q))]
  and @es[(compile (par q p))] are symmetric.
 }
@@ -29,17 +29,17 @@ respect to the compilation function.
 @proof[#:label "par-nothing"
        #:title "par-nothing is sound"
        #:statement
-       @list{as @es[(⇀ (par nothing done) done)], show that @es[(≃ (compile (par nothing done)) (compile done))]}]{
+       @list{as @es[(⇀ (par nothing done) done)], show that @es[(≃^circuit (compile (par nothing done)) (compile done))]}]{
  This proof is given in the notebook [par-done], which actually shows the more general
  
- @es[(≃ (compile (par nothing p)) (compile p))].
+ @es[(≃^circuit (compile (par nothing p)) (compile p))].
 }
 
 @proof[#:label "trap"
        #:title "trap is sound"
        #:statement
        @list{as @es[(⇀ (trap stopped) (harp stopped))], show that
-        @es[(≃ (compile (trap stopped)) (compile (harp stopped)))]}]{
+        @es[(≃^circuit (compile (trap stopped)) (compile (harp stopped)))]}]{
  @cases[#:of stopped
         #:language esterel/typeset
         @#:case[nothing]{
@@ -63,7 +63,7 @@ respect to the compilation function.
        #:title "suspend is sound"
        #:statement
        @list{as @es[(⇀ (suspend done S) done)], show that
-        @es[(≃ (compile (suspend done S)) (compile done))]}]{
+        @es[(≃^circuit (compile (suspend done S)) (compile done))]}]{
  This is proved in the [suspend] notebook.
 }
 
@@ -71,7 +71,7 @@ respect to the compilation function.
        #:title "seq-done is sound"
        #:statement
        @list{as @es[(⇀ (seq nothing q) q)], show that
-        @es[(≃ (compile (seq nothing q)) (compile q))]}]{
+        @es[(≃^circuit (compile (seq nothing q)) (compile q))]}]{
  @es[(compile (seq nothing q))] just connections
  the @es[GO] wire to @es[(of (compile q) GO)],
  which is exactly @es[(compile q)]. Thus the
@@ -83,7 +83,7 @@ respect to the compilation function.
        #:statement
        @list{as @es[(⇀ (par (exit n_1) (exit n_2)) (exit (max-mf n_1 n_2)))], show that
                 
-        @es[(≃ (compile (par (exit n_1) (exit n_2))) (compile (exit (max-mf n_1 n_2))))]}]{
+        @es[(≃^circuit (compile (par (exit n_1) (exit n_2))) (compile (exit (max-mf n_1 n_2))))]}]{
  @cases[#:of/unchecked
  @list{@es[(= n_1 n_2)], @es[(> n_1 n_2)], and @es[(< n_1 n_2)]}
  @#:case[@es[(= n_1 n_2)]]{
@@ -121,7 +121,7 @@ respect to the compilation function.
 @proof[#:label "par1-exit"
        #:title "par1-exit is sound"
        #:statement @list{as @es[(⇀ (par (exit n) paused) (exit n))], show that
-        @es[(≃ (compile (par (exit n) paused)) (compile (exit n)))]}]{
+        @es[(≃^circuit (compile (par (exit n) paused)) (compile (exit n)))]}]{
  The proof of this is given in the [par1-exit] notebook.
 }
 
@@ -129,7 +129,7 @@ respect to the compilation function.
        #:title "seq-exit is sound"
        #:statement @list{as @es[(⇀ (seq (exit n) q) (exit n))],
         if @es[(= (of (compile (seq (exit n) q)) SEL) 0)] then
-        @es[(≃ (compile (seq (exit n) q)) (compile (exit n)))]}]{
+        @es[(≃^circuit (compile (seq (exit n) q)) (compile (exit n)))]}]{
  By @es[(= (of (compile (seq (exit n) q)) SEL) 0)], it must be that
  @es[(= (of (compile q) SEL) 0)]. Thus by @proof-ref["activation-condition"]
  all output wires of @es[(compile q)] are @es[0].
@@ -143,7 +143,7 @@ respect to the compilation function.
        #:title "signal is sound"
        #:statement @list{as @es[(⇀ (signal S p) (ρ (mtθ+S S unknown) WAIT p))], show that
                             
-        @es[(≃ (compile (signal S p)) (compile (ρ (mtθ+S S unknown) WAIT p)))]}]{
+        @es[(≃^circuit (compile (signal S p)) (compile (ρ (mtθ+S S unknown) WAIT p)))]}]{
  @es[(compile (signal S p))] connects the input and output @es[S] wires to each other,
  and passes @es[GO] along unchanged. @es[(compile (ρ (mtθ+S S unknown) WAIT p))] does the
  same, therefore the two circuits are identical.
@@ -156,7 +156,7 @@ respect to the compilation function.
 
         when @es[(θ-ref-S-∈ θ S (L2set present unknown))], show that
         
-        @es[(≃ (compile (ρ θ GO (in-hole E (emit S)))) (compile (ρ (id-but-typeset-some-parens (<- θ (mtθ+S S present))) GO (in-hole E nothing))))]}]{
+        @es[(≃^circuit (compile (ρ θ GO (in-hole E (emit S)))) (compile (ρ (id-but-typeset-some-parens (<- θ (mtθ+S S present))) GO (in-hole E nothing))))]}]{
  @cases[#:of E
         #:language esterel/typeset
         #:induction
@@ -186,13 +186,13 @@ respect to the compilation function.
        @list{as @es[(⇀ (ρ θ A (in-hole E (present S p q))) (ρ θ A (in-hole E p)))]
         if @es[(= (of (compile (ρ θ A (in-hole E (present S p q)))) SEL) 0)]
         and @es[(θ-ref-S θ S present)], show that
-        @es[(≃ (compile (ρ θ A (in-hole E (present S p q)))) (compile (ρ θ A (in-hole E p))))]}]{
+        @es[(≃^circuit (compile (ρ θ A (in-hole E (present S p q)))) (compile (ρ θ A (in-hole E p))))]}]{
  As @es[(compile θ)] will force the @es[S] wire to be @es[1],
  by @proof-ref["S-maintains-across-E"] we know that
  
  @es[(= (of (compile (present S p q)) S) 1)]. Thus it
  suffices to show that
- @es[(≃ (compile (present S p q)) (compile p))] under this
+ @es[(≃^circuit (compile (present S p q)) (compile p))] under this
  condition. This proof is given in the [is-present] notebook.
 }
 
@@ -204,7 +204,7 @@ respect to the compilation function.
         @es[(θ-ref-S θ S unknown)],
         and @es[(L¬∈ S (->S (Can-θ (ρ θ A (in-hole E (present S p q))) ·)))], then
 
-        @es[(≃ (compile (ρ θ A (in-hole E (present S p q)))) (compile (ρ θ A (in-hole E q))))]}]{
+        @es[(≃^circuit (compile (ρ θ A (in-hole E (present S p q)))) (compile (ρ θ A (in-hole E q))))]}]{
 
  Let @es[p_outer] be @es[(ρ θ A (in-hole E (present S p q)))], the left hand side of the reduction.
  This can be proved by the following steps:
@@ -224,7 +224,7 @@ respect to the compilation function.
   @#:step[imp]{By @def and our premise that @es[(= (of (compile p_outer) SEL) 0)], we know that
    @es[(= (of (compile (present S p q)) SEL) 0)]}
   @#:step[_]{Under @imp and @proof-ref["activation-condition"]
-   we can show that @es[(≃ (compile (present S p q)) (compile q))].
+   we can show that @es[(≃^circuit (compile (present S p q)) (compile q))].
    This is done in the [is-absent] notebook.}}
                                                                                                  
 
@@ -238,7 +238,7 @@ respect to the compilation function.
                 when @es[(A->= A_1 A_2)], show that
         if @es[(CB (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p-pure))))] then
                 
-        @es[(≃ (compile (ρ θr_1 A_1 (in-hole E-pure (ρ θr_2 A_2 p-pure)))) (compile (ρ (<- θr_1 θr_2) A_1 (in-hole E-pure p-pure))))]}]{
+        @es[(≃^circuit (compile (ρ θr_1 A_1 (in-hole E-pure (ρ θr_2 A_2 p-pure)))) (compile (ρ (<- θr_1 θr_2) A_1 (in-hole E-pure p-pure))))]}]{
  This is a direct consequence of @proof-ref["can-lift"] and @proof-ref["immediate-merge"].
 }
 
@@ -247,7 +247,7 @@ respect to the compilation function.
        #:statement
        @list{For all @es[p-pure], @es[θr_1], @es[θr_2], @es[A_1] and @es[A_2],
         if @es[(A->= A_1 A_2)] then
-        @es[(≃ (compile (ρ θr_1 A_1 (ρ θr_2 A_2 p-pure))) (compile (ρ (<- θr_1 θr_2) A_1 p-pure)))]}]{
+        @es[(≃^circuit (compile (ρ θr_1 A_1 (ρ θr_2 A_2 p-pure))) (compile (ρ (<- θr_1 θr_2) A_1 p-pure)))]}]{
 
  Sketch: The compilation of @es[ρ] only changes the outputs of
  its inner circuit in that it closes some of the signal
@@ -340,7 +340,7 @@ respect to the compilation function.
         @es[(= (of (compile (in-hole E (ρ θ A p))) GO) 1)],
         and @es[(CB (in-hole E (ρ θ A p)))], then
         
-        @es[(≃ (compile (in-hole E (ρ θ A p))) (compile (ρ θ A (in-hole E p))))]}]{
+        @es[(≃^circuit (compile (in-hole E (ρ θ A p))) (compile (ρ θ A (in-hole E p))))]}]{
  TODO more formal (ug).
  This proof proceeds in two parts. First, by
  @proof-ref["GO-maintains-across-E"], we know that lifting

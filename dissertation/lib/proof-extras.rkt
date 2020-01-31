@@ -88,8 +88,7 @@
    (=/checked any any_r ...)])
 
 (define-metafunction esterel/typeset
-  [(≃ c_1 c_2) 1]
-  [(≃ p-pure q-pure) 1])
+  ≃ : 1 1 -> 1)
 
 (define-metafunction esterel/typeset
   => : any ... -> boolean
