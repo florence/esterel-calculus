@@ -57,10 +57,17 @@
           (signal S p-unex) (emit S)
           (suspend p-unex S) (present S p-unex p-unex))
   (wire w ::= variable)
-  (c circuit ::= (circ ((w = wire-value) ...) I O))
+  (c circuit ::= (circ EQ I O))
   (I O ::= (w ...))
+  (EQ ::= ((w = wire-value) ...))
   (bool ::= tt ff)
   (So Si ::= S)
+  (P Path Pnc ::= (w ...))
+  (i ::= n)
+  (Cc1 ::=
+       (not hole)
+       (and w ... hole w ...)
+       (or w ... hole w ...))
   (wire-value
    ::=
    w 0 1
@@ -70,7 +77,11 @@
 
 
 (define-metafunction esterel/typeset
-  [(of circuit w) w])
+  [(of circuit w) w]
+  [(of Path i) a-wire-name])
+
+(define-metafunction esterel/typeset
+  [(Path∈ w P) #t])
 
 (define-metafunction esterel/typeset
   [(compile p) (circ () () ())]

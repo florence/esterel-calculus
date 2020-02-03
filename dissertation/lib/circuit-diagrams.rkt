@@ -1,5 +1,6 @@
 #lang racket
-(provide clause compile-def esterel-interface)
+(provide clause compile-def esterel-interface
+         trap-pict nothing)
 (require diagrama diagrama/circuit pict racket/syntax
          "proof-extras.rkt"
          "redex-rewrite.rkt"

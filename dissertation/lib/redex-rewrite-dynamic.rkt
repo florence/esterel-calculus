@@ -77,7 +77,7 @@
        p
        (scale
         (cond [(string? s) (words s)]
-              [(symbol? s) (words (~a s))]
+              [(or (number? s) (symbol? s)) (words (~a s))]
               [(pict-convertible? s) s]
               [(lw? s) (render-lw esterel/typeset s)]
               [else (error 'render-op "don't know how to render ~v" s)])
@@ -836,6 +836,7 @@
     ['L∈-OI (λ (lws) (binop "∈" lws))]
     ['L∈-OI/first (λ (lws) (binop "∈" lws))]
     ['L¬∈ (λ (lws) (binop "∉" lws))]
+    ['Path∈ (λ (lws) (binop "∈" lws))]
     ['different (λ (lws) (binop "≠" lws))]
     ['same (λ (lws) (binop "=" lws))]
     ['Σ (λ (lws) (infix "+" lws))]
@@ -997,6 +998,13 @@
      ;; we forgo this for the typesetting
      ['D (λ () (text "E" (non-terminal-style) (default-font-size)))]
 
+     ;; Paths
+     ['Pnc
+      (lambda ()
+        (render-op/instructions
+         (text "P" (non-terminal-style) (default-font-size))
+         `((superscript nc))))]
+
      ;; same with the pure variants
      ['p-pure+GO
       (λ ()
@@ -1061,9 +1069,13 @@
      ;['stopped (λ () (text "stopped-p" (non-terminal-style) (default-font-size)))]
      ;['paused (λ () (text "paused-p" (non-terminal-style) (default-font-size)))]
 
-     ['hole (lambda ()
-              (text "☐"
-                    (default-style) (default-font-size)))]
+     ['hole (lambda () (text "○" (default-style) (default-font-size)))]
+     ['Cc1
+      (λ ()
+        (render-op/instructions
+         (text "C" (non-terminal-style) (default-font-size))
+         `((superscript c) (subscript 1))))]
+      
                     
      ['A->= (lambda () (render-op "≥"))]
      ['↓ (λ () (down-super-n))]

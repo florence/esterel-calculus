@@ -114,7 +114,7 @@
                         stx)))
 (define-syntax-parameter subcases basic-subcases)
 
-(define-for-syntax (make-subcases-expander ps fst? lang checks)
+(define-for-syntax (make-subcases-expander ps check-type fst? lang checks)
   (with-syntax ([(pst ...) ps]
                 [box box]
                 [lang lang])
@@ -132,6 +132,10 @@
           (define-values (now later)
             (split-at (syntax->list #'(pst ...))
                       (- (length (syntax->list #'(pst ...)))
+                         nl)))
+          (define-values (check-now check-later)
+            (split-at '(#,@check-type)
+                      (- (length '(#,@check-type))
                          nl)))]
          #:with new-sc
          (cond
@@ -140,6 +144,7 @@
             #'basic-subcases]
            [(> nl 0)
             (make-subcases-expander later
+                                    check-later
                                     #f
                                     #'lang
                                     #'checks)])
@@ -147,15 +152,23 @@
          #:with (... ((prot ...) ...))
          (apply map list
                 (map syntax->list (syntax->list #'(... ((pat ...) ...)))))
-         #:with ps (pst ...)
-               
+         #:with ps #'(pst ...)
+         #:with (... (test ...))
+         (...
+          (for/list ([prot (in-list (syntax->list #'((prot ...) ...)))]
+                     [n (in-list (syntax->list #'(n ...)))]
+                     [check (in-list check-now)]
+                     #:when (eq? check '#:standard))
+            (quasisyntax/loc this-syntax
+              (test-cases-covered #:checks #,checks lang #,#'#,n #,#'#,prot))))
+         #:with (... (lexico ...)) #'#,(if fst? #'(#:lexicographic ps) #'(#:lexicographic-sub (... (n ...))))
          #`(...
             (syntax-parameterize ([subcases new-sc])
-              #,(syntax-loc this-syntax (begin (test-cases-covered #:checks #,checks lang n (prot ...)) ...))
-              (render-cases #,@(if fst? #'(#:lexicographic ps) #'(#:lexicographic-sub (... (n ...))))
-                            lang
-                            (n ...)
-                            ((pat ...) body ...) ...)))])))
+              (begin test ...
+                     (render-cases lexico ...
+                                   lang
+                                   (n ...)
+                                   ((pat ...) body ...) ...))))])))
 
 
 (define-for-syntax (cases+loc cc)
@@ -213,13 +226,19 @@
          #:defaults ([lang #'base])))
        (~once (~seq #:of (c:expr ...)))
        (~once #:lexicographic)
+       (~once (~and s [(~or #:unchecked #:standard) ...]))
        (~once (~optional (~seq #:checks n)
                          #:defaults ([n #'1000]))))
       ...
       _:string ... 
       (~seq [#:case (p:expr ...) body ...]  _:string ...) ...)
      
-     #:with sc (make-subcases-expander  #'(c ...) #t #'lang #'n)
+     #:with sc (make-subcases-expander #'(c ...)
+                                       (syntax->list
+                                        #'(~? s #,(map (lambda (x) #'#:standard)
+                                                       (syntax->list #'(c ...)))))
+                                       #t
+                                       #'lang #'n)
      #'(syntax-parameterize ([subcases sc])
          (subcases [#:case (p ...) body ...] ...))]
     [(_
