@@ -8,7 +8,7 @@
           "lib/misc-figures.rkt"
           "lib/rule-figures.rkt"
           "lib/circuit-diagrams.rkt"
-          redex/reduction-semantics
+          (except-in redex/reduction-semantics nothing)
           redex/pict
           (only-in pict hbl-append)
           esterel-calculus/redex/model/shared
