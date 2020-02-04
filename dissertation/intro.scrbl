@@ -30,7 +30,7 @@ giving a formal semantics to Esterel a subtle and tricky
 business, and has lead to a plethora of different semantics
 suited to different purposes.
 
-Some of these semantics are expressive enough to give an
+Some of these semantics are adequate to give an
 evaluator for programs, giving meaning to full programs by
 running them. Others give us local reasoning, allowing for
 modular reasoning about fragments of full programs (i.e.
@@ -50,10 +50,10 @@ language.
 
 Each of Esterel's many semantics do some of these jobs very
 well. However there are no semantics for Esterel which are
-simultaneously, local, syntactic, sound, and expressive
+simultaneously, local, syntactic, sound, and adequate
 enough to give an evaluator for the language. This is the
 contribution of the dissertation: @centered{There exists a
- local, syntactic, sound, and expressive semantics for
+ local, syntactic, sound, and adequate for
  Esterel.}
 
 I have proven this calculus is sound for Loop Free, Pure

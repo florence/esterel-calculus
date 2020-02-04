@@ -241,5 +241,18 @@ from the grammar given in @figure-ref["circuit-grammar"].
 
 
 symbolic interpretation.
+Define EvalC.
 
-Contextual Equivalence?
+@subsection{Contextual Equivalence}
+@newline
+
+
+@definition[#:notation @es[(≃^circuit c_1 c_2)]]{
+ @es[(≃^circuit c_1 c_2)] if and only if,
+ for all assignments to the inputs, and all
+ possible output sets @es[O],
+ @es[(= (eval^circuit O c_1) (eval^circuit O c_2))]
+ and @es[c_1] and @es[c_2] have the same constructivity.
+}
+
+

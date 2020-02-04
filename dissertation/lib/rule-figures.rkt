@@ -9,7 +9,8 @@
 (provide calculus-side-condition-beside-rules
          calculus-rule-groups
          reduction-relation-pict
-         render-rules)
+         render-rules
+         render-specific-rules)
 
 ;; approximate, determined by experimentation via `frame`
 ;; and running latex and eyeballing the output,
@@ -22,7 +23,11 @@
 
   (define rules-named-in-rule-groups
     (sort (maybe-cons rule-to-skip (filter symbol? (flatten rule-groups))) symbol<?))
-  (define all-rules (sort (reduction-relation->rule-names reduction-relation) symbol<?))
+  (define all-rules
+    (sort
+     (or (render-reduction-relation-rules)
+         (reduction-relation->rule-names reduction-relation))
+     symbol<?))
   (cond
     [only-one-rule?
      (unless (= (length rules-named-in-rule-groups) 1)
@@ -136,4 +141,13 @@
                                                  R*
                                                  calculus-rule-groups
                                                  calculus-side-condition-beside-rules)])
+     (render-reduction-relation R*))))
+
+(define (render-specific-rules r)
+  (with-paper-rewriters
+   (parameterize* ([render-reduction-relation-rules r]
+                   [rule-pict-style (render-rules 'calculus
+                                                  R*
+                                                  `(("" ,@r))
+                                                  calculus-side-condition-beside-rules)])
      (render-reduction-relation R*))))
