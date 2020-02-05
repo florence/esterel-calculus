@@ -255,4 +255,3 @@ Define EvalC.
  and @es[c_1] and @es[c_2] have the same constructivity.
 }
 
-

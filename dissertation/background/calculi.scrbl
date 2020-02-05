@@ -32,6 +32,8 @@ changing its meaning. I will refer to this as a calculus
 To prepare the reader this section will walk through soem exa
 
 
+
+
 @section{Local}
 
 @section{Syntactic}
@@ -44,7 +46,8 @@ what is a semantics?
 
 eval().
 
-Contexts.
+Program Contexts.
+Evaluation Contexts
 
 eval via reduction relation.
 

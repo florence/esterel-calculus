@@ -1133,8 +1133,20 @@
       (lambda () (text "p̂" (cons 'no-combine (non-terminal-style)) (default-font-size)))]
      ['compile
       (λ () (es/unchecked (compile dot)))]
-     ['So (λ () (render-op "S^o"))]
-     ['Si (λ () (render-op "S^i"))])
+     ['statusr
+      (lambda ()
+        (render-op/instructions
+         (text "status" (non-terminal-style) (default-font-size))
+         `((superscript r))))]
+     ['So (λ ()
+            (render-op/instructions
+             (text "S" (non-terminal-style) (default-font-size))
+             `((superscript o))))]
+     ['Si
+      (lambda ()
+        (render-op/instructions
+         (text "S" (non-terminal-style) (default-font-size))
+         `((superscript i))))])
     (define owsb (white-square-bracket))
     (parameterize* ([default-font-size (get-the-font-size)]
                    [metafunction-font-size (get-the-font-size)]

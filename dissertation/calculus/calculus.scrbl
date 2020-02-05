@@ -5,9 +5,26 @@
           "../lib/proofs.rkt"
           "../lib/misc-figures.rkt"
           "../lib/rule-figures.rkt"
+          "../lib/cite.rkt"
           esterel-calculus/redex/model/shared
           scriblib/figure
-          redex/pict)
+          redex/pict
+          syntax/parse/define
+          esterel-calculus/redex/model/deps
+          (for-syntax racket/base)
+          pict)
+
+@(define-simple-macro (code+graph {~alt
+ {~optional {~seq #:ignore-start? qq}}
+ {~once e}} ...)
+   (with-bar (es e) (flow/pict 'e #:ignore-start? (~? qq #t))))
+
+
+@(define (with-bar p1 p2)
+   (hc-append
+    p1
+    (vline 30 (max (pict-height p1) (pict-height p2)))
+    p2))
 
 @title[#:style paper-title-style
        #:tag "sec:calculus"]{A Calculus for Esterel}
@@ -54,7 +71,7 @@ preempts the sequence when the first part reduces to an @es[exit].
 The next rule handles @es[traps]:@(linebreak)
 @[render-specific-rules '(trap)]@(linebreak)
 This rule reduces when the inner program can reduce no more, via the metafunction:
-@[centered @es[(with-paper-rewriters (render-metafunction harp #:contract? #t))]]
+@[centered (with-paper-rewriters (render-metafunction harp #:contract? #t))]
 which will decrement a @es[exit] by one, unless the @es[exit] is bound by this trap,
 in which case it reduces to @es[nothing], allowing execution to continue from this point.
 
@@ -89,18 +106,153 @@ TODO
 
 @subsection{Signal rules}
 
-Evaluation Contexts, Environments, GO, Can
-@[render-specific-rules '(signal)]
-@[render-specific-rules '(emit)]
-@[render-specific-rules '(is-present)]
-@[render-specific-rules '(is-absent)]
+The signals rules are where the calculus get's a little tricky.
+Essentially reasoning about state, which is difficult to do in a local way.
+To handle this, we need need three new pieces: Environments, Evaluation Contexts,
+and @es[Can].
+
+@subsubsection{Environments}
+
+Environments represent state information that is local to a portion of the programs.
+In full environments look like:
+
+@[centered lang/env]
+
+Local environments @es[(ρ θr A p)] contain maps @es[θr] of signals
+that in scope of the term @es[p] to their status.@note{You may notice that
+these three statuses correspond to wire values in Circuits. This
+is because signals correspond exactly to wire in compilation, and
+this fact will be crucial in proving soundness of the calculus.}@note{These environments are adapted
+from the @citet[felleisen-hieb] state calculus.}
+The maps that use for local stores are restricted maps, which only
+map to a subset of signal statuses. Other parts of the calculus will use full maps
+@es[θ]. We will come back to these later. The reason that the local environments
+do not contain @es[absent] is related to subtle details of the proof of soundness,
+which is described in @secref["soundness-of-calc"].
+
+@[figure
+  "nc-example"
+  "A non-constructive program"
+  (code+graph
+   (signal S1
+     (present S1
+              (signal S2
+                (seq (emit S2)
+                     (present S2 nothing (emit S1))))
+              nothing)))]
+
+Environments also contain a control state @es[A], which
+tracks whether or not control has reached this point in the
+program. This control variable is needed because signal
+emissions represent what must happen in the program. However
+this is inherently a non-local property. This can be seen
+through the program in @figure-ref["nc-example"]. This
+program has a cycle between the test of @es[S1], the test of @es[S2],
+and the emit of @es[S1]. This cycle cannot be broken, therefore this program is non-constructive:
+evaluation would demand a value for @es[S1] before determining a value for @es[S2], which cannot happen.
+However we might try to reason about a fragment of this program locally, ignoring it's context. For example
+we might ignore the context:
+@[centered
+  @es[(signal S1 (if S1 hole nothing))]]
+and focus on the fragment
+@[centered
+  @es[(signal S2
+        (seq (emit S2)
+             (present S2 nothing (emit S1))))]]
+However when we look at this fragment it looks like we can @es[emit] the @es[S2], allowing the
+fragment to reduce to
+@[centered
+  @es[(signal S2 nothing)]]
+which, when plugged back into its context gives us the program in @figure-ref["broken-local"].
+But this program no longer has the non-constructive cycle! Therefore this local reasoning was not valid:
+we did not know that the @es[(emit S2)] must be reached, so it was not safe to @es[emit] it. 
+
+@[figure
+  "broken-local"
+  "Breaking the cycle, illegally"
+  (code+graph
+   (signal S1
+     (present S1
+              (signal S2 nothing)
+              nothing)))]
+
+
+But when using a calculus we can never assume that we have full knowledge of the program: there may
+always been an outer context, meaning we can never know for sure if a term will be reached or not.
+To handle this the control variable @es[A] adds local information that tells us if the program term
+must be reached or not. When @es[A] is @es[GO], this means that the term will be executed. If @es[A]
+is @es[WAIT] the term may or may not be executed.@note{These control variables are adapted from an as-yet
+unpublished microstep semantics for Esterel by Lionel Rieg. His semantics defines an evaluator
+for Esterel which tracks execution state via three colors: Red, Green, and Gray. My adaptation
+makes these colors local, which allows the Red color to be discarded. Green corresponds to @es[GO],
+and Grey corresponds to @es[WAIT].}
+
+The calculus itself will never introduce @es[GO]'s, but rather only propagate them through the program.
+A @es[GO] can only safely be introduce by the evaluator---as it knows the whole program---and, I believe, when
+the whole program is guaranteed to be acyclic. My semantics assumes that @es[GO] is only at the top of
+the program, and therefore while a programmer may add @es[GO] to acyclic programs doing so is not proven
+to be sound.
+
+A small example of how environments work can be seen in the rule:@(linebreak)
+@[render-specific-rules '(signal)]@(linebreak)
+which transforms a signal into a local environment. The map in this environment
+contains only the signal, mapped to @es[unknown], representing that we do not
+yet know its value. The control variable is set to @es[WAIT] as we cannot know if this
+program fragment will be executed yet or not.
+
+
+@subsubsection{Evaluation Contexts}
+
+The next set of rules require evaluation contexts. Like evaluation contexts in the lambda calculus,
+these control where evaluation may take place (and therefore where state is valid), however,
+they in this case our evaluation contexts can decompose non-deterministically because of @es[par]:
+
+@[centered lang/eval]
+
+With these in hand we can now look at the next three rules. Firstly, local environments
+may be merged together if they are with an evaluation context of each other:@(linebreak)
+@[render-specific-rules '(merge)]@(linebreak)
+This merge overwrites bindings in the outer map with the inner one. In addition this merge may
+only happen if it would not expose the outer environment to more control information
+that it had before. That is, @es[(A->= GO WAIT)]. So the merge will happen if the outer environment has
+a @es[GO], or if both environments have a @es[WAIT].
+
+Next we may emit a signal when that signal is in an evaluation context relative to its
+binder, and when we know control will reach this point in the program:@(linebreak)
+@[render-specific-rules '(emit)]@(linebreak)
+Emission is accomplished by updating the environment to map @es[S] to @es[present], and
+replacing the emit with @es[nothing].
+
+Once there is a @es[present] in the environment we may reduce to the then branch of a conditional:@(linebreak)
+@[render-specific-rules '(is-present)]@(linebreak)
+
+TODO transition
+
+@subsubsection{Can} But, if @es[0] cannot be put intro restricted environments,
+how are we to take the else branch? The answer lies the meaning of @es[0]. A signal is @es[0]
+only when it has not been emitted (that is, is not @es[1]) and @italic{cannot} be emitted.
+Thus to take the else branch we analyze the program for what can be emitted. This is done by the
+metafunctions in @figure-ref["Can"] and @figure-ref["Can-rho"].
+
+@figure["Can"
+        "Can"
+        Can-pict]
+@figure["Can-rho"
+        "Can rho"
+        Canθ-pict]
+TODO explain.
+
+With this we may then write the rule:
+@[render-specific-rules '(is-absent)]@(linebreak)
 
 @subsection{State rules}
-@[render-specific-rules '(shared set-old set-new)]
-@[render-specific-rules '(var set-var if-true if-false)]
+@[render-specific-rules '(shared set-old set-new)]@(linebreak)
+@[render-specific-rules '(var set-var if-true if-false)]@(linebreak)
 
 
 @section{Auxiliary Judgments}
+
+@subsection[#:tag "binding"]{Correct Binding}
 
 @subsection{Schizophrenia}
 

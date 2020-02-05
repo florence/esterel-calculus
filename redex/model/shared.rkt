@@ -63,8 +63,11 @@
           present
           unknown
           absent)
+  (statusr ::=
+          present
+          unknown)
   (Sdat ::= (sig S status))
-  (Sdatr ::= (sig S present) (sig S unknown))
+  (Sdatr ::= (sig S statusr))
   ;; go is lionel's `green`. It means control must reach here
   ;; wait is lionel's `gray`. It means control may or may not reach here.
   (A ::= GO WAIT)

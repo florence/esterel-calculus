@@ -549,22 +549,20 @@
         from @es[(of (compile p-pure) K0)] to @es[So].}]
 
 @proof[#:label "term-cycle-S"
-       #:title "Present can form an data nc-path"
+       #:title "Terms form a data nc-path"
        #:statement @list{
         For all @es[r-pure],
         @es[S], and @es[θr]
-        if @es[(binds (compile r-pure) GO)],
-        @es[(binds (compile r-pure) θr)],
+        if @es[(binds (compile r-pure) θr)],
         @es[(L∈ S (->S (Can r-pure θr)))],
         then there is an nc-path @es[Pnc]
         from @es[GO] to @es[So].}]
 
 @proof[#:label "term-cycle-K"
-       #:title "Present can form an control nc-path"
+       #:title "Terms form an control nc-path"
        #:statement @list{
         For all @es[r-pure], and @es[n]
-        if @es[(binds (compile r-pure) GO)],
-        then there is an nc-path @es[Pnc]
+        there is an nc-path @es[Pnc]
         from @es[GO] to @es[Kn].}]
 
 @proof[#:label "blocked-respects-can"

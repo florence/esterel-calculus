@@ -91,6 +91,8 @@ emitted and @italic{cannot} be emitted in the current
 instant. The exact meaning of cannot is discussed in
 @secref["cannot"].
 
+TODO present is 1, absent is 0.
+
 @bold{Composition} Esterel terms can either be composed
 concurrently---@es[(par p q)]---or
 sequentially---@es[(seq p q)]. @es[seq] behaves, more or

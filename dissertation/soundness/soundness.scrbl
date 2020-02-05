@@ -20,7 +20,7 @@ Consistent
 
 @subsection{the compiler}
 
-@subsection{proof technique}
+@subsection[#:tag "soundness-of-calc"]{proof technique}
 rosette?
 @subsection{proof sketches}
 

@@ -10,6 +10,7 @@
                   esterel/typeset))
 
 (provide lang/pure lang/state supp-lang
+         lang/env lang/loop lang/eval
          next-instant-pict
          Can-pict Canθ-pict
          supp-non-terminals
@@ -62,6 +63,10 @@
       (A ::= GO WAIT))
     (with-paper-rewriters
      (render-language whatever))))
+
+(define lang/eval
+  (with-paper-rewriters
+   (render-language esterel-eval #:nts '(E))))
       
 
 (define circuit-lang
@@ -95,6 +100,36 @@
      50
      (vl-append (nt-∈-line "S" "signal variables" lhs-spacer))))))
 
+(define-extended-language esterel+loop esterel/typeset
+  (p ::= .... (loop^stop p q)))
+(define lang/loop
+  (render-language esterel+loop #:nts '(p q)))
+
+(define-extended-language esterel+env esterel/typeset
+  (p q ::= .... (ρ θr A p))
+  (status ::= present absent unknown)
+  (statusr ::= present unknown)
+  (A ::= GO WAIT))
+(define lang/env
+  (with-paper-rewriters
+   (define lhs-spacer
+     (ghost
+      (hbl-append
+       (text "p" (non-terminal-style) (default-font-size))
+       (text ", " (default-style) (default-font-size))
+       (text "q" (non-terminal-style) (default-font-size))
+       (text " ::=" (default-style) (default-font-size)))))
+   
+   (vl-append
+    (render-language esterel+env #:nts '(p q A status statusr))
+    (htl-append
+     50
+     (vl-append (hbl-append (es θ)
+                            (text " : " (default-style) (default-font-size))
+                            (es (⟶ S status)))
+                (hbl-append (es θr)
+                            (text " : " (default-style) (default-font-size))
+                            (es (⟶ S statusr))))))))
 
 
 (define lang/state
