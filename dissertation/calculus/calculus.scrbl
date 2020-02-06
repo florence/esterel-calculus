@@ -242,7 +242,7 @@ metafunctions in @figure-ref["Can"] and @figure-ref["Can-rho"].
         Canθ-pict]
 TODO explain.
 
-With this we may then write the rule:
+With this we may then write the rule:@(linebreak)
 @[render-specific-rules '(is-absent)]@(linebreak)
 
 @subsection{State rules}
