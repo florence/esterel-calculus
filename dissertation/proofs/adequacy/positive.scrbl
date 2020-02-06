@@ -413,9 +413,9 @@
      
      If @es[Pnc] is empty, let @es[(= Pnc_o Pnc_i)].
      If the head of @es[(of Pnc 0)] depends on @es[S], then
-         let @es[Pnc_o] be @es[Pnc_i] prepended to @es[Pnc].
+     let @es[Pnc_o] be @es[Pnc_i] prepended to @es[Pnc].
      If the head of @es[(of Pnc 0)] depends on @es[K0], then
-         let @es[Pnc_o] be @es[Pnc_i2] prepended to @es[Pnc].
+     let @es[Pnc_o] be @es[Pnc_i2] prepended to @es[Pnc].
 
      Then we induct on @es[S], @es[L-S] and @es[Pnc_o].}
     @#:case[(L-S (present S_b p-pure_i q-pure_i))]{
@@ -463,7 +463,7 @@
       @#:step[rec]{
        By @es[canₛ-done], the terms from @LorR must not be the terms
        which are @es[done]. Thus we may use induction to find our nc-cycle.}
-      }}
+    }}
     @;{impossible}
     @#:case[(L-S nothing)]{This violates the hypothesis
      that @es[(blocked-pure θr GO hole (in-hole E-pure p-pure))]}
@@ -489,38 +489,38 @@
        #:statement @list{
         For all @es[(= r-pure (present S_b p-pure q-pure))],
         @es[S], and @es[θr],
-       if @es[(binds (compile r-pure) θr)],
-       @es[(binds (compile r-pure) GO)],
-       @es[(θ-ref-S θr S_b unknown)],
-       @es[(θ-ref-S θr S unknown)], and
-       @es[(L∈ S (->S (Can (present S_b p-pure q-pure) θr)))],
-       then there is an nc-path @es[Pnc]
-       from @es[Si_b] to @es[So].}]{
+        if @es[(binds (compile r-pure) θr)],
+        @es[(binds (compile r-pure) GO)],
+        @es[(θ-ref-S θr S_b unknown)],
+        @es[(θ-ref-S θr S unknown)], and
+        @es[(L∈ S (->S (Can (present S_b p-pure q-pure) θr)))],
+        then there is an nc-path @es[Pnc]
+        from @es[Si_b] to @es[So].}]{
  @sequenced{
- @#:step[in]{
- By the definition of @es[compile], and @es[(binds (compile r-pure) GO)],
- we know that there is an nc-path from @es[Si_b] to the @es[GO]
- of @es[(compile p-pure)] and @es[(compile q-pure)].}
- @#:step[eq]{
- By the definition of @es[Can] and @es[(θ-ref-S θr S_b unknown)],
+  @#:step[in]{
+   By the definition of @es[compile], and @es[(binds (compile r-pure) GO)],
+   we know that there is an nc-path from @es[Si_b] to the @es[GO]
+   of @es[(compile p-pure)] and @es[(compile q-pure)].}
+  @#:step[eq]{
+   By the definition of @es[Can] and @es[(θ-ref-S θr S_b unknown)],
    we know that @es[(= (->S (Can (present S_b p-pure q-pure) θr)) (LU (->S (Can p-pure θr)) (->S (Can q-pure θr))))].
- }
- @#:step[Either]{
- By @eq it must be the case that @es[S] is in at least one of @es[(->S (Can p-pure θr))]
+  }
+  @#:step[Either]{
+   By @eq it must be the case that @es[S] is in at least one of @es[(->S (Can p-pure θr))]
    and @es[(->S (Can q-pure θr))].
- }
- @#:step[connect]{By @proof-ref["term-cycle-S"] on whichever branch(es) @es[Either] says contains @es[S],
- we know that there is an nc-path @es[Pnc_t] from that terms @es[GO] to that terms @es[So].}
- @#:step[left]{By @in we can prefix the @es[Pnc_t] from @Either with @es[Si_b].}
- @#:step[final_1]{By @proof-ref["Can-S-is-sound"], we know that if the other branch does not contain @es[S]
- then that branches @es[So] must be @es[0] therefore we can extend the path from @es[left]
- with the @es[So] from @es[(compile r-pure)], giving us our nc-path.}
- @#:step[final_2]{If, however, the other branch does have @es[S] in it's @es[Can] set, then
- by @es[connect] we know there is an nc-path from @es[GO] to that branches @es[So].
- Thus we may still extend the nc-path from @es[left] with the @es[So] of @es[(compile r-pure)],
- as that @es[So] still cannot be @es[1].
+  }
+  @#:step[connect]{By @proof-ref["term-cycle-S"] on whichever branch(es) @es[Either] says contains @es[S],
+   we know that there is an nc-path @es[Pnc_t] from that terms @es[GO] to that terms @es[So].}
+  @#:step[left]{By @in we can prefix the @es[Pnc_t] from @Either with @es[Si_b].}
+  @#:step[final_1]{By @proof-ref["Can-S-is-sound"], we know that if the other branch does not contain @es[S]
+   then that branches @es[So] must be @es[0] therefore we can extend the path from @es[left]
+   with the @es[So] from @es[(compile r-pure)], giving us our nc-path.}
+  @#:step[final_2]{If, however, the other branch does have @es[S] in it's @es[Can] set, then
+   by @es[connect] we know there is an nc-path from @es[GO] to that branches @es[So].
+   Thus we may still extend the nc-path from @es[left] with the @es[So] of @es[(compile r-pure)],
+   as that @es[So] still cannot be @es[1].
 
- TODO this last step isn't very convincing...}}
+   TODO this last step isn't very convincing...}}
 }
 
 @proof[#:label "present-cycle-K"
