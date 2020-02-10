@@ -108,7 +108,9 @@
 
 @section[#:tag "sec:defcalc" "Calculus"]
 
-@definition[#:notation @list{@es[p], @es[q]} lang/state]
+@definition[#:notation @list{@es[p], @es[q]}
+            #:index @es[p]
+            lang/state]
 
 @definition[#:notation @es[(⇀ p q)]
             #:index @es[⇀]]{
