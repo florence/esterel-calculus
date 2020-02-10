@@ -1019,6 +1019,9 @@
      ;; the calculus, we really want `ev` to be just `n`.
      ;['n (λ () (text "n" (default-style) (default-font-size)))]
      ['ev (λ () (text "n" (non-terminal-style) (default-font-size)))]
+     ;; just for tagging
+     ['p (λ () (text "p" (non-terminal-style) (default-font-size)))]
+     ['q (λ () (text "p" (non-terminal-style) (default-font-size)))]
 
      ;; because · renders as {} for environment sets.
      ['dot (λ () (text "·" (default-style) (default-font-size)))]
