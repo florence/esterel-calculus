@@ -17,3 +17,4 @@
 @generate-bibliography[]
 @include-section["notations.scrbl"]
 @include-section["proofs/proofs.scrbl"]
+@index-section[]

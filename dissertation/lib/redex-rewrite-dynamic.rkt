@@ -6,13 +6,36 @@
          (prefix-in calculus: esterel-calculus/redex/model/calculus)
          (prefix-in standard: esterel-calculus/redex/model/reduction)
          pict
+         (prefix-in pict: pict)
          redex/pict
-         pict/convert
          "util.rkt"
          (except-in "proof-extras.rkt" =)
          syntax/parse/define
          (for-syntax syntax/parse)
-         "redex-rewrite.rkt")
+         "redex-rewrite.rkt"
+         pict/convert)
+
+
+(require (prefix-in scrbl: scribble/core))
+
+(define (lift-to-taggable pict tag)
+  (if (pict+tag? pict)
+      (pict+tag (pict+tag-pict pict) tag)
+      (pict+tag pict tag)))
+  
+(define (text t f s)
+  (lift-to-taggable
+   (pict:text t f s)
+   (decode-to-simple-text t)))
+
+(define (decode-to-simple-text x)
+  (apply
+   string
+   (for/list ([x (in-string x)])
+     (case x
+       [(#\ℙ) #\P]
+       [(#\𝒮) #\S]
+       [else x]))))
 
 (define current-reduction-arrow (make-parameter 'calculus))
 (define (reduction-arrow)
@@ -39,31 +62,45 @@
   (render-op/instructions head tails))
 
 (define (render-op/instructions base ss)
-  (define-values (supers subs)
+  (define-values (supers subs seq)
     (for/fold ([super empty]
                [sub empty]
-               #:result (values (reverse super) (reverse sub)))
+               [seq empty]
+               #:result (values (reverse super) (reverse sub) (reverse seq)))
               ([s (in-list ss)])
       (match s
         [(or (regexp #rx"\\^(.*)" (list _ r))
              (list 'superscript r))
-         (values (cons r super) sub)]
+         (values (cons r super) sub (cons r seq))]
         [(or (regexp #rx"_(.*)" (list _ r))
              (list 'subscript r))
-         (values super (cons r sub))])))
+         (values super (cons r sub) (cons r seq))])))
   (define the-super (typeset-supers supers))
   (define the-sub (typeset-subs subs))
+  (lift-to-taggable
+   (inset
+    (refocus
+     (hbl-append
+      (refocus (hbl-append base the-sub) base)
+      the-super)
+     base)
+    0
+    0
+    (max (pict-width the-sub) (pict-width the-super))
+    0)
+   (compute-tag base seq)))
 
-  (inset
-   (refocus
-    (hbl-append
-     (refocus (hbl-append base the-sub) base)
-     the-super)
-    base)
-   0
-   0
-   (max (pict-width the-sub) (pict-width the-super))
-   0))
+(define (compute-tag base ss)
+  (define (to-string x)
+    (match x
+      [(? string?) x]
+      [(or (? number?) (? symbol?)) (~a x)]
+      [(pict+tag p t) t]
+      [(or (? lw?) (? pict?)) ""]))
+  (apply
+   string-append
+   (to-string base)
+   (map to-string ss)))
     
 (define (typeset-supers s)
   (render-word-sequence (blank) s +2/5))
@@ -201,7 +238,7 @@
   (list
    (hbl-append
     (def-t "{ ")
-    (text dom-ele (non-terminal-style))
+    (text dom-ele (non-terminal-style) (default-font-size))
     (def-t " ∈ dom("))
    θ
    (hbl-append
@@ -999,11 +1036,13 @@
      ['D (λ () (text "E" (non-terminal-style) (default-font-size)))]
 
      ;; Paths
+     ['P
+      (lambda () (text "ℙ" (non-terminal-style) (default-font-size)))]
      ['Pnc
       (lambda ()
         (render-op/instructions
-         (text "P" (non-terminal-style) (default-font-size))
-         `((superscript nc))))]
+         (text "ℙ" (non-terminal-style) (default-font-size))
+         `((superscript d))))]
 
      ;; same with the pure variants
      ['p-pure+GO
@@ -1106,6 +1145,10 @@
      ['absent (λ () (text "0" (default-style) (default-font-size)))]
      ['unknown (λ () (text "⊥" (default-style) (default-font-size)))]
 
+     ['≡
+      (lambda () (render-op '≡))]
+     ['⇀
+      (lambda () (render-op '⇀))]
      ['⟶
       (lambda () (render-op '⟶))]
      ['⟶^s
@@ -1132,7 +1175,7 @@
      ['paused
       (lambda () (text "p̂" (cons 'no-combine (non-terminal-style)) (default-font-size)))]
      ['compile
-      (λ () (es/unchecked (compile dot)))]
+      (λ () (text "⟦·⟧" (default-style) (default-font-size)))]
      ['statusr
       (lambda ()
         (render-op/instructions

@@ -333,7 +333,7 @@
             (move-to x y)))
          (move-down 1)
          (or-gate #:tag-in1 'pSELor
-                  #:tag-in2 'qSELor
+                  #:tag-in3 'qSELor
                   #:tag-out 'oSEL)
          (save (move-to-tag 'oSEL)
                (label "SEL" 'right))

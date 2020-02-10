@@ -25,7 +25,8 @@
 
 @section[#:tag "sec:defcirc" "Circuits"]
 
-@definition[#:notation (hbl-append (es (compile p)) (es ⟶) (es circuit))]{
+@definition[#:notation (hbl-append (es (compile p)) (es ⟶) (es circuit))
+            #:index @es[compile]]{
                                                                           
  @add-between[compile-def (element 'newline '())]
 
@@ -62,24 +63,71 @@
 
 }
 
+
+
+@definition[#:notation @es[P]
+            #:index #t]{
+ A Path @es[P] in a circuit @es[c] is a sequence of wires @es[(w_0 ... w_i)]
+ such that for all @es[w_n] where @es[(> n 0)], @es[(= (of c w_n) (in-hole Cc1 w_n-1))].
+}
+
+@definition[#:notation @es[(of P n)]]{
+ The @es[n]th element of the path @es[P].
+ @es[(of P i)] will always refer to the last element of the path.
+}
+
+@definition[#:notation @list{@es[w_a] is determined by @es[w_b]}
+            #:index (list @es[P]  "determined by")]{
+ if and only if there exists a @es[Pnc] from @es[w_a] to @es[w_b].
+}
+
+@definition[#:notation @es[Pnc]
+            #:index (list @es[P] @es[Pnc])]{
+ A determined Path @es[Pnc] is a path where,
+ for all @es[(Path∈ w_n Pnc)], @es[(> n 0)] either:
+ @sequenced{
+  @#:step[a]{@es[(= (of c w_n) (or w_n-1 w_x))]
+  and @es[(= (of c w_n-1) 0)] or @es[(= (of c w_n-1) ⊥)]
+  or @es[w_n-1] is determined by @es[w_0].}
+ @#:step[b]{@es[(= (of c w_n) (or w_n-1 w_x))]
+  and @es[(= (of c w_n-1) 1)] or @es[(= (of c w_n-1) ⊥)]
+  or @es[w_n-1] is determined by @es[w_0].}
+ @#:step[c]{@es[(= (of c w_n) (not w_n-1))].}}
+}
+
+@definition[#:notation @list{Cycle on @es[w]}
+            #:index (list @es[P] "cycle")]{
+ A path @es[P] where @es[(= w (of P 0) (of P i))].
+}
+
+@definition[#:notation @list{nc-cycle on @es[w]}
+            #:index (list @es[P] "nc-cycle")]{
+ A non-constructive cycle is determined path @es[Pnc] which
+ is also a cycle.
+}
+
 @section[#:tag "sec:defcalc" "Calculus"]
 
 @definition[#:notation @list{@es[p], @es[q]} lang/state]
 
-@definition[#:notation @es[(⇀ p q)]]{
+@definition[#:notation @es[(⇀ p q)]
+            #:index @es[⇀]]{
  @reduction-relation-pict
 }
 
-@definition[#:notation @es[(⟶ p q)]]{
+@definition[#:notation @es[(⟶ p q)]
+            #:index @es[⟶]]{
  The compatible closure of @es[⇀].
 }
 
-@definition[#:notation @es[(≡ p q)]]{
+@definition[#:notation @es[(≡ p q)]
+            #:index @es[≡]]{
  The transitive, reflexive, symmetric, compatible closure of @es[⇀].
 }
 
 @definition[
  #:notation @list{@es[(eval^esterel O p)] @es[⟶] @es[(tup θ bool)]}
+ #:index @es[eval^esterel]
  #:read-as @list{Evaluate the program @es[p] using the output signals @es[O].}]{
 
  @with-paper-rewriters[@render-metafunction[eval^esterel]]
@@ -97,17 +145,20 @@
 }
 
 @definition[#:notation @es[(blocked-pure θ A E p)]
+            #:index @es[blocked-pure]
             #:read-as @list{The term @es[p] cannot reduce (is blocked)
              in the context @es[(ρ θ A (in-hole E p))]}]{
  @pure-blocked-pict
 }
 
 
-@definition[#:notation @es[(Can p θ)]]{
+@definition[#:notation @es[(Can p θ)]
+            #:index @es[Can]]{
  @Can-pict
 }
 
-@definition[#:notation @es[(Can-θ (ρ θ_1 A p) θ_2)]]{
+@definition[#:notation @es[(Can-θ (ρ θ_1 A p) θ_2)]
+            #:index @es[Can-θ]]{
  @Canθ-pict
 }
 
@@ -121,6 +172,7 @@
 
 @definition[
  #:notation @list{@es[(count p)]}
+ #:index @es[count]
  #:read-as @list{An upper bound in the number of @es[⟶^r]
   steps @es[p] may take. (The name is a very bad pun on the
   physics concept of an Action Principle.)}]{

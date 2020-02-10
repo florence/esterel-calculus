@@ -13,7 +13,9 @@
          (except-in "proof-extras.rkt" =)
          syntax/parse/define
          (for-syntax syntax/parse)
-         racket/lazy-require)
+         racket/lazy-require
+         (rename-in (only-in racket =>)
+                    [=> ==>]))
 ;; load this dynamically so that a rewriter change
 ;; doesn't require recompiling everything.
 (lazy-require
@@ -40,6 +42,34 @@
          leading-∀
          es/unchecked/dynamic)
 
+(define (retag p)
+  (cond 
+    [(compute-tag p)
+     ==>
+     (lambda (t) (pict+tag p t))]
+    [else p]))
+  
+
+(define (compute-tag p [v #f])
+  (cond
+    [(and (converted-pict? p)
+          (pict+tag? (converted-pict-parent p)))
+     (pict+tag-tag (converted-pict-parent p))]
+    [else
+     (let loop ([v v]
+                [l (pict-children p)])
+       (cond
+         [(empty? l) v]
+         [else
+          (define x (compute-tag (child-pict (first l))))
+          (define next
+            (cond
+              [(and x v)
+               (string-append v x)]
+              [else (or x v)]))
+          (loop next (rest l))]))]))
+       
+
 (define (rule name)
   (define (t s) (text s Linux-Liberterine-name))
   (define (b s) (text s (cons 'bold Linux-Liberterine-name)))
@@ -58,12 +88,15 @@
 (define-syntax es
   (syntax-parser
     [(es e)
-     #`(with-paper-rewriters
+     #`(retag
+        (with-paper-rewriters
         #,(quasisyntax/loc this-syntax
-            (term->pict/checked esterel/typeset e)))]))
+            (term->pict/checked esterel/typeset e))))]))
 (define-syntax-rule
   (es/unchecked e)
-  (with-paper-rewriters (term->pict esterel/typeset e)))
+  (retag (with-paper-rewriters (term->pict esterel/typeset e))))
+
+
 (define-syntax es/unchecked/dynamic
   (syntax-parser
     [(es/unchecked/dynamic e)

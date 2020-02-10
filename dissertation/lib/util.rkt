@@ -11,7 +11,8 @@
          scribble-abbrevs/latex
          redex/reduction-semantics
          redex/pict
-         (only-in scribble/base linebreak)
+         (only-in scribble/base
+                  linebreak as-index index)
          (only-in plot/utils treeof)
          racket/runtime-path
          (only-in scribble/base bold italic)
@@ -20,7 +21,10 @@
                      racket/list
                      racket/format
                      (except-in redex/reduction-semantics judgment-form?)
-                     redex/private/term-fn))
+                     redex/private/term-fn)
+         
+         pict/convert
+         file/convertible)
 (module+ test (require rackunit))
 
 
@@ -58,7 +62,19 @@
          log-diss-info
          log-diss-warning
          log-diss-error
-         log-diss-fatal)
+         log-diss-fatal
+         (struct-out pict+tag))
+
+
+
+(struct pict+tag (pict tag)
+  #:property prop:pict-convertible
+  (lambda (x) (pict+tag-pict x))
+  #:property prop:convertible
+  (lambda (v r d)
+    (case r
+      [(text) (pict+tag-tag v)]
+      [else (convert (pict+tag-pict v) r d)])))
 
 (define-logger diss)
 
@@ -221,12 +237,25 @@
 
 (define (definition
           #:notation notation
+          #:index [idx #f]
           #:read-as [read-as #f]
           . def)
+  (define (indexer x)
+    (match idx
+      [#f x]
+      
+      [#t (apply as-index x)]
+      [(? string?)
+       (index idx x)]
+      [(pict+tag p t)
+       (index t x)]
+      [(list (or (? string? t) (pict+tag _ t)) ...)
+       (index t x)]
+      [_ (error 'definition "Cannot index ~a as ~a" x idx)]))
   (flatten
    (list
     (list noindent (bold "Definition: "))
-    (flatten notation)
+    (indexer (flatten notation))
     (list (linebreak) nopagebreak noindent)
     (if read-as
         (append
