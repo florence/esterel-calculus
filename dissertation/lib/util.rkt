@@ -311,7 +311,9 @@
        "")
    (nested-flow (style "myproof" '())
                 (decode-flow
-                 (render-proof-item-body loc the-proof)))))
+                 (cons
+                  (index (or title label) "")
+                  (render-proof-item-body loc the-proof))))))
 
 (define (wrap-latex-begin-end env content #:followup [followup #f])
   (append
