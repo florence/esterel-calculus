@@ -239,8 +239,8 @@
                                                        (syntax->list #'(c ...)))))
                                        #t
                                        #'lang #'n)
-     #'(syntax-parameterize ([subcases sc])
-         (subcases [#:case (p ...) body ...] ...))]
+     #`(syntax-parameterize ([subcases sc])
+         #,(syntax/loc this-syntax (subcases [#:case (p ...) body ...] ...)))]
     [(_
       (~alt
        (~once
