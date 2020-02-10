@@ -26,16 +26,7 @@
 (define (text t f s)
   (lift-to-taggable
    (pict:text t f s)
-   (decode-to-simple-text t)))
-
-(define (decode-to-simple-text x)
-  (apply
-   string
-   (for/list ([x (in-string x)])
-     (case x
-       [(#\ℙ) #\P]
-       [(#\𝒮) #\S]
-       [else x]))))
+   t))
 
 (define current-reduction-arrow (make-parameter 'calculus))
 (define (reduction-arrow)

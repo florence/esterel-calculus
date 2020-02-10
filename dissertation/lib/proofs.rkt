@@ -231,7 +231,7 @@
                          #:defaults ([n #'1000]))))
       ...
       _:string ... 
-      (~seq [#:case (p:expr ...) body ...]  _:string ...) ...)
+      (~seq (~and case [#:case (p:expr ...) body ...])  _:string ...) ...)
      
      #:with sc (make-subcases-expander #'(c ...)
                                        (syntax->list
@@ -240,7 +240,7 @@
                                        #t
                                        #'lang #'n)
      #`(syntax-parameterize ([subcases sc])
-         #,(syntax/loc this-syntax (subcases [#:case (p ...) body ...] ...)))]
+         #,(syntax/loc this-syntax (subcases case ...)))]
     [(_
       (~alt
        (~once

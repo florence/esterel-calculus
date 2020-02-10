@@ -12,7 +12,7 @@
          redex/reduction-semantics
          redex/pict
          (only-in scribble/base
-                  linebreak as-index index)
+                  linebreak as-index index index*)
          (only-in plot/utils treeof)
          racket/runtime-path
          (only-in scribble/base bold italic)
@@ -240,17 +240,25 @@
           #:index [idx #f]
           #:read-as [read-as #f]
           . def)
+  (define (decode-to-simple-string x)
+  (apply
+   string
+   (for/list ([x (in-string x)])
+     (case x
+       [(#\ℙ) #\P]
+       [(#\𝒮) #\S]
+       [else x]))))
   (define (indexer x)
     (match idx
       [#f x]
-      
       [#t (apply as-index x)]
-      [(? string?)
-       (index idx x)]
-      [(pict+tag p t)
-       (index t x)]
+      [(or (? string? t) (pict+tag _ t))
+       (index* (list (decode-to-simple-string t)) (list idx) x)]
       [(list (or (? string? t) (pict+tag _ t)) ...)
-       (index t x)]
+       (index*
+        (map decode-to-simple-string t)
+        idx
+        x)]
       [_ (error 'definition "Cannot index ~a as ~a" x idx)]))
   (flatten
    (list
@@ -314,6 +322,7 @@
                  (cons
                   (index (or title label) "")
                   (render-proof-item-body loc the-proof))))))
+
 
 (define (wrap-latex-begin-end env content #:followup [followup #f])
   (append

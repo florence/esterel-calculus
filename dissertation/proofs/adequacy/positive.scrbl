@@ -353,7 +353,7 @@
         @#:case[(seq E_3 q)]{Same as above.}
         @#:case[(par E_3 q)]{Same as above.}
         @#:case[(par p E_3)]{Same as above.}
-        @#:case[(loop^stop E_3 q) #:ignore]{TODO}
+        @#:case[(loop^stop E_3 q) #:ignore]
         ]
 
 }
@@ -433,7 +433,7 @@
      Note that compilation trap passes the @es[S] wire unchanged.
      By @proof-ref["term-cycle-K"], we know that @es[K2] and @es[K0] of @es[(compile p-pure_i)],
      must be in an nc-path with @es[GO], therefore we can extend @es[Pnc] with the @es[K0] of
-     @es[(compile (trap p-pure_i))]. (TODO, unconvincing)
+     @es[(compile (trap p-pure_i))].
      Therefore this case follows directly by induction on @es[L-S] and @es[p-pure_i]}
     @#:case[(L-S (suspend p-pure_i S_s))]{
      Note that compilation @es[suspend] passes the @es[S] and @es[K0] wires unchanged.
@@ -443,8 +443,7 @@
       @#:step[path]{The compilation of @es[par] leaves signals unchanged.
        In addition by 
        By @proof-ref["term-cycle-K"], we know that all @es[Kn]s are in nc-paths with
-       @es[GO], therefore we may extend @es[Pnc] with @es[K0], and use this path for induction.
-       (TODO unconvincing)}
+       @es[GO], therefore we may extend @es[Pnc] with @es[K0], and use this path for induction.}
       @#:step[either]{
        By the definition of @es[Can],
        @es[(= (->S (Can (par p q) θ)) (LU (->S (Can p θ)) (->S (Can q θ))))]}
@@ -518,9 +517,7 @@
   @#:step[final_2]{If, however, the other branch does have @es[S] in it's @es[Can] set, then
    by @es[connect] we know there is an nc-path from @es[GO] to that branches @es[So].
    Thus we may still extend the nc-path from @es[left] with the @es[So] of @es[(compile r-pure)],
-   as that @es[So] still cannot be @es[1].
-
-   TODO this last step isn't very convincing...}}
+   as that @es[So] still cannot be @es[1].}}
 }
 
 @proof[#:label "present-cycle-K"
@@ -545,18 +542,74 @@
         if @es[(binds (compile r-pure) θr)],
         @es[(θ-ref-S θr S unknown)],
         @es[(L∈ S (->S (Can q-pure θr)))],
-        then there is an nc-path @es[P]
+        then there is an nc-path @es[Pnc]
         from @es[(of (compile p-pure) K0)] to @es[So].}]
 
 @proof[#:label "term-cycle-S"
        #:title "Terms form a data nc-path"
        #:statement @list{
-        For all @es[r-pure],
-        @es[S], and @es[θr]
-        if @es[(binds (compile r-pure) θr)],
-        @es[(L∈ S (->S (Can r-pure θr)))],
-        then there is an nc-path @es[Pnc]
-        from @es[GO] to @es[So].}]
+        For all @es[C-pure] @es[r-pure], @es[L-S], and @es[Pnc]
+        @es[S], and @es[θ]
+        if @es[(binds (compile r-pure) θ)],
+        @es[(= (of (compile (in-hole C-pure r-pure)) SEL) 0)],
+        @es[(L∈ S (->S (Can (in-hole C-pure r-pure) θ)))],
+        @es[(L∈ S (->S (Can r-pure θ)))],
+        @es[(= (of Pnc i) (of (compile r-pure) GO))],
+        and for all @es[(L∈ S_2 (->S (Can r θ)))] either
+        @es[(L∈ S_2 L-S)] or @es[(Path∈ S_2 Pnc)],
+        then there is an nc-path @es[Pnc_o]
+        from @es[(of Pnc 0)] to @es[So].}]{
+
+ @cases[#:lexicographic
+ #:of (L-S r-pure)
+ (#:unchecked #:standard)
+ #:language esterel/typeset]{
+  @#:case[(L-S nothing)]{This case violates the premise that ,
+   @es[(L∈ S (->S (Can r-pure θ)))].}
+  @#:case[(L-S pause)]{This case violates the premise that ,
+   @es[(L∈ S (->S (Can r-pure θ)))].}
+  @#:case[(L-S (exit n))]{This case violates the premise that ,
+   @es[(L∈ S (->S (Can r-pure θ)))].}
+  @#:case[(L-S (emit S_r))]{
+   In this case it must be that @es[(= S S_r)] because @es[(L∈ S (->S (Can r-pure θr)))].
+   Therefore we have that @es[(= (of (compile r-pure) So) (of (compile r-pure) GO))],
+   thus we may trivially extend @es[Pnc] with @es[So].}
+  @#:case[(L-S (trap p-pure))]{As the @es[GO], and @es[So] are unchanged, this case follows
+   directly by induction on @es[p-pure], copying @es[(trap hole)] into @es[C-pure].}
+  @#:case[(L-S (suspend p-pure S_r))]{As the @es[GO], and @es[So] are unchanged, this case follows
+   directly by induction on @es[p-pure], copying @es[(suspend hole S_r)] into @es[C-pure].}
+  @#:case[(L-S (present S_r p-pure q-pure))]{
+   @cases[#:of (θ-ref-S θ S_r)
+          #:drawn-from status
+          #:language esterel/typeset]{
+    @#:case[present]{
+     @sequenced{
+      @#:step[zero]{By @es[(binds (compile r-pure) θ)],
+       @es[(= (of (compile q-pure) GO) 0)]}
+      @#:step[sel]{By our premise that 
+       @es[(= (of (compile (in-hole C-pure r-pure)) SEL) 0)],
+       and @proof-ref["sel-def"] we can conclude that @es[(= (of (compile q-pure) SEL) 0)]}
+      @#:step[q-zero]{By @zero, @sel, and @proof-ref["activation-condition"],
+       we can conclude that all of the outputs of @es[(compile q-pure)] are @es[0].}
+      @#:step[pnc2]{By @es[(binds (compile r-pure) θ)] we may add
+       the @es[and] gate defining @es[(of (compile p-pure) GO)] to our path @es[Pnc].}
+      @#:step[can1]{By the definition of @es[Can], @es[(= (->S (Can r-pure θ)) (->S (Can p-pure θ)))]}
+      @#:step[can]{By @can1,  @es[(L∈ S (->S (Can p-pure θ)))]}
+      @#:step[rec]{By @can, we may then induct on @es[p-pure] using the path from @|pnc2|.}
+      @#:step[out]{By @q-zero we may add the @es[or] gate defining @es[(of (compile r-pure) S_o)]
+       to the path from @rec, giving us our final path.}}
+    }
+    @#:case[absent]{This case follows by a similar argument to the previous
+    case, but inducting on @es[q-pure] instead.}
+    @#:case[unknown]{}}}
+  @#:case[(L-S (seq p-pure q-pure))]
+  @#:case[(L-S (par p-pure q-pure))]
+  @#:case[(L-S (signal S p-pure))]
+  @#:case[(L-S (ρ θr WAIT p-pure))]
+  @#:case[(L-S (loop p-pure)) #:ignore]
+  @#:case[(L-S (loop^stop p-pure q-pure)) #:ignore]
+
+}}
 
 @proof[#:label "term-cycle-K"
        #:title "Terms form an control nc-path"
