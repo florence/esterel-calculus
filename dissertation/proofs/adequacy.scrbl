@@ -3,17 +3,13 @@
 @(require "../lib/redex-rewrite.rkt"
           "../lib/util.rkt"
           "../lib/proofs.rkt"
-          "../lib/proof-extras.rkt"
+          (except-in "../lib/proof-extras.rkt"
+                     FV FV/e θ-get-S)
           redex/reduction-semantics
           redex/pict
           pict
-          (except-in esterel-calculus/redex/model/shared FV FV/e θ-get-S)
           esterel-calculus/redex/test/binding
-          esterel-calculus/redex/model/lset
           esterel-calculus/redex/model/calculus
-          esterel-calculus/redex/model/count
-          esterel-calculus/redex/model/potential-function
-          esterel-calculus/redex/model/count
           (only-in esterel-calculus/redex/model/reduction
                    blocked-pure)
           (except-in scribble-abbrevs/latex definition))

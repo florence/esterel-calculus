@@ -8,16 +8,15 @@
           "lib/misc-figures.rkt"
           "lib/rule-figures.rkt"
           "lib/circuit-diagrams.rkt"
+          "proofs/adequacy/can-props.rkt"
           (except-in redex/reduction-semantics nothing)
           redex/pict
           (only-in pict hbl-append)
-          esterel-calculus/redex/model/shared
-          esterel-calculus/redex/model/count
-          esterel-calculus/redex/model/lset
-          esterel-calculus/redex/model/potential-function
           (except-in scribble-abbrevs/latex definition)
           (except-in racket/list count)
-          scribble/core)
+          (except-in scribble/core table)
+          racket/match
+          pict)
 
 @para[#:style 'pretitle]{@latex-lit["appendices"]}
 
@@ -25,10 +24,20 @@
 
 @section[#:tag "sec:defcirc" "Circuits"]
 
+
+@[begin
+ (define (clausef term pict)
+   (vl-append
+    (hbl-append term (es =))
+    (hc-append (blank 10)
+               pict)))]
 @definition[#:notation (hbl-append (es (compile p)) (es ⟶) (es circuit))
             #:index @es[compile]]{
                                                                           
- @add-between[compile-def (element 'newline '())]
+ @add-between[(for/list ([c1 (in-list compile-def)])
+                (match-define (list t c p) c1)
+                (index-as (pict+tag c t) (clausef c p)))
+              (element 'newline '())]
 
 }
 
@@ -61,49 +70,6 @@
  in which the definition of the wire @es[w]
  is replace by @es[wire-value].
 
-}
-
-
-
-@definition[#:notation @es[P]
-            #:index #t]{
- A Path @es[P] in a circuit @es[c] is a sequence of wires @es[(w_0 ... w_i)]
- such that for all @es[w_n] where @es[(> n 0)], @es[(= (of c w_n) (in-hole Cc1 w_n-1))].
-}
-
-@definition[#:notation @es[(of P n)]]{
- The @es[n]th element of the path @es[P].
- @es[(of P i)] will always refer to the last element of the path.
-}
-
-@definition[#:notation @list{@es[w_a] is determined by @es[w_b]}
-            #:index (list @es[P]  "determined by")]{
- if and only if there exists a @es[Pnc] from @es[w_a] to @es[w_b].
-}
-
-@definition[#:notation @es[Pnc]
-            #:index (list @es[P] @es[Pnc])]{
- A determined Path @es[Pnc] is a path where,
- for all @es[(Path∈ w_n Pnc)], @es[(> n 0)] either:
- @sequenced{
-  @#:step[a]{@es[(= (of c w_n) (or w_n-1 w_x))]
-  and @es[(= (of c w_n-1) 0)] or @es[(= (of c w_n-1) ⊥)]
-  or @es[w_n-1] is determined by @es[w_0].}
- @#:step[b]{@es[(= (of c w_n) (or w_n-1 w_x))]
-  and @es[(= (of c w_n-1) 1)] or @es[(= (of c w_n-1) ⊥)]
-  or @es[w_n-1] is determined by @es[w_0].}
- @#:step[c]{@es[(= (of c w_n) (not w_n-1))].}}
-}
-
-@definition[#:notation @list{Cycle on @es[w]}
-            #:index (list @es[P] "cycle")]{
- A path @es[P] where @es[(= w (of P 0) (of P i))].
-}
-
-@definition[#:notation @list{nc-cycle on @es[w]}
-            #:index (list @es[P] "nc-cycle")]{
- A non-constructive cycle is determined path @es[Pnc] which
- is also a cycle.
 }
 
 @section[#:tag "sec:defcalc" "Calculus"]
@@ -181,4 +147,27 @@
 
  @with-paper-rewriters[@render-metafunction[count #:contract? #t]]
 
+}
+
+
+@section[#:tag "sec:defaux" "Auxiliary"]
+
+@definition[#:notation @es[(all-bot p-pure θ cs)]
+            #:index @es[all-bot]]{
+ @[with-paper-rewriters @[render-judgment-form all-bot]]
+}
+
+@definition[#:notation @es[(all-bot-S p-pure θ cs)]
+            #:index @es[all-bot-S]]{
+ @[with-paper-rewriters @[render-judgment-form all-bot-S]]
+}
+
+@definition[#:notation @es[(all-bot-n p-pure θ cs)]
+            #:index @es[all-bot-n]]{
+ @[with-paper-rewriters @[render-judgment-form all-bot-n]]
+}
+
+@definition[#:notation @es[(all-bot-rec p-pure θ cs)]
+            #:index @es[all-bot-rec]]{
+ @all-bot-rec-pict
 }

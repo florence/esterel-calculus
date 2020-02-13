@@ -7,6 +7,7 @@
          not-=
          not-=/checked
          ≃
+         ¬≃
          =>
          outputs
          inputs
@@ -21,12 +22,24 @@
          ⟶^s
          DR
          restrict
-         closed)
+         closed
+         Goes
+         K i o
+         (rename-out [L∈2 L∈])
+         (except-out
+          (all-from-out esterel-calculus/redex/model/lset
+                        esterel-calculus/redex/model/shared
+                        esterel-calculus/redex/model/count
+                        esterel-calculus/redex/model/potential-function)
+          quasiquote
+          L∈))
 
 (require
   redex/reduction-semantics
   esterel-calculus/redex/model/shared
   esterel-calculus/redex/model/lset
+  esterel-calculus/redex/model/count
+  esterel-calculus/redex/model/potential-function
   (only-in esterel-calculus/dissertation/lib/util
            lift-to-compile-time-for-effect!)
   (only-in esterel-calculus/redex/test/binding
@@ -58,6 +71,7 @@
           (suspend p-unex S) (present S p-unex p-unex))
   (wire w ::= variable)
   (c circuit ::= (circ EQ I O))
+  (cs ::= ((w = B⊥) ...))
   (I O ::= (w ...))
   (EQ ::= ((w = wire-value) ...))
   (bool ::= tt ff)
@@ -68,6 +82,7 @@
        (not hole)
        (and w ... hole w ...)
        (or w ... hole w ...))
+  (B⊥ ::= 0 1 ⊥)
   (wire-value
    ::=
    w 0 1
@@ -75,9 +90,28 @@
    (and wire-value wire-value ...)
    (or wire-value wire-value ...)))
 
+(define-extended-judgment-form esterel/typeset L∈
+  #:mode (L∈2 I I))
+
+(define-metafunction esterel/typeset
+  Goes : p-pure -> L
+  [(Goes p-pure) ()])
+
+(define-metafunction esterel/typeset
+  K : n -> w
+  [(K n) ,(string->symbol (~a "K" (term n)))])
+
+(define-metafunction esterel/typeset
+  i : S -> w
+  [(i S) ,(string->symbol (~a (term n) "i"))])
+(define-metafunction esterel/typeset
+  o : S -> w
+  [(o S) ,(string->symbol (~a (term n) "o"))])
+
 
 (define-metafunction esterel/typeset
   [(of circuit w) w]
+  [(of cs w) 0]
   [(of Path i) a-wire-name])
 
 (define-metafunction esterel/typeset
@@ -99,8 +133,19 @@
   [(=/checked any any any_r ...)
    (=/checked any any_r ...)])
 
-(define-metafunction esterel/typeset
-  ≃ : 1 1 -> 1)
+(define-judgment-form esterel/typeset
+  #:contract (≃ wire-value wire-value)
+  #:mode     (≃ I I)
+  [(where #t #f)
+   ---------------
+   (≃ wire-value_1 wire-value_2)])
+
+(define-judgment-form esterel/typeset
+  #:contract (¬≃ circuit wire-value)
+  #:mode     (¬≃ I I)
+  [(where #t #f)
+   ---------------
+   (¬≃ circuit wire-value)])
 
 (define-metafunction esterel/typeset
   => : any ... -> boolean

@@ -49,6 +49,8 @@
          exact-chars-element
          wrap-latex-begin-end
          override-font-size?
+
+         index-as
          
          theorem theorem-ref Theorem-ref
          lemma lemma-ref Lemma-ref
@@ -235,35 +237,40 @@
 (define proof-type-table
   (make-hash))
 
-(define (definition
-          #:notation notation
-          #:index [idx #f]
-          #:read-as [read-as #f]
-          . def)
+(define (index-as idx . v)
   (define (decode-to-simple-string x)
-  (apply
-   string
-   (for/list ([x (in-string x)])
-     (case x
-       [(#\ℙ) #\P]
-       [(#\𝒮) #\S]
-       [else x]))))
+    (apply
+     string
+     (for/list ([x (in-string x)])
+       (case x
+         [(#\ℙ) #\P]
+         [(#\𝒮) #\S]
+         [else x]))))
   (define (indexer x)
     (match idx
       [#f x]
       [#t (apply as-index x)]
       [(or (? string? t) (pict+tag _ t))
-       (index* (list (decode-to-simple-string t)) (list idx) x)]
+       (apply index* (list (decode-to-simple-string t)) (list idx) x)]
       [(list (or (? string? t) (pict+tag _ t)) ...)
-       (index*
-        (map decode-to-simple-string t)
-        idx
-        x)]
+       (apply index*
+              (map decode-to-simple-string t)
+              idx
+              x)]
       [_ (error 'definition "Cannot index ~a as ~a" x idx)]))
+  (indexer v))
+  
+
+(define (definition
+          #:notation notation
+          #:index [idx #f]
+          #:read-as [read-as #f]
+          . def)
+  
   (flatten
    (list
     (list noindent (bold "Definition: "))
-    (indexer (flatten notation))
+    (index-as idx (flatten notation))
     (list (linebreak) nopagebreak noindent)
     (if read-as
         (append

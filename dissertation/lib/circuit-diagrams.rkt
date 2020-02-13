@@ -1,5 +1,5 @@
 #lang racket
-(provide clause compile-def esterel-interface
+(provide compile-def esterel-interface
          trap-pict nothing)
 (require diagrama diagrama/circuit pict racket/syntax
          "proof-extras.rkt"
@@ -663,23 +663,14 @@
      (line-left 11)
      (label "E_i" 'left))))
 
-(define-simple-macro (clause term pict)
-  (clausef (es/unchecked term) pict))
-
-(define (clausef term pict)
-  (vl-append
-   (hbl-append term (es =))
-   (hc-append (blank 10)
-              pict)))
 (define compile-def
   (list
-   
-   (clause (compile nothing) nothing)
-   (clause (compile (exit n)) (only-kode 'n))
-   (clause (compile (emit S)) emit)
-   (clause (compile pause) pause)
-   (clause (compile (signal S p)) signal-pict)
-   (clause (compile (present S p q)) present-pict)
-   (clause (compile (suspend p s)) suspend-pict)
-   (clause (compile (seq p q)) seq-pict)
-   (clause (compile (trap p)) trap-pict)))
+   (list "⟦nothing⟧" (es/unchecked (compile nothing)) nothing)
+   (list "⟦(exit n)⟧" (es/unchecked (compile (exit n))) (only-kode 'n))
+   (list "⟦(emit S)⟧" (es/unchecked (compile (emit S))) emit)
+   (list "⟦pause⟧" (es/unchecked (compile pause)) pause)
+   (list "⟦(signal S p)⟧" (es/unchecked (compile (signal S p))) signal-pict)
+   (list "⟦(present S p q)⟧" (es/unchecked (compile (present S p q))) present-pict)
+   (list "⟦(suspend p S)⟧" (es/unchecked (compile (suspend p S))) suspend-pict)
+   (list "⟦(seq p q)⟧" (es/unchecked (compile (seq p q))) seq-pict)
+   (list "⟦(trap p)⟧" (es/unchecked (compile (trap p))) trap-pict)))

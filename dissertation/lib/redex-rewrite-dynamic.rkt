@@ -129,7 +129,7 @@
            (just-after
             (hbl-append
              space
-             (if (pict? op) op (render-op op))
+             (if (pict-convertible? op) op (render-op op))
              space)
             left))
           (list "")))
@@ -406,6 +406,8 @@
      (curry binop "≡")]
     ['≃
      (curry binop "≃")]
+    ['¬≃
+     (curry binop "≄")]
     ['>
      (curry binop ">")]
     ['<
@@ -420,6 +422,25 @@
              ") = "
              (list-ref lws 7)
              ""))]
+
+    ['Lflatten
+     (lambda (lws)
+       (list "" (list-ref lws 2)))]
+    ['i
+     (lambda (lws)
+       (list
+        (render-op/instructions
+         (render-lw esterel-eval (list-ref lws 2))
+         `((superscript i)))))]
+    ['o
+     (lambda (lws)
+       (list
+        (render-op/instructions
+         (render-lw esterel-eval (list-ref lws 2))
+         `((superscript o)))))]
+    ['K
+     (lambda (lws)
+       (list "K" (list-ref lws 2) ""))]
     
     ['Lpresentin
      (λ (lws)
@@ -859,7 +880,7 @@
     ;; note: Lset-sub must match Lwithoutdom / restriction's typesetting
     ['Lset-sub (λ (lws) (binop "\\" lws))]
     ['LU (λ (lws) (binop "∪" lws))]
-    ['L⊂ (λ (lws) (binop "⊂" lws))]
+    ['L⊂ (λ (lws) (binop "⊆" lws))]
     ['L∈ (λ (lws) (binop "∈" lws))]
     ['L∈-OI (λ (lws) (binop "∈" lws))]
     ['L∈-OI/first (λ (lws) (binop "∈" lws))]
@@ -967,7 +988,58 @@
        (list "𝒮"
              ((white-square-bracket) #t)
              body
-             ((white-square-bracket) #f)))])
+             ((white-square-bracket) #f)))]
+
+    ['all-bot
+     (lambda (lws)
+       (match-define (list oparen _ body ... cparen) lws)
+       `(,(mf-t "nc")
+         ,((white-square-bracket) #t)
+         ,@(add-between body (def-t ", "))
+         ,((white-square-bracket) #f)))]
+    ['all-bot-rec
+     (lambda (lws)
+       (match-define (list oparen _ body ... cparen) lws)
+       `(,(mf-t "nc-r")
+         ,((white-square-bracket) #t)
+         ,@(add-between body (def-t ", "))
+         ,((white-square-bracket) #f)))]
+    ['all-bot-S
+     (lambda (lws)
+       (match-define (list oparen _ body ... cparen) lws)
+       `(,(mf-t "nc-S")
+         ,((white-square-bracket) #t)
+         ,@(add-between body (def-t ", "))
+         ,((white-square-bracket) #f)))]
+    ['all-bot-n
+     (lambda (lws)
+       (match-define (list oparen _ body ... cparen) lws)
+       `(,(mf-t "nc-κ")
+         ,((white-square-bracket) #t)
+         ,@(add-between body (def-t ", "))
+         ,((white-square-bracket) #f)))]
+    ['⊥-implies-⊥-S
+     (lambda (_)
+       (list
+        (hbl-append
+         (def-t "∀ ")
+         (es (L∈ S (->S (Can p-pure θ))))
+         (def-t ", ")
+         (es (θ-ref-S θ S ⊥))
+         (def-t " ")
+         (es ⇒)
+         (def-t " ")
+         (es (= (of cs Si) (of cs So) ⊥)))))]
+    ['⊥-implies-⊥-n
+     (lambda (_)
+       (list
+        (hbl-append
+         (def-t "∀ ")
+         (es (L∈ n (->K (Can p-pure θ))))
+         (def-t ", ")
+         (es (= (of cs (K n)) ⊥)))))])
+        
+        
              
    
    ;                                                              
@@ -997,7 +1069,10 @@
      ['C^js (lambda () (render-op/instructions (nt-t "C") `((superscript JS))))]
      ['e^js (lambda () (render-op/instructions (nt-t "e") `((superscript JS))))]
 
-
+     ['all-bot (lambda () (mf-t "nc"))]
+     ['all-bot-rec (lambda () (mf-t "nc-r"))]
+     ['all-bot-S (lambda () (mf-t "nc-S"))]
+     ['all-bot-n (lambda () (mf-t "nc-κ"))]
      
      ['ρ (λ () (alt-ρ))]
 
@@ -1012,7 +1087,7 @@
      ['ev (λ () (text "n" (non-terminal-style) (default-font-size)))]
      ;; just for tagging
      ['p (λ () (text "p" (non-terminal-style) (default-font-size)))]
-     ['q (λ () (text "p" (non-terminal-style) (default-font-size)))]
+     ['q (λ () (text "q" (non-terminal-style) (default-font-size)))]
 
      ;; because · renders as {} for environment sets.
      ['dot (λ () (text "·" (default-style) (default-font-size)))]
@@ -1093,6 +1168,11 @@
      ['≃^circuit ≃-c-pict]
      ['≃^esterel ≃-e-pict]
 
+     ['all-bot (lambda () (mf-t "all-bot"))]
+     ['all-bot-S (lambda () (mf-t "all-bot-S"))]
+     ['all-bot-n (lambda () (mf-t "all-bot-n"))]
+     ['all-bot-rec (lambda () (mf-t "all-bot-rec"))]
+
      ['not (lambda () (words "¬"))]
      
      ;; we're using boldface for non-terminals now, so maybe this
@@ -1135,6 +1215,11 @@
      ['circuit
       (lambda ()
         (text "ɕ" (non-terminal-style) (default-font-size)))]
+     ['cs
+      (lambda ()
+        (render-op/instructions
+         (text "ɕ" (non-terminal-style) (default-font-size))
+         `((superscript s))))]
      ['present (λ () (text "1" (default-style) (default-font-size)))]
      ['absent (λ () (text "0" (default-style) (default-font-size)))]
      ['unknown (λ () (text "⊥" (default-style) (default-font-size)))]

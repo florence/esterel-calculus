@@ -17,6 +17,7 @@
          redex/pict
          pict
          "redex-rewrite.rkt"
+         "proof-extras.rkt"
          (only-in "util.rkt" lift-to-compile-time-for-effect! render-case-body
                   term->pict/checked
                   wrap-latex-begin-end
@@ -50,7 +51,7 @@
 
 (define (render-derivation r)
   (match-define (derivation term name subs) r)
-  (define t (render-term/pretty-write esterel-eval term))
+  (define t (render-term/pretty-write esterel/typeset term))
   (define child (apply hbl-append 10 (map render-derivation subs)))
   (define line-width (max (pict-width t) (pict-width child)))
   (define nam (if name (text (string-append " [" name "]")) (blank)))
@@ -418,7 +419,7 @@
                        #:print? '#f)))))])))
 
 (define (tuplize . p)
-  (if (= 1 (length p))
+  (if (eqv? 1 (length p))
       (first p)
       (apply hbl-append
              (with-paper-rewriters (text "⟨" (default-style) (default-font-size)))

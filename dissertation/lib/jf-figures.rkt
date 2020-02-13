@@ -8,7 +8,8 @@
          pict
          "redex-rewrite.rkt"
          redex/reduction-semantics
-         redex/pict)
+         redex/pict
+         esterel-calculus/dissertation/proofs/adequacy/can-props)
 
 (provide CB-pict
          eval-pict
@@ -16,7 +17,8 @@
          →-pict
          blocked-pict
          pure-blocked-pict
-         blocked-e-pict)
+         blocked-e-pict
+         all-bot-rec-pict)
          
 
 (define (with-layout layout render-the-judgment-form
@@ -27,7 +29,7 @@
     20
     (for/list ([this-line-cases (in-list layout)])
       (apply hbl-append
-             25
+             15
              (for/list ([this-case (in-list this-line-cases)])
                (parameterize ([judgment-form-cases (list this-case)]
                               [judgment-form-show-rule-names #t])
@@ -98,7 +100,7 @@
   (with-paper-rewriters
    (rt-superimpose
     (vr-append
-     10
+     5
      (relation-type-frame (es (CB p)))
      (frame (inset (vl-append
                     5
@@ -157,6 +159,30 @@
                  blocked-e-layout)
 
 (define blocked-e-pict (with-layout blocked-e-layout (λ () (render-judgment-form S:blocked-e))))
+
+
+(define all-bot-rec-layout
+  '(("nothing" "exit" "emit" "pause" )
+    ("trap" "suspend")
+    ("if-0" "if-1")
+    ("if-⊥")
+    ("seq-¬0" "seq-0")
+    ("par")
+    ("signal-0" "signal-⊥")
+    ("ρ-empty")
+    ("ρ-1")
+    ("ρ-0")
+    ("ρ-⊥")))
+
+(check-the-names 'all-bot-rec
+                 (collection-file-path "can-props.rkt" "esterel-calculus" "dissertation" "proofs"  "adequacy")
+                 all-bot-rec-layout)
+
+
+(define all-bot-rec-pict
+  (with-layout
+   all-bot-rec-layout
+   (lambda () (render-judgment-form all-bot-rec))))
 
 
 #;

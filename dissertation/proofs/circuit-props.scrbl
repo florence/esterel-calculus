@@ -3,12 +3,9 @@
 @(require "../lib/redex-rewrite.rkt"
           "../lib/util.rkt"
           "../lib/proofs.rkt"
-          "../lib/proof-extras.rkt"
+          (except-in "../lib/proof-extras.rkt"  FV FV/e)
           redex/reduction-semantics
-          (except-in esterel-calculus/redex/model/shared FV FV/e)
           esterel-calculus/redex/test/binding
-          esterel-calculus/redex/model/lset
-          esterel-calculus/redex/model/potential-function
           (except-in scribble-abbrevs/latex definition))
 
 @title[#:style paper-title-style]{Circuit Compilation Properties}

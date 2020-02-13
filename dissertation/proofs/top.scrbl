@@ -5,10 +5,7 @@
           "../lib/proofs.rkt"
           "../lib/proof-extras.rkt"
           redex/reduction-semantics
-          esterel-calculus/redex/model/shared
           esterel-calculus/redex/model/calculus
-          esterel-calculus/redex/model/lset
-          esterel-calculus/redex/model/potential-function
           (except-in scribble-abbrevs/latex definition))
 
 @title[#:style paper-title-style]{Core Theorems}
