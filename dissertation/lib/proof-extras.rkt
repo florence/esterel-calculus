@@ -40,6 +40,8 @@
   esterel-calculus/redex/model/lset
   esterel-calculus/redex/model/count
   esterel-calculus/redex/model/potential-function
+  (only-in esterel-calculus/redex/model/reduction
+           blocked-pure)
   (only-in esterel-calculus/dissertation/lib/util
            lift-to-compile-time-for-effect!)
   (only-in esterel-calculus/redex/test/binding
@@ -178,21 +180,16 @@
 
 (define-metafunction esterel/typeset
   eval^esterel : O p -> (tup L-S bool)
-  [(eval^esterel O p)
-   (tup (restrict θr O p) tt)
-   (where/hidden q p)
-   (side-condition (term (closed p)))
-   (side-condition (term (≡ p q)))
-   (where (ρ θr GO done) q)
-   (side-condition (term (complete-with-respect-to θr done)))]
-  [(eval^esterel O p)
-   (tup (restrict θr O p) ff)
-   (where/hidden q p)
-   (side-condition (term (closed p)))
-   (side-condition (term (≡ p q)))
-   (where (ρ θr A r) q)]
-  [(eval^esterel O p)
-   (tup (L0set) ff)])
+  [(eval^esterel O (ρ θr_1 GO p-pure))
+   (tup (restrict θr_2 O (ρ θr_2 GO done)) tt)
+   (where/hidden q-pure p-pure)
+   (side-condition (term (≡ (ρ θr_1 GO p-pure) (ρ θr_2 GO done))))
+   (side-condition (term (complete-with-respect-to θr_2 done)))]
+  [(eval^esterel O (ρ θr_1 GO p-pure))
+   (tup (restrict θr O (ρ θr_2 GO q-pure)) ff)
+   (where/hidden (ρ θr_2 GO q-pure) (ρ θr_1 GO p-pure) )
+   (side-condition (term (≡ (ρ θr_1 GO p-pure) (ρ θr_2 GO q-pure))))
+   (judgment-holds (blocked-pure θr_2 GO hole q-pure))])
 
 (define-metafunction esterel/typeset
   restrict : θ O p -> L-S

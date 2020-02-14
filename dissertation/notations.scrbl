@@ -94,7 +94,7 @@
 }
 
 @definition[
- #:notation @list{@es[(eval^esterel O p)] @es[⟶] @es[(tup θ bool)]}
+ #:notation @list{@es/unchecked[(eval^esterel O p)] @es[⟶] @es[(tup θ bool)]}
  #:index @es[eval^esterel]
  #:read-as @list{Evaluate the program @es[p] using the output signals @es[O].}]{
 

@@ -23,11 +23,11 @@ with respect to the circuit translation. That is:
 @proof[#:title "Computational Adequacy"
        #:label "comp-ad"
        #:statement @list{
-        For all @es[p], @es[O],
-        if @es[(closed p)]
+        For all @es[p-pure], @es[O],
+        if @es[(closed p-pure)] and @es[(≃ (of (compile p-pure) SEL) 0)]
         then
-        @es[(= (eval^esterel O p) (tup θ bool))] if and only if
-        @es[(= (eval^circuit O (compile p)) (tup θ bool))]}]{
+        @es/unchecked[(= (eval^esterel O p-pure) (tup θ bool))] if and only if
+        @es[(= (eval^circuit O (compile p-pure)) (tup θ bool))]}]{
  @sequenced{
   @#:step[value]{
 
@@ -63,15 +63,19 @@ with respect to the circuit translation. That is:
      @proof-ref["done-is-constructive"], @es[eval^circuit] must
      do the same.
 
-     By the definition of
-     @es[(complete-with-respect-to θr r)], all signals wires must
-     be @es[present] or @es[absent]. By @proof-ref["Soundness"],
+     By @proof-ref["Soundness"],
      both evaluators must
      agree on the value of the signal wires, and thus give back
      the same @es[θ].
      
     }
-    @#:case[(blocked-pure θr GO hole r)]{}
+    @#:case[(blocked-pure θr GO hole r)]{
+     The constructiveness of both
+     evaluators follows direclty from @es["blocked-is-nc"].
+     By @proof-ref["Soundness"],
+     both evaluators must
+     agree on the value of the signal wires, and thus give back
+     the same @es[θ]. }
    }
   }
  }

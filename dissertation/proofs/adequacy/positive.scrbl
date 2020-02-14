@@ -187,6 +187,45 @@
         ]}
 
 
+@proof[#:label "blocked-is-nc"
+       #:title "Block terms are non-constructive"
+       #:statement @list{
+        For all @es[(= r-pure_outer (ρ θr GO r-pure))],
+        if @es[(blocked-pure θr GO hole r-pure)], and
+        @es[(≃ (of (compile (ρ θr GO r-pure)) SEL) 0)]
+        then @es[(compile r-pure_outer)] is non-constructive.}]{
+ @sequenced{
+  @#:step[inn]{By @proof-ref["blocked-implies-can-rho"],
+   we know that there is some signal @es[S] such that
+   @es[(L∈ S (->S (Can-θ (ρ θ_1 A p) ·)))].}
+  @#:step[bot]{By @proof-ref["all-bot"], we know that
+   any initial configuration is @es[nc].}
+  @#:step[bot2]{By @bot and @proof-ref["blocked-reachable-nc"],
+ we know that all reachable states will be @es[all-bot].}
+  @#:step[reach-bot]{By @inn and @bot2 we can conclude that
+ there will be some signal wire @es[So] such all reachable states
+ will have that signal wire set to @es[⊥].}
+ @#:step[_]{By @reach-bot, the circuit is non-constructive.}}
+}
+
+
+
+@proof[#:label "all-bot"
+       #:title "initial configurations are nc"
+       #:statement @list{For all
+        @es[(ρ θr GO p-pure)], if @es[(closed (ρ θr GO p-pure))] then
+        all possible initial configurations
+        @es[cs_0] are @es[(all-bot (ρ θr WAIT p-pure) · cs_0)].}]{
+ As all internal and output wires start as @es[⊥], and all return code and signal wires
+ start are internal or output, and @es[all-bot] only makes demands about internal and output
+ wires being @es[⊥] this follows trivially.
+ 
+ The change form @es[GO] to @es[WAIT] is only necessary to enforce the grammar of @es[p-pure],
+ as @es[all-bot] does not observe  @es[A] ever this does not have any meaningful effect on our statements.
+}
+
+
+
 @proof[#:label "blocked-implies-can-rho"
        #:title "blocked implies can-rho"
        #:statement
@@ -229,6 +268,8 @@
      As the two maps are the same this leaves @es[(<- θ_1 θ_2)] unchanged.
      Thus this case follows by induction.}}}}}
 
+
+
 @proof[#:label "blocked-implies-can"
        #:title "blocked implies can"
        #:statement
@@ -265,105 +306,96 @@
         @#:case[loop^stop #:ignore]]
 }
 
+@proof[#:label "blocked-reachable-nc"
+       #:title "reachable states from blocked terms non-constructive"
+       #:statement @list{For all @es[(= r-pure_outer (ρ θr GO r-pure))],
+                                 
+        @es[cs_0], @es[cs_2],
+                                 
+        let @es[(= c (compile r-pure))]. Let @es[cs_0] be an
+        initial state.
 
-
-
-@proof[#:label "blocked-rho-gives-bot"
-       #:title "blocked and can-rho give non-constructiveness"
-       #:statement
-       @list{For all @es[θ_1], @es[θ_2], @es[p], @es[E], @es[S]
-                     
-        if @es[(blocked-pure (parens (<- θ_1 θ_2)) GO hole (in-hole E p))],
-        @es[(distinct (Ldom θ_1) (Ldom θ_2))],
-        @es[(binds (compile (in-hole E p)) (parens (<- θ_1 θ_2)))],
-        @es[(L∈ S (->S (Can-θ (ρ θ_1 GO (in-hole E p)) θ_2)))],
-        
-        then @es[(= (of (compile (in-hole E p)) S_o) ⊥)]}]{
- @cases[#:language esterel/typeset
-        #:of/count (Ldom θ_1) 2
-        #:induction
-        @#:case[(L0set)]{
-          This case is given by @proof-ref["blocked-can-gives-bot"].}
-        @#:case[(LU (L1set S_1) L-S)]{
-          @cases[#:language esterel/typeset
-                 #:of/count (= S S_1) 2
-                 #:simple-cases]{
-           @#:case[(not-= S S_1)]{
-            @cases[#:language esterel/typeset
-                   #:of/count (L∈ S (->S (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S unknown))))) 2
-                   #:simple-cases]{
-             @#:case[(L¬∈ S (->S (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S unknown)))))]{
-              Let @es[(= θ_3 (Lwithoutdom θ_1 S))] and @es/unchecked[(= θ_4 (<- θ_2 (mtθ+S S absent)))].
-              @sequenced{
-               @#:step[eql]{
-                @es[(= (<- θ_3 θ_4) (<- θ_1 θ_4) (<- (parens (<- θ_1 θ_2)) (mtθ+S S absent)))]}
-               @#:step[bound1]{By the same argument as @proof-ref["Can-rho-S-is-sound"],
-                                                       
-                we can conclude that
-                @es[(binds (compile (in-hole E p)) (<- (parens (<- θ_1 θ_2)) (mtθ+S S absent)))].}
-               @#:step[bound]{By @eql and @bound we can conclude that @es[(binds (compile (in-hole E p)) (parens (<- θ_3 θ_4)))].}
-               @#:step[distinct]{
-                As we have removed an element from one map and added it to the other
-                we can conclude that @es[(distinct (Ldom θ_3) (Ldom θ_4))].}
-             }}
-             @#:case[(L∈ S (->S (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S unknown)))))]{
-              Let @es[(= θ_3 (Lwithoutdom θ_1 S))] and @es/unchecked[(= θ_4 (<- θ_2 (mtθ+S S (θ-get-S θ_1 S))))].
-              @sequenced{
-               @#:step[same]{Note that 
-                @es[(= (<- θ_1 θ_2) (<- θ_3 θ_4))]
-                as the domains of the two are distinct, thus all have have done is copied
-                an element from one map to the other, leaving its value in the overall result unchanged.}
-               @#:step[distinct]{
-                As we have removed an element from one map and added it to the other
-                we can conclude that @es[(distinct (Ldom θ_3) (Ldom θ_4))].}
-               @#:step[binds]{By @same we can conclude that @es[(binds (compile (in-hole E p)) (parens (<- θ_3 θ_4)))].}
-               @#:step[blocked]{By @same we can conclude that @es[(blocked-pure (parens (<- θ_3 θ_4)) GO hole (in-hole E p))].}
-               @#:step[can-unchanged]{By the definition of
-                @es[Can-θ] we can conclude that
-                @es/unchecked[(= (Can-θ (ρ θ_1 GO (in-hole E p)) θ_2) (Can-θ (ρ θ_3 GO (in-hole E p)) θ_4))].}
-               @#:step[induction]{By @distinct through @can-unchanged we can invoke our induction
-                hypothesis on @es[θ_3] and @es[θ_4]
-                to conclude that @es[(= (of (compile (in-hole E p)) S_o) ⊥)].}
-           }}}}
-           @#:case[(= S S_1)]{
-            This case is imposible by the monotonicity of @es[Can-θ]
-            given by @text["canθₛ-set-sig-monotonic-absence-lemma" 'modern],
-            as our premise states that @es[(L∈ S (->S (Can-θ (ρ θ_1 GO (in-hole E p)) θ_2)))],
-            but this condition requires that
-            @es[(L¬∈ S (->S (Can-θ (ρ θ_1 GO (in-hole E p)) θ_2)))].
-            }}}]}
-
-@proof[#:label "blocked-can-gives-bot"
-       #:title "blocked and can give non-constructiveness"
-       #:statement
-       @list{For all @es[p], @es[θr], @es[E], @es[S]
-                     
-        if @es[(blocked-pure θr GO hole (in-hole E p))],
-        @es[(binds (compile (in-hole E p)) θr)],
-        and @es[(θ-ref-S θr S unknown)],
-        and @es[(L∈ S (->S (Can (in-hole E p) θr)))],
-        and @es[(L∈ S (->S (Can p θr)))]
-        then @es[(= (of (compile p) S) ⊥)]}]
+        if
+        @es[(⟶* cs_0 cs_1)],
+        @es[(≃ (of (compile (ρ θr GO r-pure)) SEL) 0)],
+        @es[(blocked-pure θr GO hole r-pure)], and
+        @es[(all-bot r-pure θ cs_0)]
+        then @es[(all-bot r-pure θ cs_2)]}]{
+ @sequenced{
+  @#:step[all-bot1]{By the definition of @es[all-bot], there
+   must exist some @es[θ], such that @es[(all-bot r-pure θ cs_0)].}
+  @#:step[binds]{As @es[all-bot] follows the same structure as @es[Can-θ],
+   we can use @proof-ref["Can-rho-S-is-sound"] to conclude that
+   @es[(binds r-pure θ)].
+  }
+  @#:step[call]{
+   By @all-bot1 and @binds we may use  @proof-ref["blocked-remains-nc"].
+   Thus by induction on the length of the reduction sequence
+   @es[(⟶* cs_0 cs_1)], we may conclude that @es[(all-bot r-pure θ cs_2)].}
+}}
 
 @proof[#:label "blocked-remains-nc"
        #:title "Blocked terms remain non-constructive"
        #:statement @list{For all @es[(= r-pure_outer (ρ θr GO (in-hole E-pure r-pure)))],
+                                 @es[θ],
                                  @es[cs_1], and @es[cs_2],
                                  
-        let @es[(= c (compile (ρ θr GO (in-hole E-pure p-pure))))],
-        and let @es[cs_1] and @es[cs_2] be the substates that corrispond to @es[(compile r-pure)].
+        let @es[(= c (compile r-pure))].
 
         if
         @es[(⟶ cs_1 cs_2)],
         @es[(≃ (of (compile r-pure) SEL) 0)],
-        @es[(binds (compile r-pure) θr)],
+        @es[(binds (compile r-pure) θ)],
         @es[(blocked-pure θr GO E-pure r-pure)], and
-        @es[(all-bot r-pure θr cs_1)]
-        then @es[(all-bot r-pure θr cs_2)]}]{
+        @es[(all-bot r-pure θ cs_1)]
+        then @es[(all-bot r-pure θ cs_2)]}]{
+  TODO update for new θ.
  @cases[#:of (blocked-pure θr GO E-pure r-pure)
         #:language esterel/typeset
         #:induction]{
-  @#:case[if]
+                     
+  @#:case[if]{
+   Let @es[cs_1p] and @es[cs_2p] be the substates
+   that corrispond to @es[p-pure] in @es[cs_1] and @es[cs_2] respectively. Let
+   @es[cs_1q] and @es[cs_2q] be defined similarly.
+   
+   @sequenced{
+    @#:step[inθ]{
+     By the definition of @es[blocked-pure], we know that
+     @es[(L∈ S (->S (Can-θ (ρ θr A (in-hole E (present S p q))) ·)))].
+    }
+    @#:step[bot]{
+     By the definition of @es[blocked-pure], we know that @es[(θ-ref-S θr S unknown)].
+    }
+    @#:step[inn]{By @es[Canθₛ⊆Canₛ] and @inθ, we know that
+     @es[(L∈ S (->S (Can (in-hole E (present S p q)) θr)))].
+    }
+    @#:step[bad]{By @inn, @proof-ref["S-maintains-across-E"] and our premise that
+     @es[(all-bot r-pure θr cs_1)],
+     we know that @es[(= (of cs_1 Si) (of cs_1 So) ⊥)].}
+    @#:step[GO-1]{By @proof-ref["GO-maintains-across-E"], we know that
+     @es[(= (of cs_1i GO) 1)].}
+    @#:step[S-bot]{By @proof-ref["S-maintains-across-E"] and @bad, we know that
+     @es[(= (of cs_1i Si) ⊥)].}
+   
+    @#:step[GO-bot]{By the definition of @es[compile], @GO-1, and @S-bot,
+     we know that @es[(= (of cs_1p GO) ⊥)] and @es[(= (of cs_1q GO) ⊥)].}
+    @#:step[sub]{By the definition of @es[all-bot], @es[all-bot-rec], @bot and @inn we know that
+     @es[(all-bot p-pure θr cs_1p)] and @es[(all-bot p-pure θr cs_1q)].}
+    @#:step[rec]{By our premise that @es[(≃ (of (compile r-pure) SEL) 0)],
+     @es[(binds (compile r-pure) θr)],
+     @GO-bot, and @sub, we may use @proof-ref["adequacy-of-can"] to conclude
+     @es[(all-bot p-pure θr cs_2p)] and @es[(all-bot p-pure θr cs_2q)].}
+    @#:step[rec2]{By the definition of @es[compile], the output signals
+     are either @es[or]ed from both branches. For any signal that is in @es[Can] of
+     the other branch it must either be in @es[Can] of the other branch, and therefore
+     by @rec be @es[⊥], or it is not in @es[Can], and therefore by @proof-ref["Can-S-is-sound"],
+     and therefore must be @es[0]. Therefore is a signal is in @es[Can] of the overall term,
+     it is @es[⊥] in @es[cs_2]. The same argument holds for the return codes.}
+    @#:step[final]{By @rec and @rec2 we may conclude that
+     @es[(all-bot (present S p-pure q-pure) θr cs_2)].}
+   
+  }}
   @#:case[emit-wait]{
   This clause is not possible, as we specified our @es[A] to be @es[GO].}
   @#:case[suspend]

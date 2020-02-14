@@ -2,7 +2,7 @@
 (require redex/reduction-semantics
          esterel-calculus/dissertation/lib/proof-extras)
 
-(provide all-bot-S all-bot-n all-bot all-bot-rec)
+(provide all-bot-S all-bot-n all-bot all-bot-rec sub)
 
 (define-judgment-form esterel/typeset
   #:mode (= I I)
@@ -92,7 +92,7 @@
    (all-bot p-pure (<- θ (mtθ+S S unknown)) (sub (signal S p-pure) p-pure cs))
    -------- "signal-⊥"
    (all-bot-rec (signal S p-pure) θ cs)]
-  [(all-bot-rec p-pure θ (sub (ρ · θ p-pure) p-pure cs))
+  [(all-bot-rec p-pure θ (sub (ρ · WAIT p-pure) p-pure cs))
    -------- "ρ-empty"
    (all-bot-rec (ρ · WAIT p-pure) θ cs)]
   [(L∈dom S θ) (θ-ref-S θr S unknown)
