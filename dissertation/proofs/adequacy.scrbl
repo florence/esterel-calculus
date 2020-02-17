@@ -37,18 +37,11 @@ with respect to the circuit translation. That is:
    we the fact that @es[⟶] is a subrelation
    of @es[≡], and the fact that @es[p] is closed,
    we can conclude that
-   there exists some @es[(= q (ρ θr GO r))]
+   there exists some @es[(= q (ρ θr GO r))],
+   where @es[(≡ p q)],
    such that either @es/unchecked[(L∈ r done)] and
    @es[(complete-with-respect-to θr r)],
    or @es[(blocked-pure θr GO hole r)].
-  }
-   
-  @#:step[unknown]{
-   By @proof-ref["blocked-implies-can-rho"],
-   if we are in the case where
-   @es[(blocked-pure θr GO hole r)],
-   there there exists some @es[S_u] such that
-   @es[(L∈ S (->S (Can-θ (ρ θr GO r) ·)))].
   }
   
   @#:step[bools]{
