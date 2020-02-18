@@ -17,19 +17,19 @@
 @proof[#:title "Non-stepping terms are values"
        #:label "step-is-v"
        #:statement
-       @list{For all @es[(= q (ρ θ A p))],
+       @list{For all @es[(= q-pure (ρ θ A p-pure))],
                      
-        If @es[(closed q)], and
-        there does not exists some @es[θ_o] and @es[p_o]
+        If @es[(closed q-pure)], and
+        there does not exists some @es[θ_o] and @es[p-pure_o]
         such that
-        @es[(⟶^r q (ρ θ_o A (in-hole E p_o)))]
+        @es[(⟶^r q-pure (ρ θ_o A (in-hole E p-pure_o)))]
         or
         there exists some @es[r]
-        such that @es[(⟶^s q (⟶^r (ρ θ A (in-hole E r)) (ρ θ_o A (in-hole E p_o))))]
+        such that @es[(⟶^s q-pure (⟶^r (ρ θ A (in-hole E r-pure)) (ρ θ_o A (in-hole E p-pure_o))))]
         then either
          @es/unchecked[(L∈ p done)]
         or
-        @es[(blocked-pure θ A hole p)]}]{
+        @es[(blocked-pure θ A hole p-pure)]}]{
  As @es[blocked-pure] and whether or not a term is @es[done] are decidable properties,
  we may act as if we have the law of the excluded middle here.
 
@@ -47,24 +47,24 @@
         with decidable properties, the contrapositive will
         give us our}
        #:statement
-       @list{For all @es[(= q (ρ θ A (in-hole E p)))],
-        If @es[(closed q)] and
-        @es/unchecked[(L¬∈ p done)] and
-        @es[(not-blocked θ A E p)]
+       @list{For all @es[(= q-pure (ρ θr A (in-hole E-pure p-pure)))],
+        If @es[(closed q-pure)] and
+        @es/unchecked[(L¬∈ p-pure done)] and
+        @es[(not-blocked θr A E-pure p-pure)]
         then there exists
-        some @es[θ_o] and @es[p_o]
+        some @es[θr_o] and @es[p-pure_o]
         such that
-        @es[(⟶^r q (ρ θ_o A (in-hole E p_o)))]
+        @es[(⟶^r q-pure (ρ θ_o A (in-hole E p-pure_o)))]
         or
-        there exists some @es[r]
-        such that @es[(⟶^s q (⟶^r (ρ θ A (in-hole E r)) (ρ θ_o A (in-hole E p_o))))]}]{
+        there exists some @es[r-pure]
+        such that @es[(⟶^s q-pure (⟶^r (ρ θr A (in-hole E-pure r-pure)) (ρ θr_o A (in-hole E-pure p-pure_o))))]}]{
  @cases[#:of p-pure
         #:induction
         #:language esterel/typeset
         ;; terminal cases
-        @#:case[nothing]{ This case violates our hypothesis that @es/unchecked[(L¬∈ p done)]. }
-        @#:case[pause]{ This case violates our hypothesis that @es/unchecked[(L¬∈ p done)]. }
-        @#:case[(exit n)]{ This case violates our hypothesis that @es/unchecked[(L¬∈ p done)]. }
+        @#:case[nothing]{ This case violates our hypothesis that @es/unchecked[(L¬∈ p-pure done)]. }
+        @#:case[pause]{ This case violates our hypothesis that @es/unchecked[(L¬∈ p-pure done)]. }
+        @#:case[(exit n)]{ This case violates our hypothesis that @es/unchecked[(L¬∈ p-pure done)]. }
         @#:case[(emit S)]{
 
           @sequenced{
@@ -73,64 +73,64 @@
             By the definition of @es[closed], it must be the case that @es[(= A GO)]}
            @#:step[bound]{
                           
-            As @es[(closed q)] and as @es[E] contains no binders,
-            It must be the case that @es[(L∈ S (Ldom θ))].
+            As @es[(closed q-pure)] and as @es[E] contains no binders,
+            It must be the case that @es[(L∈ S (Ldom θr))].
 
            }
            @#:step[final]{
 
             Thus let @es[(= θ_o (<- θ (mtθ+S S present)))] and
-            @es[(= p_o nothing)]. Let the step we take be @rule["emit"].
+            @es[(= p-pure_o nothing)]. Let the step we take be @rule["emit"].
 
            }
          }}
         
         ;; E cases
-        @#:case[(seq p_o q_o)]{
+        @#:case[(seq p-pure_o q-pure_o)]{
           @sequenced{
 
            @#:step[paused]{
                            
             By the definition of @es[done], we know that
-            @es/unchecked[(L¬∈ p_o paused)].
+            @es/unchecked[(L¬∈ p-pure_o paused)].
                      
            }
 
            @#:step[blocked]{
 
             By the definition of @es[blocked], we know that
-            @es[(not-blocked θ A (in-hole E (seq hole q_o)) p_o)].
+            @es[(not-blocked θ A (in-hole E-pure (seq hole q-pure_o)) p-pure_o)].
 
            }
 
            @#:step[_]{
 
-            We by @paused know that @es[p_o] is not @es[paused], but
-            we must consider of @es[p_o] is @es[done]. By the definition
+            We by @paused know that @es[p-pure_o] is not @es[paused], but
+            we must consider of @es[p-pure_o] is @es[done]. By the definition
             of @es[done], this gives:
 
-            @cases[#:of/count (L∈ p_o stopped) 2
+            @cases[#:of/count (L∈ p-pure_o stopped) 2
                    #:simple-cases
                    #:no-check
                    #:language esterel/typeset]{
 
-             @#:case[(L∈ p_o stopped)]{
-              @cases[#:of p_o
+             @#:case[(L∈ p-pure_o stopped)]{
+              @cases[#:of p-pure_o
                      #:drawn-from stopped
                      #:language esterel/typeset]{
                                                 
                @#:case[nothing]{
 
-                In this case, @es[(= θ_o θ)],
-                the resulting @es[(= p_o q_o)],
+                In this case, @es[(= θr_o θr)],
+                the resulting @es[(= p-pure_o q-pure_o)],
                 and we step by  @rule["seq-done"].
                 
                }
                 
                @#:case[(exit n)]{
 
-                In this case, @es[(= θ_o θ)],
-                the resulting @es[(= p_o (exit n))],
+                In this case, @es[(= θr_o θ)],
+                the resulting @es[(= p-pure_o (exit n))],
                 and we step by  @rule["seq-exit"].
                 
                }
@@ -140,30 +140,30 @@
               @sequenced{
                         
                @#:step[done]{As we know that
-                @es/unchecked[(L¬∈ p_o stopped)] and @es/unchecked[(L¬∈ p_o paused)],
-                we know that @es/unchecked[(L¬∈ p_o done)].}
+                @es/unchecked[(L¬∈ p-pure_o stopped)] and @es/unchecked[(L¬∈ p-pure_o paused)],
+                we know that @es/unchecked[(L¬∈ p-pure_o done)].}
 
                @#:step[_]{
                           
                 By @done, @paused, and @blocked, we can use our induction
-                hypothesis on @es[p_o] and @es[(in-hole E (seq hole q_o))].
+                hypothesis on @es[p-pure_o] and @es[(in-hole E-pure (seq hole q-pure_o))].
                 As the result we get back differs from what we need only in
-                that @es[(seq hole q_o)] was shifted from @es[p_o] to
+                that @es[(seq hole q-pure_o)] was shifted from @es[p-pure_o] to
                 @es[E], we can shift it back an return the result unchanged.
                 
          }}}}}}}
         
-        @#:case[(par p_o q_o)]{
+        @#:case[(par p-pure_o q-pure_o)]{
           There is only one way for a @es[par] to @es[done], thus we know that
-          @es/unchecked[(not (parens (and (L∈ p_o paused) (L∈ q_o paused))))].           
+          @es/unchecked[(not (parens (and (L∈ p-pure_o paused) (L∈ q-pure_o paused))))].           
                                                      
           There are three ways for an @es[par] to be @es[blocked], thus
           we know that
           
           @(let ()
-             (define b1 (es/unchecked (parens (and (blocked-pure θ A (in-hole E (par hole q_o)) p_o) (blocked-pure θ A (in-hole E (par p_o hole)) q_o)))))
-             (define b2 (es/unchecked (parens (and (blocked-pure θ A (in-hole E (par hole q_o)) p_o) (L∈ q_o done)))))
-             (define b3 (es/unchecked (parens (and (L∈ p_o done) (blocked-pure θ A (in-hole E (par p_o hole)) q_o)))))
+             (define b1 (es/unchecked (parens (and (blocked-pure θr A (in-hole E-pure (par hole q-pure_o)) p-pure_o) (blocked-pure θr A (in-hole E-pure (par p-pure_o hole)) q-pure_o)))))
+             (define b2 (es/unchecked (parens (and (blocked-pure θr A (in-hole E-pure (par hole q-pure_o)) p-pure_o) (L∈ q-pure_o done)))))
+             (define b3 (es/unchecked (parens (and (L∈ p-pure_o done) (blocked-pure θ A (in-hole E (par p-pure_o hole)) q-pure_o)))))
              (define on (hbl-append @es[not] (words "(")))
              (vl-append
              (hbl-append on b1)
@@ -176,10 +176,10 @@
           
                                    
           @(let ()
-             (define pause @es/unchecked[(not (parens (and (L∈ p_o paused) (L∈ q_o paused))))])
-             (define b1 (es/unchecked (parens (and (blocked-pure θ A (in-hole E (par hole q_o)) p_o) (blocked-pure θ A (in-hole E (par p_o hole)) q_o)))))
-             (define b2 (es/unchecked (parens (and (blocked-pure θ A (in-hole E (par hole q_o)) p_o) (L∈ q_o done)))))
-             (define b3 (es/unchecked (parens (and (L∈ p_o done) (blocked-pure θ A (in-hole E (par p_o hole)) q_o)))))
+             (define pause @es/unchecked[(not (parens (and (L∈ p-pure_o paused) (L∈ q-pure_o paused))))])
+             (define b1 (es/unchecked (parens (and (blocked-pure θ A (in-hole E-pure (par hole q-pure_o)) p-pure_o) (blocked-pure θr A (in-hole E (par p-pure_o hole)) q-pure_o)))))
+             (define b2 (es/unchecked (parens (and (blocked-pure θ A (in-hole E-pure (par hole q-pure_o)) p-pure_o) (L∈ q-pure_o done)))))
+             (define b3 (es/unchecked (parens (and (L∈ p-pure_o done) (blocked-pure θr A (in-hole E (par p-pure_o hole)) q-pure_o)))))
              (define on (hbl-append @es[not] (words "(")))
              (vl-append
               pause
@@ -195,55 +195,55 @@
           Note that a term which is @es[paused] is also @es[done]. Given this, we can find the the disjuctive
           normal form of the above expression, giving us four cases:
 
-          @es/unchecked[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ p_o paused))]
+          @es/unchecked[(and (not-blocked θr A (in-hole E-pure (par hole q-pure_o)) p-pure_o) (not-blocked θr A (in-hole E (par p-pure_o hole)) q-pure_o) (L¬∈ p-pure_o paused))]
           
-          @es/unchecked[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ q_o paused))]
+          @es/unchecked[(and (not-blocked θr A (in-hole E-pure (par hole q-pure_o)) p-pure_o) (not-blocked θr A (in-hole E-pure (par p-pure_o hole)) q-pure_o) (L¬∈ q-pure_o paused))]
           
-          @es/unchecked[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (L¬∈ p_o done))]
+          @es/unchecked[(and (not-blocked θr A (in-hole E-pure (par hole q-pure_o)) p-pure_o) (L¬∈ p-pure_o done))]
           
-          @es/unchecked[(and (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ q_o done))]
+          @es/unchecked[(and (not-blocked θr A (in-hole E-pure (par p-pure_o hole)) q-pure_o) (L¬∈ q-pure_o done))]
           
           @cases[#:of/count the\ above 4
                  #:simple-cases
                  #:no-check
                  #:language esterel/typeset]{
-           @#:case[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ q_o paused))]{
+           @#:case[(and (not-blocked θr A (in-hole E (par hole q-pure_o)) p-pure_o) (not-blocked θr A (in-hole E-pure (par p-pure_o hole)) q-pure_o) (L¬∈ q-pure_o paused))]{
             In this case we have @sequenced{
 
              @#:step[blocked]{We know
-              that @es[(not-blocked θ A (in-hole E (par hole p_o)) q_o)]}
-             @#:step[paused]{We know that @es/unchecked[(L¬∈ q_o paused)]}
+              that @es[(not-blocked θr A (in-hole E (par hole p-pure_o)) q-pure_o)]}
+             @#:step[paused]{We know that @es/unchecked[(L¬∈ q-pure_o paused)]}
              @#:step[subcases]{
-              @cases[#:of/count (L∈ q_o stopped) 2
+              @cases[#:of/count (L∈ q-pure_o stopped) 2
                      #:simple-cases
                      #:no-check
                      #:language esterel/typeset]{
-               @#:case[(L∈ q_o stopped)]{
-                @cases[#:of/count (L∈ p_o done) 2
+               @#:case[(L∈ q-pure_o stopped)]{
+                @cases[#:of/count (L∈ p-pure_o done) 2
                        #:language esterel/typeset
                        #:no-check
                        #:simple-cases]{
-                 @#:case[(L∈ p_o done)]{
-                  @cases[#:of (p_o q_o)
+                 @#:case[(L∈ p-pure_o done)]{
+                  @cases[#:of (p-pure_o q-pure_o)
                          #:tuplize
                          #:language esterel/typeset
                          #:drawn-from (done stopped)]{
 
                    @#:case[(nothing (exit n_2))]{
                                                  
-                    In this case let @es[(= θ_o θ)] and @es[(= p_o (exit n_2))],
+                    In this case let @es[(= θr_o θr)] and @es[(= p-pure_o (exit n_2))],
                     and our reduction be a single use of @rule["par-nothing"].
 
                    }
                    @#:case[((exit n_1) (exit n_2))]{
-                    In this case let @es[(= θ_o θ)] and @es[(= p_o (exit (max n_1 n_2)))],
+                    In this case let @es[(= θr_o θr)] and @es[(= p-pure_o (exit (max n_1 n_2)))],
                     and our reduction be a single use of @rule["par-2exit"].
                     
                    }
                    @#:case[(paused (exit n_2))]{
                    
-                    In this case let @es[(= θ_o θ)], @es[(= p_o (exit n_2))],
-                    and @es[(= r (par (exit n_2) paused))]. Our reductions
+                    In this case let @es[(= θr_o θr)], @es[(= p-pure_o (exit n_2))],
+                    and @es[(= r-pure (par (exit n_2) paused))]. Our reductions
                     are one use of @rule["par-swap"] and one use of @rule["par-1exit"].
 
                    }
@@ -256,106 +256,106 @@
 
                   }
                  }
-                 @#:case[(L¬∈ p_o done)]{
+                 @#:case[(L¬∈ p-pure_o done)]{
 
                   In this case we may invoke our induction hypothesis on
-                  @es[p_o], as we know
-                  @es[(not-blocked θ A (in-hole E (par hole q_o)) p_o)] and
-                  @es/unchecked[(L¬∈ p_o done)]. As usual we may reassemble
+                  @es[p-pure_o], as we know
+                  @es[(not-blocked θr A (in-hole E-pure (par hole q-pure_o)) p-pure_o)] and
+                  @es/unchecked[(L¬∈ p-pure_o done)]. As usual we may reassemble
                   the result of the induction by shifting one frame of the
                   @es[E] back over and using the same reductions.
 
                  }
                }}
-               @#:case[(L¬∈ q_o stopped)]{
+               @#:case[(L¬∈ q-pure_o stopped)]{
                 @sequenced{
-                 @#:step[not-done]{As we know @es/unchecked[(L¬∈ q_o stopped)] and
-                  @es/unchecked[(L¬∈ q_o paused)], we know @es/unchecked[(L¬∈ q_o done)].}
+                 @#:step[not-done]{As we know @es/unchecked[(L¬∈ q-pure_o stopped)] and
+                  @es/unchecked[(L¬∈ q-pure_o paused)], we know @es/unchecked[(L¬∈ q-pure_o done)].}
                  @#:step[exists]{
 
                   We may invoke our induction hypothesis on
-                  @es[(in-hole E (par p_o hole))] and @es[q_o]. This gives us
-                  that exists some @es[θ_o1] and @es[p_o1] using @blocked and @not-done such that
-                  @es[(⟶^r q (ρ θ_o1 A (in-hole E p_o1)))] or there exists
+                  @es[(in-hole E-pure (par p-pure_o hole))] and @es[q-pure_o]. This gives us
+                  that exists some @es[θr_o1] and @es[p-pure_o1] using @blocked and @not-done such that
+                  @es[(⟶^r q-pure (ρ θr_o1 A (in-hole E-pure p-pure_o1)))] or there exists
                   some @es[r] such that
-                  @es[(⟶^s q (⟶^r r (ρ θ_o1 A (in-hole (in-hole E (par p_o hole)) p_o1))))].
+                  @es[(⟶^s q-pure (⟶^r r-pure (ρ θr_o1 A (in-hole (in-hole E-pure (par p-pure_o hole)) p-pure_o1))))].
 
                  }
                  @#:step[final]{
 
                   In this case we can take the result from
-                  @exists and shift The @es[(par p_o hole)] over to @es[p_o1].
-                  Giving us a resulting @es[(= p_o2 (par p_o p_o1))], and an
-                  unchanged @es[θ_o1]. As the overall terms have not changed,
+                  @exists and shift The @es[(par p-pure_o hole)] over to @es[p-pure_o1].
+                  Giving us a resulting @es[(= p-pure_o2 (par p-pure_o p-pure_o1))], and an
+                  unchanged @es[θr_o1]. As the overall terms have not changed,
                   the reductions form @exists are unchanged. Thus we return those
                   reductions.
 
            }}}}}}}
                                  
-           @#:case[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ p_o paused))]{
+           @#:case[(and (not-blocked θr A (in-hole E-pure (par hole q-pure_o)) p-pure_o) (not-blocked θr A (in-hole E-pure (par p-pure_o hole)) q-pure_o) (L¬∈ p-pure_o paused))]{
 
             This case is the same as the previous, but finding a
             reduction in the other branch. As in this case in the
             subcase where we concider one branch begin @es[done] and the
-            other being @es[stopped], @es[p_o] is the branch that is
+            other being @es[stopped], @es[p-pure_o] is the branch that is
             @es[stopped] we do not need to use @es[⟶^s].
 
            }
             
-           @#:case[(and (not-blocked θ A (in-hole E (par hole q_o)) p_o) (L¬∈ p_o done))]{
+           @#:case[(and (not-blocked θr A (in-hole E-pure (par hole q-pure_o)) p-pure_o) (L¬∈ p-pure_o done))]{
                                                                                           
-            As we know that @es[p_o] is not @es[blocked] or @es[done]
-            we can induct on @es[p_o] and
-            @es[(in-hole E (par hole q_o))]. As usual we may reassemble
+            As we know that @es[p-pure_o] is not @es[blocked] or @es[done]
+            we can induct on @es[p-pure_o] and
+            @es[(in-hole E-pure (par hole q-pure_o))]. As usual we may reassemble
             the result of the induction by shifting one frame of the
-            @es[E] back over and using the same reductions.
+            @es[E-pure] back over and using the same reductions.
                
            }
             
-           @#:case[(and (not-blocked θ A (in-hole E (par p_o hole)) q_o) (L¬∈ q_o done))]{
+           @#:case[(and (not-blocked θr A (in-hole E-pure (par p-pure_o hole)) q-pure_o) (L¬∈ q-pure_o done))]{
 
             This case is the same as the previous, but finding a reduction
             in the other branch.
 
          }}}
-        @#:case[(trap p_o)]{
+        @#:case[(trap p-pure_o)]{
           @sequenced{
            @#:step[paused]{By the definition of @es[done]
             we know that @es/unchecked[(L¬∈ p_o paused)].
            }
            @#:step[blocked]{By the definition of @es[blocked]
-            we know that @es[(not-blocked θ A (in-hole E (trap hole)) p_o)].}
+            we know that @es[(not-blocked θr A (in-hole E-pure (trap hole)) p-pure_o)].}
            @#:step[_]{
-            @cases[#:of/count (L∈ p_o stopped) 2
+            @cases[#:of/count (L∈ p-pure_o stopped) 2
                    #:language esterel/typeset
                    #:no-check
                    #:simple-cases]{
-             @#:case[(L∈ p_o stopped)]{In this case we may reduced by @rule["trap"].}
-              @#:case[(L¬∈ p_o stopped)]{
+             @#:case[(L∈ p-pure_o stopped)]{In this case we may reduced by @rule["trap"].}
+              @#:case[(L¬∈ p-pure_o stopped)]{
              @sequenced{
-               @#:step[done]{Given @es/unchecked[(L¬∈ p_o stopped)] and @paused,
-                we know that @es/unchecked[(L¬∈ p_o done)]}
+               @#:step[done]{Given @es/unchecked[(L¬∈ p-pure_o stopped)] and @paused,
+                we know that @es/unchecked[(L¬∈ p-pure_o done)]}
                 @#:step[_]{Given @done and @blocked we may use our induction hypothesis
-               on @es[p_o] and @es[(in-hole E (trap hole))]. As usual we may reassemble
-               the result of the induction by shifting one frame of the @es[E] back over and
+               on @es[p_o] and @es[(in-hole E-pure (trap hole))]. As usual we may reassemble
+               the result of the induction by shifting one frame of the @es[E-pure] back over and
                using the same reductions.}
              }}}}}}
-        @#:case[(suspend p_o S)]{This case is analogous to the previous case
+        @#:case[(suspend p-pure_o S)]{This case is analogous to the previous case
           but reducing by @rule["suspend"] rather than @rule["trap"].}
         
         ;; the rest
         
-        @#:case[(signal S p_o)]{
+        @#:case[(signal S p-pure_o)]{
           In this case we may reduce by @rule["signal"].}
-        @#:case[(ρ θ_o A_o p_o)]{
+        @#:case[(ρ θr_o A_o p-pure_o)]{
           In this case we may reduce by @rule["merge"],
           as by @es[(closed q)] we know that @es[(= A GO)],
           which must be @es[A->=] @es[A_o]. }
-        @#:case[(present S p_o q_o)]{
-          By @es[(closed q)] and @es[E] not containing
-          any binders we know that @es[(L∈ S (Ldom θ))].
+        @#:case[(present S p-pure_o q-pure_o)]{
+          By @es[(closed q-pure)] and @es[E] not containing
+          any binders we know that @es[(L∈ S (Ldom θr))].
 
-          @cases[#:of/count (θ-get-S θ S) 3
+          @cases[#:of/count (θ-get-S θr S) 3
                  #:language esterel/typeset]{
            @#:case[absent]{
             Signals bound in a @es[ρ] must not be @es[absent],
@@ -364,8 +364,8 @@
             In this case we may reduce by @rule["is-present"].}
            @#:case[unknown]{
 
-            In this case, by @es[(not-blocked θ A E p)],
-            It must be the case that @es[(L¬∈ S (->S (Can-θ (ρ θ A (in-hole E (present S p q))) ·)))].
+            In this case, by @es[(not-blocked θr A E p-pure_o)],
+            It must be the case that @es[(L¬∈ S (->S (Can-θ (ρ θ A (in-hole E (present S p-pure_o q-pure_o))) ·)))].
             Therefore we may reduce by @rule["is-absent"].
             
          }}}

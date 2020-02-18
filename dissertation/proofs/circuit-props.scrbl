@@ -43,7 +43,7 @@ variables.
    @es[GO] and @es[RES] are pass in unchanged, and
    @es[(= (of (compile (par p-pure_i q-pure_i)) SEL) (or (of (compile p-pure_i) SEL) (of (compile q-pure_i) SEL)))].
    Therefore our premises must hold on @es[p-pure_i] and @es[q-pure_i].
-   Thus, induction, the outputs of @es[(compile p)] and @es[(compile q)] are @es[0].
+   Thus, induction, the outputs of @es[(compile p-pure)] and @es[(compile q-pure)] are @es[0].
 
    The output signals of @es[(compile (par p-pure_i q-pure_i))] are the @es[or] of the inner branches, thus they must be
    @es[0].
@@ -88,7 +88,7 @@ variables.
 
 @proof[#:label "sel-start"
        #:title "Selection Start"
-       #:statement @list{for any term @es[p], during the first instant
+       #:statement @list{for any term @es[p-pure], during the first instant
         @es[(= (of (compile p) SEL) 0)].}]{
  This is easy to see as all registers are initialized to @es[0], and @es[SEL] is
  the @es[or] of all registers.
@@ -197,8 +197,8 @@ variables.
 @proof[#:label "GO-maintains-across-E"
        #:title "GO is maintained across E"
        #:statement
-       @list{For some term @es[(= p (in-hole E q))]
-        then @es[(= (of (compile q) GO) (of (compile p) GO))]}]{
+       @list{For some term @es[(= p-pure (in-hole E q-pure))]
+        then @es[(= (of (compile q-pure) GO) (of (compile p-pure) GO))]}]{
  This proof follows the exact same argument as @proof-ref["S-maintains-across-E"].
 }
 
@@ -207,8 +207,8 @@ variables.
 @proof[#:label "sel-def"
        #:title "Selection Definition"
        #:statement
-       @list{For any term @es[(= p (in-hole E q))], There exist some wires such that
-        @es[(= (of (compile p) SEL) (or (of (compile q) SEL) w_others ...))]}]{
+       @list{For any term @es[(= p-pure (in-hole E q-pure))], There exist some wires such that
+        @es[(= (of (compile p-pure) SEL) (or (of (compile q-pure) SEL) w_others ...))]}]{
  This follows trivially from the definition of @es[compile], as @es[SEL] is always
  the @es[or] of the @es[SEL] wires of the inner terms.
 }
@@ -216,9 +216,9 @@ variables.
 @proof[#:label "S-output-irrelevant"
        #:title "S output irrelevant"
        #:statement
-       @list{For any term @es[(= p (in-hole E q))], for any output wire @es[S_o] in
-        @es[(compile q)] there exists no wire @es[w] that is
-        not itself an instance of @es[S_o] in @es[(compile p)] which
+       @list{For any term @es[(= p-pure (in-hole E q-pure))], for any output wire @es[S_o] in
+        @es[(compile q-pure)] there exists no wire @es[w] that is
+        not itself an instance of @es[S_o] in @es[(compile p-pure)] which
         depends on @es[S_o]}
        #:interpretation @list{The point of this theorem is to show
         that an @es[(emit S)] cannot be "read" by its context until
@@ -229,20 +229,20 @@ variables.
 @proof[#:label "FV-equals-IO"
        #:title "Free Variables are Input/Outputs"
        #:statement
-       @list{For any @es[p] and @es[S], @es[(L∈ S (FV p))] if any only if  @es[(L∈ S_i (inputs (compile p)))]
-        or @es[(L∈ S_o (outputs (compile p)))]}
+       @list{For any @es[p-pure] and @es[S], @es[(L∈ S (FV p-pure))] if any only if  @es[(L∈ S_i (inputs (compile p-pure)))]
+        or @es[(L∈ S_o (outputs (compile p-pure)))]}
        #:interpretation @list{This states that the free
         variables of a term capture exactly the input and output
         signal wires. That is then notion ``free variable'' exactly corresponds to the non-control
         part of the circuit interface}]{
                                         
  Note that a signal is free only if it occurs in a
- @es[(present S p q)] or @es[(emit S)] that does not have an
- outer binder. @es[(compile (present S p q))] will generate
+ @es[(present S p-pure q-pure)] or @es[(emit S)] that does not have an
+ outer binder. @es[(compile (present S p-pure q-pure))] will generate
  an @es[S_i] wires and @es[(emit S)] will generate an
  @es[S_o] wire. The compilation of all non-binding terms does
  not change the set of input or output signals. The
- compilation of @es[(signal S p)] and @es[(ρ θ A p)] remove
+ compilation of @es[(signal S p-pure)] and @es[(ρ θ A p-pure)] remove
  the @es[S_i] and @es[S_o] wires from the input/output sets
  for the signals they bind. Thus the input/output sets for
  signals exactly match the notion of free variables.

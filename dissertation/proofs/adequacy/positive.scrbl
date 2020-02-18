@@ -62,7 +62,7 @@
         @#:case[nothing]{@check[(assert-totally-constructive (compile-esterel (term nothing)))]}
         @#:case[(exit n)]{@check[(assert-totally-constructive (compile-esterel (term (exit 5))))]}
         @#:case[pause]{@check[(assert-totally-constructive (compile-esterel (term pause)))]}
-        @#:case[(seq paused q)]{
+        @#:case[(seq paused q-pure)]{
           @sequenced{
            @#:step[induction]{
             The compilation of seq passes all of its inputs to @es[paused]
@@ -81,7 +81,7 @@
            }
            @#:step[qcon]{
             By @is-zero 
-            and @proof-ref["activation-constructiveness"], @es[(compile q)] is constructive.
+            and @proof-ref["activation-constructiveness"], @es[(compile q-pure)] is constructive.
            }
            @#:step[_]{
             By @induction and @qcon, the entire circuit is constructive.
@@ -197,7 +197,7 @@
  @sequenced{
   @#:step[inn]{By @proof-ref["blocked-implies-can-rho"],
    we know that there is some signal @es[S] such that
-   @es[(L∈ S (->S (Can-θ (ρ θ_1 A p) ·)))].}
+   @es[(L∈ S (->S (Can-θ (ρ θ_1 A p-pure) ·)))].}
   @#:step[bot]{By @proof-ref["all-bot"], we know that
    any initial configuration is @es[nc].}
   @#:step[bot2]{By @bot and @proof-ref["blocked-reachable-nc"],
@@ -229,82 +229,19 @@
 @proof[#:label "blocked-implies-can-rho"
        #:title "blocked implies can-rho"
        #:statement
-       @list{For all @es[p], @es[θ_1], @es[θ_2], @es[A],
+       @list{For all @es[p], @es[θr], @es[A],
         if
-        @es[(blocked-pure (parens (<- θ_1 θ_2)) A hole p)]
-        and
-        @es[(distinct (Ldom θ_1) (Ldom θ_2))]
+        @es[(blocked-pure (parens θr) GO hole p-pure)]
         then there exits some @es[S] such that
-        @es[(L∈ S (->S (Can-θ (ρ θ_1 A p) θ_2)))]}]{
- @cases[#:of/count (Ldom θ_1) 2
-        #:language esterel/typeset]{
-                       
-  @#:case[(L0set)]{
-   This puts us in the last clause of @es[Can-θ], which just
-   calls @es[Can]. Thus 
-   this case is given by @proof-ref["blocked-implies-can"],
-   where @es[(= E hole)] and @es[(= p p)].
-  }
-  @#:case[(LU (L1set S_1) L-S)]{
-   @cases[#:of/count ((θ-ref-S θ S_1 ⊥) (L¬∈ S_1 (->S (Can-θ (ρ (Lwithoutdom θ S) A p) (<- θ_2 (mtθ+S S unknown))))))
-          2
-          #:language esterel/typeset
-          #:tuplize
-          #:simple-cases]{
-
-    @#:case[(tt tt)]{
-
-     This puts us in the first case of @es[Can-θ].@sequenced{
-      @#:step[blocked]{
-       By @proof-ref["blocked-respects-can"] we know that
-       @es[(blocked-pure (<- (<- θ_1 θ_2) (mtθ+S S_1 absent)) A hole p)].}
-      @#:step[eq]{
-       As the domains of @es[θ_1] and @es[θ_2] are distinct we can also
-       conclude that @newline @es[(= (<- (<- θ_1 θ_2) (mtθ+S S_1 absent)) (<- (<- (Lwithoutdom θ_1 S_1) θ_2) (mtθ+S S_1 absent)))].}
-      @#:step[_]{
-       By @blocked and @eq, this case follows by induction.}}}
-    @#:case[(_ _)]{ This puts us in the second case of @es[Can-θ].
-     This case just copies the value of @es[S_1] from @es[θ_1] to @es[θ_2].
-     As the two maps are the same this leaves @es[(<- θ_1 θ_2)] unchanged.
-     Thus this case follows by induction.}}}}}
-
-
-
-@proof[#:label "blocked-implies-can"
-       #:title "blocked implies can"
-       #:statement
-       @list{For all @es[p], @es[θ], @es[E],
-        @es[(blocked-pure θ GO E p)]
-        implies that
-        there exits some @es[S] such that
-        @es[(L∈ S (->S (Can (in-hole E p) θ)))]}]{
- @cases[#:language esterel/typeset
-        #:of (blocked-pure θ A E p)
-        #:induction
-        @#:case[if]{This follows from @es[Canθₛ⊆Canₛ].}
-        @#:case[emit-wait]{
-          This follows from @es[canₛ-capture-emit-signal].}
-        @#:case[parl]{In this case
-          We have @es[(= p (par p_1 done))].
-          The premise of the judgment gives us
-          @es[(blocked-pure θ A (in-hole E (par hole done)) p_1)].
-          Thus we can invoke our induction hypothesis on this premise, giving us that
-          @es[S] such that @es[(L∈ S (->S (Can (in-hole (in-hole E (par hole done)) p) θ)))].
-          As @es[(= (in-hole (in-hole E (par hole done)) p_1) (in-hole E (par p_1 done)) (in-hole E p))]
-          this is the conclusion we need.
-                    
-          
-         }
-        @#:case[parr]{This case proceeds analogously to the previous case.}
-        @#:case[seq]{This case proceeds analogously to the previous case.}
-        @#:case[suspend]{This case proceeds analogously to the previous case.}
-        @#:case[trap]{This case proceeds analogously to the previous case.}
-        @#:case[par-both]{There are two branches of the
-          @es[par] we may induct on here, but as we only need to show the existence of some
-          @es[S] we can select either one. As I am right handed I'll pick the right branch.
-          The remainder of this case proceeds analogously to the previous case.}
-        @#:case[loop^stop #:ignore]]
+        @es[(L∈ S (->S (Can-θ (ρ θr GO p-pure) ·)))]}]{
+ This follows directly by induction over @es[blocked-pure],
+ as the only bases cases involve either @es[(L∈ S (->S (Can-θ (ρ θr A p-pure) ·)))]
+ or @es[(= A WAIT)], and the second case is excluded by our premises.
 }
+
+
+
+
 
 @proof[#:label "blocked-reachable-nc"
        #:title "reachable states from blocked terms non-constructive"
@@ -670,45 +607,6 @@
 
 
 @section["Auxiliary Lemmas"]
-
-@proof[#:label "blocked-respects-can"
-       #:title "blocked respects Can"
-       #:statement
-       @list{For all @es[p], @es[E], @es[θ],
-        @es[S],
-        
-        if @es[(blocked-pure θ A E p)],
-        @es[(= (θ-get-S θ S) unknown)]
-        and @es[(L¬∈ S (->S (Can-θ (ρ θ A (in-hole E p)) ·)))]
-
-        then @es[(blocked-pure (<- θ (mtθ+S S absent)) A E p)]}]{
- @cases[#:language esterel/typeset
-        #:of (blocked-pure θ A E p)
-        #:induction
-        @#:case[if]{This this case we can invoke
-          @proof-ref["can-rho-idempotent"] using @es[θ] as
-          @es[θ_1] and @es[·] as @es[θ_2] to obtain the needed
-          premise to reconstruct the proof that the term is blocked.}
-        @#:case[emit-wait]{As this case does not rely
-          on @es[θ], the theorem still holds.}
-        @#:case[parl]{
-          Changing @es[θ] does not change that the right branch is
-          @es[done]. Thus this holds by induction over the right branch.}
-        @#:case[parr]{Analogous to the the prevous case.}
-        @#:case[par-both]{
-          This follows directly by induction on both premises
-          of this clause of the judgment.
-         }
-        @#:case[seq]{This follows directly from
-          induction over the premise of the judgment.}
-        @#:case[suspend]{analogous to the prevous case.}
-        @#:case[trap]{analogous to the prevous case.}
-        @#:case[loop^stop #:ignore]{TODO}]
-}
-
-       
-
-
 
 @proof[#:label "blocked-separable"
        #:title "blocked is separable"

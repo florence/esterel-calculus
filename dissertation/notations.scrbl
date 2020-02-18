@@ -173,10 +173,6 @@
  @[with-paper-rewriters @[render-judgment-form all-bot-n]]
 }
 
-@definition[#:notation @es[(all-bot-rec p-pure θ cs)]
-            #:index @es[all-bot-rec]]{
- @all-bot-rec-pict
-}
 
 @definition[#:notation @es[(sub p q cs)]
             #:index @es[sub]]{
@@ -184,4 +180,9 @@
  When @es[c] is the compilation of @es[p], Get the substate of @es[cs]
  corrisponding to the subterm @es[q].
  
+}
+
+@definition[#:notation @es[(all-bot-rec p-pure θ cs)]
+            #:index @es[all-bot-rec]]{
+ @all-bot-rec-pict
 }

@@ -25,8 +25,8 @@ This section contains the various lemma's needed for proving Adequacy of @es[eva
 @proof[#:title "Strongly Canonicalizing"
        #:label "strongly-cannibalizing"
        #:statement
-       @list{For all @es[p], @es[q],
-        if @es[(⟶^r p q)],
+       @list{For all @es[p-pure+GO], @es[q-pure+GO],
+        if @es[(⟶^r p-pure+GO q-pure+GO)],
         then @es[(> (count p-pure+GO) (count p-pure+GO))].}
        #:interpretation
        @list{As @es[count] only returns

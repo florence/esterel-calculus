@@ -1244,6 +1244,7 @@
             (render-op/instructions
              (text "S" (non-terminal-style) (default-font-size))
              `((superscript o))))]
+     ['sub (lambda () (mf-t "sub"))]
      ['Si
       (lambda ()
         (render-op/instructions

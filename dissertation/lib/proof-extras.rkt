@@ -105,8 +105,9 @@
   [(Goes p-pure) ()])
 
 (define-metafunction esterel/typeset
-  K : n -> w
-  [(K n) ,(string->symbol (~a "K" (term n)))])
+  K : any -> w
+  [(K n) ,(string->symbol (~a "K" (term n)))]
+  [(K κ) ,(string->symbol (~a "K" (term κ)))])
 
 (define-metafunction esterel/typeset
   i : S -> w
@@ -122,10 +123,7 @@
   [(of Path i) a-wire-name])
 
 (define-metafunction esterel/typeset
-  [(Path∈ w P) #t])
-
-(define-metafunction esterel/typeset
-  [(compile p) (circ () () ())]
+  [(compile p-pure+GO) (circ () () ())]
   [(compile θ) (circ () () ())]
   [(compile status) 0]
   [(compile #f) 0])

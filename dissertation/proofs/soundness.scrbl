@@ -92,7 +92,7 @@ This section contains some of the basic lemma's needed for soundness.
         #:language esterel-eval]{
                                  
   @;ignore par swap
-  @#:case[(⇀ (par p q) (par q p) par-swap)]{This is given by @proof-ref["par-swap"].}
+  @#:case[(⇀ (par p-pure q-pure) (par q-pure p-pure) par-swap)]{This is given by @proof-ref["par-swap"].}
   @#:case[(⇀ (par nothing done) done par-nothing)]{This is given by @proof-ref["par-nothing"].}
   @#:case[(⇀ (par (exit n) paused) (exit n) par-1exit)]{This is given by @proof-ref["par1-exit"].}
   @#:case[(⇀ (par (exit n_1) (exit n_2)) (exit (max-mf n_1 n_2)) par-2exit)]{This is given by @proof-ref["par2-exit"].}

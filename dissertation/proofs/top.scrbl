@@ -80,13 +80,13 @@ however the most informative theorem is @proof-ref["Soundness-step"].
    and 
    @proof-ref["step-is-v"]
    we the fact that @es[⟶] is a subrelation
-   of @es[≡], and the fact that @es[p] is closed,
+   of @es[≡], and the fact that @es[p-pure] is closed,
    we can conclude that
-   there exists some @es[(= q (ρ θr GO r))],
+   there exists some @es[(= q (ρ θr GO r-pure))],
    where @es[(≡ p q)],
-   such that either @es/unchecked[(L∈ r done)] and
-   @es[(complete-with-respect-to θr r)],
-   or @es[(blocked-pure θr GO hole r)].
+   such that either @es/unchecked[(L∈ r-pure done)] and
+   @es[(complete-with-respect-to θr r-pure)],
+   or @es[(blocked-pure θr GO hole r-pure)].
   }
   
   @#:step[bools]{
@@ -94,10 +94,10 @@ however the most informative theorem is @proof-ref["Soundness-step"].
           #:litteral
           #:no-check
           #:language esterel/typeset]{
-    @#:case[(L∈ r done)]{
+    @#:case[(L∈ r-pure done)]{
                          
      By the definition of @es[eval^esterel], it must return
-     @es[tt] for the constructiveness of @es[p]. By
+     @es[tt] for the constructiveness of @es[p-pure]. By
      @proof-ref["done-is-constructive"], @es[eval^circuit] must
      do the same.
 
@@ -107,7 +107,7 @@ however the most informative theorem is @proof-ref["Soundness-step"].
      the same @es[θ].
      
     }
-    @#:case[(blocked-pure θr GO hole r)]{
+    @#:case[(blocked-pure θr GO hole r-pure)]{
      The constructiveness of both
      evaluators follows direclty from @es["blocked-is-nc"].
      By @proof-ref["Soundness"],
