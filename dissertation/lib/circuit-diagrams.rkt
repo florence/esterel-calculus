@@ -108,7 +108,7 @@
   (esterel-interface (blank)))
 (define signal-pict
   (after
-   (esterel-interface (es (compile p))
+   (esterel-interface (es (compile p-pure))
                       #:tag-prefix '||
                       #:extra-input-signals '(S_i)  #:extra-output-signals '(S_o))
    (move-to-tag 'S_i)
@@ -242,9 +242,9 @@
 (define present-pict
   (let ()
     (define p
-      (esterel-interface (es (compile p)) #:tag-prefix 'p))
+      (esterel-interface (es (compile p-pure)) #:tag-prefix 'p))
     (define q
-      (esterel-interface (es (compile q)) #:tag-prefix 'q))
+      (esterel-interface (es (compile q-pure)) #:tag-prefix 'q))
     (define tag-setup
       (after
        (save
@@ -394,7 +394,7 @@
 (define suspend-pict
   (let ()
     (define p
-      (esterel-interface (es (compile p)) #:tag-prefix 'p))
+      (esterel-interface (es (compile p-pure)) #:tag-prefix 'p))
     (after
      fab-four
      (move-to-tag 'RES)
@@ -510,7 +510,7 @@
 (define seq-pict
   (let ()
     (define p
-      (esterel-interface (es (compile p)) #:tag-prefix 'p))
+      (esterel-interface (es (compile p-pure)) #:tag-prefix 'p))
     (define q
       (esterel-interface (es (compile q)) #:tag-prefix 'q))
     (after
@@ -608,7 +608,7 @@
   (let ()
     (define p
       (esterel-interface
-       (es (compile p))
+       (es (compile p-pure))
        #:tag-prefix 'p
        #:add-k3? #t))
     (after
@@ -669,8 +669,8 @@
    (list "⟦(exit n)⟧" (es/unchecked (compile (exit n))) (only-kode 'n))
    (list "⟦(emit S)⟧" (es/unchecked (compile (emit S))) emit)
    (list "⟦pause⟧" (es/unchecked (compile pause)) pause)
-   (list "⟦(signal S p)⟧" (es/unchecked (compile (signal S p))) signal-pict)
-   (list "⟦(present S p q)⟧" (es/unchecked (compile (present S p q))) present-pict)
-   (list "⟦(suspend p S)⟧" (es/unchecked (compile (suspend p S))) suspend-pict)
-   (list "⟦(seq p q)⟧" (es/unchecked (compile (seq p q))) seq-pict)
-   (list "⟦(trap p)⟧" (es/unchecked (compile (trap p))) trap-pict)))
+   (list "⟦(signal S p)⟧" (es/unchecked (compile (signal S p-pure))) signal-pict)
+   (list "⟦(present S p q)⟧" (es/unchecked (compile (present S p-pure q-pure))) present-pict)
+   (list "⟦(suspend p S)⟧" (es/unchecked (compile (suspend p-pure S))) suspend-pict)
+   (list "⟦(seq p q)⟧" (es/unchecked (compile (seq p-pure q-pure))) seq-pict)
+   (list "⟦(trap p)⟧" (es/unchecked (compile (trap p-pure))) trap-pict)))

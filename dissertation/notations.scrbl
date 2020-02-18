@@ -31,7 +31,7 @@
     (hbl-append term (es =))
     (hc-append (blank 10)
                pict)))]
-@definition[#:notation (hbl-append (es (compile p)) (es ⟶) (es circuit))
+@definition[#:notation (hbl-append (es (compile p-pure)) (es ⟶) (es circuit))
             #:index @es[compile]]{
                                                                           
  @add-between[(for/list ([c1 (in-list compile-def)])
@@ -41,27 +41,27 @@
 
 }
 
-@definition[#:notation @es[(binds (compile p) θ)]
-            #:read-as @list{@es[θ] binds @es[(compile p)]}]{
- @es[(binds (compile p) θ)] if and only if
+@definition[#:notation @es[(binds (compile p-pure) θ)]
+            #:read-as @list{@es[θ] binds @es[(compile p-pure)]}]{
+ @es[(binds (compile p-pure) θ)] if and only if
  @es[∀] @es[(L∈ S (Ldom θ))],
  and
- @es[(= (θ-get-S θ S) present)] if and only if @es[(= (of (compile p) S_i) 1)],
+ @es[(= (θ-get-S θ S) present)] if and only if @es[(= (of (compile p-pure) Si) 1)],
  and
- @es[(= (θ-get-S θ S) absent)] if any only if @es[(= (of (compile p) S_i) 0)].
+ @es[(= (θ-get-S θ S) absent)] if any only if @es[(= (of (compile p-pure) Si) 0)].
 
  Note that this would mean that
- @es[(binds (compile p_i) (mtθ+S S absent))] implies that
- @es[(binds (compile p_i) (mtθ+S S unknown))], as
+ @es[(binds (compile p-pure) (mtθ+S S absent))] implies that
+ @es[(binds (compile p-pure) (mtθ+S S unknown))], as
  @es[(mtθ+S S unknown)] places less restrictions on
- @es[(compile p_i)] than @es[(mtθ+S S absent)]. This also
- means that @es[(binds (compile p) ·)] always holds.
+ @es[(compile p-pure)] than @es[(mtθ+S S absent)]. This also
+ means that @es[(binds (compile p-pure) ·)] always holds.
 
 }
 
-@definition[#:notation @es[(binds (compile p) A)]
-            #:read-as @list{@es[A] binds @es[(compile p)]}]{
- @es[(binds (compile p) A)] if and only if @es[(= A GO)] implies that @es[(= (of (compile p) GO) 1)].
+@definition[#:notation @es[(binds (compile p-pure) A)]
+            #:read-as @list{@es[A] binds @es[(compile p-pure)]}]{
+ @es[(binds (compile p-pure) A)] if and only if @es[(= A GO)] implies that @es[(= (of (compile p-pure) GO) 1)].
 }
 
 @definition[#:notation @es[(≃ (of c w) wire-value)]
@@ -122,10 +122,10 @@
       b2
       x])}
 
-@definition[#:notation @es[(blocked-pure θ A E p)]
+@definition[#:notation @es[(blocked-pure θr A E-pure p-pure)]
             #:index @es[blocked-pure]
             #:read-as @list{The term @es[p] cannot reduce (is blocked)
-             in the context @es[(ρ θ A (in-hole E p))]}]{
+             in the context @es[(ρ θr A (in-hole E-pure p-pure))]}]{
  @pure-blocked-pict
 }
 
