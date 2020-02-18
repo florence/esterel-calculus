@@ -11,17 +11,17 @@
   [(count (exit n)) 0]
   [(count (emit S)) 1]
   ;; one step for ->ρ, one for merging
-  [(count (signal S p)) (Σ 2 (count p))]
-  [(count (present S p q)) (Σ 1 (count p) (count q))]
-  [(count (par p q)) (Σ 1 (count p) (count q))]
-  [(count (seq p q)) (Σ 1 (count p) (count q))]
-  [(count (trap p)) (Σ 1 (count p))]
-  [(count (suspend p S)) (Σ 1 (count p))]
+  [(count (signal S p-pure+GO)) (Σ 2 (count p-pure+GO))]
+  [(count (present S p-pure+GO q-pure+GO)) (Σ 1 (count p-pure+GO) (count q-pure+GO))]
+  [(count (par p-pure+GO q-pure+GO)) (Σ 1 (count p-pure+GO) (count q-pure+GO))]
+  [(count (seq p-pure+GO q-pure+GO)) (Σ 1 (count p-pure+GO) (count q-pure+GO))]
+  [(count (trap p-pure+GO)) (Σ 1 (count p-pure+GO))]
+  [(count (suspend p-pure+GO S)) (Σ 1 (count p-pure+GO))]
   ;; presence accounted for by the emit
   ;; only step is merge
-  [(count (ρ θr A p)) (Σ 1 (count p))]
-  [(count (loop p)) (Σ 2 (count p) (count p))]
-  [(count (loop^stop p q)) (Σ 1 (count p) (count q))])
+  [(count (ρ θr A p-pure+GO)) (Σ 1 (count p-pure+GO))]
+  [(count (loop p-pure+GO)) (Σ 2 (count p-pure+GO) (count p-pure+GO))]
+  [(count (loop^stop p-pure+GO q-pure+GO)) (Σ 1 (count p-pure+GO) (count q-pure+GO))])
 
 (module+ test
   (require rackunit

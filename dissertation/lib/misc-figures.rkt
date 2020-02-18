@@ -89,13 +89,13 @@
    (define lhs-spacer
      (ghost
       (hbl-append
-       (text "p" (non-terminal-style) (default-font-size))
+       [es p-pure]
        (text ", " (default-style) (default-font-size))
-       (text "q" (non-terminal-style) (default-font-size))
+       [es q-pure]
        (text " ::=" (default-style) (default-font-size)))))
    
    (vl-append
-    (render-language esterel/typeset #:nts '(p-unex q-unex))
+    (render-language esterel-eval #:nts '(p-pure q-pure))
     (htl-append
      50
      (vl-append (nt-∈-line "S" "signal variables" lhs-spacer))))))

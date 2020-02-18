@@ -958,13 +958,13 @@
              ((white-square-bracket) #t)
              body
              ((white-square-bracket) #f)))]
-    ['complete-wrt
+    ['complete-with-respect-to
      (lambda (lws)
-       (match-define (list _ _ body _) lws)
-       (list (mf-t "complete-wrt")
-             ((white-square-bracket) #t)
-             body
-             ((white-square-bracket) #f)))]
+       (match-define (list _ _ body ... _) lws)
+       `(,(mf-t "complete-wrt")
+         ,((white-square-bracket) #t)
+         ,@body
+         ,((white-square-bracket) #f)))]
 
     ['all-bot
      (lambda (lws)

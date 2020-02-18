@@ -79,6 +79,11 @@
             #:index @es[p]
             lang/state]
 
+
+@definition[#:notation @list{@es[p-pure], @es[q-pure]}
+            #:index @es[p-pure]
+            lang/pure]
+
 @definition[#:notation @es[(⇀ p q)]
             #:index @es[⇀]]{
  @reduction-relation-pict
@@ -174,11 +179,11 @@
 }
 
 
-@definition[#:notation @es[(sub p q cs)]
+@definition[#:notation @es[(sub p-pure q-pure cs)]
             #:index @es[sub]]{
 
- When @es[c] is the compilation of @es[p], Get the substate of @es[cs]
- corrisponding to the subterm @es[q].
+ When @es[c] is the compilation of @es[p-pure], get the substate of @es[cs]
+ corrisponding to the subterm @es[q-pure].
  
 }
 
