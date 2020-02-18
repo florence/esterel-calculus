@@ -17,62 +17,9 @@
 
 @title[#:style paper-title-style]{Adequacy}
 
-The goal of this section is to prove computational adequacy of the calculus
-with respect to the circuit translation. That is:
+This section contains the various lemma's needed for proving Adequacy of @es[eval^esterel].
 
-@proof[#:title "Computational Adequacy"
-       #:label "comp-ad"
-       #:statement @list{
-        For all @es[p-pure], @es[O],
-        if @es[(closed p-pure)] and @es[(≃ (of (compile p-pure) SEL) 0)]
-        then
-        @es/unchecked[(= (eval^esterel O p-pure) (tup θ bool))] if and only if
-        @es[(= (eval^circuit O (compile p-pure)) (tup θ bool))]}]{
- @sequenced{
-  @#:step[value]{
 
-   By @proof-ref["strongly-cannibalizing"]
-   and 
-   @proof-ref["step-is-v"]
-   we the fact that @es[⟶] is a subrelation
-   of @es[≡], and the fact that @es[p] is closed,
-   we can conclude that
-   there exists some @es[(= q (ρ θr GO r))],
-   where @es[(≡ p q)],
-   such that either @es/unchecked[(L∈ r done)] and
-   @es[(complete-with-respect-to θr r)],
-   or @es[(blocked-pure θr GO hole r)].
-  }
-  
-  @#:step[bools]{
-   @cases[#:of/count @value 2
-          #:litteral
-          #:no-check
-          #:language esterel/typeset]{
-    @#:case[(L∈ r done)]{
-                         
-     By the definition of @es[eval^esterel], it must return
-     @es[tt] for the constructiveness of @es[p]. By
-     @proof-ref["done-is-constructive"], @es[eval^circuit] must
-     do the same.
-
-     By @proof-ref["Soundness"],
-     both evaluators must
-     agree on the value of the signal wires, and thus give back
-     the same @es[θ].
-     
-    }
-    @#:case[(blocked-pure θr GO hole r)]{
-     The constructiveness of both
-     evaluators follows direclty from @es["blocked-is-nc"].
-     By @proof-ref["Soundness"],
-     both evaluators must
-     agree on the value of the signal wires, and thus give back
-     the same @es[θ]. }
-   }
-  }
- }
-}
 
 
 @proof[#:title "Strongly Canonicalizing"

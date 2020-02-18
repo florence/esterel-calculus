@@ -25,6 +25,7 @@
          closed
          Goes
          K i o
+         guard
          (rename-out [L∈2 L∈])
          (except-out
           (all-from-out esterel-calculus/redex/model/lset
@@ -91,6 +92,10 @@
    (not wire-value)
    (and wire-value wire-value ...)
    (or wire-value wire-value ...)))
+
+(define-metafunction esterel/typeset
+  guard : c -> c
+  [(guard c) c])
 
 (define-extended-judgment-form esterel/typeset L∈
   #:mode (L∈2 I I))
@@ -192,8 +197,8 @@
    (judgment-holds (blocked-pure θr_2 GO hole q-pure))])
 
 (define-metafunction esterel/typeset
-  restrict : θ O p -> L-S
-  [(restrict · O p) ()]
+  restrict : θ O p -> θ
+  [(restrict · O p) ·]
   [(restrict ((sig S status) θ) (w_r ... S w_r ...) p)
    ((sig S (DR status S p)) (restrict θ (w_r ... S w_r ...)) p)]
   [(restrict (_ θ) O p)

@@ -10,6 +10,7 @@
 
 
 @include-section["top.scrbl"]
+@include-section["soundness.scrbl"]
 @include-section["reduction.scrbl"]
 @include-section["adequacy.scrbl"]
 @include-section["can.scrbl"]

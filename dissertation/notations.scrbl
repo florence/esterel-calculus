@@ -64,7 +64,8 @@
  @es[(binds (compile p) A)] if and only if @es[(= A GO)] implies that @es[(= (of (compile p) GO) 1)].
 }
 
-@definition[#:notation @es[(= (of c w) wire-value)]]{
+@definition[#:notation @es[(≃ (of c w) wire-value)]
+            #:index (list @es[≃] @es[≃])]{
 
  @es[c] is contextually equivalent to a circuit
  in which the definition of the wire @es[w]
@@ -104,13 +105,17 @@
 
 @definition[
  #:notation @es[(restrict θ O p)]
- #:read-as @list{Restrict @es[θ] to signals in @es[O], given a program @es[p].}]{
-
- @es[(= (restrict θ O p) (restrict-defintion θ O p))]
- @(linebreak) where
- @(linebreak) @with-paper-rewriters[@render-metafunction[DR #:contract? #t]]
-
-}
+ #:index @es[restrict]
+ #:read-as @list{Restrict @es[θ] to signals in @es[O], given their values
+  as determined by the program @es[p].}]{
+ @(let ()
+    (define b (with-paper-rewriters (text "{" (default-style) (default-font-size))))
+    (define x @es[(restrict-defintion θ O p)])
+    (define b2 (scale (scale-to-fit (scale b 5) (pict-width b) (pict-height b)) 2))
+    @[hc-append
+      [hbl-append [es (θ-get-S (restrict θ O p) S)] @es[=]]
+      b2
+      x])}
 
 @definition[#:notation @es[(blocked-pure θ A E p)]
             #:index @es[blocked-pure]
@@ -130,7 +135,8 @@
  @Canθ-pict
 }
 
-@definition[#:notation @es[(complete-with-respect-to θr done)]]{
+@definition[#:notation @es[(complete-with-respect-to θr done)]
+            #:index @es[complete-with-respect-to]]{
  For all @es[(L∈ S (Ldom θr))],
  @es[(= (θ-get-S θr S) present)] or
  @es[(= (θ-get-S θr S) unknown)]
@@ -170,4 +176,12 @@
 @definition[#:notation @es[(all-bot-rec p-pure θ cs)]
             #:index @es[all-bot-rec]]{
  @all-bot-rec-pict
+}
+
+@definition[#:notation @es[(sub p q cs)]
+            #:index @es[sub]]{
+
+ When @es[c] is the compilation of @es[p], Get the substate of @es[cs]
+ corrisponding to the subterm @es[q].
+ 
 }

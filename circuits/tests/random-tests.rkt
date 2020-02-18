@@ -12,7 +12,7 @@
               #:unless
               (regexp-match? #rx"(set|var|shared|if-)" (symbol->string k)))
      (values (symbol->string k) 0))))
-(define ATTEMPTS 100)
+(define ATTEMPTS 500)
 
 (redex-check
  esterel-check

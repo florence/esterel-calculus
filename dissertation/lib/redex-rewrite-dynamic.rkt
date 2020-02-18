@@ -938,54 +938,30 @@
        (append (list "⟨")
                (infix "," lws)
                (list "⟩")))]
-    ['restrict
-     (lambda (lws)
-       (match lws
-         [(list _ _ a b c _)
-          (define bar (text "|" (literal-style) (default-font-size)))
-          (define p (translate (render-lw esterel/typeset b) 0 5))
-          (define θ (baseless (render-lw esterel/typeset c)))
-          (list ""
-                a
-                (render-op/instructions
-                 (scale
-                  (refocus
-                   (lc-superimpose
-                    (ghost bar)
-                    (scale (text "|" (literal-style) (default-font-size)) 1 1.3))
-                   bar)
-                  .9 1)
-                 `((subscript ,p)
-                   (superscript ,θ))))]))]
     ['restrict-defintion
-     (lambda (lws)
-       (match lws
-         [(list _ _ a b c _)
-       
-          (list
-           (hbl-append
-            (words "{ ")
-            (hbl-append
-             (es S)
-             (es ↦)
-             (es/unchecked (DR (θ-get-S θ S) S p)))
-            (words " | ")
-            (es S)
-            (render-op " ∈ ")
-            (mf-t "dom")
-            ((white-square-bracket) #t))
-           a
-           (hbl-append
-            ((white-square-bracket) #f)
-            (words " and ")
-            (es S)
-            (render-op " ∈ "))
-           b
-           (words " }"))]))]
+     (lambda (_)
+       (define a [es absent])
+       (define b [es (θ-get-S θ S)])
+       (define (mx p)
+         (lbl-superimpose
+          p
+          (ghost a)
+          (ghost b)))
+       (list
+        (vl-append
+         (hbl-append (mx a) (def-t " where ") [es/unchecked (L∈ S O)] (def-t ", ") [es (θ-ref-S θ S ⊥)] (def-t ", and ") [es/unchecked (L¬∈ S (->S (Can-θ p ·)))])
+         (hbl-append (mx b) (def-t " where ") [es/unchecked (L∈ S O)]))))]
     ['count
      (lambda (lws)
        (match-define (list _ _ body _) lws)
        (list "𝒮"
+             ((white-square-bracket) #t)
+             body
+             ((white-square-bracket) #f)))]
+    ['complete-wrt
+     (lambda (lws)
+       (match-define (list _ _ body _) lws)
+       (list (mf-t "complete-wrt")
              ((white-square-bracket) #t)
              body
              ((white-square-bracket) #f)))]
@@ -1037,7 +1013,8 @@
          (def-t "∀ ")
          (es (L∈ n (->K (Can p-pure θ))))
          (def-t ", ")
-         (es (= (of cs (K n)) ⊥)))))])
+         (es (= (of cs (K n)) ⊥)))))]
+    ['∘ (curry binop "∘")])
         
         
              
@@ -1167,6 +1144,7 @@
      ['eval^esterel (lambda () (eval-e-pict "O"))]
      ['≃^circuit ≃-c-pict]
      ['≃^esterel ≃-e-pict]
+     ['≃ (lambda () (def-t "≃"))]
 
      ['all-bot (lambda () (mf-t "all-bot"))]
      ['all-bot-S (lambda () (mf-t "all-bot-S"))]
@@ -1239,6 +1217,8 @@
      ['blocked blocked-pict]
      ['blocked-pure blocked-pict]
      ['not-blocked not-blocked-pict]
+     ['restrict (lambda () (mf-t "restrict"))]
+     ['complete-with-respect-to (lambda () (mf-t "complete-wrt"))]
      ['θr
       (lambda ()
         (render-op/instructions
