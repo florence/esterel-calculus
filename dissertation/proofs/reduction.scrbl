@@ -9,7 +9,7 @@
           (except-in scribble-abbrevs/latex definition))
 
 
-@title[#:style paper-title-style]{Reduction Relation Properties}
+@title[#:style paper-title-style #:tag "proof:reduction"]{Reduction Relation Properties}
 
 This section contains lemmas and proofs that justify that
 the reduction relation @es/unchecked[⇀] is sound with

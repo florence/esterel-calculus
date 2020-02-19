@@ -53,7 +53,7 @@ well. However there are no semantics for Esterel which are
 simultaneously, local, syntactic, sound, and adequate
 enough to give an evaluator for the language. This is the
 contribution of the dissertation: @centered{There exists a
- local, syntactic, sound, and adequate for
+ syntactic, local , sound, and adequate for
  Esterel.}
 
 I have proven this calculus is sound for Loop Free, Pure
@@ -62,3 +62,9 @@ Esterel@~cite[esterel02]. In addition I will give evidence
 and arguments for the soundness of the rest of the calculus,
 as well as future directions for making the calculus more
 powerful and useful.
+
+@section[#:tag "intro:syntactic"]{Syntactic}
+@section[#:tag "intro:local"]{Local}
+@section[#:tag "intro:sound"]{Sound}
+Discuss consistency and soundness
+@section[#:tag "intro:adequate"]{Adequate}

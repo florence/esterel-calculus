@@ -10,15 +10,18 @@
 
 @title[#:style paper-title-style]{Core Theorems}
 
-This section contains the core proofs to justify soundness
-and adequacy of the calculus with respect to the compilation
-function. The core theorem for soundness is
+This section contains the core proofs to justify soundness,
+adequacy, and consistency of the calculus with respect to
+the compilation function. The core theorem for soundness is
 @proof-ref["soundness"], however the most informative
 theorem is @proof-ref["Soundness-step"]. The core theorem
 for adequacy is @proof-ref["comp-ad"], but the most
 informative theorems are
 @proof-ref["strongly-cannibalizing"],
 @proof-ref["e-v-is-c-v"], and @proof-ref["adequacy-of-can"].
+The theorem for consistency is @proof-ref["consistent"],
+which in this case is essentually a correlary of
+@proof-ref["comp-ad"].
 
 
 @proof[#:label "soundness"
@@ -132,7 +135,7 @@ informative theorems are
        #:statement @list{For all @es[p-pure] and  @es[O],
         if @es/unchecked[(= (eval^esterel O p-pure) (tup θ_1 bool_1))]
         and @es/unchecked[(= (eval^esterel O p-pure) (tup θ_2 bool_2))],
-        the @es[(= (tup θ_1 bool_1) (tup θ_2 bool_2))].}
+        then @es[(= (tup θ_1 bool_1) (tup θ_2 bool_2))].}
        #:interpretation @list{This theorem states that @es[eval^esterel] is
         a function.}]{
                      

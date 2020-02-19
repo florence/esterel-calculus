@@ -58,10 +58,10 @@
 
 (define-syntax check
   (syntax-parser
-    [(_ t)
+    [(_ t ...)
      #'(examples
         #:eval evalor
-        t)]))
+        t ...)]))
 
 (define-extended-language esterel/typeset
   esterel-eval

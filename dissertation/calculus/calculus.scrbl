@@ -128,7 +128,7 @@ The maps that use for local stores are restricted maps, which only
 map to a subset of signal statuses. Other parts of the calculus will use full maps
 @es[θ]. We will come back to these later. The reason that the local environments
 do not contain @es[absent] is related to subtle details of the proof of soundness,
-which is described in @secref["soundness-of-calc"].
+which is described in @secref["just:sound:lemma"].
 
 @[figure
   "nc-example"
