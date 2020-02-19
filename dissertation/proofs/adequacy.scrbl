@@ -20,8 +20,6 @@
 This section contains the various lemma's needed for proving Adequacy of @es[eval^esterel].
 
 
-
-
 @proof[#:title "Strongly Canonicalizing"
        #:label "strongly-cannibalizing"
        #:statement

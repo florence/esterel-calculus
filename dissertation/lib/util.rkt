@@ -4,6 +4,7 @@
          scriblib/figure
          (only-in scribble/core style element nested-flow content? block?
                   delayed-element
+                  delayed-block
                   make-paragraph
                   plain)
          scribble/decode
@@ -51,6 +52,7 @@
          override-font-size?
 
          index-as
+         proof-splice
          
          theorem theorem-ref Theorem-ref
          lemma lemma-ref Lemma-ref
@@ -236,6 +238,8 @@
   (make-hash))
 (define proof-type-table
   (make-hash))
+(define proof-def-table
+  (make-hash))
 
 (define (index-as idx . v)
   (define (decode-to-simple-string x)
@@ -307,19 +311,23 @@
    (treeof pre-flow?))
   (when (hash-has-key? proof-name-table label)
     (error 'proof "attempted to make two proofs with the label ~a" label))
+  (define (mk-statement [lbl? #f])
+    (wrap-latex-begin-end
+     (case type
+       [(lemma) "lemma"]
+       [(theorem) "theorem"])
+     #:followup (and title (string-append "[\\scshape " title "]"))
+     (decode-flow
+      `(
+       ,@(if lbl?
+             (list (element (style "label" '(exact-chars)) (list (string-append "p:" label))))
+             (list (index (list (or title label) "discussion") "")))
+       ,@(decode-flow (list statement))))))
   (hash-set! proof-name-table label title)
   (hash-set! proof-type-table label type)
+  (hash-set! proof-def-table label mk-statement)
   (list
-   (wrap-latex-begin-end
-    (case type
-      [(lemma) "lemma"]
-      [(theorem) "theorem"])
-    #:followup (and title (string-append "[\\scshape " title "]"))
-    (decode-flow
-     (list*
-      
-      (element (style "label" '(exact-chars)) (list (string-append "p:" label)))
-      (decode-flow (list statement)))))
+   (mk-statement #t)
    (if interp
        (nested-flow (style "interpretation" '())
                     (decode-flow (list interp)))
@@ -327,7 +335,7 @@
    (nested-flow (style "myproof" '())
                 (decode-flow
                  (cons
-                  (index (or title label) "")
+                  (index (list (or title label) "proof") "")
                   (render-proof-item-body loc the-proof))))))
 
 
@@ -380,6 +388,15 @@
                [else (list)]))
    (lambda () "")
    (lambda () "")))
+
+(define (proof-splice str)
+  (cond
+    [(hash-ref proof-def-table str #f)
+     =>
+     (lambda (x) (nested-flow (style #f empty) (decode-flow (x))))]
+    [else
+     (error 'proof-splice "no such proof ~a. Did you remember to load the proofs first?" str)]))
+
 (define (format-number n)
   (apply
    string-append

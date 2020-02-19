@@ -136,7 +136,7 @@
 }
 
 @definition[#:notation @es[(Can-θ (ρ θ_1 A p) θ_2)]
-            #:index @es[Can-θ]]{
+            #:index (list @es[Can] @es[Can-θ])]{
  @Canθ-pict
 }
 

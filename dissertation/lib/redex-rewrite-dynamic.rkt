@@ -16,8 +16,6 @@
          pict/convert)
 
 
-(require (prefix-in scrbl: scribble/core))
-
 (define (lift-to-taggable pict tag)
   (if (pict+tag? pict)
       (pict+tag (pict+tag-pict pict) tag)
@@ -83,15 +81,39 @@
 
 (define (compute-tag base ss)
   (define (to-string x)
-    (match x
-      [(? string?) x]
-      [(or (? number?) (? symbol?)) (~a x)]
-      [(pict+tag p t) t]
-      [(or (? lw?) (? pict?)) ""]))
+    ((match x
+       [(? string?) values]
+       [(or (? number?) (? symbol?)) ~a]
+       [(? lw?) (const "")]
+       [(? pict+tag?) pict+tag-tag]
+       [(? pict?) compute-tag2])
+     x))
   (apply
    string-append
    (to-string base)
    (map to-string ss)))
+
+(define (compute-tag2 p)
+  (or (compute-tag2* p) ""))
+
+(define (compute-tag2* p)
+  (cond
+    [(and (converted-pict? p)
+          (pict+tag? (converted-pict-parent p)))
+     (pict+tag-tag (converted-pict-parent p))]
+    [else
+     (let loop ([v #f]
+                [l (pict-children p)])
+       (cond
+         [(empty? l) v]
+         [else
+          (define x (compute-tag2 (child-pict (first l))))
+          (define next
+            (cond
+              [(and x v)
+               (string-append v x)]
+              [else (or x v)]))
+          (loop next (rest l))]))]))
     
 (define (typeset-supers s)
   (render-word-sequence (blank) s +2/5))
@@ -348,10 +370,11 @@
   (Can-name-pict #t super))
 
 (define (Can-name-pict do-rho? [super #f])
-  (render-op (mf-t "Can")
-             (~a 
-              (if do-rho? (~a "_" alt-ρ-text) "")
-              (if super (~a "^" super) ""))))
+  (render-op/instructions
+   (mf-t "Can")
+   (append
+    (if do-rho? `((subscript ,alt-ρ-text)) `())
+    (if super `((superscript ,super)) empty))))
 
 (define (CB-judgment-pict)
   (hbl-append
@@ -1142,9 +1165,6 @@
 
      ['eval^circuit (lambda () (eval-c-pict "O"))]
      ['eval^esterel (lambda () (eval-e-pict "O"))]
-     ['≃^circuit ≃-c-pict]
-     ['≃^esterel ≃-e-pict]
-     ['≃ (lambda () (def-t "≃"))]
 
      ['all-bot (lambda () (mf-t "all-bot"))]
      ['all-bot-S (lambda () (mf-t "all-bot-S"))]
@@ -1202,6 +1222,9 @@
      ['absent (λ () (text "0" (default-style) (default-font-size)))]
      ['unknown (λ () (text "⊥" (default-style) (default-font-size)))]
 
+     ['≃^circuit ≃-c-pict]
+     ['≃^esterel ≃-e-pict]
+     ['≃ (lambda () (def-t "≃"))]
      ['≡
       (lambda () (render-op '≡))]
      ['⇀

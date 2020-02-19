@@ -50,13 +50,13 @@
     [else p]))
   
 
-(define (compute-tag p [v #f])
+(define (compute-tag p)
   (cond
     [(and (converted-pict? p)
           (pict+tag? (converted-pict-parent p)))
      (pict+tag-tag (converted-pict-parent p))]
     [else
-     (let loop ([v v]
+     (let loop ([v #f]
                 [l (pict-children p)])
        (cond
          [(empty? l) v]

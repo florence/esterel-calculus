@@ -10,11 +10,18 @@
 
 @title[#:style paper-title-style]{Core Theorems}
 
-This section contains the core proofs to justify soundness of the calculus
-with respect to the compilation function. The core theorem @proof-ref["Soundness"],
-however the most informative theorem is @proof-ref["Soundness-step"].
+This section contains the core proofs to justify soundness
+and adequacy of the calculus with respect to the compilation
+function. The core theorem for soundness is
+@proof-ref["soundness"], however the most informative
+theorem is @proof-ref["Soundness-step"]. The core theorem
+for adequacy is @proof-ref["comp-ad"], but the most
+informative theorems are
+@proof-ref["strongly-cannibalizing"],
+@proof-ref["e-v-is-c-v"], and @proof-ref["adequacy-of-can"].
 
-@proof[#:label "Soundness"
+
+@proof[#:label "soundness"
        #:title "Soundness"
        #:statement
        @list{For all @es[p-pure] and @es[q-pure],
@@ -101,7 +108,7 @@ however the most informative theorem is @proof-ref["Soundness-step"].
      @proof-ref["done-is-constructive"], @es[eval^circuit] must
      do the same.
 
-     By @proof-ref["Soundness"],
+     By @proof-ref["soundness"],
      both evaluators must
      agree on the value of the signal wires, and thus give back
      the same @es[θ].
@@ -110,7 +117,7 @@ however the most informative theorem is @proof-ref["Soundness-step"].
     @#:case[(blocked-pure θr GO hole r-pure)]{
      The constructiveness of both
      evaluators follows direclty from @es["blocked-is-nc"].
-     By @proof-ref["Soundness"],
+     By @proof-ref["soundness"],
      both evaluators must
      agree on the value of the signal wires, and thus give back
      the same @es[θ]. }
