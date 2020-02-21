@@ -353,6 +353,13 @@ Theorem 47. Given constructive Esterel statements E and E′;
    #:location (proceedings-location
                "European Symposium on Programming")))
 
+(define unit-cite
+  (make-bib
+   #:title "Units: cool modules for HOT languages"
+   #:author (authors "Matthew Flatt" "Matthias Felleisen")
+   #:date 1998
+   #:location (proceedings-location
+               "Programming Language Design and Implementation (PLDI)")))
 
 #|
 bohm alcune proprietà delle forme normali nel calcolo

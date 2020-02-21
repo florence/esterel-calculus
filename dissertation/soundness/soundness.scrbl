@@ -29,10 +29,19 @@ the syntax of Kernel Esterel is meaningful when reasoning
 about Full Esterel.
 
 @subsection[#:tag "just:syntactic:rho"]{Extensions}
-Can map back
+
 
 @subsection[#:tag "just:syntactic:full"]{Full Esterel}
+Can map back.
+
+@subsubsection[#:tag "just:syntactic:macro"]{Expressibilty}
 Macro Expressive (up to trap)
+
+@subsubsection[#:tag "just:syntactic:tasks"]{Tasks}
+
+Tasks are one way that Full Esterel can interoperate with the host language.
+Tasks allow Esterel to launch Asynchronous processes within the host language that
+can be controlled by 
 
 @section[#:tag "just:local"]{Justifying Local}
 
@@ -227,6 +236,7 @@ wires are @es[⊥].@note{When there is an input which is
  therefore this case is uninteresting.}
 
 
+TODO describe constraints.
 
 @subsection[#:tag "just:sound:lemma"]{Other important lemma's}
 
