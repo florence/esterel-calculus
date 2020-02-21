@@ -119,7 +119,7 @@ which in this case is essentually a correlary of
     }
     @#:case[(blocked-pure θr GO hole r-pure)]{
      The constructiveness of both
-     evaluators follows direclty from @es["blocked-is-nc"].
+     evaluators follows direclty from @proof-ref["blocked-is-nc"].
      By @proof-ref["soundness"],
      both evaluators must
      agree on the value of the signal wires, and thus give back
