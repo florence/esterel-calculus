@@ -17,7 +17,7 @@ Constructive Synchronous Circuits---particularly @citet[malik-circuit] and
 @citet[shiple-constructive-circuit]---may wish to skip to the end of skim this section
 for a summary of the exact notation I will be using
 
-@section{Circuits as Graphs}
+@section[#:tag "back:graph"]{Circuits as Graphs}
 
 Circuits can be though of as graphs, where each edge
 represents a wire, and each node represents a gate. This
@@ -228,7 +228,7 @@ take no more than @es[n] iterations to find that fixed-point (where
 @es[n] is the size of the circuit).
 
 
-@section{Circuits, more formally}
+@section[#:tag "back:circ:form"]{Circuits, more formally}
 
 @[figure "circuit-grammar" "A Grammar for Circuits"  circuit-lang]
 

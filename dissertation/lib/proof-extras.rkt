@@ -189,7 +189,7 @@
    (side-condition (term (≡ (ρ θr_1 GO p-pure) (ρ θr_2 GO done))))
    (side-condition (term (complete-with-respect-to θr_2 done)))]
   [(eval^esterel O (ρ θr_1 GO p-pure))
-   (tup (restrict θr O (ρ θr_2 GO q-pure)) ff)
+   (tup (restrict θr_2 O (ρ θr_2 GO q-pure)) ff)
    (where/hidden (ρ θr_2 GO q-pure) (ρ θr_1 GO p-pure) )
    (side-condition (term (≡ (ρ θr_1 GO p-pure) (ρ θr_2 GO q-pure))))
    (judgment-holds (blocked-pure θr_2 GO hole q-pure))])

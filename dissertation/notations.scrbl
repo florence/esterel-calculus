@@ -154,7 +154,7 @@
  #:index @es[count]
  #:read-as @list{An upper bound in the number of @es[⟶^r]
   steps @es[p] may take. (The name is a very bad pun on the
-  physics concept of an Action Principle.)}]{
+  physics notation for an Action.)}]{
 
  @with-paper-rewriters[@render-metafunction[count #:contract? #t]]
 

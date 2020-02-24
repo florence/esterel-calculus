@@ -340,19 +340,15 @@
    (text "≃" (metafunction-style) (default-font-size))
    `((superscript ,(text x (metafunction-style) (default-font-size))))))
      
-(define (eval-pict x o)
+(define (eval-pict x)
   (render-op/instructions
    (text "eval" (metafunction-style) (default-font-size))
-   `((subscript ,x)
-     (superscript
-      ,(cond [(string? o) (text o (non-terminal-style) (default-font-size))]
-             [(lw? o) (render-lw esterel/typeset o)]
-             [(pict? o) o])))))
+   `((subscript ,x))))
 
-(define (eval-e-pict o)
-  (eval-pict "E" o))
-(define (eval-c-pict o)
-  (eval-pict "C" o))
+(define (eval-e-pict)
+  (eval-pict "E"))
+(define (eval-c-pict)
+  (eval-pict "C"))
 (define (≃-e-pict)
   (≃-pict "Est"))
 (define (≃-c-pict)
@@ -565,7 +561,7 @@
              p
              (hbl-append
               (def-t " ∈ ")
-              (nt-t "done"))))]
+              (render-op/instructions (nt-t "p") `((superscript D))))))]
     ['blocked
      (λ (lws)
        (list ""
@@ -931,14 +927,18 @@
 
     ['eval^circuit
      (lambda (lws)
-       (list (eval-c-pict (list-ref lws 2))
+       (list (eval-c-pict)
              ((white-square-bracket) #t)
+              (list-ref lws 2)
+              ", "
              (list-ref lws 3)
              ((white-square-bracket) #f)))]
     ['eval^esterel
      (lambda (lws)
-       (list (eval-e-pict (list-ref lws 2))
+       (list (eval-e-pict)
              ((white-square-bracket) #t)
+             (list-ref lws 2)
+             ", "
              (list-ref lws 3)
              ((white-square-bracket) #f)))]
     ['≃^circuit
@@ -986,7 +986,7 @@
        (match-define (list _ _ body ... _) lws)
        `(,(mf-t "complete-wrt")
          ,((white-square-bracket) #t)
-         ,@body
+         ,@(add-between body ", ")
          ,((white-square-bracket) #f)))]
 
     ['all-bot
@@ -1104,15 +1104,6 @@
      ;; we forgo this for the typesetting
      ['D (λ () (text "E" (non-terminal-style) (default-font-size)))]
 
-     ;; Paths
-     ['P
-      (lambda () (text "ℙ" (non-terminal-style) (default-font-size)))]
-     ['Pnc
-      (lambda ()
-        (render-op/instructions
-         (text "ℙ" (non-terminal-style) (default-font-size))
-         `((superscript d))))]
-
      ;; same with the pure variants
      ['p-pure+GO
       (λ ()
@@ -1163,8 +1154,8 @@
      ['<= (λ () (plus-equals))]
      ['loop^stop (λ () (loop^stop-pict))]
 
-     ['eval^circuit (lambda () (eval-c-pict "O"))]
-     ['eval^esterel (lambda () (eval-e-pict "O"))]
+     ['eval^circuit (lambda () (eval-c-pict))]
+     ['eval^esterel (lambda () (eval-e-pict))]
 
      ['all-bot (lambda () (mf-t "all-bot"))]
      ['all-bot-S (lambda () (mf-t "all-bot-S"))]
@@ -1173,12 +1164,10 @@
 
      ['not (lambda () (words "¬"))]
      
-     ;; we're using boldface for non-terminals now, so maybe this
-     ;; extra attempt at clarity the "-p" suffixes isn't needed anymore
-     ;['complete (λ () (text "complete-p" (non-terminal-style) (default-font-size)))]
-     ;['done (λ () (text "done-p" (non-terminal-style) (default-font-size)))]
-     ;['stopped (λ () (text "stopped-p" (non-terminal-style) (default-font-size)))]
-     ;['paused (λ () (text "paused-p" (non-terminal-style) (default-font-size)))]
+     ['done (λ () (render-op/instructions (nt-t "p") `((superscript D))))]
+     ['stopped (λ () (render-op/instructions (nt-t "p") `((superscript S))))]
+     ['paused
+      (lambda () (text "p̂" (cons 'no-combine (non-terminal-style)) (default-font-size)))]
 
      ['hole (lambda () (text "○" (default-style) (default-font-size)))]
      ['Cc1
@@ -1254,8 +1243,6 @@
      ['R (lambda ()
            (text "R" (non-terminal-style) (default-font-size)))]
      ['count (lambda () (words "𝒮"))]
-     ['paused
-      (lambda () (text "p̂" (cons 'no-combine (non-terminal-style)) (default-font-size)))]
      ['compile
       (λ () (text "⟦·⟧" (default-style) (default-font-size)))]
      ['statusr

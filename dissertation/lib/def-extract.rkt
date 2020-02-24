@@ -28,8 +28,8 @@
     (define x 
       (let loop ([exp mod])
         (syntax-parse exp
-          #:datum-literals (define define-unit)
-          [((~or define-unit define) (name1:id args ...) body ...)
+          #:datum-literals (define define-unit define-syntax)
+          [((~or define-unit define define-syntax) (~or name1:id (name1:id args ...)) body ...)
            #:when (eq? name (syntax-e #'name1))
            exp]
           [(a ...) (ormap loop (syntax->list exp))]
