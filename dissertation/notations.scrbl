@@ -32,7 +32,8 @@
     (hc-append (blank 10)
                pict)))]
 @definition[#:notation (hbl-append (es (compile p-pure)) (es ⟶) (es circuit))
-            #:index @es[compile]]{
+            #:index @es[compile]
+            #:tag "compile"]{
                                                                           
  @add-between[(for/list ([c1 (in-list compile-def)])
                 (match-define (list t c p) c1)
@@ -42,21 +43,22 @@
 }
 
 @definition[#:notation @es[(binds (compile p-pure) θ)]
-            #:read-as @list{@es[θ] binds @es[(compile p-pure)]}]{
+            #:read-as @list{@es[θ] binds @es[(compile p-pure)]}
+            #:tag "binds"]{
  @es[(binds (compile p-pure) θ)] if and only if
  @es[∀] @es[(L∈ S (Ldom θ))],
  and
  @es[(= (θ-get-S θ S) present)] if and only if @es[(= (of (compile p-pure) Si) 1)],
  and
  @es[(= (θ-get-S θ S) absent)] if any only if @es[(= (of (compile p-pure) Si) 0)].
-
- Note that this would mean that
- @es[(binds (compile p-pure) (mtθ+S S absent))] implies that
- @es[(binds (compile p-pure) (mtθ+S S unknown))], as
- @es[(mtθ+S S unknown)] places less restrictions on
- @es[(compile p-pure)] than @es[(mtθ+S S absent)]. This also
- means that @es[(binds (compile p-pure) ·)] always holds.
-
+ @;{
+  Note that this would mean that
+  @es[(binds (compile p-pure) (mtθ+S S absent))] implies that
+  @es[(binds (compile p-pure) (mtθ+S S unknown))], as
+  @es[(mtθ+S S unknown)] places less restrictions on
+  @es[(compile p-pure)] than @es[(mtθ+S S absent)]. This also
+  means that @es[(binds (compile p-pure) ·)] always holds.
+ }
 }
 
 @definition[#:notation @es[(binds (compile p-pure) A)]

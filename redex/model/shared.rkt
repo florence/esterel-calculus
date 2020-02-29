@@ -186,6 +186,15 @@
       (par p hole)
       (suspend hole S)
       (trap hole))
+  
+  ;; pure eval context variants
+  (E1-pure ::=
+           (seq hole q-pure)
+           (loop^stop hole q-pure)
+           (par hole q-pure)
+           (par p-pure hole)
+           (suspend hole S)
+           (trap hole))
 
   (E-pure ::=
           (seq E-pure q-pure)

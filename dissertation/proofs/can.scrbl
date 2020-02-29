@@ -17,21 +17,27 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
           #:of/count (L∈ S_2 (->S (Can p-pure_i (<- θ (mtθ+S S_2 unknown))))) 2
           #:simple-cases
           @#:case[(L∈ S_2 (->S (Can p-pure_i (<- θ (mtθ+S S_2 unknown)))))]{
-           In this case
-           @es[(= (->S (Can (signal S_2 p-pure_i) θ)) (Lset-sub (->S (Can p-pure_i (<- θ (mtθ+S S_2 unknown)))) (L1set S)))].
-           As @es[(not-= S S_2)], from this we can conclude that
-           @es[(L¬∈ S (->S (Can p-pure_i (<- θ (mtθ+S S_2 unknown)))))]. In
-           addition we can conclude that
-           @es[(binds (compile p-pure_i) (<- θ (mtθ+S S_2 unknown)))],
-           as all the introduction of @es[(mtθ+S S_2 unknown)] does is link @es[S_2o] to @es[S_2i],
-           which is exactly what the compilation of @es[(signal S_2 p-pure_i)] does.
-           As @es[(compile (signal S_2 p-pure_i))] leaves @es[SEL] and all other outputs unchanged
-           from @es[(compile p-pure_i)], 
-           we can use our Induction Hypothesis to conclude that
-           @es[(= (of (compile p-pure_i) S_o) 0)].
-           Again, as  @es[(compile (signal S_2 p-pure_i))] leaves all non-@es[S_2] outputs
-           unchanged, we can conclude that 
-           @es[(= (of (compile p-pure_i) S_o) (of (compile (signal S_2 p-pure_i)) S_o) 0)].}
+
+           @sequenced{
+            @#:step[eq]{
+             By the definition of @es[Can],
+             @es[(= (->S (Can (signal S_2 p-pure_i) θ)) (Lset-sub (->S (Can p-pure_i (<- θ (mtθ+S S_2 unknown)))) (L1set S)))].}
+            @#:step[not-in]{By @es[(not-= S S_2)], @eq, and the
+             premise that @es[(L¬∈ S (->S (Can p-pure θ)))], we may conclude
+             that @es[(L¬∈ S (->S (Can p-pure_i (<- θ (mtθ+S S_2 unknown)))))].}
+            @#:step[binds]{By the definition of @es[compile], the compilation of @es[signal]
+             will link @es[So_2] to @es[Si_2]. Therefore we can conclude that
+             @es[(binds (compile p-pure_i) (<- θ (mtθ+S S_2 unknown)))], as the binding of
+             the other signals does not change, and @es[(binds p-pure (mtθ+S S_2 unknown))] will
+             always hold.}
+            @#:step[zero]{As the compilation of @es[signal] does not change @es[SEL],
+             we may use @not-in and @binds to invoke our induction hypothesis
+             to conclude that @es[(= (of (compile p-pure_i) So) 0)]}
+            @#:step[final]{By @es[(not-= S S_2)] and definition of the compilation of @es[signal],
+             we know that the @es[So] wire will remain unchanged. Therefore
+             we can conclude that
+             @es[(= (of (compile p-pure_i) S_o) (of (compile (signal S_2 p-pure_i)) S_o) 0)].}
+          }}
           @#:case[(L¬∈ S_2 (->S (Can p-pure_i (<- θ (mtθ+S S_2 unknown)))))]{
            In this case
            @es[(= (->S (Can (signal S_2 p_i) θ)) (Lset-sub (->S (Can p-pure_i (<- θ (mtθ+S S_2 absent)))) (L1set S)))].
@@ -55,14 +61,14 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
 
 @proof[#:label "Can-S-is-sound"
        #:title "Can S is sound"
-       #:type 'theorem
+       #:type 'lemma
        #:statement
        @list{For any term and environment @es[p-pure] and @es[θ] and any signal @es[S],
         if @es[(binds (compile p-pure) θ)],
         @es[(L¬∈ S (->S (Can p-pure θ)))],
         
         @es[(≃ (of (compile p-pure) SEL) 0)], and
-        then @es[(≃ (of (compile p-pure) S_o) 0)]}
+        then @es[(≃ (of (compile p-pure) So) 0)]}
 
        #:interpretation
        @list{This theorem states that @es/unchecked[Can] accurately predicts when signal output wires
@@ -71,7 +77,7 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
         #:language esterel/typeset
         #:induction
         @#:case[nothing]{
-          There is no @es[So] wire, thus is is by definition @es[0].
+          There is no @es[So] wire, thus is it by definition @es[0].
          }
         @#:case[pause]{
           Same as previous case.
@@ -80,7 +86,7 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
           Same as previous case.
          }
         @#:case[(emit S_2)]{
-          @cases[#:of/count @es[(= S S_2)] 2
+          @cases[#:of/count (= S S_2) 2
                  #:language esterel/typeset
                  #:simple-cases
                  @#:case[(= S S_2)]{
@@ -103,7 +109,8 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
                             In this case the compilation of signal removes @es[S]
                             from the set of output signals, which means
                             
-                            @es[(L¬∈ S (outputs (compile p-pure)))] which violates our hypothesis.
+                            @es[(L¬∈ So (outputs (compile p-pure)))], and therefore once
+                            again it must be @es[0].
                            }
                  @#:case[(not-= S S_2)]{
                             In this case we can see that there are two cases for @es/unchecked[Can]:
@@ -118,14 +125,12 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
           This we can conclude that @es[(L¬∈ S (->S (Can p-pure_i θ)))] and
           @es[(L¬∈ S (->S (Can q-pure_i θ)))]. We also know that
           @es[(= (of (compile (par p-pure_i q-pure_i)) SEL) (or (of (compile p-pure_i) SEL) (of (compile q-pure_i) SEL)))],
-          which implies that @es[(= (of (compile p-pure_i) SEL) 0)] and
-          @es[(= (of (compile q-pure_i) SEL) 0)].
+          which implies that @es[(≃ (of (compile p-pure_i) SEL) 0)] and
+          @es[(≃ (of (compile q-pure_i) SEL) 0)].
 
           Therefore, by induction, we can conclude that
-          @es[(≃ (of (compile p-pure_i) S_o) 0)]]
-          and
-
-          @es[(≃ (of (compile q-pure_i) S_o) 0)].
+          @es[(≃ (of (compile p-pure_i) S_o) 0)]
+          and @es[(≃ (of (compile q-pure_i) S_o) 0)].
 
           As both the overall output of @es[S_o] of both subcircuits is @es[0], and
           by definition @es[(= (of (compile (par p-pure_i q-pure_o)) S_o) (or (of (compile p_i) S_o) (of (compile q_i) S_o)))],
@@ -136,26 +141,27 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
 
           @es[(≃ (of (compile p-pure_i) SEL) 0)] and
           @es[(≃ (of (compile q-pure_i) SEL) 0)]. We also know that
-          @es[(= (of (compile (present S_2 p-pure_i q-pure_i)) S_o)
-                 (or (of (compile p-pure_i) S_o) (of (compile q-pure_i) S_o)))].
+          @es[(= (of (compile (present S_2 p-pure_i q-pure_i)) S_o) (or (of (compile p-pure_i) S_o) (of (compile q-pure_i) S_o)))].
+          
           @cases[#:of/count (θ-get-S θ S_2) 3
                  #:language esterel/typeset
                  @#:case[present]{
                             In this case we know that
                             @es[(= (->S (Can (present S_2 p-pure_i q-pure_i) θ)) (->S (Can p-pure_i θ)))].
                             In addition not that @es[(= (θ-get-S θ S_2) present)] means
-                            that @es[(= (of (compile (present S_2 p-pure_i q-pure_i)) S_2i) 1)],
+                            that @es[(≃ (of (compile (present S_2 p-pure_i q-pure_i)) Si_2) 1)],
                             therefore
                             
-                            @es[(= (of (compile q-pure_i) GO) (and (of (compile (present S_2 p-pure_i q-pure_i)) GO) (not (of (compile (present S_2 p-pure_i q-pure_i)) S_2i))) 0)].
+                            @es[(≃ (of (compile q-pure_i) GO) (and (of (compile (present S_2 p-pure_i q-pure_i)) GO) (not (of (compile (present S_2 p-pure_i q-pure_i)) Si_2))))],
+                            which must be @es[0].
                             Therefore by @proof-ref["activation-condition"] we know that
-                            @es[(≃ (of (compile q-pure_i) S_o) 0)].
+                            @es[(≃ (of (compile q-pure_i) So) 0)].
 
                             
                             Then we may invoke our induction hypothesis to show
-                            that @es[(≃ (of (compile p-pure_i) S_o) 0)]. Thus we can use a
+                            that @es[(≃ (of (compile p-pure_i) So) 0)]. Thus we can use a
                             similar chain of reasoning to the previous case to argue
-                            that @es[(≃ (of (compile (present S_2 p-pure_i q-pure_i)) S_o) 0)].}
+                            that @es[(≃ (of (compile (present S_2 p-pure_i q-pure_i)) So) 0)].}
                  @#:case[absent]{
                             This case is analogous to the previous one, except
                             that the branches switch roles.
@@ -164,11 +170,11 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
                             In this case we know that
                             @es[(= (->S (Can (present S_2 p-pure_i q-pure_i) θ)) (LU (->S (Can p-pure_i θ)) (->S (Can q-pure_i θ))))].
                             Thus we can conclude that @es[(L¬∈ S (->S (Can p-pure_i θ)))] and @es[(L¬∈ S (->S (Can q-pure_i θ)))].
-                            As previously we know that @es[S_o] must be in the outputs of @es[(compile p-pure_i)] or
-                            @es[(compile q-pure_i)]. Thus, by induction, @es[(≃ (of (compile p_i) S_o) 0)]
-                            and @es[(≃ (of (compile q_i) S_o) 0)].
+                            As previously we know that @es[So] must be in the outputs of @es[(compile p-pure_i)] or
+                            @es[(compile q-pure_i)]. Thus, by induction, @es[(≃ (of (compile p_i) So) 0)]
+                            and @es[(≃ (of (compile q_i) So) 0)].
 
-                            From this we may conclude that @es[(≃ (of (compile (present S_2 p-pure_i q-pure_i)) S_o) 0)].
+                            From this we may conclude that @es[(≃ (of (compile (present S_2 p-pure_i q-pure_i)) So) 0)].
                                      
                             }]
          }
@@ -177,8 +183,8 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
           We also know that
           
           @es[(= (of (compile (suspend p-pure_i S_2)) SEL) (of (compile p-pure_i) SEL))].
-          Therefor by induction @es[(≃ (of (compile p_i) S_o) 0)]. Finally the compilation of @es[suspend] does
-          not change output signals so we can conclude that @es[(≃ (of (compile (suspend p_i S_2)) S_o) 0)].
+          Therefor by induction @es[(≃ (of (compile p_i) So) 0)]. Finally the compilation of @es[suspend] does
+          not change output signals so we can conclude that @es[(≃ (of (compile (suspend p_i S_2)) So) 0)].
          }
         @#:case[(trap p-pure_i)]{ 
           This case follows identically to the previous one, as the
@@ -193,22 +199,22 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
                  #:language esterel/typeset
                  @#:case[(L¬∈ 0 (->K (Can p-pure_i θ)))]{
                             In this case we have @es[(= (->S (Can (seq p-pure_i q-pure_i) θ)) (->S (Can p-pure_i θ)))].
-                            By induction we can conclude @es[(≃ (of (compile p-pure_i) S_o) 0)].
+                            By induction we can conclude @es[(≃ (of (compile p-pure_i) So) 0)].
                             In addition by @proof-ref["Can-K-is-sound"] we can conclude that @es[(≃ (of (compile p-pure_i) K0) 0)].
                             This tells us that @es[(≃ (of (compile q-pure_i) GO) 0)]. Thus, by @proof-ref["activation-condition"],
-                            we can conclude that @es[(≃ (of (compile q-pure_i) S_o) 0)].
+                            we can conclude that @es[(≃ (of (compile q-pure_i) So) 0)].
                             As @es[S_o] is either no in the outputs or @es[0] in either subcircuit, we can conclude
-                            that @es[(≃ (of (compile (seq p-pure_i q-pure_i)) S_o) 0)].
+                            that @es[(≃ (of (compile (seq p-pure_i q-pure_i)) So) 0)].
                            }
                  @#:case[(L∈ 0 (->K (Can p-pure_i θ)))]{
                             In this case we have @es[(= (->S (Can (seq p-pure_i q-pure_i) θ)) (LU (->S (Can p-pure_i θ)) (->S (Can q-pure_i θ))))].
                             From this we know that
 
                             @es[(L¬∈ S (->S (Can p-pure_i θ)))] and @es[(L¬∈ S (->S (Can q-pure_i θ)))].
-                            Thus, by induction we have that @es[(≃ (of (compile p-pure_i) S_o) 0)]
+                            Thus, by induction we have that @es[(≃ (of (compile p-pure_i) So) 0)]
                             and that @es[(≃ (of (compile q-pure_i) S_o) 0)].
-                            As @es[S_o] is @es[0] in both subcircuits, we can conclude
-                            that @es[(≃ (of (compile (seq p-pure_i q-pure_i)) S_o) 0)].}]
+                            As @es[So] is @es[0] in both subcircuits, we can conclude
+                            that @es[(≃ (of (compile (seq p-pure_i q-pure_i)) So) 0)].}]
          }
         @#:case[(ρ θr A p_i)]{This case is shown by @proof-ref["Can-rho-S-is-sound"].}
         @#:case[(loop p_i) #:ignore]{TODO}
@@ -267,9 +273,9 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
        #:statement
        @list{For all @es[p-pure], @es[θ], @es[A], @es[S],
         if @es[(L¬∈ S (->S (Can-θ (ρ θr A p-pure) ·)))]
-        and @es[(= (of (compile (ρ θr A p-pure)) SEL) 0)]
+        and @es[(≃ (of (compile (ρ θr A p-pure)) SEL) 0)]
         then
-        @es[(= (of (compile (ρ θr A p-pure)) S_o) 0)]}
+        @es[(≃ (of (compile (ρ θr A p-pure)) So) 0)]}
        #:interpretation
        @list{This theorem states that @es/unchecked[Can-θ] accurately predicts when signal output wires
         will be set to @es[0].}]{

@@ -53,6 +53,7 @@
 
          index-as
          proof-splice
+         extract-definition
          
          theorem theorem-ref Theorem-ref
          lemma lemma-ref Lemma-ref
@@ -265,27 +266,40 @@
   (indexer v))
   
 
+(define def-table (make-hash))
+
 (define (definition
           #:notation notation
           #:index [idx #f]
           #:read-as [read-as #f]
+          #:tag [key #f]
           . def)
-  
-  (flatten
-   (list
-    (list noindent (bold "Definition: "))
-    (index-as idx (flatten notation))
-    (list (linebreak) nopagebreak noindent)
-    (if read-as
-        (append
-         (list nobreak nopagebreak)
-         (list (italic "read as: "))
-         (list nobreak nopagebreak)
-         (flatten read-as)
-         (list (linebreak) nopagebreak noindent))
-        empty)
-    (list def)
-    pagebreak0)))
+  (define x
+    (flatten
+     (list
+      (list noindent (bold "Definition: "))
+      (index-as idx (flatten notation))
+      (list (linebreak) nopagebreak noindent)
+      (if read-as
+          (append
+           (list nobreak nopagebreak)
+           (list (italic "read as: "))
+           (list nobreak nopagebreak)
+           (flatten read-as)
+           (list (linebreak) nopagebreak noindent))
+          empty)
+      (list def)
+      pagebreak0)))
+  (when key (hash-set! def-table key x))
+  x)
+
+(define (extract-definition str)
+  (cond
+    [(hash-ref def-table str #f)
+     =>
+     (lambda (x) (nested-flow (style #f empty) (decode-flow x)))]
+    [else
+     (error 'extract-definition "no such definition ~a. Did you remember to load the notations first?" str)]))
   
 
 (define-syntax proof

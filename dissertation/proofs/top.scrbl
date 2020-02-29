@@ -30,8 +30,8 @@ which in this case is essentually a correlary of
        @list{For all @es[p-pure] and @es[q-pure],
         if @es[(CB p-pure)],
         @es[(≡ p-pure q-pure)],
-        @es[(= (of (compile p-pure) SEL) 0)], and
-        @es[(= (of (compile q-pure) SEL) 0)]
+        @es[(≃ (of (compile p-pure) SEL) 0)], and
+        @es[(≃ (of (compile q-pure) SEL) 0)]
         then
         @es[(≃^circuit (compile p) (compile q))]}
        #:interpretation @list{This theorem says that, at least for the

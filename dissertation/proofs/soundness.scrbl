@@ -8,7 +8,7 @@
           esterel-calculus/redex/model/calculus
           (except-in scribble-abbrevs/latex definition))
 
-@title[#:style paper-title-style]{Soundness}
+@title[#:style paper-title-style #:tag "proof:sound"]{Soundness}
 
 This section contains some of the basic lemma's needed for soundness.
 

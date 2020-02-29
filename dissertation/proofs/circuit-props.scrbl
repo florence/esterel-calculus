@@ -173,8 +173,11 @@ variables.
 @proof[#:label "S-maintains-across-E"
        #:title "S is maintained across E"
        #:statement
-       @list{For some term @es[(= p-pure_i (in-hole E q-pure_i))] if there is some
-        signal wire @es[S_i] then @es[(= (of (compile q-pure_i) S) (of (compile p-pure_i) S))]}]{
+       @list{For all @es[(= p-pure_i (in-hole E q-pure_i))], and
+        @es[S],
+        if @es[(L∈ Si (inputs (compile p-pure_i)))]
+        then
+        @es[(= (of (compile q-pure_i) Si) (of (compile p-pure_i) Si))]}]{
  @cases[#:induction
         #:of E-pure
         #:language esterel/typeset]{
@@ -197,8 +200,8 @@ variables.
 @proof[#:label "GO-maintains-across-E"
        #:title "GO is maintained across E"
        #:statement
-       @list{For some term @es[(= p-pure (in-hole E q-pure))]
-        then @es[(= (of (compile q-pure) GO) (of (compile p-pure) GO))]}]{
+       @list{For all @es[(= p-pure (in-hole E q-pure))],
+       @es[(= (of (compile q-pure) GO) (of (compile p-pure) GO))]}]{
  This proof follows the exact same argument as @proof-ref["S-maintains-across-E"].
 }
 
@@ -216,10 +219,10 @@ variables.
 @proof[#:label "S-output-irrelevant"
        #:title "S output irrelevant"
        #:statement
-       @list{For any term @es[(= p-pure (in-hole E q-pure))], for any output wire @es[S_o] in
+       @list{For any term @es[(= p-pure (in-hole E q-pure))], for any output wire @es[So] in
         @es[(compile q-pure)] there exists no wire @es[w] that is
-        not itself an instance of @es[S_o] in @es[(compile p-pure)] which
-        depends on @es[S_o]}
+        not itself an instance of @es[So] in @es[(compile p-pure)] which
+        depends on @es[So]}
        #:interpretation @list{The point of this theorem is to show
         that an @es[(emit S)] cannot be "read" by its context until
         that emit is closed by a @es[signal] or @es[ρ] form.}]{

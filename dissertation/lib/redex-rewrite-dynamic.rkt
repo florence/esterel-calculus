@@ -1144,6 +1144,10 @@
                 (render-op/instructions
                  (text "E" (non-terminal-style) (default-font-size))
                  `((superscript p))))]
+     ['E1-pure (λ ()
+                (render-op/instructions
+                 (text "E1" (non-terminal-style) (default-font-size))
+                 `((superscript p))))]
      ['p-unex (λ () (text "p" (non-terminal-style) (default-font-size)))]
      ['q-unex (λ () (text "q" (non-terminal-style) (default-font-size)))]
      ['wire-value (λ () (text "e" (non-terminal-style) (default-font-size)))]

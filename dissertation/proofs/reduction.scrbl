@@ -53,7 +53,9 @@ respect to the compilation function.
 
           Note that @es[(= (harp (exit n)) (exit (sub1 n)))].
           When you draw the pictures of the two
-          circuits they are the same circuit.}
+          circuits they are the same circuit.
+
+         TODO induction}
         ]}
 
 @proof[#:label "suspend"
@@ -147,18 +149,18 @@ respect to the compilation function.
 }
 
 @proof[#:label "emit"
-       #:title "emit is sound"
+       #:title "Emit is sound"
        #:statement @list{as
         @es[(⇀ (ρ θr GO (in-hole E-pure (emit S))) (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E-pure nothing)))]
         
         @es[(≃^circuit (compile (ρ θr GO (in-hole E-pure (emit S)))) (compile (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E-pure nothing))))]}]{
- @cases[#:of E
+ @cases[#:of E-pure
         #:language esterel/typeset
         #:induction
         @#:case[hole]{This follows trivially, as an empty context connects
          @es[GO] directly so the signal, which is forced to be @es[1] by
          our environment.}
-        @#:case[(in-hole E1 E_i)]{ Note that the right hand
+        @#:case[(in-hole E1-pure E-pure_i)]{ Note that the right hand
           side of the reduction forces @es[(compile (θ-get-S θr S))] to
           compile as @es[(compile present)] and it replaces
           @es[(compile (emit S))] a circuit that sets
@@ -194,11 +196,11 @@ respect to the compilation function.
 @proof[#:label "is-absent"
        #:title "is-absent is sound"
        #:statement
-       @list{as @es[(⇀ (ρ θ A (in-hole E-pure (present S p-pure q-pure))) (ρ θ A (in-hole E-pure q-pure)))]
-        if @es[(= (of (compile (ρ θ A (in-hole E-pure (present S p-pure q-pure)))) SEL) 0)],
-        @es[(θ-ref-S θ S unknown)],
-        and @es[(L¬∈ S (->S (Can-θ (ρ θ A (in-hole E-pure (present S p-pure q-pure))) ·)))], then
-
+       @list{as @es[(⇀ (ρ θ A (in-hole E-pure (present S p-pure q-pure))) (ρ θ A (in-hole E-pure q-pure)))]@(linebreak)
+        when @es[(θ-ref-S θ S unknown)]@(linebreak)
+        and @es[(L¬∈ S (->S (Can-θ (ρ θ A (in-hole E-pure (present S p-pure q-pure))) ·)))],@(linebreak)
+        if @es[(≃ (of (compile (ρ θ A (in-hole E-pure (present S p-pure q-pure)))) SEL) 0)],@(linebreak)
+        then@(linebreak)
         @es[(≃^circuit (compile (ρ θ A (in-hole E-pure (present S p-pure q-pure)))) (compile (ρ θ A (in-hole E-pure q-pure))))]}]{
 
  Let @es[p_outer] be @es[(ρ θ A (in-hole E-pure (present S p-pure q-pure)))], the left hand side of the reduction.
@@ -207,19 +209,19 @@ respect to the compilation function.
  @sequenced{
   @#:step[maintain]{By @proof-ref["S-maintains-across-E"] and
    @proof-ref["GO-maintains-across-E"] we know that
-   @es[(= (of (compile p-pure_outer) Si) (of (compile (present S p-pure q-pure)) Si))]
+   @es[(≃ (of (compile p-pure_outer) Si) (of (compile (present S p-pure q-pure)) Si))]
    and
-   @es[(= (of (compile p-pure_outer) GO) (of (compile (present S p-pure q-pure)) GO))]
+   @es[(≃ (of (compile p-pure_outer) GO) (of (compile (present S p-pure q-pure)) GO))]
   }
-  @#:step[sound]{By @proof-ref["Can-S-is-sound"] and our premise that @es[(= (of (compile p-pure_outer) SEL) 0)],
-   we know that @es[(= (of (compile p-pure_outer) So) 0)].}
+  @#:step[sound]{By @proof-ref["Can-S-is-sound"] and our premise that @es[(≃ (of (compile p-pure_outer) SEL) 0)],
+   we know that @es[(≃ (of (compile p-pure_outer) So) 0)].}
   @#:step[eq]{By the definition of @es[compile] on @es[ρ], we know
-   that @es[(= (of (compile (present S p-pure q-pure)) Si) (of (compile (present S p-pure q-pure)) So))]}
-  @#:step[is-zero]{By @maintain, @sound & @eq, @es[(= (of (compile (present S p-pure q-pure)) Si) 0)].}
+   that @es[(≃ (of (compile (present S p-pure q-pure)) Si) (of (compile (present S p-pure q-pure)) So))]}
+  @#:step[is-zero]{By @maintain, @sound & @eq, we know that @es[(≃ (of (compile (present S p-pure q-pure)) Si) 0)].}
   @#:step[def]{By @proof-ref["sel-def"],
-   @es[(= (of (compile p-pure_outer) SEL) (or (of (compile p-pure) SEL) (of (compile q-pure) SEL) w_others ...))]}
+   @es[(≃ (of (compile p-pure_outer) SEL) (or (of (compile p-pure) SEL) (of (compile q-pure) SEL) w_others ...))]}
   @#:step[imp]{By @def and our premise that @es[(≃ (of (compile p-pure_outer) SEL) 0)], we know that
-   @es[(= (of (compile (present S p-pure q-pure)) SEL) 0)]}
+   @es[(≃ (of (compile (present S p-pure q-pure)) SEL) 0)]}
   @#:step[_]{Under @imp and @proof-ref["activation-condition"]
    we can show that @es[(≃^circuit (compile (present S p-pure q-pure)) (compile q-pure))].
    This is done in the [is-absent] notebook.}}
