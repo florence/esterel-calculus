@@ -92,6 +92,8 @@ instant. The exact meaning of cannot is discussed in
 @secref["cannot"].
 
 TODO present is 1, absent is 0.
+TODO talk about the asymmetry.
+@figure["back:lattice" "TODO must/can chart" "TODO"]
 
 @bold{Composition} Esterel terms can either be composed
 concurrently---@es[(par p q)]---or

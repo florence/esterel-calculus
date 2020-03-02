@@ -30,19 +30,49 @@ the syntax of Kernel Esterel is meaningful when reasoning
 about Full Esterel.
 
 @subsection[#:tag "just:syntactic:rho"]{Extensions}
-TODO
+
+Arguing that forms of the shape @es[(ρ θr WAIT p)] can be
+mapped back to Kernel Esterel without the extensions by
+adding the context @es[(par (emit S) hole)] around @es[p]
+for any signal which is @es[present] in @es[θr], and
+replacing the @es[(ρ θr WAIT hole)] with a
+@es[(signal S hole)] for every bound signal in @es[θr]: that
+is the extension is eliminated by running @rule["emit"] and
+@rule["signal"] rules backwards.
+
+A @es[GO], however, cannot be eliminated. This is not an issue, however,
+because the calculus cannot insert a @es[GO], therefore any @es[GO] in
+a term was added outside the rules of the calculus (either by @es[eval^esterel] or
+manually by who-or-what-ever is manipulating terms with the calculus), and therefore
+it is not the calculus's responsibility to remove it to return to the Kernel Syntax.
+
+The form @es[loop^stop] is a little trickier: Although it is removed
+by the inter-instant translation function, it cannot be removed in general.
+I would argue, however that this is because many Esterel semantics
+(including the circuit semantics) require that Esterel programs are
+loop safe: that is they do not contain instantaneous loops. Such loops
+are usually ruled out by static analyses. In this cases it is always
+safe to replace a @es[loop^stop] with a @es[seq]. Therefore, I argue
+that the inability to always remove @es[loop^stop]s is justified,
+as we are creating a syntactic category for a class of errors
+(instantaneous loops), allowing us to reason about these errors
+dynamically rather than statically. If one wishes to reason about them
+statically, @es[loop^stop] is eliminatable.
+
 
 @subsection[#:tag "just:syntactic:full"]{Full Esterel}
+
 TODO Can map back.
 
 @subsubsection[#:tag "just:syntactic:macro"]{Expressibilty}
+
 TODO Macro Expressive (up to trap)
 
 @subsubsection[#:tag "just:syntactic:tasks"]{Tasks}
 
 Tasks are one way that Full Esterel can interoperate with the host language.
 Tasks allow Esterel to launch Asynchronous processes within the host language that
-can be controlled by 
+can be controlled by TODO
 
 @section[#:tag "just:local"]{Justifying Local}
 
@@ -82,11 +112,15 @@ with some minor modifications that were implemented in the Esterel v7 compiler.
 
 @subsection[#:tag "just:sound:pure"]{Loop Free, Pure Esterel}
 
+TODO the subset of Esterel, why it is enough
+
 @subsection[#:tag "just:sound:instants"]{Instants}
 
-
+Why single instants are enough
 
 @subsection[#:tag "just:sound:CB"]{Names and the correct binding judgment}
+
+TODO maybe get rid of?
 
 @subsection[#:tag "just:sound:thrm"]{The theorem of soundness}
 
@@ -122,7 +156,7 @@ executing constructive circuits given by
 @citet[constructive-boolean-circuits] to handle registers),
 implemented in the language Rosette@~cite[rosette].
 
-Rosette is an domain specific language embeded within
+Rosette is an domain specific language embedded within
 Racket@~cite[plt-tr1], which is designed for defining other domain specific
 languages so that the programs written in those language can
 be reasoned about using an SMT solver. Specifically Rosette
@@ -187,9 +221,9 @@ as two symbolic variables, the @racket[-pos] variant being true if and only if
 the wire carries an @es[1], and the @racket[-neg] variant being true if and only
 if the wire carries an @es[0].@note{In Racket, true and false are written as @racket[#t]
  and @racket[#f].} If both variables are false, then the wire carries the special value @es[⊥].
-Both variables may not be true at the same time. Therefore, the above error message can be interperted
+Both variables may not be true at the same time. Therefore, the above error message can be interpreted
 as saying the two models differ when the @es[GO] wire is bottom. This is because in @es[nothing] the
-lack of an @es[S] wire means that it is interpreted as always begining @es[0].
+lack of an @es[S] wire means that it is interpreted as always beginning @es[0].
 
 Circuitous can also handle register and assertions over multiple instants. Concider:
 
@@ -216,7 +250,7 @@ can show us that these circuits may differ after the first instant, as shown in 
            (assert-same delay1 delay2))]]
 
 In the multi-instant case a new symbolic variable is created
-for each input on evey instant. In this case the first line
+for each input on every instant. In this case the first line
 after model shows us that the circuits differ in the second
 instant, where the value of @racket[b] is flipped. This
 occurs when @racket[a] is true in the first instant (that is

@@ -35,10 +35,6 @@
 @figure["pure-kernel" "Pure fragment of Kernel Esterel"
         lang/pure]
 
-@subsection{Expressiveness of Kernel vs Full}
-
-
-
 @section{The Calculus}
 
 This section will walk through the rules of the calculus to explain their function.
@@ -126,7 +122,21 @@ this fact will be crucial in proving soundness of the calculus.}@note{These envi
 from the @citet[felleisen-hieb] state calculus.}
 The maps that use for local stores are restricted maps, which only
 map to a subset of signal statuses. Other parts of the calculus will use full maps
-@es[θ]. We will come back to these later. TODO discuss that θr is needed to avoid nonsentical programs.
+@es[θ].
+
+Using restricted environments @es[θr] allow us to syntactically eliminate
+terms which are incoherent---terms that fall in the @italic{must} and @italic{cannot}
+sections of @figure-ref{"back:lattice"}. The simplest example of such a term
+would be @es[(ρ (mtθ+S S1 absent) GO (emit S1))], which clearly must emit @es[S1],
+but has an environment which marks that @es[S1] cannot be emitted. Such incoherence
+is prevented by simply not allowing @es[0] to be recorded into the environment. Note
+that a term that swaps things around, recording that something must be emitted
+but cannot emit it (e.g. @es[(ρ (mtθ+S S1 present) GO nothing)]) does not contain a contraction,
+because the @es[1] in the environment records that at some point in the reduction sequence
+prior to the current state @es[S1] must be emitted. Therefore it is the case that
+this program actually states that @es[S1] must be emitted. This is yet another manifestation
+of the asymmetry between @italic{must} and @italic{can}.
+
 
 @[figure
   "nc-example"

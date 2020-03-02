@@ -257,13 +257,23 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
           only concern ourself with that.
           @es[(= (of (compile pause) K0) (and (of (compile pause) SEL) (of (compile pause) RES)))],
           so as @es[(≃ (of (compile p) SEL) 0)], @es[(≃ (of (compile pause) K0) 0)].}
-        @#:case[(signal S p-pure_i)]{}
-        @#:case[(present S p-pure_i q-pure_i)]{}
+        @#:case[(signal S p-pure_i)]{
+         @sequenced{
+
+           @#:step[=]{By the definition of @es[Can],
+            @es[(= (->K (Can (signal S p-pure_i) θ)) (->K (Can p-pure_i θ)))].}
+
+           @#:step[sel]{By the definition of @es[compile],
+            @es[(= (of (compile (signal S p-pure_i)) SEL) (of (compile p-pure_i) SEL))].}
+           @#:step[_]{By @= and @sel, this case follows by induction.}
+                    
+         }}
         @#:case[(seq p-pure_i q-pure_i)]{}
+        @#:case[(present S p-pure_i q-pure_i)]{}
         @#:case[(par p-pure_i q-pure_i)]{}
         @#:case[(suspend p-pure_i S)]{}
         @#:case[(trap p-pure_i)]{}
-        @#:case[(ρ θr A p_i)]{This case is shown by @proof-ref["Can-rho-K-is-sound"].}
+        @#:case[(ρ θr A p_i)]{This case is given by @proof-ref["Can-rho-K-is-sound"].}
         @#:case[(loop p_i) #:ignore]{ TODO }
         @#:case[(loop^stop p_i q_i) #:ignore]{ TODO }]
 }
