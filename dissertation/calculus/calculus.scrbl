@@ -115,10 +115,11 @@ In full environments look like:
 @[centered lang/env]
 
 Local environments @es[(ρ θr A p)] contain maps @es[θr] of signals
-that in scope of the term @es[p] to their status.@note{You may notice that
-these three statuses correspond to wire values in Circuits. This
-is because signals correspond exactly to wire in compilation, and
-this fact will be crucial in proving soundness of the calculus.}@note{These environments are adapted
+that in scope of the term @es[p] to their status.@note{You
+ may notice that these three statuses correspond to wire
+ values in Circuits. This is because signals correspond
+ exactly to wire in compilation, and this fact will be
+ crucial in proving soundness of the calculus.}@note{These environments are adapted
 from the @citet[felleisen-hieb] state calculus.}
 The maps that use for local stores are restricted maps, which only
 map to a subset of signal statuses. Other parts of the calculus will use full maps

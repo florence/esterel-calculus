@@ -147,6 +147,10 @@ to never terminate. Therefore Esterel requires that all
 loops either @es[pause] or @es[exit] each
 instant. This ensures that each instant, in fact, terminates.
 
+@subsection[#:tag "back:esterel:schizo" "Schizophrenia"]
+
+TODO
+
 @section["The host language and state in Esterel"]
 
 The last line of the grammar at the start of @secref["background-esterel"] extends Pure Esterel with forms

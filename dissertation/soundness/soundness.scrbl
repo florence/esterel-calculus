@@ -19,66 +19,46 @@ The four properties I promise the Calculus for Esterel would have are:
 Syntactic, Local, Sound, and Adequate. This section justifies that
 the calculus has each of these properties.
 
+
 @section[#:tag "just:syntactic"]{Justifying Syntactic}
 
-On the surface the calculus is clearly syntactic: it only
-deals with the syntax of terms. However there are two
-justifications I must make to argue that it true is
-syntactic: that the extensions to the language @es[ρ] and
-@es[loop^stop] map back to the surface language, and that
-the syntax of Kernel Esterel is meaningful when reasoning
-about Full Esterel.
+One could argue that the Calculus is not syntactic, in that it
+does not literally talk about the syntax of the programs one writes
+in Full Esterel. However I would argue that it is ``syntactic enough'',
+which is to say it is purely syntactic except in a few places where
+something new has been added by necessity.
 
-@subsection[#:tag "just:syntactic:rho"]{Extensions}
+The first place it steps outside the syntax of normal
+Esterel is in adding @es[GO].@note{Not that environments
+ that contain @es[WAIT] can be completely removed by running
+ the @rule["emit"] and @rule["signal"] rules backwards,
+ therefore they will never show up at the "end" of a chain of
+ reasoning.} The calculus needs @es[GO] to be sound and
+adequate because it needs to localize the notion of whether
+or on control reaches a particular point. So while this is a
+minor deviation from the syntax of normal Esterel, it is
+necessary@note{In fact, I would argue that the @es[GO] is
+ the novel element I have added it make a calculus which is
+ sound @italic{and} adequate in the first place.} and does
+not stray to far from the syntax of programs.
 
-Arguing that forms of the shape @es[(ρ θr WAIT p)] can be
-mapped back to Kernel Esterel without the extensions by
-adding the context @es[(par (emit S) hole)] around @es[p]
-for any signal which is @es[present] in @es[θr], and
-replacing the @es[(ρ θr WAIT hole)] with a
-@es[(signal S hole)] for every bound signal in @es[θr]: that
-is the extension is eliminated by running @rule["emit"] and
-@rule["signal"] rules backwards.
+The same can be said of @es[loop^stop]: while it is not part
+of the original Esterel syntax, it is necessary to reason about programs
+which have not been proven to contain instantaneous loops. In essence
+@es[loop^stop] lets us track potential instantaneous loop errors
+my adding a new form. As this is a minor, and necessary, addition
+I do not find that it detracts from the overall syntacticness of
+the calculus.
 
-A @es[GO], however, cannot be eliminated. This is not an issue, however,
-because the calculus cannot insert a @es[GO], therefore any @es[GO] in
-a term was added outside the rules of the calculus (either by @es[eval^esterel] or
-manually by who-or-what-ever is manipulating terms with the calculus), and therefore
-it is not the calculus's responsibility to remove it to return to the Kernel Syntax.
-
-The form @es[loop^stop] is a little trickier: Although it is removed
-by the inter-instant translation function, it cannot be removed in general.
-I would argue, however that this is because many Esterel semantics
-(including the circuit semantics) require that Esterel programs are
-loop safe: that is they do not contain instantaneous loops. Such loops
-are usually ruled out by static analyses. In this cases it is always
-safe to replace a @es[loop^stop] with a @es[seq]. Therefore, I argue
-that the inability to always remove @es[loop^stop]s is justified,
-as we are creating a syntactic category for a class of errors
-(instantaneous loops), allowing us to reason about these errors
-dynamically rather than statically. If one wishes to reason about them
-statically, @es[loop^stop] is eliminatable.
-
-
-@subsection[#:tag "just:syntactic:full"]{Full Esterel}
-
-TODO Can map back.
-
-@subsubsection[#:tag "just:syntactic:macro"]{Expressibilty}
-
-TODO Macro Expressive (up to trap)
-
-@subsubsection[#:tag "just:syntactic:tasks"]{Tasks}
-
-Tasks are one way that Full Esterel can interoperate with the host language.
-Tasks allow Esterel to launch Asynchronous processes within the host language that
-can be controlled by TODO
+TODO How to talk about full esterel and missing features in the context
 
 @section[#:tag "just:local"]{Justifying Local}
 
-TODO
-Contexts
-GO
+Justifying that the calculus allows for local reasoning is
+not difficult. The relation @es[≡] contains a context rule
+which states that the the rules of the calculus apply in any
+program context. I would argue that this is the definition
+of locality in terms of calculi.
 
 @section[#:tag "just:sound"]{Justifying Soundness}
 
@@ -86,7 +66,6 @@ As mentioned in @secref["intro:sound"],
 soundness here refers to two theorems: Mathematical
 Soundness, usually called Consistency, and Soundness with
 respect to some external model, usually just called Soundness.
-
 
 Consistency, at it's core, means that a theory cannot
 disagree with itself. In the case of programming language semantics
@@ -110,17 +89,113 @@ with some minor modifications that were implemented in the Esterel v7 compiler.
 
 @subsection[#:tag "just:sound:compiler"]{The compiler}
 
-@subsection[#:tag "just:sound:pure"]{Loop Free, Pure Esterel}
+TODO
 
-TODO the subset of Esterel, why it is enough
+@subsection[#:tag "just:sound:pure"]{Pure Esterel}
+
+There is a caveat to the proofs of both soundness and adequacy theorems:
+They both work on Pure Esterel programs. I find this,
+however, to not restrict the validity of the theorems much.
+
+Pure Esterel, the subset of Esterel which does not handle
+Host Language Programs,@note{ That is Pure Esterel is the
+ part of Esterel which contains only Esterel terms, not a
+ ``side-effect free'' fragment of Esterel} defines the
+essence of Esterel. The addition forms either add
+traditional programming language variables (@es[var]), or
+extend the reasoning mechanism used for signals to allow
+them to carry values (@es[shared]). These extensions either
+re-use much of the mechanisms that are proven correct by the
+soundness and adequacy proofs, or are traditional enough
+that there is little interesting added when reasoning about
+them. Therefore I would argue that a the proofs for Pure
+Esterel intuitively generalize to Esterel with Host Language
+terms.
+
+@subsection[#:tag "just:sound:free"]{Loop Free}
+
+My proofs are also only give on the fragment of Pure Esterel
+which does not contain loops. This is for a similar reason
+to using Pure Esterel: Proving the calculus correct on loop
+is difficult but adds little value. At the core, this is
+because of Schizophrenia (See @secref["back:esterel:schizo"]
+for a refresher). The calculus, rather trivially, does not
+suffer from schizophrenia because it duplicates the loop
+body on reduction, preventing conflict between different
+iterations of the loop. Handling schizophrenia in the
+circuit semantics is a more complicated problem. While one
+could just duplicate the loop body@note{This is the solution
+ that the random tests for my calculus use.} this is makes
+the compilation of the program quadratic, which is rather
+terrible. Much work has gone in to handling loop compilation
+correctly and efficiently (such as chapter 12 of
+@citet[esterel02], as @citet[new-method-schizophrenic]), and
+thus I defer to the community on the correct way to handle
+loop compilation, and do not touch on it here. Therefore I
+defer to the community on showing that duplicating loop
+bodies is equivalent to these more complex methods, and do
+not touch on them in my proofs. In short, because 1) the
+primary issues with loops are schizophrenia and
+instantaneous loop bodies, 2) my calculus handles these in a
+fairly intuitive and simple way, and 3) proving correctness
+of these cases would be tedious, difficult, and probably not
+very informative, I simply postulate the correctness of the
+calculus on loops.
 
 @subsection[#:tag "just:sound:instants"]{Instants}
 
-Why single instants are enough
 
-@subsection[#:tag "just:sound:CB"]{Names and the correct binding judgment}
+One final caveat: The proofs of soundness and adequacy
+restrict themselves to a single instant of execution. I
+postulate, however, that they hold between instants. This is
+because the inter-instant translation function
+@es[next-instant] is nearly identical to the same function
+from @citet[esterel02]@note{Section 8.3, page 89 of the
+ current draft} which as been proven correct by Lionel Rieg
+in Coq.@note{ Unfortunately, as of the writing of this
+ dissertation this work is unpublished.}, but with trivial
+extensions to handle @es[loop^stop] and @es[ρ]. Therefore I feel comfortable postulating
+that the calculus is correct across instants.
 
-TODO maybe get rid of?
+@subsection[#:tad "just:sound:testing"]{Evidence via Testing}
+
+@(require racket/runtime-path racket/system racket/port racket/string racket/format)
+@(define-runtime-path loc "../..//final-tests/logs/")
+@(define test-count*
+   (string->number
+    (string-trim
+     (call-with-output-string
+      (lambda (o)
+        (parameterize ([current-directory loc]
+                       [current-output-port o])
+          (system
+           "racket -e \"(+ `for x in *ternal*; do grep \"running test\" $x | tail -1; done | awk '{ print $3 }'` )\"")
+          ))))))
+
+@(unless (number? test-count*) (error 'arg "expected a test count, got ~a" test-count))
+
+@(define test-count (* 100000 (floor (/ test-count* 100000))))
+
+
+@(define itemlistheader bold)
+   
+While I have presented the above as caveats, I have evidence that
+the postulates above hold, in addition to evidence that my theorems are correct
+beyond the proofs themselves. This evidence comes from random testing. I have generated
+@(~a test-count) random tests that check evaluator defined by the calculus against several Esterel
+implementations, using Full Esterel programs. To do this, I provide the following:
+
+@itemlist[@item{@itemlistheader{Redex COS model} I built a
+           Redex@~cite[redex-book] model of the COS semantics. The semantics is a
+           rule-for-rule translation of the COS semantics from @citet[compiling-esterel],
+           aside from some minor syntax differences. This provides an executable model
+           of the COS semantics.}
+          @item{@itemlistheader{Redex calculs model} I have also build
+           a Redex model of the calculus. This defines two relations:
+           the core relation of the calculus @es[⇀], and a new
+           relation @es[⇁] which gives an evaluation strategy for @es[⇀].
+           The @es[⇁] relation and the @es[next-instant] function is used to define a
+           multi-evaluator for Esterel}]
 
 @subsection[#:tag "just:sound:thrm"]{The theorem of soundness}
 

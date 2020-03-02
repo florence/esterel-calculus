@@ -273,7 +273,7 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
         @#:case[(par p-pure_i q-pure_i)]{}
         @#:case[(suspend p-pure_i S)]{}
         @#:case[(trap p-pure_i)]{}
-        @#:case[(ρ θr A p_i)]{This case is given by @proof-ref["Can-rho-K-is-sound"].}
+        @#:case[(ρ θr A p_i)]{This case is given  by @proof-ref["Can-rho-K-is-sound"].}
         @#:case[(loop p_i) #:ignore]{ TODO }
         @#:case[(loop^stop p_i q_i) #:ignore]{ TODO }]
 }
