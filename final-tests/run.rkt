@@ -4,7 +4,7 @@
 (define-runtime-path log-dir "logs")
 (define-runtime-path external "../redex/test/long-tests/external.rkt")
 (define-runtime-path internal "../redex/test/long-tests/internal.rkt")
-(define-runtime-path agda "../cross-tests/redex-model-implies-agda-model.rkt")
+(define-runtime-path circuits "../redex/test/long-tests/circuit.rkt")
 
 (define (make-file-name name iter)
   (~a name "-" iter ".log"))
@@ -37,5 +37,5 @@
     (list
      (run-with-output-file racket (list external) "external" n)
      (run-with-output-file racket (list internal) "internal" n)
-     (run-with-output-file racket (list agda "-r" "-c" "10000000") "agda" n)))
+     (run-with-output-file racket (list circuits) "circuits" n)))
   (for-each (lambda (f) (f 'wait)) fs))
