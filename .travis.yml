@@ -3,6 +3,7 @@ sudo: false
 env:
   global:
     - RACKET_DIR=~/racket
+    - RACKET_MINIMAL=1
   matrix:
     - RACKET_VERSION=HEADCS
     - RACKET_VERSION=HEAD
@@ -15,7 +16,6 @@ before_install:
   - export PATH="${RACKET_DIR}/bin:${PATH}"
 
 install:
-  - raco pkg remove --force pict-lib
   - raco pkg install https://github.com/florence/pict.git?path=pict-lib#diss
   - raco pkg install https://github.com/florence/circuitous.git?path=circuitous-lib
   - raco pkg install

@@ -62,6 +62,11 @@ of locality in terms of calculi.
 
 @section[#:tag "just:setup"]{Setup for the proofs}
 
+The justifications for Soundness, Consistency, and Adequacy involve
+formal proofs. However these proofs have some require some setup and have
+some caveats. The purpose of this section is to give the rest of the setup
+needed to understand the statements of the theorems and their proofs.
+
 
 @subsection[#:tag "just:sound:compiler"]{The compiler}
 
@@ -69,7 +74,7 @@ TODO
 
 @subsection[#:tag "just:sound:pure"]{Pure Esterel}
 
-There is a caveat to the proofs of both soundness and adequacy theorems:
+There is a caveat to the Soundness, Consistency, and Adequacy theorems:
 They both work on Pure Esterel programs. I find this,
 however, to not restrict the validity of the theorems much.
 
