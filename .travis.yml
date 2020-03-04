@@ -16,9 +16,9 @@ before_install:
   - export PATH="${RACKET_DIR}/bin:${PATH}"
 
 install:
-  - raco pkg install --fail-fast --deps search-auto https://github.com/florence/pict.git?path=pict-lib#diss
-  - raco pkg install --fail-fast --deps search-auto https://github.com/florence/circuitous.git?path=circuitous-lib
-  - raco pkg install --fail-fast --deps search-auto
+  - raco pkg install --fail-fast -D --deps search-auto https://github.com/florence/pict.git?path=pict-lib#diss
+  - raco pkg install --fail-fast -D --deps search-auto https://github.com/florence/circuitous.git?path=circuitous-lib
+  - raco pkg install --fail-fast -D --deps search-auto
 
 script:
  - make
