@@ -87,8 +87,8 @@
      (warn-about-uninstalled-hiphop)]
     [else
      (unless (equal? res res2)
-       (fprintf (current-error-port)
-                "BAD: Esterelv5 and Hiphop behave differently on (~a ~a ~a ~a)\nV5: ~a\nHH: ~a\n\n" p i o Ss res res2))])
+       (log-eval-test-warning
+        "BAD: Esterelv5 and Hiphop behave differently on (~a ~a ~a ~a)\nV5: ~a\nHH: ~a\n\n" p i o Ss res res2))])
   (test-calculus p i o Ss #:limits? limits? #:debug? debug?
                  #:oracle (if (eq? res 'not-installed) #f res)
                  #:memory-limits? memory-limits?
