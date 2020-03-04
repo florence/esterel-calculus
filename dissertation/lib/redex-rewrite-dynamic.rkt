@@ -37,7 +37,7 @@
 (set-arrow-pict! '--> reduction-arrow)
 
 ;; es short for esterel, in the spirit of @racket[]
-(provide with-paper-rewriters/proc)
+(provide with-paper-rewriters/proc render-op)
 
 (define (render-op p [x #f])
   (define s (~a (if x x p)))

@@ -19,7 +19,7 @@
 ;; load this dynamically so that a rewriter change
 ;; doesn't require recompiling everything.
 (lazy-require
- ["redex-rewrite-dynamic.rkt" (with-paper-rewriters/proc)])
+ ["redex-rewrite-dynamic.rkt" (with-paper-rewriters/proc render-op)])
 
 (define current-reduction-arrow (make-parameter 'calculus))
 (define (reduction-arrow)
@@ -34,6 +34,7 @@
 ;; es short for esterel, in the spirit of @racket[]
 (provide es es/unchecked esblock define/esblock
          with-paper-rewriters
+         render-op
          (contract-out
           [rule (-> is-rule-label? pict?)])
          current-reduction-arrow

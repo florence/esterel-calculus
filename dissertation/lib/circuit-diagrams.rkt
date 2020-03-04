@@ -7,13 +7,7 @@
          syntax/parse/define)
 
 (define (textify i)
-  (define s (~a i))
-  (match (string-split s "_")
-    [(list x) (text x)]
-    [(list x y)
-     (hbl-append
-      (text x)
-      (text y '(subscript)))]))
+  (render-op (~a i)))
 
 (define (esterel-interface l
                            #:tag-prefix [tag* #f]
@@ -110,9 +104,9 @@
   (after
    (esterel-interface (es (compile p-pure))
                       #:tag-prefix '||
-                      #:extra-input-signals '(S_i)  #:extra-output-signals '(S_o))
-   (move-to-tag 'S_i)
-   (line-to-tag 'S_o)))
+                      #:extra-input-signals '(S^i)  #:extra-output-signals '(S^o))
+   (move-to-tag 'S^i)
+   (line-to-tag 'S^o)))
 (define (only-kode n)
   (after
    (img (textify "GO") 'rc)
@@ -132,7 +126,7 @@
      (line-right 3)
      (before (buffer)
              (line-right 3)
-             (img (textify "S_o") 'lc)))
+             (img [es So] #;(textify "S_o") 'lc)))
     (after
      (line-down 2)
      (line-right 3)

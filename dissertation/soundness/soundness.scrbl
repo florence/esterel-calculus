@@ -121,7 +121,11 @@ completely controlled by @es[GO], @es[RES], and @es[SEL]: if
 of the output signals and return codes will be @es[0] and
 the circuit will be constructive. This is proven formally in
 @proof-ref["activation-condition"], and follows fairly
-easily by induction.
+easily by induction. In addition the compilation function
+assume that @es[GO] and @es[SEL] are mutually exclusive:
+a @es[SEL]ected term may not be started for the first time.
+This assumption, however, can be removed with a small
+change, which is discussed about in @secref["future"].
 
 @[begin
    (define (circ-fig n)
@@ -137,6 +141,80 @@ it immediately terminates. Remember that any wire not draw in the diagram is tak
 this term can never be selected, and can never have a different exit code.
 
 @circ-fig['nothing]
+
+The next simplest compilation clause is @es[exit], which just connects @es[GO] to the return code wire
+corresponding to the return code for that @es[exit].
+
+@circ-fig['exit]
+
+Next, we have the compilation of @es[emit], found in
+@figure-ref["comp:emit"]. Like @es[nothing], this connects
+@es[GO] to @es[K0] as this term terminates immediately. It
+also adds the wire @es[So] to the output environment, as
+this signal will be emitted immediately when the term
+executes. Note that I will always name the output wires for
+a signal @es[S] as @es[So], and the input wires @es[Si].
+
+@circ-fig['emit]
+
+The last term without subterms, @es[pause] is also significantly more complex than the others.
+It's compilation is in @figure-ref["comp:pause"]. Firstly, the @es[GO] wire is connected
+to the @es[K1] wire, as a @es[pause] will, well, pause the first time is reached.
+The @es[SEL] wire is fairly simple: it is true when the register is true. The @es[K0] wire
+just says that a @es[pause] finishes when it is @es[SEL]ected, and @es[RES]umed. The complex part
+goes into determining if the term gets selected. A term is selected if it is not @es[KILL]ed, and
+if either it is reached for the first time (@es[GO]) or it was already selected and it is being @es[SUSP]ended,
+in which case it's selection status needs to be maintained.
+
+@circ-fig['pause]
+
+The compilation of @es[signal] (@figure-ref["comp:signal"]) is fairly simple: the inner term is compiled,
+and the wires for the given signal are re
+
+@circ-fig['signal]
+
+The compilation of @es[present] (@figure-ref["comp:present"]) compiles both terms, and broadcasts all inputs except for @es[GO]
+to both subcircuits. All outputs are or'ed. The @es[GO] wire is wire of both subcircuits
+is given by the overall @es[GO] and which value of the conditioned signal. The @es[(compile p-pure)]
+subcircuit activates if and only if both @es[GO] and @es[Si] are @es[1]. The @es[(compile p-pure)]
+subcircuit activates if and only if @es[GO] is @es[1] and @es[Si] is @es[0]. That is a branch is activated
+if and only if the @es[present] is activated and the signal is in the corresponding state.
+
+@circ-fig['present]
+
+The compilation of @es[suspend] (@figure-ref["comp:suspend"]) does nothing special to @es[GO]:
+remember @es[suspend]ed term's behave normally on the first instant they are reached. The however
+the compilation intercepts the @es[RES] wire, and only @es[RES]umes the subcircuit
+if the suspension signal @es[S] is @es[0]. If the signal is @es[1] then the circuit is suspended
+instead, and this information is passed to the @es[K1] wire. All of this only occurs, however,
+if the subcircuit is @es[SEL]ected. If it is not, the @es[RES] and @es[SUSP] wires are suppressed.
+
+@circ-fig['suspend]
+
+The compilation of @es[seq] (@figure-ref["comp:seq"]) wires
+the @es[K0] wire of the first subcircuit to the @es[GO] wire
+of the second, causing the second subcircuit to start when
+the first finishes. The overall @es[K0] wire is thus just
+the @es[K0] wire of the second subcircuit, as the @es[seq]
+only completes when it does. The remainder of the outputs
+are or'ed. and the remainder of the inputs are broadcast to
+the subciruits.
+
+@circ-fig['seq]
+
+The compilation of @es[trap] (@figure-ref["comp:trap"])
+intercepts the @es[K2] wire (which represents the abortion
+of this term) and passes it back to the @es[KILL] wire of
+the subcircuit. It then shifts the return codes in the same
+way as @es[↓].
+
+@circ-fig['trap]
+
+TODO par
+
+TODO loop
+
+TODO ρ
 
 @subsection[#:tag "just:sound:pure"]{Pure Esterel}
 
@@ -207,7 +285,7 @@ that the calculus is correct across instants.
 @subsection[#:tag "just:sound:testing"]{Evidence via Testing}
 
 @(require racket/runtime-path racket/system racket/port racket/string racket/format)
-@(define-runtime-path loc "../..//final-tests/logs/")
+@(define-runtime-path loc "../../final-tests/logs/")
 @(define impure-test-count*
    (string->number
     (string-trim
@@ -232,18 +310,21 @@ that the calculus is correct across instants.
 
 
 @;{@(unless (number? impure-test-count*)
-   (error 'arg "expected a test count, got ~a" test-count))}
+      (error 'arg "expected a test count, got ~a" test-count))}
 @;{@(unless (number? circuit-test-count*)
-   (error 'arg "expected a test count, got ~a" test-count))}
+      (error 'arg "expected a test count, got ~a" test-count))}
 
 @(define impure-test-count
    (if impure-test-count*
-       (* 100000 (floor (/ impure-test-count* 100000)))
+       (max impure-test-count*
+            (* 100000 (floor (/ impure-test-count* 100000))))
        "TODO"))
 
 @(define circuit-test-count
    (if circuit-test-count*
-       (* 100000 (floor (/ circuit-test-count* 100000)))
+       (max
+        circuit-test-count*
+        (* 100000 (floor (/ circuit-test-count* 100000))))
        "TODO"))
 @(define |Esterel v5| @nonbreaking{Esterel v5})
 
@@ -292,7 +373,7 @@ Esterel programs which test that the Hiphop.js,
 @|Esterel\ v5|, the COS, the calculus, and the circuit
 compiler agree on the result of running programs for
 multiple instants.@note{Each test runs for a random number
- of instants.} These tests are to provide evidence for
+ of instants.} These tests are to provide evidence for consistency and
 adequacy, not just against the circuit semantics but against
 real implementations as well. The real implementations are
 import because they accept Esterel terms that use host
@@ -303,7 +384,8 @@ adequacy holds in the presence of Full Esterel.
 
 In addition I have run @(~a circuit-test-count) random test
 which generate a random pure program (with loops), apply a
-random rule from the calculus, and then checked that the
+all rules from the calculus (specifically from @es[⟶], the
+compatible closure of @es[⇀]), and then check that the
 circuits were equal using the Circuitous library. These
 tests provide evidence for soundness, and especially for the
 soundness with loops.
