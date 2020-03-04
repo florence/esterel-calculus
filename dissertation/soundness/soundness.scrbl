@@ -60,32 +60,8 @@ which states that the the rules of the calculus apply in any
 program context. I would argue that this is the definition
 of locality in terms of calculi.
 
-@section[#:tag "just:sound"]{Justifying Soundness}
+@section[#:tag "just:setup"]{Setup for the proofs}
 
-As mentioned in @secref["intro:sound"],
-soundness here refers to two theorems: Mathematical
-Soundness, usually called Consistency, and Soundness with
-respect to some external model, usually just called Soundness.
-
-Consistency, at it's core, means that a theory cannot
-disagree with itself. In the case of programming language semantics
-this can be boiled down to a single property: That @es[eval^esterel] is a function.
-Or, more formally:
-
-@proof-splice["consistent"]
-
-The full proof is given in the appendices as
-@proof-ref["consistent"]. Usually, consistency is proven
-using the confluence of the underlying reduction semantics.
-However, in this case proving confluence is not necessary:
-consistency here follows as a corollary of the adequacy of
-the calculus. I will discuss this later in
-@secref["just:adequacy-and-consistency"].
-
-Soundness, on the other had, relates a calculus to some external definition
-of the language which we take to be ground truth for it's behavior. As ground
-truth I take the circuit semantics as given by @citet[esterel02],
-with some minor modifications that were implemented in the Esterel v7 compiler.
 
 @subsection[#:tag "just:sound:compiler"]{The compiler}
 
@@ -260,6 +236,36 @@ random rule from the calculus, and then checked that the
 circuits were equal using the Circuitous library. These
 tests provide evidence for soundness, and especially for the
 soundness with loops.
+
+
+@section[#:tag "just:sound"]{Justifying Soundness}
+
+As mentioned in @secref["intro:sound"],
+soundness here refers to two theorems: Mathematical
+Soundness, usually called Consistency, and Soundness with
+respect to some external model, usually just called Soundness.
+
+Consistency, at it's core, means that a theory cannot
+disagree with itself. In the case of programming language semantics
+this can be boiled down to a single property: That @es[eval^esterel] is a function.
+Or, more formally:
+
+@proof-splice["consistent"]
+
+The full proof is given in the appendices as
+@proof-ref["consistent"]. Usually, consistency is proven
+using the confluence of the underlying reduction semantics.
+However, in this case proving confluence is not necessary:
+consistency here follows as a corollary of the adequacy of
+the calculus. I will discuss this later in
+@secref["just:adequacy-and-consistency"].
+
+Soundness, on the other had, relates a calculus to some external definition
+of the language which we take to be ground truth for it's behavior. As ground
+truth I take the circuit semantics as given by @citet[esterel02],
+with some minor modifications that were implemented in the Esterel v7 compiler.
+
+
 
 @subsection[#:tag "just:sound:thrm"]{The theorem of soundness}
 
