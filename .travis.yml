@@ -20,7 +20,7 @@ before_install:
 install:
   - raco pkg install --fail-fast -D --deps search-auto https://github.com/florence/pict.git?path=pict-lib#diss
   - raco pkg install --fail-fast -D --deps search-auto https://github.com/florence/circuitous.git?path=circuitous-lib
-  - xvfb-run raco pkg install -j 1 --fail-fast -D --deps search-auto
+  - xvfb-run -a raco pkg install -j 1 --fail-fast -D --deps search-auto
 
 script:
  - make
