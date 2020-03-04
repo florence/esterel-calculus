@@ -91,58 +91,63 @@
   [(convert (var x := e p))
    (var x := e (convert p))]
   [(convert (:= x e)) (:= x e)]
+  [(convert (ρ · WAIT p)) (convert p)]
+  [(convert (ρ ((sig S unknown) θr) WAIT p))
+   (convert (signal S (ρ θr WAIT p)))]
+  [(convert (ρ ((sig S present) θr) WAIT p))
+   (convert (signal S (par (emit S) (ρ θr WAIT p))))]
   [(convert (if x p q))
    (if x (convert p) (convert q))])
 
 (define-extended-language esterel-check esterel-eval*
   (Stest ::= S1 S2 S3 S4 S5)
   (p-pure q-pure ::=
-   nothing
-   pause
-   (seq p-pure p-pure)
-   (par p-pure p-pure)
-   (trap p-pure)
-   (exit n)
-   (signal S p-pure)
-   (suspend p-pure S)
-   (present S p-pure p-pure)
-   (emit S)
-   (loop p-pure))
+          nothing
+          pause
+          (seq p-pure p-pure)
+          (par p-pure p-pure)
+          (trap p-pure)
+          (exit n)
+          (signal S p-pure)
+          (suspend p-pure S)
+          (present S p-pure p-pure)
+          (emit S)
+          (loop p-pure))
   (p-pure-ext q-pure-ext ::=
-   nothing
-   pause
-   (seq p-pure-ext p-pure-ext)
-   (par p-pure-ext p-pure-ext)
-   (trap p-pure-ext)
-   (exit n)
-   (signal S p-pure-ext)
-   (suspend p-pure-ext S)
-   (present S p-pure-ext p-pure-ext)
-   (emit S)
-   (loop p-pure-ext)
-   (loop^stop p-pure-ext p-pure-ext)
-   (ρ θ-pure A p-pure-ext))
+              nothing
+              pause
+              (seq p-pure-ext p-pure-ext)
+              (par p-pure-ext p-pure-ext)
+              (trap p-pure-ext)
+              (exit n)
+              (signal S p-pure-ext)
+              (suspend p-pure-ext S)
+              (present S p-pure-ext p-pure-ext)
+              (emit S)
+              (loop p-pure-ext)
+              (loop^stop p-pure-ext p-pure-ext)
+              (ρ θ-pure A p-pure-ext))
   (θ-pure ::=
           ·
           {(sig S unknown) θ-pure}
           {(sig S present) θ-pure})
   (p-check q-check ::=
-   nothing
-   pause
-   (seq p-check p-check)
-   (par p-check p-check)
-   (trap p-check)
-   (exit n)
-   (signal S p-check)
-   (suspend p-check S)
-   (present S p-check p-check)
-   (emit S)
-   (loop p-check)
-   (shared s := e-check p-check)
-   (<= s e-check)
-   (var x := e-check p-check)
-   (:= x e-check)
-   (if x p-check p-check))
+           nothing
+           pause
+           (seq p-check p-check)
+           (par p-check p-check)
+           (trap p-check)
+           (exit n)
+           (signal S p-check)
+           (suspend p-check S)
+           (present S p-check p-check)
+           (emit S)
+           (loop p-check)
+           (shared s := e-check p-check)
+           (<= s e-check)
+           (var x := e-check p-check)
+           (:= x e-check)
+           (if x p-check p-check))
   (p-check+θ q-check+θ ::=
              nothing
              pause
@@ -179,21 +184,21 @@
              (if x p-check+θ C-check+θ)
              (ρ θ-check A C-check+θ))
   (E-check ::=
-     (seq E-check q-check)
-     (loop^stop E-check q-check)
-     (par E-check q-check)
-     (par p-check E-check)
-     (suspend E-check S)
-     (trap E-check)
-     hole)
+           (seq E-check q-check)
+           (loop^stop E-check q-check)
+           (par E-check q-check)
+           (par p-check E-check)
+           (suspend E-check S)
+           (trap E-check)
+           hole)
   (E-check+θ ::=
-     (seq E-check+θ q-check+θ)
-     (loop^stop E-check+θ q-check+θ)
-     (par E-check+θ q-check+θ)
-     (par p-check+θ E-check+θ)
-     (suspend E-check+θ S)
-     (trap E-check+θ)
-     hole)
+             (seq E-check+θ q-check+θ)
+             (loop^stop E-check+θ q-check+θ)
+             (par E-check+θ q-check+θ)
+             (par p-check+θ E-check+θ)
+             (suspend E-check+θ S)
+             (trap E-check+θ)
+             hole)
   ;; just dont generate absence or new, to maintain coherence
   (θ-check ::=
            ·
@@ -206,6 +211,38 @@
   (shar-check ::= old new)
   (status-check ::= present unknown)
   ;; for random tests on loop safety
+  (p-loopy ::= p-loopless+θ p-loop-safe+θ)
+  (p-loopless+θ ::=
+              nothing
+              pause
+              (seq p-loopless+θ p-loopless+θ)
+              (par p-loopless+θ p-loopless+θ)
+              (trap p-loopless+θ)
+              (exit n)
+              (signal S p-loopless+θ)
+              (suspend p-loopless+θ S)
+              (present S p-loopless+θ p-loopless+θ)
+              (emit S)
+              (ρ θ-pure WAIT p-loopless+θ))
+  (p-loop-safe+θ q-loop-safe+θ
+               ::=
+               (exit n)
+               pause
+               (seq p-loopless+θ p-loop-safe+θ)
+               (seq  p-loop-safe+θ p-loopless+θ)
+               (seq  p-loop-safe+θ p-loop-safe+θ)
+               (par p-loopless+θ p-loop-safe+θ)
+               (par p-loop-safe+θ p-loopless+θ)
+               (par p-loop-safe+θ p-loop-safe+θ)
+               (present S p-loop-safe+θ p-loop-safe+θ)
+               (suspend p-loop-safe+θ S)
+               ;; generating traps results in things like
+               ;; (loop (trap (exit 0))
+               ;; which is not loop safe!
+               ;;(trap p-loop-safe)
+               (signal S p-loop-safe+θ)
+               (loop p-loop-safe+θ)
+               (ρ θ-pure WAIT p-loop-safe+θ))
   (p-loopless ::=
               nothing
               pause
@@ -235,6 +272,7 @@
                ;;(trap p-loop-safe)
                (signal S p-loop-safe)
                (loop p-loop-safe)))
+
 
 
 ;                                                                                  
@@ -267,6 +305,9 @@
 (define-judgment-form esterel-check
   #:mode     (loop-safe I)
   #:contract (loop-safe p-pure-ext)
+  [(loop-safe p)
+   -----
+   (loop-safe (ρ θr WAIT p))]
   [-----
    (loop-safe nothing)]
   [-----

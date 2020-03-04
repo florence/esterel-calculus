@@ -157,11 +157,11 @@ in Coq.@note{ Unfortunately, as of the writing of this
 extensions to handle @es[loop^stop] and @es[ρ]. Therefore I feel comfortable postulating
 that the calculus is correct across instants.
 
-@subsection[#:tad "just:sound:testing"]{Evidence via Testing}
+@subsection[#:tag "just:sound:testing"]{Evidence via Testing}
 
 @(require racket/runtime-path racket/system racket/port racket/string racket/format)
 @(define-runtime-path loc "../..//final-tests/logs/")
-@(define test-count*
+@(define impure-test-count*
    (string->number
     (string-trim
      (call-with-output-string
@@ -172,30 +172,94 @@ that the calculus is correct across instants.
            "racket -e \"(+ `for x in *ternal*; do grep \"running test\" $x | tail -1; done | awk '{ print $3 }'` )\"")
           ))))))
 
-@(unless (number? test-count*) (error 'arg "expected a test count, got ~a" test-count))
+@(define circuit-test-count*
+   (string->number
+    (string-trim
+     (call-with-output-string
+      (lambda (o)
+        (parameterize ([current-directory loc]
+                       [current-output-port o])
+          (system
+           "racket -e \"(+ `for x in *circuit*; do grep \"running test\" $x | tail -1; done | awk '{ print $3 }'` )\"")
+          ))))))
 
-@(define test-count (* 100000 (floor (/ test-count* 100000))))
 
+@;{@(unless (number? impure-test-count*)
+   (error 'arg "expected a test count, got ~a" test-count))}
+@;{@(unless (number? circuit-test-count*)
+   (error 'arg "expected a test count, got ~a" test-count))}
+
+@(define impure-test-count
+   (if impure-test-count*
+       (* 100000 (floor (/ impure-test-count* 100000)))
+       "TODO"))
+
+@(define circuit-test-count
+   (if circuit-test-count*
+       (* 100000 (floor (/ circuit-test-count* 100000)))
+       "TODO"))
+@(define |Esterel v5| @nonbreaking{Esterel v5})
 
 @(define itemlistheader bold)
    
-While I have presented the above as caveats, I have evidence that
-the postulates above hold, in addition to evidence that my theorems are correct
-beyond the proofs themselves. This evidence comes from random testing. I have generated
-@(~a test-count) random tests that check evaluator defined by the calculus against several Esterel
-implementations, using Full Esterel programs. To do this, I provide the following:
+While I have presented the above as caveats, I have evidence
+that the postulates above hold, in addition to evidence that
+my theorems are correct beyond the proofs themselves. This
+evidence comes from random testing. To do this, I provide
+the following:
 
 @itemlist[@item{@itemlistheader{Redex COS model} I built a
            Redex@~cite[redex-book] model of the COS semantics. The semantics is a
            rule-for-rule translation of the COS semantics from @citet[compiling-esterel],
            aside from some minor syntax differences. This provides an executable model
            of the COS semantics.}
-          @item{@itemlistheader{Redex calculs model} I have also build
+          @item{@itemlistheader{Redex calculus model} I have also build
            a Redex model of the calculus. This defines two relations:
            the core relation of the calculus @es[⇀], and a new
            relation @es[⇁] which gives an evaluation strategy for @es[⇀].
            The @es[⇁] relation and the @es[next-instant] function is used to define a
-           multi-evaluator for Esterel}]
+           multi-evaluator for Esterel. This evaluator checks at
+           every reduction step that the step taken by @es[⇁] is also
+           in @es[⇀].}
+          @item{@itemlistheader{Redex/Hiphop.js bridge} 
+           HipHop.js is an Esterel implementation embedded into Javascript. We
+           built a library that can translate Redex expressions into
+           Hiphop.js@~cite[hiphop] programs and then evaluate them.@note{Special thanks to Jesse Tov
+           for helping out with this.}
+           There is also a
+           compiler form a subset of Hiphop.js to the Redex model of the calculus,
+           allowing many of the Hiphop.js tests be run directly against the calculus. This translator does not accept
+           all Hiphop.js programs, because Hiphop.js programs embed
+           JavaScript code as the Redex model cannot evaluate the
+           JavaScript.}
+          @item{@itemlistheader{Redex/@|Esterel\ v5| bridge}
+           There is also built a translator that produces @|Esterel\ v5| programs
+           from Redex terms.}
+          @item{@itemlistheader{Redex circuit compiler}
+           Finally I have built a compiler from pure Esterel (with loops)
+           to circuits, which runs on top of the circuit library Circuitous.}]
+
+
+I have run @(~a impure-test-count) tests which on Full
+Esterel programs which test that the Hiphop.js,
+@|Esterel\ v5|, the COS, the calculus, and the circuit
+compiler agree on the result of running programs for
+multiple instants.@note{Each test runs for a random number
+ of instants.} These tests are to provide evidence for
+adequacy, not just against the circuit semantics but against
+real implementations as well. The real implementations are
+import because they accept Esterel terms that use host
+language expressions, which the circuit compiler does not.
+Therefore these tests in particular give evidence that
+adequacy holds in the presence of Full Esterel.
+
+
+In addition I have run @(~a circuit-test-count) random test
+which generate a random pure program (with loops), apply a
+random rule from the calculus, and then checked that the
+circuits were equal using the Circuitous library. These
+tests provide evidence for soundness, and especially for the
+soundness with loops.
 
 @subsection[#:tag "just:sound:thrm"]{The theorem of soundness}
 
@@ -347,8 +411,22 @@ wires are @es[⊥].@note{When there is an input which is
  @es[⊥], then the circuit is trivially non-constructive,
  therefore this case is uninteresting.}
 
+Finally, both of @racket[assert-totally-constructive]
+and @racket[assert-same] may take in assumptions about the environment
+which can be used to constrain what they check. For example:
+@[check
+  (assert-same
+   #:constraints '(not a)
+   delay1 delay2)
+  (eval:error
+   (assert-same 
+    #:constraints 'a
+    delay1 delay2))]
 
-TODO describe constraints.
+Which show that @racket[delay1] and @racket[delay2] are
+equal when @racket[a] is always false, but not equal when
+@racket[a] is always true.
+
 
 @subsection[#:tag "just:sound:lemma"]{Important lemma's}
 

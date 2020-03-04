@@ -1,5 +1,5 @@
 loglevel = error
-beforecommit: redex agda cross front-end
+beforecommit: circuits redex dissertation front-end
 
 racket-build: always
 	raco setup --check-pkg-deps esterel-calculus
@@ -11,7 +11,7 @@ front-end: redex
 circuits: always racket-build
 	raco test circuits
 
-redex: always racket-build circuits
+redex: always racket-build circuits 
 	raco test redex/cos/model.rkt
 	raco test redex/cos/test/main.rkt
 	./redex/test-short.sh redex

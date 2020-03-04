@@ -29,7 +29,7 @@
     (get-signals complete*))
    (where (complete*)
           ,(apply-reduction-relation*/enforce-single standard:R `(setup p (env-v ...))))
-   (side-condition (term (is-compelete? complete*)))
+   (side-condition (term (is-complete? complete*)))
    (where p_* (next-instant complete*))]
   [(instant p (env-v ...))
    #f
