@@ -181,7 +181,7 @@
    ---------- "par-done"
    (leftmost* θ A p_o E (par done D))]
 
-  [(leftmost* θ A p_o (in-hole E (par p hole)) D) (blocked θ A (in-hole E (par hole p_o)) p)
+  [(leftmost* θ A p_o (in-hole E (par p hole)) D) (blocked θ A (in-hole E (par hole (in-hole D p_o))) p)
    ---------- "par-blocked"
    (leftmost* θ A p_o E (par p D))]
 
