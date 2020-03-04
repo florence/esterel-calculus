@@ -1,0 +1,178 @@
+Constructiveness & Calculi
+==========================
+
+Paper in 2019 that contained a calculus for esterel. The calculus is
+consistent, meaning it is a sane semantics, but it wasn't sound
+because it doesn't deal with the notion of constructiveness. Today, my
+goal is to explain what constructiveness is, why a calculus is
+naturally going to have trouble with it, and what we did to fix
+it. For the fixed calculus, we have both consistency and soundness.
+
+This is work with Gerard Berry and Spencer Florence.
+
+First Esterel example:
+
+(signal S
+ (seq (emit S)
+      (present S
+               (emit SO1)
+               (emit SO2))))
+
+signal: binder, introduces S and it will be bound to either true or false.
+seq: do things in order
+emit: causes S to be bound to true -- lack of emit, means false.
+present: conditions on `S`
+  -- true branch if an "emit" has happened, false otherwise.
+
+so this program completes with "SO1" emitted as its final
+result. Those free signals are the inputs/outputs.
+
+This one:
+
+(signal S
+    (present S
+             (emit SO1)
+             (emit SO2))))
+
+Doesn't have the emit, so we take the false branch.
+
+Okay, this is kind of like emit is going to set! and the `S` is
+initialized to false, right?
+
+.... well, no.
+
+Esterel, it turns out, is a parallel language and, very importantly,
+it is a deterministic language. Let's return to a very slight
+variation of that first example:
+
+(signal S
+ (par (emit S)
+      (present S
+               (emit SO1)
+               (emit SO2))))
+
+This time, we run the two expressions in parallel. What happens now?
+Well, the exact same thing is guaranteed to happen! The `present`
+cannot take the else branch, even if it runs first, because Esterel
+can see that there is an emit that might happen (more precisely, we
+don't know that it won't happen) so we can't take the false branch. We
+can't the true branch either without the emit actually happening, but
+it does happen, so we emit SO1, just like with the `seq`.
+
+It is guaranteed by the semantics.
+
+Now, this kind of reasoning is just begging for circulatity, right?
+
+Lets dig into that:
+
+(signal S
+    (present S
+             nothing
+             (emit S))))
+
+this is program is illegal and we call it "not reactive". Nevermind
+how exactly we determine it is illegal in a general sense. But in this
+exact program we cannot take the true branch of the `present` because
+then nothing gets emitted. By the reverse we cannot take the else
+branch either!
+
+So this program is bogus. Fine, no problem. Here is another bogus
+program:
+
+(signal S
+    (present S
+             (emit S)
+             nothing)))
+
+This program is not determinsitic and thus bogus.
+
+
+And here we get to constructivness. The surprising thing is that this
+program is _also_ bogus.
+
+(signal S
+    (present S
+             (emit S)
+             (emit S))))
+
+The way to think about this is that there is a causality relation on
+the syntax; it shows up in two places:
+
+  (seq p q)
+
+The `p` has to "happen before" (or, emits inside `p` are allowed to be
+the causes of things in `q` but not the other way) `q`. Similarly, in
+
+  (present S p q)
+
+we have to know if `S` is going to be emitted before we are allowed to
+go inside the `p` or the `q`. So we have to know if `S` is going to be
+emitted before we can allow the emits in `p` and `q`.
+
+And programs are nonconstructive (and thus illegal) if the are
+unbreakable cycles in the causality graph.
+
+So in the above example, we see an `emit S` in the program, but it
+doesn't happen before the conditional. So we cannot run it.
+
+Lets operationalize this. <<return to previous programs using fingers
+and back edges>>.
+
+<<do spencer's examples too>>
+
+Now we need to dig into the biggest example. This one is going to be 
+
+(signal S1
+  (present S1
+    (signal S2
+     (seq (emit S2)
+          (present S2 nothing (emit S1))))
+    nothing))
+
+Okay, so far so good; lets talk about calculi. In general, in a
+calculus, we want rules that we can apply anywnere in a program, not
+just rules that we run like an evaluator. Once we have that, we prove
+that if you apply some rule in one place of the program and you apply
+rules in a different place in the original program, you can bring the
+two programs together somehow. This is getting at the idea that the
+calculus is consistent (and, improtantly, an evaluator defined using
+the calculus is a function).
+
+and this one is constructive:
+
+(signal S1
+  (present S1
+    nothing
+    nothing))
+
+unfortunately, the calculus equates the two!
+
+why? because this is equivalent to `nothing`.
+
+    (signal S2
+     (seq (emit S2)
+          (present S2 nothing (emit S1))))
+
+and the calculus has a notion of compatible closure that lets us go
+anywhere in the term.
+
+Gérard Berry had the idea of the fix and he and Spencer Florence
+turned this into an actual plan for a proof that Florence carried
+out. We need to add a notion of "will run" to the program and we
+restrict the `emit` to work only when we know that control will reach
+this spot. The idea is roughly that we have a construct `go` and when
+it is around an `emit`, we can issue it and we have rules that let us
+move `go` around in only special ways
+
+(go (seq p q)) = (seq (go p) q)
+(go (par p q)) = (par (go p) q)
+(go (par p q)) = (par p (go q))
+
+but no rule for pushing `go` inside the second branch of a seq or past a `signal`.
+
+Upshot: we have consistency, soundness, and adequacy now with a
+version of the calculus that restricts `emit` to places where we know
+that control will reach.
+
+Tini: sound but not adequate
+Ours: sound and adequate (and consistent)
