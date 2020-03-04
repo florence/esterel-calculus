@@ -18,6 +18,7 @@ install:
   - raco pkg remove -f pict-lib
   - raco pkg install https://github.com/florence/pict.git?path=pict-lib#diss
   - raco pkg install https://github.com/florence/circuitous.git?path=circuitous-lib
+  - raco pkg install
 
 script:
  - make
