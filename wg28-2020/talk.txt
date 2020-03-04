@@ -174,5 +174,31 @@ Upshot: we have consistency, soundness, and adequacy now with a
 version of the calculus that restricts `emit` to places where we know
 that control will reach.
 
-Tini: sound but not adequate
-Ours: sound and adequate (and consistent)
+Related semantics
+
+;; Tini -- not adequate
+(define tini-axiomatic
+  (make-bib
+   #:title "An axiomatic semantics for Esterel"
+   #:author "Simone Tini"
+   #:date 2001
+   #:location
+   (journal-location
+    "Theoretical Computer Science"
+    #:volume 296
+    #:pages (list 231 282))))
+
+;; Circuit semantics and CCS (not compatibly closed)
+(define esterel02
+  (make-bib
+    #:title "The Constructive Semantics of Pure Esterel (Draft Version 3)"
+    #:author "Gérard Berry"
+    #:date 2002))
+
+;; COS (not compatibly closed)
+(define optimizations-for-esterel-programs-thesis
+  (make-bib
+   #:title "Optimizations for Faster Simulation of Esterel Programs"
+   #:author (authors "Dumitru Potop-Butucaru")
+   #:date 2002
+   #:location (dissertation-location #:institution "Ecole des Mines de Paris")))
