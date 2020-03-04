@@ -36,7 +36,7 @@
 (define LatinModernMath-Regular-name "Latin Modern Math")
 (define (check-font name)
   (unless (member name (get-face-list))
-    (eprintf "expected the font ~a to be installed\n" name)))
+    (printf "expected the font ~a to be installed\n" name)))
 (check-font Inconsolata-name)
 (check-font Linux-Liberterine-name)
 (check-font LatinModernMath-Regular-name)
