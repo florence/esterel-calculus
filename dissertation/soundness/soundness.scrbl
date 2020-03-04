@@ -6,12 +6,15 @@
           "../lib/cite.rkt"
           (only-in
            "../lib/circuit-diagrams.rkt"
-           emit-pict nothing)
+           emit-pict nothing
+           compile-def
+           esterel-interface)
           "../lib/proof-extras.rkt"
           (only-in "../proofs/proofs.scrbl")
           (only-in "../notations.scrbl")
           (only-in scribble/manual racket)
-          scriblib/figure)
+          scriblib/figure
+          racket/match)
 
 @title[#:style paper-title-style #:tag "just"]{Justifying the Calculus}
 
@@ -70,7 +73,70 @@ needed to understand the statements of the theorems and their proofs.
 
 @subsection[#:tag "just:sound:compiler"]{The compiler}
 
-TODO
+The proofs of soundness and adequacy are proved with respect
+the circuit semantics of Esterel. This semantics is, in
+general, both the ground truth for most other semantics and
+guides the actual implementation of Esterel implementation.
+The core of this semantics is the compilation function
+@es[compile]. This function translates Pure Esterel programs
+(That is, programs that to not refer to the host language)
+into circuits of the the shape given in
+@figure-ref["circ-shape"]. The circuit compiler I describe
+here is the same as the one given in @citet[esterel02],
+except for two changes in the compilation of @es[par]. These
+changes are necessary for soundness, and were implemented in
+the Esterel v7 compiler. I will describe them more later.
+
+@figure["circ-shape"
+        @list{The shape of circuits returned by @es[(compile p-pure)]}
+        (esterel-interface @es[(compile p-pure)])].
+
+The four input wires on the left of the diagram (@es[GO], @es[RES], @es[SUSP], @es[KILL])
+are control wires which guide the execution of the circuit. The @es[GO] wire is true
+when the circuit is supposed to start for the first time. The @es[RES] wire is true
+when the circuit may resume execution in a previous instant (when, say, it has
+a register containing an @es[1]). The @es[SUSP] wire is used by the compilation
+of @es[suspend] to, well, suspend a term. The @es[kill] wire is used by @es[trap]
+and @es[exit] to abort the execution of a circuit.
+
+The two wires on the top @es[E_i] and @es[E_o] represent bundles of wires
+that are input and output signals of the term. Any free variable which is used
+in an @es[present] will have a corresponding wire in @es[E_i]. Any
+free variable which is use in an @es[emit] will have a corresponding
+wire in @es[E_o].
+
+The bottom output wires on the right (@es[K0] and friends) are encode the return codes.
+The wire @es[K0] is @es[1] when the term completes, @es[K1] is @es[1] when
+the term would @es[pause], @es[K2] is @es[1] when the term would exit to the first
+@es[trap], etc. Only one of the @es[Kn] wires may be @es[1] at a given time. In circuit speak,
+the @es[Kn] wires are a one-hot encoding of the return code.
+
+The final output wire @es[SEL] is @es[1] if there is any register in the circuit which holds a @es[1].
+Registers are used to encode whether or not the program @es[pause]ed with the term. That is, each @es[pause]
+will generate a register, and that register will have an @es[1] when the term should resume from that @es[pause].
+
+A quick note about these circuits: their activation is
+completely controlled by @es[GO], @es[RES], and @es[SEL]: if
+@es[GO] and either @es[RES] or @es[SEL] are @es[0], then all
+of the output signals and return codes will be @es[0] and
+the circuit will be constructive. This is proven formally in
+@proof-ref["activation-condition"], and follows fairly
+easily by induction.
+
+@[begin
+   (define (circ-fig n)
+     (match-define (list _ _ pict circ) (assoc n compile-def))
+     (figure (~a "comp:" n)
+             @list{The compilation of @pict}
+             circ))
+ ]
+
+The simplest clause of the compiler is the compilation of @es[nothing], see in @figure-ref["comp:nothing"].
+This compilation connect the @es[GO] wire directly to @es[K0], as if @es[nothing] is reached
+it immediately terminates. Remember that any wire not draw in the diagram is taken to be @es[0], therefore
+this term can never be selected, and can never have a different exit code.
+
+@circ-fig['nothing]
 
 @subsection[#:tag "just:sound:pure"]{Pure Esterel}
 
@@ -126,7 +192,7 @@ calculus on loops.
 @subsection[#:tag "just:sound:instants"]{Instants}
 
 
-One final caveat: The proofs of soundness and adequacy
+One final caveat: The theorems soundness, consistency, and adequacy
 restrict themselves to a single instant of execution. I
 postulate, however, that they hold between instants. This is
 because the inter-instant translation function
@@ -242,13 +308,7 @@ circuits were equal using the Circuitous library. These
 tests provide evidence for soundness, and especially for the
 soundness with loops.
 
-
-@section[#:tag "just:sound"]{Justifying Soundness}
-
-As mentioned in @secref["intro:sound"],
-soundness here refers to two theorems: Mathematical
-Soundness, usually called Consistency, and Soundness with
-respect to some external model, usually just called Soundness.
+@section[#:tag "just:consistent"]{Justifying Consistency}
 
 Consistency, at it's core, means that a theory cannot
 disagree with itself. In the case of programming language semantics
@@ -261,16 +321,15 @@ The full proof is given in the appendices as
 @proof-ref["consistent"]. Usually, consistency is proven
 using the confluence of the underlying reduction semantics.
 However, in this case proving confluence is not necessary:
-consistency here follows as a corollary of the adequacy of
-the calculus. I will discuss this later in
-@secref["just:adequacy-and-consistency"].
+consistency here follows as a corollary of the soundness and adequacy of
+the calculus.
+
+@section[#:tag "just:sound"]{Justifying Soundness}
 
 Soundness, on the other had, relates a calculus to some external definition
 of the language which we take to be ground truth for it's behavior. As ground
 truth I take the circuit semantics as given by @citet[esterel02],
 with some minor modifications that were implemented in the Esterel v7 compiler.
-
-
 
 @subsection[#:tag "just:sound:thrm"]{The theorem of soundness}
 

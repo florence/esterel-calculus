@@ -36,7 +36,7 @@
             #:tag "compile"]{
                                                                           
  @add-between[(for/list ([c1 (in-list compile-def)])
-                (match-define (list t c p) c1)
+                (match-define (list _ t c p) c1)
                 (index-as (pict+tag c t) (clausef c p)))
               (element 'newline '())]
 

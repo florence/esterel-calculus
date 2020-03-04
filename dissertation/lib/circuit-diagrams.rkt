@@ -665,12 +665,12 @@
 
 (define compile-def
   (list
-   (list "⟦nothing⟧" (es/unchecked (compile nothing)) nothing)
-   (list "⟦(exit n)⟧" (es/unchecked (compile (exit n))) (only-kode 'n))
-   (list "⟦(emit S)⟧" (es/unchecked (compile (emit S))) emit)
-   (list "⟦pause⟧" (es/unchecked (compile pause)) pause)
-   (list "⟦(signal S p)⟧" (es/unchecked (compile (signal S p-pure))) signal-pict)
-   (list "⟦(present S p q)⟧" (es/unchecked (compile (present S p-pure q-pure))) present-pict)
-   (list "⟦(suspend p S)⟧" (es/unchecked (compile (suspend p-pure S))) suspend-pict)
-   (list "⟦(seq p q)⟧" (es/unchecked (compile (seq p-pure q-pure))) seq-pict)
-   (list "⟦(trap p)⟧" (es/unchecked (compile (trap p-pure))) trap-pict)))
+   (list 'nothing "⟦nothing⟧" (es/unchecked (compile nothing)) nothing)
+   (list 'exit "⟦(exit n)⟧" (es/unchecked (compile (exit n))) (only-kode 'n))
+   (list 'emit "⟦(emit S)⟧" (es/unchecked (compile (emit S))) emit)
+   (list 'pause "⟦pause⟧" (es/unchecked (compile pause)) pause)
+   (list 'signal "⟦(signal S p)⟧" (es/unchecked (compile (signal S p-pure))) signal-pict)
+   (list 'present "⟦(present S p q)⟧" (es/unchecked (compile (present S p-pure q-pure))) present-pict)
+   (list 'suspend "⟦(suspend p S)⟧" (es/unchecked (compile (suspend p-pure S))) suspend-pict)
+   (list 'seq "⟦(seq p q)⟧" (es/unchecked (compile (seq p-pure q-pure))) seq-pict)
+   (list 'trap "⟦(trap p)⟧" (es/unchecked (compile (trap p-pure))) trap-pict)))
