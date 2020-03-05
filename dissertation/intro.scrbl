@@ -123,7 +123,7 @@ semantics.
 @section[#:tag "intro:adequate"]{Adequate}
 @[define semantics-note
   @note{There are many ways to define what @italic{
-    semantics} is. Literally, a semantics is that which gives
+    semantics} means. Literally, a semantics is that which gives
    meaning to a language, but that just shifts the question
    over to defining ``meaning''. Therefore, I am intentionally
    using a very broad definition.}]
