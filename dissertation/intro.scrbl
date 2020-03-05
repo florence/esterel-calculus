@@ -1,6 +1,9 @@
 #lang scribble/base
 
-@[require "lib/cite.rkt"]
+@[require
+ "lib/cite.rkt"
+ "lib/redex-rewrite.rkt"
+ scriblib/footnote]
 
 @title{An Introduction}
 
@@ -64,8 +67,70 @@ as well as future directions for making the calculus more
 powerful and useful.
 
 @section[#:tag "intro:syntactic"]{Syntactic}
+
+The benefits of a syntactic semantics is primarily human:
+They allow reasoning about a programming language to be
+expressed directly in terms of that language, rather than in
+terms of some external domain. At least in principle.
+
+Often developing a semantics which uses @italic{only} the
+syntax of a language is impractical, or even impossible.
+See, for instance, the @es[σ] and @es[ρ] forms of the
+@citet[felleisen-hieb] state calculus which do not appear
+directly in any language, or the evaluation
+contexts@~cite[felleisen-friedman] often used to describe
+non-local control operators (e.g. exceptions, continuations)
+which while described in terms of existing syntax cannot be
+written directly by a programmer. However, while these
+frameworks require extending the syntax of the language,
+they still map very closely to the syntax of the surface
+language, and the extensions they use are minor and either
+can be mapped directly to the surface language syntax or
+require only minor annotations to the surface syntax.
+
+Therefore, even in the case of minor syntactic extensions, a
+syntactic semantics still allows for explanations of program
+transformations using the notation users of that language
+are familiar with, rather than some external domain.
+
+
 @section[#:tag "intro:local"]{Local}
+
+The benefits of a local semantics are useful for both human
+and machine reasoning. Reasoning about full programs is
+difficult, impractical, and in often impossible in the case
+of libraries. Modular reasoning is essential for working
+with large programs, thus we want a local semantics.
+
 @section[#:tag "intro:consistent"]{Consistent}
+
+Consistency is one of the most essential
+of these facets. A consistent semantics is one that does not
+allow contradictions to be derived: for example, by not
+allowing two programs to be proven equal if they evaluate to
+different values.
+
 @section[#:tag "intro:sound"]{Sound}
-Discuss consistency and soundness
+
+Soundness is necessary for an semantics which describes an
+already established language. A sound semantics is one which
+agrees which the existing, ground truth semantics. In other
+words, a semantics which is not sound describes a @italic{
+ different} language that the one it is supposed to describe.
+Thus soundness, like consistency is essential for any
+semantics.
+
 @section[#:tag "intro:adequate"]{Adequate}
+
+Adequacy describes the power of a semantics. If we take the
+word @italic{semantics} to mean ``something which allows for
+formal reasoning about a language''@note{There are many ways
+ to define what @italic{semantics} is. I'm am intentionally
+ using a very broad definition.}, then we can have semantics
+which allow for manipulations or transformations of a
+language, but cannot actually run a complete program. Such
+semantics are not @italic{adequate} for describing an
+evaluator for a language. This is not ideal, as it means
+there is some aspect of the language the semantics does not
+describe. Therefore, to make sure a semantics has broad coverage
+of the aspects of a language, an adequate semantics is desirable.

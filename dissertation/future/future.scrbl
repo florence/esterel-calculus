@@ -6,5 +6,5 @@
           "../lib/cite.rkt")
 
 @title[#:style paper-title-style]{Final Thoughts}
-@section{Future Work}
+@section[#:tag "future"]{Future Work}
 @section{Concusion}
