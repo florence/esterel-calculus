@@ -162,7 +162,12 @@
           [add-space?
            (hbl-append (s->pict " ") the-pict)]
           [else the-pict])))
-    (apply hbl-append indent line-items))
+    (define the-line
+      (apply hbl-append indent line-items))
+    (refocus (hbl-append (colorize (scale (s->pict (~a (+ i 1) ": ")) .8)
+                                   "darkgray")
+                         the-line)
+             the-line))
   
   (make-aterm (for/fold ([p (blank)])
                         ([i (in-range (+ 1 (apply max (hash-keys line->start-column))))])
