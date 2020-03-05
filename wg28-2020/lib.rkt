@@ -30,7 +30,7 @@
     (error 'add-arc "could not find path end ~a" end-path))
   (define with-arrow
     (pin-arrow-line 20
-                    pict
+                    (ghost pict)
                     start-sub-pict
                     find-start
                     end-sub-pict
@@ -51,7 +51,9 @@
               (+ label-x (car label-pos))
               (+ label-y (cdr label-pos))
               label-pict))
-  (make-aterm with-label left-map right-map))
+  (make-aterm (lc-superimpose pict
+                              (colorize (launder with-label) "navy"))
+              left-map right-map))
 
 (define (add-left-finger an-aterm path) (add-finger an-aterm path #t 'add-left-side-finger))
 (define (add-right-finger an-aterm path) (add-finger an-aterm path #f 'add-right-side-finger))
