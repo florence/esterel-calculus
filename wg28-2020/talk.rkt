@@ -12,9 +12,9 @@
 
   (define (add-S-arrow label)
     (add-arc an-aterm
-             '(1 1 2)
+             '(2 1 1)
              ct-find
-             '(1 2 2)
+             '(2 2 1)
              rc-find
              (cons 80 -90)
              label
@@ -31,7 +31,7 @@
   (slide (aterm->pict with-S-⊥))
   (slide (aterm->pict (add-left-finger with-S-⊥ '())))
   (slide (aterm->pict (add-left-finger with-S-⊥ '(2))))
-  (slide (aterm->pict (add-right-finger with-S-⊥ '(1 2))))
+  (slide (aterm->pict (add-right-finger with-S-⊥ '(2 1))))
   (slide (aterm->pict (add-left-finger with-S-1 '(2 2))))
   (slide (aterm->pict (add-left-finger with-S-1 '(2 2 2)))))
 
@@ -45,9 +45,9 @@
 
   (define (add-S-arrow label)
     (add-arc an-aterm
-             '(1 1 2)
+             '(2 1 1)
              ct-find
-             '(1 2 2)
+             '(2 2 1)
              rc-find
              (cons 80 -90)
              label
@@ -64,7 +64,7 @@
   (slide (aterm->pict with-S-⊥))
   (slide (aterm->pict (add-left-finger with-S-⊥ '())))
   (slide (aterm->pict (add-left-finger with-S-⊥ '(2))))
-  (slide (aterm->pict (add-right-finger (add-left-finger with-S-⊥ '(2 2)) '(1 2))))
+  (slide (aterm->pict (add-right-finger (add-left-finger with-S-⊥ '(2 2)) '(2 1))))
   (slide (aterm->pict (add-left-finger with-S-1 '(2 2))))
   (slide (aterm->pict (add-left-finger with-S-1 '(2 2 2)))))
 
@@ -83,9 +83,9 @@
 
   (define (add-S1-arrow label an-aterm)
     (add-arc an-aterm
-             '(1 3 2 2 2)
+             '(2 2 2 3 1)
              rc-find
-             '(1 1 2 2)
+             '(2 2 1 1)
              rc-find
              (cons 130 -100)
              label
@@ -97,9 +97,9 @@
 
   (define (add-S2-nested-arrow label an-aterm)
     (add-arc an-aterm
-             '(1 3 1 2 2)
+             '(2 2 1 3 1)
              rc-find
-             '(1 2 2 2)
+             '(2 2 2 1)
              rc-find
              (cons 80 0)
              label
@@ -111,9 +111,9 @@
 
   (define (add-S2-arrow label an-aterm)
     (add-arc an-aterm
-             '(1 3 2 2)
+             '(2 2 3 1)
              ct-find
-             '(1 2 2 2)
+             '(2 2 2 1)
              lb-find
              (cons -40 -30)
              label
@@ -127,6 +127,6 @@
                          '⊥
                          an-aterm))))))
 
-;(example1)
-;(example2)
+(example1)
+(example2)
 (constructive-cycle-example)

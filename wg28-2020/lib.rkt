@@ -120,9 +120,9 @@
           (add-thing this-line (format "~a" (syntax-e term)) path)
           this-line]))
      #`(build-basic-term
-         #,(for/hash ([(k v) (in-hash line->pict-items)])
+         '#,(for/hash ([(k v) (in-hash line->pict-items)])
              (values k (reverse v)))
-         #,line->start-column)]))
+         '#,line->start-column)]))
 
 (define (build-basic-term line->pict-items line->start-column)
   (define left-path->pict (make-hash))
@@ -139,7 +139,7 @@
                    (and (string? (vector-ref prev-item 1))
                         (equal? (vector-ref item 1) 'open-paren)))))
         (define the-pict (item->pict item))
-        (define the-path (vector-ref item 0))
+        (define the-path (reverse (vector-ref item 0)))
         (match (vector-ref item 1)
           ['open-paren
            (hash-set! left-path->pict the-path the-pict)]
