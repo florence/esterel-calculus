@@ -1,4 +1,7 @@
 loglevel = error
+scribble = raco scribble
+
+
 beforecommit: circuits redex dissertation front-end
 
 racket-build: always
@@ -42,11 +45,11 @@ no-agda-paper: always
 all: agda long
 
 dissertation: always
-	(cd dissertation; raco make -v dissertation.scrbl lib/redex-rewrite-dynamic.rkt && PLTSTDERR="${PLTSTDERR} $(loglevel) warning@diss" scribble --pdf dissertation.scrbl)
+	(cd dissertation; raco make -v dissertation.scrbl lib/redex-rewrite-dynamic.rkt && PLTSTDERR="${PLTSTDERR} $(loglevel) warning@diss" $(scribble) --pdf dissertation.scrbl)
 
 
 dissertation-debug-tex: always
-	(cd dissertation; raco make -v dissertation.scrbl lib/redex-rewrite-dynamic.rkt && scribble --latex --dest tex dissertation.scrbl)
+	(cd dissertation; raco make -v dissertation.scrbl lib/redex-rewrite-dynamic.rkt && $(scribble) --latex --dest tex dissertation.scrbl)
 
  
 
