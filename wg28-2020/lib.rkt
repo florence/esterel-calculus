@@ -13,7 +13,10 @@
 (struct aterm (pict left-map right-map) #:transparent
   #:constructor-name make-aterm)
 
-(define (add-arc an-aterm start-path find-start end-path find-end label
+(define (add-arc an-aterm
+                 start-path find-start
+                 end-path find-end
+                 label-pos label
                  #:start-angle [start-angle #f]
                  #:end-angle [end-angle #f]
                  #:start-pull [start-pull #f]
@@ -25,7 +28,7 @@
     (error 'add-arc "could not find path start ~a" start-path))
   (unless end-sub-pict
     (error 'add-arc "could not find path end ~a" end-path))
-  (define np
+  (define with-arrow
     (pin-arrow-line 20
                     pict
                     start-sub-pict
@@ -37,7 +40,18 @@
                     #:end-angle end-angle
                     #:start-pull start-pull 
                     #:end-pull end-pull))
-  (make-aterm np left-map right-map))
+  (define label-pict (s->pict (~a label)))
+  (define-values (label-x label-y)
+    (let ()
+      (define-values (sx sy) (cc-find pict start-sub-pict))
+      (define-values (ex ey) (cc-find pict end-sub-pict))
+      (values (/ (+ sx ex) 2) (/ (+ sy ey) 2))))
+  (define with-label
+    (pin-over with-arrow
+              (+ label-x (car label-pos))
+              (+ label-y (cdr label-pos))
+              label-pict))
+  (make-aterm with-label left-map right-map))
 
 (define (add-left-finger an-aterm path) (add-finger an-aterm path #t 'add-left-side-finger))
 (define (add-right-finger an-aterm path) (add-finger an-aterm path #f 'add-right-side-finger))

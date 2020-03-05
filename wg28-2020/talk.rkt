@@ -10,26 +10,30 @@
                            (emit SO1)
                            (emit SO2))))))
 
-  (define with-S-arrow
+  (define (add-S-arrow label)
     (add-arc an-aterm
              '(1 1 2)
              ct-find
              '(1 2 2)
              rc-find
-             #f
+             (cons 80 -90)
+             label
              #:start-pull 1.5
              #:end-pull 2
              #:start-angle (* pi 1/2)
              #:end-angle pi
              ))
 
+  (define with-S-⊥ (add-S-arrow '⊥))
+  (define with-S-1 (add-S-arrow 1))
+  
   (slide (aterm->pict an-aterm))
-  (slide (aterm->pict with-S-arrow))
-  (slide (aterm->pict (add-left-finger with-S-arrow '())))
-  (slide (aterm->pict (add-left-finger with-S-arrow '(2))))
-  (slide (aterm->pict (add-right-finger with-S-arrow '(1 2))))
-  (slide (aterm->pict (add-left-finger with-S-arrow '(2 2))))
-  (slide (aterm->pict (add-left-finger with-S-arrow '(2 2 2)))))
+  (slide (aterm->pict with-S-⊥))
+  (slide (aterm->pict (add-left-finger with-S-⊥ '())))
+  (slide (aterm->pict (add-left-finger with-S-⊥ '(2))))
+  (slide (aterm->pict (add-right-finger with-S-⊥ '(1 2))))
+  (slide (aterm->pict (add-left-finger with-S-1 '(2 2))))
+  (slide (aterm->pict (add-left-finger with-S-1 '(2 2 2)))))
 
 (define (example2)
   (define an-aterm
@@ -39,26 +43,30 @@
                            (emit SO1)
                            (emit SO2))))))
 
-  (define with-S-arrow
+  (define (add-S-arrow label)
     (add-arc an-aterm
              '(1 1 2)
              ct-find
              '(1 2 2)
              rc-find
-             #f
+             (cons 80 -90)
+             label
              #:start-pull 1.5
              #:end-pull 2
              #:start-angle (* pi 1/2)
              #:end-angle pi
              ))
 
+  (define with-S-⊥ (add-S-arrow '⊥))
+  (define with-S-1 (add-S-arrow 1))
+
   (slide (aterm->pict an-aterm))
-  (slide (aterm->pict with-S-arrow))
-  (slide (aterm->pict (add-left-finger with-S-arrow '())))
-  (slide (aterm->pict (add-left-finger with-S-arrow '(2))))
-  (slide (aterm->pict (add-right-finger (add-left-finger with-S-arrow '(2 2)) '(1 2))))
-  (slide (aterm->pict (add-left-finger with-S-arrow '(2 2))))
-  (slide (aterm->pict (add-left-finger with-S-arrow '(2 2 2)))))
+  (slide (aterm->pict with-S-⊥))
+  (slide (aterm->pict (add-left-finger with-S-⊥ '())))
+  (slide (aterm->pict (add-left-finger with-S-⊥ '(2))))
+  (slide (aterm->pict (add-right-finger (add-left-finger with-S-⊥ '(2 2)) '(1 2))))
+  (slide (aterm->pict (add-left-finger with-S-1 '(2 2))))
+  (slide (aterm->pict (add-left-finger with-S-1 '(2 2 2)))))
 
 
 (example1)
