@@ -11,7 +11,7 @@
 @include-section["intro.scrbl"]
 @include-section["background/background.scrbl"]
 @include-section["calculus/calculus.scrbl"]
-@include-section["soundness/soundness.scrbl"]
+@include-section["justification.scrbl"]
 @include-section["related/related.scrbl"]
 @include-section["future/future.scrbl"]
 @generate-bibliography[]
