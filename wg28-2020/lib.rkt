@@ -1,17 +1,55 @@
 #lang racket
 (require slideshow (for-syntax syntax/parse))
+(module+ test (require rackunit))
 
 (provide
  (rename-out [-aterm aterm])
  add-arc ;(-> aterm? (listof natural?) procedure? (listof natural?) (or/c string? #f) aterm?)
   
  (contract-out
+  [find-path (-> aterm? any/c natural? (listof natural?))]
   [add-left-finger (->* (aterm?) #:rest (listof (listof natural?)) aterm?)]
   [add-right-finger (->* (aterm?) #:rest (listof (listof natural?)) aterm?)]
   [aterm->pict (-> aterm? pict?)]))
 
-(struct aterm (pict left-map right-map) #:transparent
+(struct aterm (pict sexp left-map right-map) #:transparent
   #:constructor-name make-aterm)
+
+(define (find-path an-aterm to-find nth)
+  (match-define (aterm pict sexp left-map right-map) an-aterm)
+  (find-path/sexp sexp to-find nth))
+
+(define (find-path/sexp sexp to-find nth)
+  (let/ec k
+    (define how-many
+      (let loop ([sexp sexp]
+                 [path '()]
+                 [nth nth])
+        (cond
+          [(equal? sexp to-find)
+           (cond
+             [(zero? nth)
+              (k (reverse path))]
+             [else 1])]
+          [(list? sexp)
+           (for/fold ([how-many-before 0])
+                     ([ele (in-list sexp)]
+                      [i (in-naturals)])
+             (define how-many-here (loop ele (cons i path) (- nth how-many-before)))
+             (+ how-many-before how-many-here))]
+          [else 0])))
+    (error 'find-path "didn't find ~s enough times, found it ~a times, but was looking for something at index ~a"
+           to-find how-many
+           nth)))
+
+(module+ test
+  (check-equal? (find-path/sexp 'x 'x 0) '())
+  (check-equal? (find-path/sexp '(x) 'x 0) '(0))
+  (check-equal? (find-path/sexp '(x x) 'x 0) '(0))
+  (check-equal? (find-path/sexp '(x x) 'x 1) '(1))
+  (check-equal? (find-path/sexp '(x (x)) 'x 1) '(1 0))
+  (check-equal? (find-path/sexp '(x ((x))) 'x 1) '(1 0 0))
+  (check-equal? (find-path/sexp '(x ((y q x))) 'x 1) '(1 0 2)))
 
 (define (add-arc an-aterm
                  start-path find-start
@@ -21,7 +59,7 @@
                  #:end-angle [end-angle #f]
                  #:start-pull [start-pull #f]
                  #:end-pull [end-pull #f])
-  (match-define (aterm pict left-map right-map) an-aterm)
+  (match-define (aterm pict sexp left-map right-map) an-aterm)
   (define start-sub-pict (hash-ref left-map start-path #f))
   (define end-sub-pict (hash-ref left-map end-path #f))
   (unless start-sub-pict
@@ -44,6 +82,7 @@
     (case label
       [(⊥) (inset (s->pict (~a label)) 0 -10 0 0)]
       [(0 1) (s->pict (~a label))]
+      [(#f) (blank)]
       [else (error 'add-arc "unknown label ~s" label)]))
   (define-values (label-x label-y)
     (let ()
@@ -57,7 +96,7 @@
               label-pict))
   (make-aterm (lc-superimpose pict
                               (colorize (launder with-label) "navy"))
-              left-map right-map))
+              sexp left-map right-map))
 
 (define (add-left-finger an-aterm . paths)
   (for/fold ([an-aterm an-aterm])
@@ -71,7 +110,7 @@
 (define (add-one-right-finger an-aterm path) (add-finger an-aterm path #f 'add-right-side-finger))
 
 (define (add-finger an-aterm path left? who)
-  (match-define (aterm pict left-map right-map) an-aterm)
+  (match-define (aterm pict sexp left-map right-map) an-aterm)
   (define map (if left? left-map right-map))
   (define subpict (hash-ref map path #f))
   (unless subpict (error who "could not find path ~a" path))
@@ -89,7 +128,7 @@
          x
          (- y (/ (pict-width right-finger) 2) move-finger-up-amount)
          right-finger)))
-  (make-aterm np left-map right-map))
+  (make-aterm np sexp left-map right-map))
 
 (define adjust-to-point-amount 100)
 (define left-finger (scale (t "☞") 2))
@@ -134,11 +173,12 @@
           (add-thing this-line (format "~a" (syntax-e term)) path)
           this-line]))
      #`(build-basic-term
+        'term
          '#,(for/hash ([(k v) (in-hash line->pict-items)])
              (values k (reverse v)))
          '#,line->start-column)]))
 
-(define (build-basic-term line->pict-items line->start-column)
+(define (build-basic-term sexp line->pict-items line->start-column)
   (define left-path->pict (make-hash))
   (define right-path->pict (make-hash))
   (define (build-line i)
@@ -176,6 +216,7 @@
   (make-aterm (for/fold ([p (blank)])
                         ([i (in-range (+ 1 (apply max (hash-keys line->start-column))))])
                 (vl-append p (build-line i)))
+              sexp
               left-path->pict
               right-path->pict))
 
@@ -196,5 +237,3 @@
     [else
      (parameterize ([current-main-font "Inconsolata"])
        (t s))]))
-
-

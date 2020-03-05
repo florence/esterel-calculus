@@ -69,18 +69,19 @@
   (slide (aterm->pict (add-left-finger with-S-1 '(2 2 2)))))
 
 
+(define constructive-cycle-aterm
+  (aterm (signal S1
+           (signal S2
+             (par
+              (present S1
+                       nothing
+                       (emit S2))
+              (present S2
+                       nothing
+                       (emit S1))
+              (emit S2))))))
+
 (define (constructive-cycle-example)
-  (define an-aterm
-    (aterm (signal S1
-             (signal S2
-               (par
-                (present S1
-                         nothing
-                         (emit S2))
-                (present S2
-                         nothing
-                         (emit S1))
-                (emit S2))))))
 
   (define (add-S1-arrow label an-aterm)
     (add-arc an-aterm
@@ -127,14 +128,14 @@
       S2-nested-label
       (add-S1-arrow
        S1-label
-       an-aterm))))
+       constructive-cycle-aterm))))
   
   (define ⊥⊥⊥ (with-arrows '⊥ '⊥ '⊥))
   (define ⊥⊥1 (with-arrows '⊥ '⊥ 1))
   (define 0⊥1 (with-arrows 0 '⊥ 1))
   (define a011 (with-arrows 0 1 1))
   
-  (slide (aterm->pict an-aterm))
+  (slide (aterm->pict constructive-cycle-aterm))
   (slide (aterm->pict ⊥⊥⊥))
   (slide (aterm->pict (add-left-finger ⊥⊥⊥ '())))
   (slide (aterm->pict (add-left-finger ⊥⊥⊥ '(2))))
@@ -145,18 +146,19 @@
   (slide (aterm->pict (add-right-finger (add-left-finger 0⊥1 '(2 2 1 3)) '(2 2 2 2))))
   (slide (aterm->pict (add-right-finger a011 '(2 2 2 2)))))
 
-(define (nonconstructive-cycle-example)
-  (define an-aterm
-    (aterm (signal S1
-             (signal S2
-               (par
-                (present S1
-                         nothing
-                         (emit S2))
-                (present S2
-                         nothing
-                         (emit S1)))))))
+(define nonconstructive-cycle-aterm
+  (aterm (signal S1
+           (signal S2
+             (par
+              (present S1
+                       nothing
+                       (emit S2))
+              (present S2
+                       nothing
+                       (emit S1)))))))
 
+(define (nonconstructive-cycle-example)
+  
   (define (add-S1-arrow label an-aterm)
     (add-arc an-aterm
              '(2 2 2 3 1)
@@ -200,27 +202,23 @@
      S2-nested-label
      (add-S1-arrow
       S1-label
-      an-aterm)))
+      nonconstructive-cycle-aterm)))
   
   (define ⊥⊥⊥ (with-arrows '⊥ '⊥ '⊥))
   (define ⊥⊥1 (with-arrows '⊥ '⊥ 1))
   (define 0⊥1 (with-arrows 0 '⊥ 1))
   (define a011 (with-arrows 0 1 1))
   
-  (slide (aterm->pict an-aterm))
+  (slide (aterm->pict nonconstructive-cycle-aterm))
   (slide (aterm->pict ⊥⊥⊥))
   
   (slide (aterm->pict (add-left-finger ⊥⊥⊥ '())))
   (slide (aterm->pict (add-left-finger ⊥⊥⊥ '(2))))
   (slide (aterm->pict (add-left-finger ⊥⊥⊥ '(2 2))))
   (slide (aterm->pict (add-left-finger ⊥⊥⊥ '(2 2 1) '(2 2 2))))
-;  (slide (aterm->pict (add-left-finger ⊥⊥1 '(2 2 1) '(2 2 2))))
-;  (slide (aterm->pict (add-right-finger (add-left-finger 0⊥1 '(2 2 1)) '(2 2 2 2))))
-;  (slide (aterm->pict (add-right-finger (add-left-finger 0⊥1 '(2 2 1 3)) '(2 2 2 2))))
-;  (slide (aterm->pict (add-right-finger a011 '(2 2 2 2))))
   )
 
 ;(example1)
 ;(example2)
 ;(constructive-cycle-example)
-(nonconstructive-cycle-example)
+;(nonconstructive-cycle-example)
