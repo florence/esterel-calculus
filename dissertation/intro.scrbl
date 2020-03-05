@@ -121,12 +121,16 @@ Thus soundness, like consistency is essential for any
 semantics.
 
 @section[#:tag "intro:adequate"]{Adequate}
+@[define semantics-note
+  @note{There are many ways to define what @italic{
+    semantics} is. Literally, a semantics is that which gives
+   meaning to a language, but that just shifts the question
+   over to defining ``meaning''. Therefore, I am intentionally
+   using a very broad definition.}]
 
 Adequacy describes the power of a semantics. If we take the
 word @italic{semantics} to mean ``something which allows for
-formal reasoning about a language''@note{There are many ways
- to define what @italic{semantics} is. I'm am intentionally
- using a very broad definition.}, then we can have semantics
+formal reasoning about a language''@semantics-note, then we can have semantics
 which allow for manipulations or transformations of a
 language, but cannot actually run a complete program. Such
 semantics are not @italic{adequate} for describing an
