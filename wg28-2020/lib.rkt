@@ -6,8 +6,8 @@
  add-arc ;(-> aterm? (listof natural?) procedure? (listof natural?) (or/c string? #f) aterm?)
   
  (contract-out
-  [add-left-finger (-> aterm? (listof natural?) aterm?)]
-  [add-right-finger (-> aterm? (listof natural?) aterm?)]
+  [add-left-finger (->* (aterm?) #:rest (listof (listof natural?)) aterm?)]
+  [add-right-finger (->* (aterm?) #:rest (listof (listof natural?)) aterm?)]
   [aterm->pict (-> aterm? pict?)]))
 
 (struct aterm (pict left-map right-map) #:transparent
@@ -55,8 +55,16 @@
                               (colorize (launder with-label) "navy"))
               left-map right-map))
 
-(define (add-left-finger an-aterm path) (add-finger an-aterm path #t 'add-left-side-finger))
-(define (add-right-finger an-aterm path) (add-finger an-aterm path #f 'add-right-side-finger))
+(define (add-left-finger an-aterm . paths)
+  (for/fold ([an-aterm an-aterm])
+            ([path (in-list paths)])
+    (add-one-left-finger an-aterm path)))
+(define (add-right-finger an-aterm . paths)
+  (for/fold ([an-aterm an-aterm])
+            ([path (in-list paths)])
+    (add-one-right-finger an-aterm path)))
+(define (add-one-left-finger an-aterm path) (add-finger an-aterm path #t 'add-left-side-finger))
+(define (add-one-right-finger an-aterm path) (add-finger an-aterm path #f 'add-right-side-finger))
 
 (define (add-finger an-aterm path left? who)
   (match-define (aterm pict left-map right-map) an-aterm)
