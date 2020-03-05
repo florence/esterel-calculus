@@ -102,7 +102,7 @@
              rc-find
              '(2 2 2 1)
              rc-find
-             (cons 80 0)
+             (cons 80 10)
              label
              #:start-pull 1
              #:end-pull 1
@@ -116,7 +116,7 @@
              ct-find
              '(2 2 2 1)
              lb-find
-             (cons -40 -30)
+             (cons -40 -25)
              label
              ))
 

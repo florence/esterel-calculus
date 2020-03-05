@@ -38,9 +38,13 @@
                     #:line-width 4
                     #:start-angle start-angle
                     #:end-angle end-angle
-                    #:start-pull start-pull 
+                    #:start-pull start-pull
                     #:end-pull end-pull))
-  (define label-pict (s->pict (~a label)))
+  (define label-pict
+    (case label
+      [(⊥) (inset (s->pict (~a label)) 0 -10 0 0)]
+      [(0 1) (s->pict (~a label))]
+      [else (error 'add-arc "unknown label ~s" label)]))
   (define-values (label-x label-y)
     (let ()
       (define-values (sx sy) (cc-find pict start-sub-pict))
