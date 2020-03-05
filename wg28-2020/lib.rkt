@@ -3,6 +3,8 @@
 
 (provide
  (rename-out [-aterm aterm])
+ add-arc ;(-> aterm? (listof natural?) procedure? (listof natural?) (or/c string? #f) aterm?)
+  
  (contract-out
   [add-left-finger (-> aterm? (listof natural?) aterm?)]
   [add-right-finger (-> aterm? (listof natural?) aterm?)]
@@ -11,14 +13,40 @@
 (struct aterm (pict left-map right-map) #:transparent
   #:constructor-name make-aterm)
 
-(define (add-left-finger an-aterm path) (add-finger an-aterm path #t))
-(define (add-right-finger an-aterm path) (add-finger an-aterm path #f))
+(define (add-arc an-aterm start-path find-start end-path find-end label
+                 #:start-angle [start-angle #f]
+                 #:end-angle [end-angle #f]
+                 #:start-pull [start-pull #f]
+                 #:end-pull [end-pull #f])
+  (match-define (aterm pict left-map right-map) an-aterm)
+  (define start-sub-pict (hash-ref left-map start-path #f))
+  (define end-sub-pict (hash-ref left-map end-path #f))
+  (unless start-sub-pict
+    (error 'add-arc "could not find path start ~a" start-path))
+  (unless end-sub-pict
+    (error 'add-arc "could not find path end ~a" end-path))
+  (define np
+    (pin-arrow-line 20
+                    pict
+                    start-sub-pict
+                    find-start
+                    end-sub-pict
+                    find-end
+                    #:line-width 4
+                    #:start-angle start-angle
+                    #:end-angle end-angle
+                    #:start-pull start-pull 
+                    #:end-pull end-pull))
+  (make-aterm np left-map right-map))
 
-(define (add-finger an-aterm path left?)
+(define (add-left-finger an-aterm path) (add-finger an-aterm path #t 'add-left-side-finger))
+(define (add-right-finger an-aterm path) (add-finger an-aterm path #f 'add-right-side-finger))
+
+(define (add-finger an-aterm path left? who)
   (match-define (aterm pict left-map right-map) an-aterm)
   (define map (if left? left-map right-map))
   (define subpict (hash-ref map path #f))
-  (unless subpict (error 'add-left-side-finger "could not find path ~a" path))
+  (unless subpict (error who "could not find path ~a" path))
   (define-values (x y) (if left? (lc-find pict subpict) (rc-find pict subpict)))
   (define move-finger-up-amount 6)
   (define np
@@ -118,14 +146,7 @@
               left-path->pict
               right-path->pict))
 
-(define (item->pict s)
-  (define st
-    (match (vector-ref s 1)
-      [(? string? s) s]
-      ['open-paren "("]
-      ['close-paren ")"]))
-  (define the-pict (s->pict st))
-  the-pict)
+(define (item->pict s) (s->pict (vector-ref s 1)))
 
 (define (s->pict s)
   (cond
