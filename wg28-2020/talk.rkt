@@ -115,7 +115,7 @@
              ct-find
              '(1 2 2 2)
              lb-find
-             (cons -40 -20)
+             (cons -40 -30)
              label
              ))
   
