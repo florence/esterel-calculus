@@ -84,6 +84,81 @@
    (img l)
    labels))
 
+
+(define (synchronizer-interface
+         #:tag-prefix [tag* #f]
+         #:wire-length [wire-length 2])
+  (define wire-spacing 3)
+  (define tag (or tag* (format-symbol "~a~a" 'INTERFACE (random 10000))))
+  (define (tg . t)
+    (format-symbol "~a~a" tag (apply ~a t)))
+  (define h (- (* wire-spacing 11)
+               (* 1/2 wire-spacing)))
+  (define w (* 2 7))
+  (define box
+    (with-unit
+     (lambda (u)
+       (img
+        (filled-rectangle (* u w) (* u h) #:color "white")))))
+  (define (add-wire dir t)
+    (define-values (there back)
+      (case dir
+        [(up) (values line-up move-down)]
+        [(down) (values line-down move-up)]
+        [(left) (values line-left move-right)]
+        [(right) (values line-right move-left)]))
+    (after
+     (save (back .5) (tag-location (tg t '-label)))
+     (save (there wire-length)
+           (tag-location (tg t)))))
+  (define wires
+    (after
+     (save
+      (move-up (/ h 2)) (move-left (/ w 2))
+      (move-down (/ wire-spacing 2)) (add-wire 'left 'LEM)
+      (move-down wire-spacing) (add-wire 'left 'L0)
+      (move-down wire-spacing) (add-wire 'left 'L1)
+      (move-down wire-spacing) (add-wire 'left 'L2)
+      (move-down (/ wire-spacing 2)) (save (move-right .5) (tag-location (tg 'L...-label)))
+      (move-down wire-spacing) (add-wire 'left 'IN-KILL)
+      (move-down wire-spacing) (add-wire 'left 'REM)
+      (move-down wire-spacing) (add-wire 'left 'R0)
+      (move-down wire-spacing) (add-wire 'left 'R1)
+      (move-down wire-spacing) (add-wire 'left 'R2)
+      (move-down (/ wire-spacing 2)) (save (move-right .5) (tag-location (tg 'R...-label)))
+      )
+     (save
+      (move-up (/ h 2)) (move-right (/ w 2))
+      (move-down (/ wire-spacing 2)) (add-wire 'right 'K0)
+      (move-down wire-spacing) (add-wire 'right 'K1)
+      (move-down wire-spacing) (add-wire 'right 'K2)
+      (move-down (/ wire-spacing 2)) (save (move-left .5) (tag-location (tg 'K...-label)))
+      )
+     (save
+      (move-down (/ h 2)) (move-right (/ w 2))
+      (move-up wire-spacing) (add-wire 'right 'KILL))))
+  (define (add-label s* align)
+    (define s
+      (if (equal? (substring (~a s*) 1) "...")
+          '...
+          s*))
+    (after (move-to-tag (tg s* '-label))
+           (img (textify s) align)))
+  (define labels
+    (after
+     (for/after ([t (in-list '(LEM L0 L1 L2 L... IN-KILL REM R0 R1 R2 R...))])
+       (add-label t 'lc))
+     (for/after ([t (in-list `(K0 K1 K2 K... KILL))])
+       (add-label t 'rc))))
+  (after
+   wires
+   box
+   (img
+    (apply vc-append
+           (for/list ([c (in-list (string->list "SYNCHRONIZER"))])
+             (textify (string c)))))
+   labels))
+
 (define input-spacing 3)
 (define fab-four
   (after (tag-location 'GO) (label "GO" 'left)
@@ -656,6 +731,21 @@
      (move-to-tag 'pE_i)
      (line-left 11)
      (label "E_i" 'left))))
+
+
+(define par-pict
+  (let ()
+    (define p
+      (esterel-interface
+       (es (compile p-pure))
+       #:tag-prefix 'p))
+    (define q
+      (esterel-interface
+       (es (compile q-pure))
+       #:tag-prefix 'p))
+    (after
+     fab-four
+     (move-to-tag 'GO))))
 
 (define compile-def
   (list

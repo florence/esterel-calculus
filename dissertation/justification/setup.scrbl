@@ -299,7 +299,7 @@ the following:
            the core relation of the calculus @es[⇀], and a new
            relation @es[⇁] which gives an evaluation strategy for @es[⇀].
            The @es[⇁] relation and the @es[next-instant] function is used to define a
-           multi-evaluator for Esterel. This evaluator checks at
+           multi-instant evaluator for Esterel. This evaluator checks at
            every reduction step that the step taken by @es[⇁] is also
            in @es[⇀].}
           @item{@itemlistheader{Redex/Hiphop.js bridge} 

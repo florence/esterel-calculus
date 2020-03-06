@@ -165,6 +165,12 @@
 
 @section[#:tag "sec:defaux" "Auxiliary"]
 
+@definition[#:notation @es[(closed p-pure)]
+            #:tag "closed"
+            #:index @es[closed]]{
+ @with-paper-rewriters[@render-judgment-form[closed]]
+}
+
 @definition[#:notation @es[(all-bot p-pure θ cs)]
             #:index @es[all-bot]]{
  @[with-paper-rewriters @[render-judgment-form all-bot]]

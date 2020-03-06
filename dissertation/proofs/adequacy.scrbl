@@ -8,7 +8,6 @@
           redex/reduction-semantics
           redex/pict
           pict
-          esterel-calculus/redex/test/binding
           esterel-calculus/redex/model/calculus
           (only-in esterel-calculus/redex/model/reduction
                    blocked-pure)

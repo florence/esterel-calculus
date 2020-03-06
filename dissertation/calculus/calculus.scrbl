@@ -127,7 +127,7 @@ map to a subset of signal statuses. Other parts of the calculus will use full ma
 
 Using restricted environments @es[θr] allow us to syntactically eliminate
 terms which are incoherent---terms that fall in the @italic{must} and @italic{cannot}
-sections of @figure-ref{"back:lattice"}. The simplest example of such a term
+sections of @figure-ref["back:lattice"]. The simplest example of such a term
 would be @es[(ρ (mtθ+S S1 absent) GO (emit S1))], which clearly must emit @es[S1],
 but has an environment which marks that @es[S1] cannot be emitted. Such incoherence
 is prevented by simply not allowing @es[0] to be recorded into the environment. Note
@@ -192,7 +192,7 @@ To handle this the control variable @es[A] adds local information that tells us 
 must be reached or not. When @es[A] is @es[GO], this means that the term will be executed. If @es[A]
 is @es[WAIT] the term may or may not be executed.@note{These control variables are adapted from an as-yet
 unpublished microstep semantics for Esterel by Lionel Rieg. His semantics defines an evaluator
-for Esterel which tracks execution state via three colors: Red, Green, and Gray. My adaptation
+for Esterel which tracks execution state via three colors: Red (@es[0]/Cannot), Green (@es[1]/Must), and Gray(@es[⊥]/unknown). My adaptation
 makes these colors local, which allows the Red color to be discarded. Green corresponds to @es[GO],
 and Grey corresponds to @es[WAIT].}
 

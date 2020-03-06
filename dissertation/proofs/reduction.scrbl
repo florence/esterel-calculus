@@ -5,7 +5,7 @@
           "../lib/proofs.rkt"
           (except-in "../lib/proof-extras.rkt"  FV FV/e)
           redex/reduction-semantics
-          esterel-calculus/redex/test/binding
+          (except-in esterel-calculus/redex/test/binding closed)
           (except-in scribble-abbrevs/latex definition))
 
 

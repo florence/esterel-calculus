@@ -48,8 +48,6 @@
            blocked-pure)
   (only-in esterel-calculus/dissertation/lib/util
            lift-to-compile-time-for-effect!)
-  (only-in esterel-calculus/redex/test/binding
-           closed)
   scribble/examples
   (only-in esterel-calculus/redex/model/reduction
            blocked)
@@ -99,6 +97,14 @@
 (define-metafunction esterel/typeset
   guard : c -> c
   [(guard c) c])
+
+(define-judgment-form esterel/typeset
+  #:mode     (closed I)
+  #:contract (closed p-pure+GO)
+  [(where (ρ θr GO q-pure) p-pure+GO)
+   (side-condition (= (FV p-pure+GO) (L0set)))
+   -----
+   (closed p-pure+GO)])
 
 (define-extended-judgment-form esterel/typeset L∈
   #:mode (L∈2 I I))

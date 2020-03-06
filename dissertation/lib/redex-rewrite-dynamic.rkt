@@ -1186,6 +1186,9 @@
      ['harp (λ () (down-super-p))]
      ['and (lambda () (def-t "∧"))]
      ['or (lambda () (def-t "∨"))]
+     ['closed
+      (lambda ()
+        (mf-t "closed"))]
      
      
      ['next-instant (λ () (mf-t "Ɛ"))]
