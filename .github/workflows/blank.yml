@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    env: 
+      RACKET_DIR: ~/racket 
+      RACKET_VERSION: HEAD
+      RACKET_MINIMAL: 1
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+ 
+    - name: setup racket
+      run: |
+        git clone https://github.com/greghendershott/travis-racket.git ../install-racket
+        cat ../install-racket/install-racket.sh | bash
+        export PATH="${RACKET_DIR}/bin:${PATH}"
+        
+    - name: setup xvfb
+      run: sudo apt-get install xvfb
+        
+    - name: install racket
+      run: |
+        raco pkg install --fail-fast -D --deps search-auto https://github.com/florence/pict.git?path=pict-lib#diss
+        raco pkg install --fail-fast -D --deps search-auto https://github.com/florence/circuitous.git?path=circuitous-lib
+        xvfb-run -a raco pkg install -j 1 --fail-fast -D --deps search-auto
+        
+    - name: Cleanup xvfb pidx
+      uses: bcomnes/cleanup-xvfb@v1
+        
+    - name: test
+      run: make
