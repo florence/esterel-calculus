@@ -39,11 +39,12 @@ jobs:
         ${RACKET_BIN}/raco pkg install --fail-fast -D --deps search-auto https://github.com/florence/circuitous.git?path=circuitous-lib
         xvfb-run -a ${RACKET_BIN}/raco pkg install -j 1 --fail-fast -D --deps search-auto
         
-    - name: Cleanup xvfb pidx
-      uses: bcomnes/cleanup-xvfb@v1
-        
     - name: test
       run: |
         export RACKET_DIR=$HOME/racket 
         export RACKET_BIN=$HOME/racket/bin
-        make RACO_PATH=${RACKET_BIN}/
+        xvfb_run make RACO_PATH=${RACKET_BIN}/
+
+    - name: Cleanup xvfb pidx
+      uses: bcomnes/cleanup-xvfb@v1
+
