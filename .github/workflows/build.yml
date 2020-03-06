@@ -12,8 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     
     env: 
-      RACKET_DIR: $HOME/racket 
-      RACKET_BIN: $HOME/racket/bin
       RACKET_VERSION: HEAD
       RACKET_MINIMAL: 1
 
@@ -25,6 +23,8 @@ jobs:
  
     - name: setup racket
       run: |
+        export RACKET_DIR=$HOME/racket 
+        export RACKET_BIN=$HOME/racket/bin
         git clone https://github.com/greghendershott/travis-racket.git ../install-racket
         cat ../install-racket/install-racket.sh | bash
         
@@ -33,6 +33,8 @@ jobs:
         
     - name: install racket
       run: |
+        export RACKET_DIR=$HOME/racket 
+        export RACKET_BIN=$HOME/racket/bin
         ${RACKET_BIN}/raco pkg install --fail-fast -D --deps search-auto https://github.com/florence/pict.git?path=pict-lib#diss
         ${RACKET_BIN}/raco pkg install --fail-fast -D --deps search-auto https://github.com/florence/circuitous.git?path=circuitous-lib
         xvfb-run -a ${RACKET_BIN}/raco pkg install -j 1 --fail-fast -D --deps search-auto
@@ -41,4 +43,7 @@ jobs:
       uses: bcomnes/cleanup-xvfb@v1
         
     - name: test
-      run: make RACO_PATH=${RACKET_BIN}/
+      run: |
+        export RACKET_DIR=$HOME/racket 
+        export RACKET_BIN=$HOME/racket/bin
+        make RACO_PATH=${RACKET_BIN}/
