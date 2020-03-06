@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     
     env: 
-      RACKET_DIR: ~/racket 
-      RACKET_BIN: ~/racket/bin
+      RACKET_DIR: $HOME/racket 
+      RACKET_BIN: $HOME/racket/bin
       RACKET_VERSION: HEAD
       RACKET_MINIMAL: 1
 
