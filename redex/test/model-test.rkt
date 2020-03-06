@@ -396,22 +396,6 @@
 ;                                                         
 ;                                                         
 
-(execute-test
-        (term
-         (par
-          (par
-           (present Sm (par nothing pause) nothing)
-           (seq
-            (par (par nothing (present SLk pause nothing)) pause)
-            (var x529204 := (+) nothing)))
-          (par (trap pause) (present Sm pause nothing))))
-        '(Sm SLk)
-        '()
-        '(() ())
- 
-        #:debug? #t #:limits? #t #:external? #t
-        #:memory-limits? #t)
-
 
 (module+ test
   (test-case "oracle datatype regression"
