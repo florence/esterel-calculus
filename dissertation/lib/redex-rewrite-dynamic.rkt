@@ -616,7 +616,7 @@
              (text " ⊢ " (default-style) (default-font-size))
              (list-ref lws 3)
              " det"))]
-    ['next-instant (λ (lws) (list (sized-↬-pict) (list-ref lws 2) ""))]
+    ['next-instant (λ (lws) (list (mf-t "Ɛ") (list-ref lws 2) ""))]
     ['reset-θ (λ (lws) (list "⌊" (list-ref lws 2) "⌋"))]
     ['S-code-s
      (λ (lws)
@@ -1188,7 +1188,7 @@
      ['or (lambda () (def-t "∨"))]
      
      
-     ['next-instant (λ () (sized-↬-pict))]
+     ['next-instant (λ () (mf-t "Ɛ"))]
      ['par-⊓ (λ () (par-⊓-pict))]
      ['Can-θ (λ () (Can-θ-name-pict))]
      ['Can (λ () (Can-name-pict #f))]
