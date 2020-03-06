@@ -19,7 +19,7 @@ redex: always racket-build circuits
 	$(RACO) test redex/cos/model.rkt
 	$(RACO) test redex/cos/test/main.rkt
 	$(RACO) test redex/model
-	$(RACO) test redex/test
+	$(RACO) test redex/test/*rkt
 
 long: redex cross front-end
 	$(RACO) test redex/test/long-tests/full-test.rkt
