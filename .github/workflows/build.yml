@@ -43,7 +43,7 @@ jobs:
       run: |
         export RACKET_DIR=$HOME/racket 
         export RACKET_BIN=$HOME/racket/bin
-        xvfb_run make RACO_PATH=${RACKET_BIN}/
+        xvfb-run -a make RACO_PATH=${RACKET_BIN}/
 
     - name: Cleanup xvfb pidx
       uses: bcomnes/cleanup-xvfb@v1
