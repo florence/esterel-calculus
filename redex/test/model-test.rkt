@@ -74,8 +74,21 @@
                       #:debug? debug?
                       #:external? external?
                       #:memory-limits? memory-limits?)
+  (log-eval-test-debug
+   "starting test run for ~a"
+   `(execute-test ,p ,i ,o ,Ss
+                  #:limits? ,limits?
+                  #:debug? ,debug?
+                  #:external? ,external?
+                  #:memory-limits? ,memory-limits?))
+  (log-eval-test-debug
+   "generating Esterel v5 run")
   (define res (and external? (esterel-oracle p i o Ss)))
+  (log-eval-test-debug
+   "generating HipHop run")
   (define res2 (and external? (hiphop-oracle p i o Ss)))
+  (log-eval-test-debug
+   "generating circuit run")
   (define circuit-res
     (if (can-generate-circuit? p)
         (run/circuit p i o Ss)
@@ -89,6 +102,8 @@
      (unless (equal? res res2)
        (log-eval-test-warning
         "BAD: Esterelv5 and Hiphop behave differently on (~a ~a ~a ~a)\nV5: ~a\nHH: ~a\n\n" p i o Ss res res2))])
+  (log-eval-test-debug
+   "starting primary test")
   (test-calculus p i o Ss #:limits? limits? #:debug? debug?
                  #:oracle (if (eq? res 'not-installed) #f res)
                  #:memory-limits? memory-limits?
@@ -178,6 +193,7 @@
              [others other-sequence-lists]
              #:break
              (or
+              (and (eq? p 'timeout) (eq? q 'timeout))
               ;; program was non constructive
               (and (not p) (not q) (implies oracle (symbol? oracle))
                    (log-eval-test-debug "breaking due to non-constructiveness"))
@@ -193,6 +209,8 @@
     (log-eval-test-debug (pretty-format q))
     (log-eval-test-debug "i:")
     (log-eval-test-debug (pretty-format i))
+    (log-eval-test-debug "t:")
+    (log-eval-test-debug (pretty-format olist))
     (log-eval-test-debug "current others:")
     (log-eval-test-debug (pretty-format others))
     (with-handlers ([(lambda (x) (and (exn:fail:resource? x)
@@ -201,7 +219,7 @@
                      (lambda (_)
                        (log-eval-test-warning "timeout")
                        (log-eval-test-debug "program was: ~a" p)
-                       (values #f #f))])
+                       (values 'timeout 'timeout))])
       (with-limits (and limits? 120) (and memory-limits? 512)
                    (log-eval-test-debug "running instant\n")
                    (log-eval-test-debug (pretty-format (list 'instant q (setup-r-env i in))))
@@ -378,8 +396,53 @@
 ;                                                         
 ;                                                         
 
+(execute-test
+        (term
+         (par
+          (par
+           (present Sm (par nothing pause) nothing)
+           (seq
+            (par (par nothing (present SLk pause nothing)) pause)
+            (var x529204 := (+) nothing)))
+          (par (trap pause) (present Sm pause nothing))))
+        '(Sm SLk)
+        '()
+        '(() ())
+ 
+        #:debug? #t #:limits? #t #:external? #t
+        #:memory-limits? #t)
+
 
 (module+ test
+  (test-case "oracle datatype regression"
+    (check-not-exn
+     (lambda ()
+       (execute-test
+        (term
+         (signal S1
+           (present S1 (emit S1) (emit S1))))
+        '()
+        '()
+        '(() () () ())
+        #:debug? #f #:limits? #f #:external? #t
+        #:memory-limits? #f)))
+    (check-not-exn
+     (lambda ()
+       (execute-test
+        (term
+         (par
+          (par
+           (present Sm (par nothing pause) nothing)
+           (seq
+            (par (par nothing (present SLk pause nothing)) pause)
+            (var x529204 := (+) nothing)))
+          (par (trap pause) (present Sm pause nothing))))
+        '(Sm SLk)
+        '()
+        '(() ())
+ 
+        #:debug? #t #:limits? #t #:external? #t
+        #:memory-limits? #t))))
   (test-case "negative tests"
     ;; negative tests to make sure the test harness is working
     (check-exn

@@ -4,11 +4,6 @@
           "../lib/util.rkt"
           "../lib/proofs.rkt"
           "../lib/cite.rkt"
-          (only-in
-           "../lib/circuit-diagrams.rkt"
-           emit-pict nothing
-           compile-def
-           esterel-interface)
           "../lib/proof-extras.rkt"
           (only-in "../proofs/proofs.scrbl")
           (only-in "../notations.scrbl")
