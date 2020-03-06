@@ -208,10 +208,12 @@
           [else the-pict])))
     (define the-line
       (apply hbl-append indent line-items))
-    (refocus (hbl-append (colorize (scale (s->pict (~a (+ i 1) ": ")) .8)
-                                   "darkgray")
-                         the-line)
-             the-line))
+    (if (aterm-line-numbers?)
+        (refocus (hbl-append (colorize (scale (s->pict (~a (+ i 1) ": ")) .8)
+                                       "darkgray")
+                             the-line)
+                 the-line)
+        the-line))
   
   (make-aterm (for/fold ([p (blank)])
                         ([i (in-range (+ 1 (apply max (hash-keys line->start-column))))])
@@ -219,6 +221,8 @@
               sexp
               left-path->pict
               right-path->pict))
+
+(define aterm-line-numbers? (make-parameter #f))
 
 (define (item->pict s) (s->pict (vector-ref s 1)))
 
