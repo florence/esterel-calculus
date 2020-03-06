@@ -398,18 +398,19 @@
 
 
 (module+ test
-  (test-case "oracle datatype regression"
+  (test-case "std reduction fork regression"
     (check-not-exn
      (lambda ()
        (execute-test
-        (term
-         (signal S1
-           (present S1 (emit S1) (emit S1))))
-        '()
-        '()
-        '(() () () ())
+        (term (signal
+                  S1
+                (shared s1 := (+) (shared s2 := (+) (par (<= s2 (+ 1)) (<= s2 (+ 2)))))))
+        '(SS Spresent)
+        '(S⊏ SbG)
+        '(() ())
         #:debug? #f #:limits? #f #:external? #t
-        #:memory-limits? #f)))
+        #:memory-limits? #f))))
+  (test-case "timeout vs oracle non-constructive regression test"
     (check-not-exn
      (lambda ()
        (execute-test

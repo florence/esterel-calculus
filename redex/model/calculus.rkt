@@ -115,9 +115,8 @@
     (ρ θr GO (in-hole E (<= s e)))
     (ρ (id-but-typeset-some-parens (<- θr (mtθ+s s (Σ ev (δ e θr)) new))) GO (in-hole E nothing))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
-    (judgment-holds (θ-ref-s θr s _ new))
+    (judgment-holds (θ-ref-s θr s ev new))
     (side-condition (term (all-ready? (LFV/e e) θr (in-hole E (<= s e)))))
-    (where ev (δ e θr))
     set-new)))
 (define ⟶ (compatible-closure ⇀ esterel-eval p))
 

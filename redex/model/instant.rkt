@@ -170,7 +170,7 @@
        (for/or ([calc-q (in-list (apply-reduction-relation calculus:R p))])
          (same-p? std-q calc-q))])))
 
-;; compares `p`s, but normalizes and ρ's before comparing them
+;; compares `p`s, but normalizes ρ's and par's before comparing them
 (define (same-p? p q)
   (let loop ([p p] [q q])
     (match* (p q)
@@ -196,6 +196,18 @@
   (check-true (standard-implies-calculus (term (trap (loop pause)))))
   (check-true (standard-implies-calculus (term (ρ ((sig SM unknown) ·) WAIT (loop (if xLd nothing pause))))))
 
+  (test-case "regression test 1"
+    (check-true
+     (standard-implies-calculus
+      (term
+       (ρ
+        ((sig S1 unknown)
+         ((sig SS unknown)
+          ((sig SbG unknown)
+           ((sig Spresent unknown)
+            ((sig S⊏ unknown) ((shar s1 0 old) ((shar s2 2 new) ·)))))))
+        GO
+        (par nothing (<= s2 (+ 1))))))))
   (test-case "pinning tests"
     (check-true
      (standard-implies-calculus
