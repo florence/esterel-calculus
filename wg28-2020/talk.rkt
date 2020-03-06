@@ -137,18 +137,34 @@
   (slide (aterm->pict (add-left-finger ⊥⊥ '(2 2 1) '(2 2 2))))
   )
 
-(define (nonconstructive-cycle-with-cycle-shown)
-  (slide
-   (aterm->pict
-    (add-present-S1->then-arrow
-     (add-present-S1->else-arrow
-      (add-present-S2->then-arrow
-       (add-present-S2->else-arrow
-        (add-S2-nested-arrow
-         #f
-         (add-S1-arrow
+(define (constructive/nonconstructive-cycle-with-cycle-shown)
+  (define non
+    (aterm->pict
+     (add-present-S1->then-arrow
+      (add-present-S1->else-arrow
+       (add-present-S2->then-arrow
+        (add-present-S2->else-arrow
+         (add-S2-nested-arrow
           #f
-          nonconstructive-cycle-aterm)))))))))
+          (add-S1-arrow
+           #f
+           nonconstructive-cycle-aterm))))))))
+  (define con
+    (aterm->pict
+     (add-S2-arrow
+      #f
+      (add-present-S1->then-arrow
+       (add-present-S1->else-arrow
+        (add-present-S2->then-arrow
+         (add-present-S2->else-arrow
+          (add-S2-nested-arrow
+           #f
+           (add-S1-arrow
+            #f
+            constructive-cycle-aterm)))))))))
+
+  (slide (lt-superimpose (ghost con) non))
+  (slide (lt-superimpose con (ghost non))))
   
 (define (add-S1-arrow label an-aterm)
   (add-arc an-aterm
@@ -170,7 +186,7 @@
            rc-find
            '(2 2 2 1)
            rc-find
-           (cons 80 10)
+           (cons 120 -20)
            label
            #:start-pull 1
            #:end-pull 1
@@ -180,12 +196,16 @@
 
 (define (add-S2-arrow label an-aterm)
   (add-arc an-aterm
-           '(2 2 3 1)
-           ct-find
-           '(2 2 2 1)
-           lb-find
-           (cons -40 -25)
+           (find-path an-aterm 'S2 3)
+           rc-find
+           (find-path an-aterm 'S2 2)
+           rc-find
+           (cons 100 45)
            label
+           #:start-pull 3.2
+           #:end-pull 1.3
+           #:start-angle 0
+           #:end-angle pi
            ))
 
 (define (add-present-S1->else-arrow an-aterm)
@@ -246,6 +266,6 @@
 
 ;(example1)
 ;(example2)
-;(constructive-cycle-example)
-;(nonconstructive-cycle-example)
-(nonconstructive-cycle-with-cycle-shown)
+(constructive-cycle-example)
+(nonconstructive-cycle-example)
+(constructive/nonconstructive-cycle-with-cycle-shown)
