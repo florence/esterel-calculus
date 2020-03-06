@@ -33,12 +33,12 @@ jobs:
         
     - name: install racket
       run: |
-        raco pkg install --fail-fast -D --deps search-auto https://github.com/florence/pict.git?path=pict-lib#diss
-        raco pkg install --fail-fast -D --deps search-auto https://github.com/florence/circuitous.git?path=circuitous-lib
-        xvfb-run -a raco pkg install -j 1 --fail-fast -D --deps search-auto
+        ${RACKET_DIR}/raco pkg install --fail-fast -D --deps search-auto https://github.com/florence/pict.git?path=pict-lib#diss
+        ${RACKET_DIR}/raco pkg install --fail-fast -D --deps search-auto https://github.com/florence/circuitous.git?path=circuitous-lib
+        xvfb-run -a ${RACKET_DIR}/raco pkg install -j 1 --fail-fast -D --deps search-auto
         
     - name: Cleanup xvfb pidx
       uses: bcomnes/cleanup-xvfb@v1
         
     - name: test
-      run: make
+      run: make RACO_PATH=${RACKET_DIR}/

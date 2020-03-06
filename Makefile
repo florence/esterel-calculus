@@ -1,6 +1,6 @@
 LOGLEVEL = error
-TRAVIS =
-RACO = $(TRAVIS) raco
+RACO_PATH =
+RACO = $(RACO_PATH)raco
 
 
 beforecommit: circuits redex dissertation front-end
@@ -24,7 +24,6 @@ long: redex cross front-end
 	$(RACO) test redex/test/long-tests/full-test.rkt
 	$(RACO) test hiphop/run-tests.rkt
 
-# find -s should work on Mac and BSD-machines
 agda: always
 	! racket agda-all.rkt | grep -v '^[ ]*\(Skipping \)\|\(Checking \)\|\(Finished \)'
 	find . -name "*.agda" -exec grep -H -A 1 postulate {} \;
@@ -53,7 +52,5 @@ dissertation: always
 dissertation-debug-tex: always
 	cd dissertation; $(RACO) make -v dissertation.scrbl lib/redex-rewrite-dynamic.rkt
 	cd dissertation; $(RACO) scribble --latex --dest tex dissertation.scrbl
-
- 
 
 always:
