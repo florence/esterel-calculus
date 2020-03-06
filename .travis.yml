@@ -23,5 +23,5 @@ install:
   - xvfb-run -a raco pkg install -j 1 --fail-fast -D --deps search-auto
 
 script:
- - travis_wait 30 make
+ - make TRAVIS="travis_wait 60"
 
