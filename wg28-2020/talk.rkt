@@ -1,6 +1,18 @@
 #lang racket
 (require slideshow "examples.rkt" "aterm.rkt")
 
+#|
+0 -> tt(?)
+1 -> ff(?)
+|#
+
+(slide
+ (parameterize ([current-main-font (cons 'bold "Lato")])
+   (scale (vl-append (t "Constructiveness")
+                     (t "& Calculi,")
+                     (t "in Esterel"))
+          3)))
+
 (example+label example1-syntax-intro-aterm "Esterel Syntax, i")
 (example+label example2-syntax-intro-aterm "Esterel Syntax, ii")
 (example+label example3-deterministic-parallelism-aterm "Deterministic Parallelism")
@@ -18,3 +30,4 @@
 (constructive-cycle-example)
 (nonconstructive-cycle-example)
 (constructive/nonconstructive-cycle-with-cycle-shown)
+(problematic-example)

@@ -13,6 +13,8 @@
          constructive-cycle-example
          nonconstructive-cycle-example
          constructive/nonconstructive-cycle-with-cycle-shown
+
+         problematic-example
          
          example+label
          add-title)
@@ -143,9 +145,10 @@
   (define a011 (with-arrows 0 1 1))
 
   (define (show-it an-aterm)
-    (slide
+    (add-title
      (lt-superimpose (aterm->pict an-aterm)
-                     (ghost (aterm->pict nonconstructive-cycle-aterm)))))
+                     (ghost (aterm->pict nonconstructive-cycle-aterm)))
+     "A Complex Example"))
   
   (show-it constructive-cycle-aterm)
   (show-it ⊥⊥⊥)
@@ -179,10 +182,11 @@
       nonconstructive-cycle-aterm)))
 
   (define (show-it an-aterm)
-    (slide
+    (add-title
      (lt-superimpose (aterm->pict an-aterm)
                      (ghost
-                      (aterm->pict constructive-cycle-aterm)))))
+                      (aterm->pict constructive-cycle-aterm)))
+     "The Complex Example, Slightly Modified"))
   
   (show-it nonconstructive-cycle-aterm)
   (show-it ⊥⊥)
@@ -218,8 +222,8 @@
             #f
             constructive-cycle-aterm)))))))))
 
-  (slide (lt-superimpose (ghost con) non))
-  (slide (lt-superimpose con (ghost non))))
+  (add-title (lt-superimpose (ghost con) non) "Cyclic Causality, Nonconstructive")
+  (add-title (lt-superimpose con (ghost non)) "Cyclic Causality, Constructive"))
   
 (define (add-S1-arrow label an-aterm)
   (add-arc an-aterm
@@ -319,6 +323,37 @@
            #:end-angle 0
            ))
 
+(define problematic-aterm
+  (aterm
+   (signal S1
+     (present S1
+              (signal S2
+                (seq (emit S2)
+                     (present S2
+                              nothing
+                              (emit S1))))
+              nothing))))
+
+(define (problematic-example)
+  (define w/arc
+    (add-arc problematic-aterm
+             (find-path problematic-aterm 'S1 2)
+             rt-find
+             (find-path problematic-aterm 'S1 1)
+             rc-find
+             (cons 210 -100)
+             '⊥
+             #:start-angle (* pi 1/3)
+             #:end-angle (* pi 1.1)
+             #:start-pull .7
+             ))
+  (example+label
+   w/arc
+   "Problematic Example"))
+
+(module+ main
+  (problematic-example))
+
 (define (example+label an-aterm label)
   (add-title (aterm->pict an-aterm) label))
 
@@ -328,4 +363,5 @@
     (cc-superimpose
      (blank client-w client-h)
      pict)
-    (inset (t label) 0 0 40 40))))
+    (parameterize ([current-main-font "Lato"])
+      (inset (t label) 0 0 40 40)))))
