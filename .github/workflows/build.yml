@@ -29,7 +29,8 @@ jobs:
         cat ../install-racket/install-racket.sh | bash
         
     - name: setup xvfb
-      run: sudo apt-get install xvfb
+      run: |
+        sudo apt-get install xvfb graphviz
         
     - name: install racket
       run: |
