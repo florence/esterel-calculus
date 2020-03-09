@@ -14,21 +14,19 @@ jobs:
     env: 
       RACKET_VERSION: HEAD
       RACKET_MINIMAL: 1
-      SETUP_ENV: |
-        export RACKET_DIR=$HOME/racket;
-        export RACKET_BIN=$HOME/racket/bin;
-        export CIRC_DIR=$HOME/circuitous;
  
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
+    - name: checkout
+      uses: actions/checkout@v2
 
+    - name: setup environment
+      run: |
+        export RACKET_DIR=$HOME/racket
+        export RACKET_BIN=$HOME/racket/bin
+        export CIRC_DIR=$HOME/circuitous
  
     - name: setup racket
       run: |
-        $SETUP_ENV
         git clone https://github.com/greghendershott/travis-racket.git ../install-racket
         cat ../install-racket/install-racket.sh | bash
         
@@ -38,7 +36,6 @@ jobs:
         
     - name: install racket
       run: |
-        $SETUP_ENV
         ${RACKET_BIN}/raco pkg install \
           --fail-fast -D --deps search-auto --batch \
           https://github.com/florence/pict.git?path=pict-lib#diss
@@ -52,7 +49,6 @@ jobs:
         
     - name: test
       run: |
-        $SETUP_ENV
         xvfb-run -a make RACO_PATH=${RACKET_BIN}/
 
     - name: Cleanup xvfb pidx
