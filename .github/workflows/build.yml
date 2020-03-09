@@ -32,9 +32,9 @@ jobs:
         git clone https://github.com/greghendershott/travis-racket.git ../install-racket
         cat ../install-racket/install-racket.sh | bash
         
-    - name: setup xvfb
+    - name: setup packages
       run: |
-        sudo apt-get install xvfb graphviz
+        sudo apt-get install xvfb graphviz texlive-latex-base
         
     - name: install racket
       run: |
