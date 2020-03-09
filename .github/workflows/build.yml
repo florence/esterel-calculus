@@ -19,14 +19,11 @@ jobs:
     - name: checkout
       uses: actions/checkout@v2
 
-    - name: setup environment
+    - name: setup racket
       run: |
         export RACKET_DIR=$HOME/racket
         export RACKET_BIN=$HOME/racket/bin
         export CIRC_DIR=$HOME/circuitous
- 
-    - name: setup racket
-      run: |
         git clone https://github.com/greghendershott/travis-racket.git ../install-racket
         cat ../install-racket/install-racket.sh | bash
         
@@ -36,6 +33,9 @@ jobs:
         
     - name: install racket
       run: |
+        export RACKET_DIR=$HOME/racket
+        export RACKET_BIN=$HOME/racket/bin
+        export CIRC_DIR=$HOME/circuitous
         ${RACKET_BIN}/raco pkg install \
           --fail-fast -D --deps search-auto --batch \
           https://github.com/florence/pict.git?path=pict-lib#diss
@@ -49,6 +49,9 @@ jobs:
         
     - name: test
       run: |
+        export RACKET_DIR=$HOME/racket
+        export RACKET_BIN=$HOME/racket/bin
+        export CIRC_DIR=$HOME/circuitous
         xvfb-run -a make RACO_PATH=${RACKET_BIN}/
 
     - name: Cleanup xvfb pidx
