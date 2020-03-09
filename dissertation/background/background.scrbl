@@ -18,12 +18,16 @@ with a summary of the notation I am using that can be
 referred to without the need for a full read of each
 section.
 
-@Secref["background-esterel"]
-describes the language Esterel. It is meant as refresher on
-Chapters 1, 2, 4.1, and 12 of @cite/title[esterel02], as well as
-chapters 1 and 2 of @cite/title[compiling-esterel]. As my dissertation
-uses Kernel Esterel, this section only describes that language. For a description
-of Full Esterel, please see the Chapter 1 and 2, and appendix B of @cite/title[compiling-esterel].
+@Secref["background-esterel"] describes the language
+Esterel. It is meant as refresher on Chapters 1, 2, 4.1, and
+12 of @cite/title[esterel02], as well as chapters 1 and 2 of
+@cite/title[compiling-esterel]. Specifically an
+understanding of Kernel Esterel and the Constructive
+Behavioral Semantics will be helpful. As my dissertation
+uses Kernel Esterel, this section only describes that
+language. For a description of Full Esterel, please see the
+Chapter 1 and 2, and appendix B of
+@cite/title[compiling-esterel].
 
 
 @Secref["background-calculi"] gives background on language

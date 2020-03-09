@@ -408,6 +408,21 @@ constructive, and its graph is acyclic.
 
 @subsection["Must/Cannot and Present/Absent"]
 
+The description of constructivity in terms of program graphs
+and what Must and Cannot happen can actual give a complete
+semantics for Pure Esterel. This is described by the
+Constructive Behavioral Semantics @~cite[esterel02], which
+defines Esterel inters of two functions: @es[Can] and
+@es[Must]. We can think of what these functions do in terms
+of the chart in @figure-ref["back:lattice"]. The upper left
+corner of this diagram, labeled @es[1], corresponds to a
+portion of the program being executed, and to a signal being
+present. The bottom right, labeled @es[0], corresponds to a
+portion of the program not being executed and to a signal
+being absent. The upper right corner, labeled @es[⊥]
+corresponds to a portion of the program being in an unknown
+state. The lower left is never realized.
+
 
 @figure["back:lattice"
         "Must/Can Lattice"
@@ -483,9 +498,42 @@ constructive, and its graph is acyclic.
     #:line-width 3 'bot cb-find 'zero ct-find)
    ))]
 
+Every edge in the program graph begins in the corner of the
+chart labeled @es[⊥], representing that it could be
+executed, but might not be. As we execute the program, any
+control edge can be moved to the @es[1] corner (It both Must
+and Can happen), if @italic{all} of it's incoming edges are
+@es[1]. Conversly, a control edge can be set to @es[0] if
+@italic{any} of it's incoming edges are @es[0]. Note that
+this means that the edges leading from @es[start]
+automatically have @es[1]'s as they have no incoming edges.
+Conversely a Data edge can be set to @es[1] if @italic{any}
+of it's incoming edges are @es[1], but can only be set to
+@es[0] if @italic{all} of it's incoming edges are @es[0].
+This corresponds to control edges being linked by an
+extension of @es[and] with @es[⊥], and data edges being
+linked to by a similar extension of @es[or]. This is
+discussed in more detail in @secref["background-circuits"]
+and @secref["just:sound:compiler"] as this leads directly to
+the circuit semantics of Esterel.
 
-TODO present is 1, absent is 0.
-TODO talk about the asymmetry.
+The Must and Cannot corner in the diagram is not reachable,
+as it is a logical contradiction. No consistent and sound
+semantics should be able to put programs in this corner.
+This will motivates of the design decisions of the
+Calculus.
 
-
-TODO assymmetry between Must and Can
+It should also be noted that this description leads to a
+kind of asymmetry between the Must and Cannot corners. The
+Must corner can be reached only if there is a chain of
+@es[1]'s leading form the top of the program, as the only
+control node that has zero incoming edges is @es[start]. The
+Cannot corner however can be reached without a connection to
+the top of the program, as any signal with no @es[emit] can
+automatically get a @es[0]. This leads to an odd fact: Must
+is non-local, but Cannot is local. Any program can be put
+into a context where is wont be executed, therefor Must
+requires knowledge about where the top of the program is.
+However if something Cannot happen, then no context can make
+it happen. This asymmetry will show up several times in the design
+of the Calculus.
