@@ -3,7 +3,7 @@ RACO_PATH =
 RACO = $(RACO_PATH)raco
 
 
-beforecommit: circuits redex dissertation front-end
+beforecommit: circuits redex dissertation-tex front-end
 
 racket-build: always
 	$(RACO) setup --check-pkg-deps esterel-calculus
@@ -50,8 +50,8 @@ dissertation: always
 	cd dissertation; PLTSTDERR="${PLTSTDERR} $(LOGLEVEL) warning@diss" $(RACO) scribble --pdf dissertation.scrbl
 
 
-dissertation-debug-tex: always
+dissertation-tex: always
 	cd dissertation; $(RACO) make -v dissertation.scrbl lib/redex-rewrite-dynamic.rkt
-	cd dissertation; $(RACO) scribble --latex --dest tex dissertation.scrbl
+	cd dissertation; PLTSTDERR="${PLTSTDERR} $(LOGLEVEL) warning@diss" $(RACO) scribble --latex --dest tex dissertation.scrbl
 
 always:
