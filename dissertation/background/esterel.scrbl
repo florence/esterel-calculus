@@ -25,16 +25,17 @@
 
 @title[#:style paper-title-style #:tag "background-esterel"]{Esterel}
 
-This dissertation will not focus on the fill Esterel language. There are
-other, better primers on that such as @es[compiling-esterel]. Instead
-I will focus on Kernel Esterel@~cite[esterel02]. Kernel Esterel
-is a small subset of Esterel in which, for the post part,
-Full Esterel is trivially macro expressible.
+This dissertation will not focus on the Full Esterel
+language. There are other, better primers on that such as
+@cite/title[compiling-esterel]. Instead I will focus on
+Kernel Esterel@~cite[esterel02]. Kernel Esterel is a small
+subset of Esterel in which, for the most part, Full Esterel
+is trivially macro expressible.
 
 
-My semantics will focus on Kernel Esterel,
-a core language in which most of full Esterel can be
-expressed. It's grammar is:
+My semantics will focus on Kernel Esterel, a core language
+in which most of full Esterel can be expressed. It's grammar
+is:
 
 @centered[lang/pure]
 @centered[lang/state]

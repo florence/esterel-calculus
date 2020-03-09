@@ -1,14 +1,22 @@
 #lang racket
 
-(require scriblib/autobib)
+(require scriblib/autobib
+         rackunit)
 
 (provide (except-out (all-defined-out) |Robert de Simone|))
 
 (define |Robert de Simone| (author-name "Robert" "de Simone"))
 (define gerard "Gérard Berry")
 
+(require/expose
+ scriblib/autobib
+ [auto-bib-title])
 
 (define-cite ~cite citet generate-bibliography)
+
+(define (cite/title x)
+  (list (auto-bib-title x)
+        (~cite x)))
 
 (define plt-tr1
   (make-bib
