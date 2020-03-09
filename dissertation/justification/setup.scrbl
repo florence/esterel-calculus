@@ -8,7 +8,8 @@
            "../lib/circuit-diagrams.rkt"
            emit-pict nothing
            compile-def
-           esterel-interface)
+           esterel-interface
+           synchronizer)
           "../lib/proof-extras.rkt"
           (only-in "../proofs/proofs.scrbl")
           (only-in "../notations.scrbl")
@@ -40,23 +41,32 @@ except for two changes in the compilation of @es[par]. These
 changes are necessary for soundness, and were implemented in
 the Esterel v7 compiler. I will describe them more later.
 
+
 @figure["circ-shape"
         @list{The shape of circuits returned by @es[(compile p-pure)]}
         (esterel-interface @es[(compile p-pure)])].
 
+The circuit compilation function, in essence, takes the program graphs described
+in @secref["back:esterel:cannot"], and expresses them as a circuit. The circuits
+are more complex, as they handle more of Esterel than the simple diagrams I used before,
+but at their core they expressed the same execution model.
 The four input wires on the left of the diagram (@es[GO], @es[RES], @es[SUSP], @es[KILL])
 are control wires which guide the execution of the circuit. The @es[GO] wire is true
-when the circuit is supposed to start for the first time. The @es[RES] wire is true
+when the circuit is supposed to start for the first time---It corresponds
+to an coming control edge that connects to the start of the program in the program graph model. The @es[RES] wire is true
 when the circuit may resume execution in a previous instant (when, say, it has
-a register containing an @es[1]). The @es[SUSP] wire is used by the compilation
-of @es[suspend] to, well, suspend a term. The @es[kill] wire is used by @es[trap]
-and @es[exit] to abort the execution of a circuit.
+a register containing an @es[1])---It corresponds to an control edge that
+connects the ``input'' for a pause. The @es[SUSP] wire is used by the compilation
+of @es[suspend] to, well, suspend a term. The @es[KILL] wire is used by @es[trap]
+and @es[exit] to abort the execution of a circuit. Neither @es[SUSP] nor @es[KILL]
+we expressed in the graph model.
 
-The two wires on the top @es[E_i] and @es[E_o] represent bundles of wires
-that are input and output signals of the term. Any free variable which is used
-in an @es[present] will have a corresponding wire in @es[E_i]. Any
-free variable which is use in an @es[emit] will have a corresponding
-wire in @es[E_o].
+The two wires on the top @es[E_i] and @es[E_o] represent
+bundles of wires that are input and output signals of the
+term. Any free variable which is used in an @es[present]
+will have a corresponding wire in @es[E_i]. Any free
+variable which is use in an @es[emit] will have a
+corresponding wire in @es[E_o].
 
 The bottom output wires on the right (@es[K0] and friends) are encode the return codes.
 The wire @es[K0] is @es[1] when the term completes, @es[K1] is @es[1] when
@@ -163,11 +173,234 @@ way as @es[↓].
 
 @circ-fig['trap]
 
-TODO par
+The @es[par] circuit (@figure-ref["comp:par"]) circuit is
+the most complex of the compilation clauses, and has two
+changes from the compiler given in @citet[esterel02]. To
+start with, the easy part: The @es[GO], @es[RES], @es[SUSP]
+and @es[E_i] wires are broadcast to the subcircuits. The @es[SEL] and
+@es[E_o] wires are the or'ed from the subcircuits. The complex part
+is in handling the return codes and the @es[KILL] wire.
+
+@circ-fig['par]
+
+To start with, the return codes are joined together by a
+synchronizer, which is given in @figure-ref["comp:sync"].
+The synchroniziser implements the @es[max] operation, as is
+used in @es[Can]. That is, the return code for the overall
+circuit is the max of the return code of the subcircuits
+(the @es[Ln] and @es[Rn] wires). However this is complicated
+by multi-instant execution: special behavior is needed if
+one branch finished in a previous instant. In this case the
+return code of the live branch must be used. This is handled
+by the @es[LEM] and @es[REM] wires, which encode if the
+other branch is the only live branch. Which is to say,
+@es[LEM] is true if and only if the circuit
+is resuming, the @es[p-pure] branch is dead, and the @es[q-pure] branch
+is @es[SEL]ected. The reverse holds for @es[REM]. There @es[LEM]
+and @es[REM] wires make it look like the dead branch has exit code @es[0],
+which, as the lowest return code, causes the synchronizer to give
+the other branches return code.
+
+The last part of the synchronizer is the handling of
+@es[KILL]. The compilation of @es[par] needs to account for
+if one branch has an exit code greater than @es[1], which
+must abort the other branch. Normally this would be handled
+by the compilation of @es[trap], but in this case we would
+loose local reasoning if we did that, as we do not know if
+the program is in fact, closed, by a @es[trap]. Therefore
+both subcircuits are killed if the outer @es[KILL] wire is
+@es[1], or if the over all return code is @es[2] or greater.
+
+
+@figure["comp:sync" "The parallel synchronizer" synchronizer]
+
+The two changes to this from the compiler in @citet[esterel02] are the @es[KILL]
+wire including the return codes, and the definition of the @es[LEM] and @es[REM] wires.
+The old compiler would have broadcast the @es[KILL] wires directly to the subcircuit.
+In addition it would have defined @es[(= REM (not (or GO p-SEL)))] (and @es[LEM]
+using @es[q-SEL]). Both of these definitions result in unsoundness under local rewrites
+that should hold. Both of these changes were used in the Esterel v7 compiler, however
+they have not yet been published anywhere.
+
+The change to the @es[REM] and @es[LEM] wires can be
+explained by noticing that it we expect it to be the case
+that @centered[@es[(≃^esterel (trap (par (exit 0) pause)) nothing)]]
+as this circuit will always abort, and immediately catch the
+@es[exit]. Therefore we want
+@centered[@es[(≃^circuit (compile (trap (par (exit 0) pause))) (compile nothing))]]
+to hold. However in this equivalence did not hold in the
+@citet[esterel02] compiler, specifically in the case where
+@es[(= GO ⊥)]. In that case both @es[LEM] and @es[REM] are
+@es[⊥], causing @es[K2] to be @es[⊥]. However in the circuit
+for @es[nothing], @es[K2] is defined to be @es[0]. The
+Esterel v7 compiler handles this case correctly.
+
+The change to the @es[KILL] wire can be seen by a similar
+example. We expect
+@centered[@es[(≃^esterel (par (exit 2) pause) (exit 2))]] for a similar
+reason as before. As before, this means we want
+@centered[@es[(≃^circuit (compile (par (exit 2) pause)) (compile(exit 2)))]]
+to hold. With the @citet[esterel02] compiler, however, we are free
+to let @es[KILL] be @es[0], even when @es[GO] is @es[1]. This means that in the second
+instant the @es[pause] is @es[SEL]ected. However there is no @es[pause] in @es[(exit 2)],
+therefor its @es[SEL] wire must be @es[0]. The new compiler handles this correctly by
+killing the other branch of the @es[par] even if the out @es[KILL] wire is @es[0].
+
+Note that these two issues both rely on both subcircuits
+being active at some point to trigger the change in
+behavior. As @es[par] is the only chase where two
+subcircuit's can be active simultaneously, this is the only
+case that requires this special care.
+
 
 TODO loop
 
+
 TODO ρ
+@circ-fig['empty-rho]
+@circ-fig['non-empty-rho]
+
+@section[#:tag "just:sound:solver"]{The Circuit Solver}
+
+To reason about circuits in a more automated fashion, I have
+implemented a symbolic reasoning engine---a solver---for
+concrete circuits. The solver I use is an implementation of
+the algorithm for executing constructive circuits given by
+@citet[malik-circuit] (and extended by
+@citet[constructive-boolean-circuits] to handle registers),
+implemented in the language Rosette@~cite[rosette].
+
+Rosette is an domain specific language embedded within
+Racket@~cite[plt-tr1], which is designed for defining other
+domain specific languages so that the programs written in
+those language can be reasoned about using an SMT solver.
+Specifically Rosette allows for symbolic execution of
+programs such that the result of a program is not a value,
+but a symbolic expression which represents the value. This
+symbolic value may then be turned into a logic formal that
+can be reasoned about using an SMT solver.
+
+In this case I have implement an interpreter using circuits.
+Two circuits can then be run on symbolic inputs, and the
+statement that the outputs are equal for all possible input
+assignments is validated by an SMT solver. The source for
+this solver may be found at
+https://github.com/florence/circuitous/, and the core of the
+solver is listed in @secref["ap:solver"].
+
+As an example of how this solver works, take the circuits
+for @es[(compile nothing)] and @es[(compile (emit S))]:
+
+@centered[nothing]
+@centered[emit-pict]
+
+@[define x
+  @[check
+    (define nothing
+      (compile-esterel (term nothing)))
+    (define emit
+      (compile-esterel (term (emit S))))]]
+
+This may be defined using the sovler like so:
+
+@[check
+  (define nothing
+    (circuit #:inputs (GO) #:outputs (K0)
+     (K0 = GO)))
+  (define emit
+    (circuit #:inputs (GO)
+     #:outputs (S K0)
+     (S = GO)
+     (K0 = GO)))]
+
+Or alternatively they can be defined directly:
+
+@x
+
+We can then get a symbolic interpretation of the circuit. As a trivial example,
+we can prove that @es[emit] is equal to itself:
+
+@[check
+  (assert-same emit emit)]
+
+However @es[emit] and @es[nothing] are not the same:
+
+@[check
+  (eval:error
+   (assert-same emit nothing))]
+
+In this case we are given back an unsatisfiable core which is an explicit counterexample
+to the assertion that the two circuits are the same. Each input wire is encoded
+as two symbolic variables, the @racket[-pos] variant being true if and only if
+the wire carries an @es[1], and the @racket[-neg] variant being true if and only
+if the wire carries an @es[0].@note{In Racket, true and false are written as @racket[#t]
+ and @racket[#f].} If both variables are false, then the wire carries the special value @es[⊥].
+Both variables may not be true at the same time. Therefore, the above error message can be interpreted
+as saying the two models differ when the @es[GO] wire is bottom. This is because in @es[nothing] the
+lack of an @es[S] wire means that it is interpreted as always beginning @es[0].
+
+Circuitous can also handle register and assertions over multiple instants. Concider:
+
+
+@[check
+  (define delay1
+    (circuit #:inputs (a) #:outputs (b)
+     (reg in out = a)
+     (b = out)))
+  (define delay2
+    (circuit #:inputs (a) #:outputs (b)
+     (reg in1 out1 = a)
+     (reg in2 out2 = out1)
+     (b = out2)))]
+
+The circuit @racket[delay1] moves it input to its output after one cycle,
+and @racket[delay2] moves it's input to its output after two cycles. Circuitous
+can show us that these circuits may differ after the first instant, as shown in @figure-ref["delay-check"].
+
+@figure["delay-check"
+        "Verifying if two circuits with registers are not the same"
+        @[check
+          (eval:error
+           (assert-same delay1 delay2))]]
+
+In the multi-instant case a new symbolic variable is created
+for each input on every instant. In this case the first line
+after model shows us that the circuits differ in the second
+instant, where the value of @racket[b] is flipped. This
+occurs when @racket[a] is true in the first instant (that is
+@racket[pos-a$0] is true).
+
+The last important part of circuitous for the proofs is the
+ability to determine constructiveness:
+
+@[check
+  (assert-totally-constructive emit)
+  (eval:error
+   (assert-totally-constructive
+    (circuit #:inputs () #:outputs ()
+             (a = a))))]
+
+The function @racket[assert-totally-constructive] verifies
+that, assuming all inputs are not @es[⊥], then no internal
+wires are @es[⊥].@note{When there is an input which is
+ @es[⊥], then the circuit is trivially non-constructive,
+ therefore this case is uninteresting.}
+
+Finally, both of @racket[assert-totally-constructive]
+and @racket[assert-same] may take in assumptions about the environment
+which can be used to constrain what they check. For example:
+@[check
+  (assert-same
+   #:constraints '(not a)
+   delay1 delay2)
+  (eval:error
+   (assert-same 
+    #:constraints 'a
+    delay1 delay2))]
+
+Which show that @racket[delay1] and @racket[delay2] are
+equal when @racket[a] is always false, but not equal when
+@racket[a] is always true.
 
 @section[#:tag "just:sound:pure"]{Pure Esterel}
 

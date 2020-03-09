@@ -193,7 +193,7 @@ uses the same mechanism as determining absence for a signal.@note{In fact,
  Kernel Esterel value carrying signals are represented as a
  signal paired with a shared variable.}
 
-@section[#:tag "cannot" "Constructive programs"]
+@section[#:tag "back:esterel:cannot" "Constructive programs"]
 
 What is the mechanism used to determine if a signal can be
 set to absent? Specifically, what kind of reasoning can we

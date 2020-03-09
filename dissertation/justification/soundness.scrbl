@@ -19,23 +19,15 @@
 
 @title[#:style paper-title-style  #:tag "just:sound"]{Justifying Soundness}
 
-Soundness, on the other had, relates a calculus to some external definition
-of the language which we take to be ground truth for it's behavior. As ground
-truth I take the circuit semantics as given by @citet[esterel02],
-with some minor modifications that were implemented in the Esterel v7 compiler.
-
-@section[#:tag "just:sound:thrm"]{The theorem of soundness}
-
-As the calculus relates terms within a single execution,
-the statement of soundness will too. An informal justification
-for multi-instant reasoning is given in @secref["just:instants"].
-The formal statement of soundness is:
+As the calculus relates terms within a single execution, the
+statement of soundness does too. The formal statement of
+soundness is:
 
 @proof-splice["soundness"]
 
 The proof is given in the appendix as
 @proof-ref["soundness"]. To pick the statement apart, it
-says that if two terms are @es[≡] the, when we restrict
+says that if two terms are @es[≡] then, when we restrict
 ourselves to looking at a single instant, the compilation of
 those circuits is @es[≃^circuit].
 
@@ -47,149 +39,8 @@ set of inputs to the circuit is finite. Therefore each of
 these proofs---which are given in detail in
 @secref["proof:reduction"]---proceeds by induction on the
 term to eventually find a concrete circuit. Then the
-circuits on the each side are given to a solver which proves
+circuits on the each side are given to the circuit solver which proves
 that they are equal.
-
-@section[#:tag "just:sound:solver"]{The Solver}
-
-The solver I use is an implementation of the algorithm for
-executing constructive circuits given by
-@citet[malik-circuit] (and extended by
-@citet[constructive-boolean-circuits] to handle registers),
-implemented in the language Rosette@~cite[rosette].
-
-Rosette is an domain specific language embedded within
-Racket@~cite[plt-tr1], which is designed for defining other domain specific
-languages so that the programs written in those language can
-be reasoned about using an SMT solver. Specifically Rosette
-allows for symbolic execution of programs such that the
-result of a program is not a value, but a symbolic
-expression which represents the value. This symbolic value
-may then be turned into a logic formal that can be reasoned
-about using an SMT solver.
-
-In this case I have implement an interpreter using circuits.
-Two circuits can then be run on symbolic inputs, and the
-statement that the outputs are equal for all possible input
-assignments is validated by an SMT solver. The source
-for this solver may be found at https://github.com/florence/circuitous/,
-and the core of the solver is listed in @secref["ap:solver"].
-
-As an example of how this solver works, take the circuits for
-@es[(compile nothing)] and
-@es[(compile (emit S))]:
-
-@centered[nothing]
-@centered[emit-pict]
-
-@[define x
-  @[check
-    (define nothing
-      (compile-esterel (term nothing)))
-    (define emit
-      (compile-esterel (term (emit S))))]]
-
-This may be defined using the sovler like so:
-
-@[check
-  (define nothing
-    (circuit #:inputs (GO) #:outputs (K0)
-     (K0 = GO)))
-  (define emit
-    (circuit #:inputs (GO)
-     #:outputs (S K0)
-     (S = GO)
-     (K0 = GO)))]
-
-Or alternatively they can be defined directly:
-
-@x
-
-We can then get a symbolic interpretation of the circuit. As a trivial example,
-we can prove that @es[emit] is equal to itself:
-
-@[check
-  (assert-same emit emit)]
-
-However @es[emit] and @es[nothing] are not the same:
-
-@[check
-  (eval:error
-   (assert-same emit nothing))]
-
-In this case we are given back an unsatisfiable core which is an explicit counterexample
-to the assertion that the two circuits are the same. Each input wire is encoded
-as two symbolic variables, the @racket[-pos] variant being true if and only if
-the wire carries an @es[1], and the @racket[-neg] variant being true if and only
-if the wire carries an @es[0].@note{In Racket, true and false are written as @racket[#t]
- and @racket[#f].} If both variables are false, then the wire carries the special value @es[⊥].
-Both variables may not be true at the same time. Therefore, the above error message can be interpreted
-as saying the two models differ when the @es[GO] wire is bottom. This is because in @es[nothing] the
-lack of an @es[S] wire means that it is interpreted as always beginning @es[0].
-
-Circuitous can also handle register and assertions over multiple instants. Concider:
-
-
-@[check
-  (define delay1
-    (circuit #:inputs (a) #:outputs (b)
-     (reg in out = a)
-     (b = out)))
-  (define delay2
-    (circuit #:inputs (a) #:outputs (b)
-     (reg in1 out1 = a)
-     (reg in2 out2 = out1)
-     (b = out2)))]
-
-The circuit @racket[delay1] moves it input to its output after one cycle,
-and @racket[delay2] moves it's input to its output after two cycles. Circuitous
-can show us that these circuits may differ after the first instant, as shown in @figure-ref["delay-check"].
-
-@figure["delay-check"
-        "Verifying if two circuits with registers are not the same"
-        @[check
-          (eval:error
-           (assert-same delay1 delay2))]]
-
-In the multi-instant case a new symbolic variable is created
-for each input on every instant. In this case the first line
-after model shows us that the circuits differ in the second
-instant, where the value of @racket[b] is flipped. This
-occurs when @racket[a] is true in the first instant (that is
-@racket[pos-a$0] is true).
-
-The last important part of circuitous for the proofs is the
-ability to determine constructiveness:
-
-@[check
-  (assert-totally-constructive emit)
-  (eval:error
-   (assert-totally-constructive
-    (circuit #:inputs () #:outputs ()
-             (a = a))))]
-
-The function @racket[assert-totally-constructive] verifies
-that, assuming all inputs are not @es[⊥], then no internal
-wires are @es[⊥].@note{When there is an input which is
- @es[⊥], then the circuit is trivially non-constructive,
- therefore this case is uninteresting.}
-
-Finally, both of @racket[assert-totally-constructive]
-and @racket[assert-same] may take in assumptions about the environment
-which can be used to constrain what they check. For example:
-@[check
-  (assert-same
-   #:constraints '(not a)
-   delay1 delay2)
-  (eval:error
-   (assert-same 
-    #:constraints 'a
-    delay1 delay2))]
-
-Which show that @racket[delay1] and @racket[delay2] are
-equal when @racket[a] is always false, but not equal when
-@racket[a] is always true.
-
 
 @section[#:tag "just:sound:lemma"]{Important lemma's}
 
