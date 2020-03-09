@@ -37,7 +37,7 @@
  have all settled.
 
  For all signal wires in @es[θ], by our hypothesis they are set to @es[1] by the defintion compilation of
- @es[θ], or they are @es[0] by @es["sel-start"] and @proof-ref["Can-S-is-sound"].
+ @es[θ], or they are @es[0] by @proof-ref["sel-start"] and @proof-ref["Can-S-is-sound"].
 
  For the remaining wires, they all settle by @proof-ref["done-is-constructive"].
  
@@ -54,7 +54,7 @@
         @es[(= (of (compile done) RES) (of (compile done) SUSP) (of (compile done) KILL) 0)],
         
         and @es[(binds (compile done) θ)]
-        then @es[(compile done)] is construtive}]{
+        then @es[(compile done)] is constructive}]{
  @cases[#:of done
         #:language esterel/typeset
         #:induction
@@ -292,7 +292,7 @@
                      
   @#:case[if]{
    Let @es[cs_1p] and @es[cs_2p] be the substates
-   that corrispond to @es[p-pure] in @es[cs_1] and @es[cs_2] respectively. Let
+   that correspond to @es[p-pure] in @es[cs_1] and @es[cs_2] respectively. Let
    @es[cs_1q] and @es[cs_2q] be defined similarly.
    
    @sequenced{
