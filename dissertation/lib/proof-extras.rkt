@@ -20,6 +20,7 @@
          ≃^esterel
          ⟶^r
          ⟶^s
+         ⇀2
          DR
          restrict
          closed
@@ -243,3 +244,16 @@
   [(where #f ,(judgment-holds (blocked θ A E p)))
    -------------------
    (not-blocked θ A E p)])
+
+(define ⇀2
+  (reduction-relation
+   esterel/typeset
+
+   (--> (ρ GO (in-hole E (present S p q)))
+        (ρ GO (in-hole E p))
+        (where (in-hole E_1 (emit S)) (in-hole E (present S p q)))
+        is-present)
+
+   (--> (in-hole E (emit S)) (par (emit S) (in-hole E nothing))
+        emit)))
+   

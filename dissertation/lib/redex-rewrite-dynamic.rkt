@@ -476,6 +476,13 @@
              (hbl-append (def-t " ") (reduction-arrow) (def-t " "))
              (list-ref lws 3)
              ""))]
+    ['⇀2
+     (λ (lws)
+       (list ""
+             (list-ref lws 2)
+             (hbl-append (def-t " ") (reduction-arrow) (def-t " "))
+             (list-ref lws 3)
+             ""))]
     ['⟶
      (curry binop '⟶)]
     ['⟶^s
@@ -877,16 +884,23 @@
           (define body (list-ref lws 4))
           (list "∃ " var ". " body ""))]
     ['ρ (λ (lws)
-          (list (list-ref lws 0)
-                (just-after (hbl-append (alt-ρ) (def-t " ")) (list-ref lws 0))
-                "⟨"
-                (list-ref lws 2)
-                ", "
-                (list-ref lws 3)
-                "⟩"
-                (just-after "." (list-ref lws 3))
-                (list-ref lws 4)
-                (list-ref lws 5)))]
+          (if (= (length lws) 5)
+              (list (list-ref lws 0)
+                    (alt-ρ) " "
+                    (list-ref lws 2)
+                    (just-after "." (list-ref lws 2))
+                    (list-ref lws 3)
+                    (list-ref lws 4))
+              (list (list-ref lws 0)
+                    (just-after (hbl-append (alt-ρ) (def-t " ")) (list-ref lws 0))
+                    "⟨"
+                    (list-ref lws 2)
+                    ", "
+                    (list-ref lws 3)
+                    "⟩"
+                    (just-after "." (list-ref lws 3))
+                    (list-ref lws 4)
+                    (list-ref lws 5))))]
     ['ρ1 (λ (lws)
            (list (list-ref lws 0)
                  (just-after (alt-ρ) (list-ref lws 0))
@@ -1224,6 +1238,8 @@
      ['≡
       (lambda () (render-op '≡))]
      ['⇀
+      (lambda () (render-op '⇀))]
+     ['⇀2
       (lambda () (render-op '⇀))]
      ['⟶
       (lambda () (render-op '⟶))]

@@ -4,13 +4,15 @@
          redex/pict
          redex/reduction-semantics
          pict
-         "redex-rewrite.rkt")
+         "redex-rewrite.rkt"
+         (only-in "proof-extras.rkt" ⇀2))
 
 (provide calculus-side-condition-beside-rules
          calculus-rule-groups
          reduction-relation-pict
          render-rules
-         render-specific-rules)
+         render-specific-rules
+         render-specific-rules2)
 
 ;; approximate, determined by experimentation via `frame`
 ;; and running latex and eyeballing the output,
@@ -160,3 +162,12 @@
                                                   `(("" ,@r))
                                                   calculus-side-condition-beside-rules)])
      (render-reduction-relation R*))))
+
+(define (render-specific-rules2 r)
+  (with-paper-rewriters
+   (parameterize* ([render-reduction-relation-rules r]
+                   [rule-pict-style (render-rules 'calculus
+                                                  ⇀2
+                                                  `(("" ,@r))
+                                                  calculus-side-condition-beside-rules)])
+     (render-reduction-relation ⇀2))))
