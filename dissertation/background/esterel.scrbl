@@ -6,9 +6,11 @@
           "../lib/cite.rkt"
           "../lib/misc-figures.rkt"
           esterel-calculus/redex/model/deps
+          esterel-calculus/dissertation/lib/pict
           scriblib/figure
           pict/code
           pict
+          ppict
           syntax/parse/define
           (for-syntax racket/base))
 
@@ -34,15 +36,12 @@ is trivially macro expressible.
 
 
 My semantics will focus on Kernel Esterel, a core language
-in which most of full Esterel can be expressed. It's grammar
+in which most of Full Esterel can be expressed. It's grammar
 is:
 
-@centered[lang/pure]
 @centered[lang/state]
 
 @section["Pure Esterel"]
-
-TODO new figures, not first two lines.
 
 The first two lines of the grammar give the subset of
 Esterel called Pure Esterel. Pure Esterel defines a
@@ -91,10 +90,6 @@ instant. A signal is absent if and only if it is not
 emitted and @italic{cannot} be emitted in the current
 instant. The exact meaning of cannot is discussed in
 @secref["cannot"].
-
-TODO present is 1, absent is 0.
-TODO talk about the asymmetry.
-@figure["back:lattice" "TODO must/can chart" "TODO"]
 
 @bold{Composition} Esterel terms can either be composed
 concurrently---@es[(par p q)]---or
@@ -411,25 +406,86 @@ constructive, and its graph is acyclic.
                 (seq pause
                      (emit S1)))))]
 
-@section["Justifying Kernel Esterel"]
+@subsection["Must/Cannot and Present/Absent"]
 
-A valid question is whether or not a semantics for Kernel
-Esterel really gives a useful theory for Full Esterel. I
-would argue that is the case because Full Esterel can, with
-three exceptions, be expressed in Kernel Esterel without a
-change in expressive power@~cite[felleisen-expressive]. To a first order
-approximation this means that any form in the Full Esterel
-can be translated into Kernel Esterel without looking
-at either its surrounding context or its sub-terms.
 
-There are only four forms in Full Esterel@note{This is the case, at least, for Esterel V5. Esterels V7 adds more features. However
- I suspect that most of these features constitute TODO???} that I am aware of
-that cannot be expressed this way.
+@figure["back:lattice"
+        "Must/Can Lattice"
+        (let ()
+  (define width 150)
+  (define height 150)
+  (define (debase x)
+    (inset x 0 (* -.2 (- (pict-height x) (pict-descent x)))))
+  (define (scl x)
+    (debase
+     (scale-to-fit
+      x
+      (* .4 width)
+      (* .4 height))))
+  (define v-line (vline 0 height))
+  (define h-line (hline width 0))
+  
+  (define chart
+    (ppict-do
+     (blank width height)
+     #:go (coord 0 .5)
+     v-line
+     #:go (coord .5 .5)
+     v-line
+     #:go (coord 1 .5)
+     v-line
+     #:go (coord .5 0)
+     h-line
+     #:go (coord .5 .5)
+     h-line
+     #:go (coord .5 1)
+     h-line
+     #:go (grid 2 2 1 1)
+     (tag-pict (scl @es[1]) 'one)
+     #:go (grid 2 2 1 2)
+     (strike-for (* .5 width) (* .5 height))
+     #:go (grid 2 2 1 2)
+     (strike-for (* .5 width) (* .5 height) 3 'other)
+     #:go (grid 2 2 2 1)
+     (tag-pict (scl @es[⊥]) 'bot)
+     #:go (grid 2 2 2 2)
+     (tag-pict (scl @es[0]) 'zero)))
+  (define w/labels
+    (panorama
+     (hc-append
+      10
+      (vc-append
+       (cc-superimpose
+        (blank 0 (/ height 2))
+        (text "Can"))
+       (cc-superimpose
+        (blank 0 (/ height 2))
+        (text "Cannot")))
+      (refocus
+       (vc-append
+        10
+        (hbl-append
+         (cc-superimpose
+          (blank (/ width 2) 0)
+          (text "Must"))
+         (cc-superimpose
+          (blank (/ width 2) 0)
+          (text "May Not")))
+        chart)
+       chart))))
+  (app
+   w/labels
+   (arrow/tag
+    10
+    #:line-width 3 'bot lc-find 'one rc-find)
+   (arrow/tag
+    10
+    #:line-width 3 'bot cb-find 'zero ct-find)
+   ))]
 
-@subsection["Traps"]
-@subsection["Pre"]
-@subsection["Tasks"]
-@subsection["Finalize"]
+
+TODO present is 1, absent is 0.
+TODO talk about the asymmetry.
 
 
 TODO assymmetry between Must and Can
