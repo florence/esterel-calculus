@@ -239,27 +239,28 @@ that the calculus is correct across instants.
 
 @(require racket/runtime-path racket/system racket/port racket/string racket/format)
 @(define-runtime-path loc "../../final-tests/logs/")
+       
+            
+   
 @(define impure-test-count*
-   (string->number
-    (string-trim
-     (call-with-output-string
-      (lambda (o)
-        (parameterize ([current-directory loc]
-                       [current-output-port o])
-          (system
-           "racket -e \"(+ `for x in *ternal*; do grep \"running test\" $x | tail -1; done | awk '{ print $3 }'` )\"")
-          ))))))
+   (parameterize ([current-directory loc])
+     (define numbers
+       (with-output-to-string
+         (lambda ()
+           (system* (find-executable-path  "bash")
+                    "-c"
+                    @~a{for x in *ternal*; do grep "running test" $x | tail -1; done | awk '{ print $3 }'}))))
+     (apply + (port->list read (open-input-string numbers)))))
 
 @(define circuit-test-count*
-   (string->number
-    (string-trim
-     (call-with-output-string
-      (lambda (o)
-        (parameterize ([current-directory loc]
-                       [current-output-port o])
-          (system
-           "racket -e \"(+ `for x in *circuit*; do grep \"running test\" $x | tail -1; done | awk '{ print $3 }'` )\"")
-          ))))))
+   (parameterize ([current-directory loc])
+     (define numbers
+       (with-output-to-string
+         (lambda ()
+           (system* (find-executable-path  "bash")
+                    "-c"
+                    @~a{for x in *circuit*; do grep "running test" $x | tail -1; done | awk '{ print $3 }'}))))
+     (apply + (port->list read (open-input-string numbers)))))
 
 
 @;{@(unless (number? impure-test-count*)
