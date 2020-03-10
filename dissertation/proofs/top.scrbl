@@ -94,9 +94,9 @@ which in this case is essentually a correlary of
    we can conclude that
    there exists some @es[(= q (ρ θr GO r-pure))],
    where @es[(≡ p q)],
-   such that either @es/unchecked[(L∈ r-pure done)] and
+   such that either @es/unchecked[(L∈ r-pure done)] which (by @es[canₛ-done], is
    @es[(complete-with-respect-to θr r-pure)],
-   or @es[(blocked-pure θr GO hole r-pure)].
+   or we have @es[(blocked-pure θr GO hole r-pure)].
   }
   
   @#:step[bools]{

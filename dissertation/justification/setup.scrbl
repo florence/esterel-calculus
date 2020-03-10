@@ -576,3 +576,7 @@ compatible closure of @es[⇀]), and then check that the
 circuits were equal using the Circuitous library. These
 tests provide evidence for soundness, and especially for the
 soundness with loops.
+
+@section{Agda Codebase}
+
+TODO

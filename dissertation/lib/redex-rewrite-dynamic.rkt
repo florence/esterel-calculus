@@ -196,18 +196,22 @@
     [(list open -> (lw can a b c d e f) close)
      (render-can can field)]))
 (define (render-can lws [super? #f])
-  (define arg1 (list-ref lws 2))
   (define do-rho?
-    (match (lw-e (list-ref lws 1))
+    (match (if (symbol? lws) lws (lw-e (list-ref lws 1)))
       ['Can-θ #t]
       ['Can #f]))
-  (define arg2 (list-ref lws 3))
-  (list (hbl-append (Can-name-pict do-rho? super?)
-                    ((white-square-bracket) #t))
-        arg1
-        ", "
-        arg2
-        ((white-square-bracket) #f)))
+  (cond
+    [(symbol? lws)
+     (list (Can-name-pict do-rho? super?))]
+    [else
+     (define arg1 (list-ref lws 2))
+     (define arg2 (list-ref lws 3))
+     (list (hbl-append (Can-name-pict do-rho? super?)
+                       ((white-square-bracket) #t))
+           arg1
+           ", "
+           arg2
+           ((white-square-bracket) #f))]))
 (define (down-super-n)
   (hbl-append (def-t "↓")
               (text "κ" (cons 'superscript (default-style)) (default-font-size))

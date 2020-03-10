@@ -20,24 +20,24 @@
 @proof[#:label "e-v-is-c-v"
        #:title "Esterel Value is Circuit Value"
        #:statement
-       @list{Forall @es[(ρ θ GO done)],
-        if @es[(complete-with-respect-to θ done)],
-        @es[(ρ θ GO done)] is closed, and
+       @list{Forall @es[(ρ θr GO done)],
+        if @es[(complete-with-respect-to θr done)],
+        @es[(ρ θr GO done)] is closed, and
 
         
-        @es[(= (of (compile (ρ θ GO done)) RES) (of (compile (ρ θ GO done)) SUSP) (of (compile (ρ θ GO done)) KILL) 0)],
-        and @es[(= (of (compile (ρ θ GO done)) GO) 1)].
+        @es[(= (of (compile (ρ θr GO done)) RES) (of (compile (ρ θr GO done)) SUSP) (of (compile (ρ θr GO done)) KILL) 0)],
+        and @es[(= (of (compile (ρ θr GO done)) GO) 1)].
         
         then 
-        @es[(compile (ρ θ GO done))] is constructive.}]{
+        @es[(compile (ρ θr GO done))] is constructive.}]{
                                                         
  To do this we must show that all wires in by
- @es[(ρ θ GO done)] settle to a given value. First, we turn to the inputs.
+ @es[(ρ θr GO done)] settle to a given value. First, we turn to the inputs.
  By the hypothesis of this lemma @es[SUSP], @es[RES], @es[KILL], and @es[GO]
  have all settled.
 
- For all signal wires in @es[θ], by our hypothesis they are set to @es[1] by the defintion compilation of
- @es[θ], or they are @es[0] by @proof-ref["sel-start"] and @proof-ref["Can-S-is-sound"].
+ For all signal wires in @es[θr], by our hypothesis they are set to @es[1] by the defintion compilation of
+ @es[θr], or they are @es[0] by @proof-ref["sel-start"] and @proof-ref["Can-S-is-sound"].
 
  For the remaining wires, they all settle by @proof-ref["done-is-constructive"].
  

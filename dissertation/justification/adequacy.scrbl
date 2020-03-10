@@ -88,7 +88,10 @@ where no more @es[⟶^r] steps can be taken. Whats more its
 easy to show that @es[⟶^r] does not change the count,
 therefore the overall relation is strongly canonicalizing.
 This proof follows almost directly by induction on the
-structure of @es[⟶^r].
+structure of @es[⟶^r]. The grammar term @es[p-pure+GO] is
+like @es[p-pure], but it accepts a @es[GO] at the top of the
+term (as full programs have exactly one @es[GO], at the
+top).
 
 Now that we have show that there exist canonical forms, the
 next step in proving adequacy is to show that these two canonical
@@ -103,7 +106,19 @@ circuits respectively. The simpler of these is:
 @proof-splice["e-v-is-c-v"]
 
 Which is proved fully in @proof-ref["done-is-constructive"].
+Note that we have the premise that
+@es[(complete-with-respect-to θr done)] for free, by the
+proof @es[canₛ-done] from the Agda code base which states
+that the result of @es/unchecked[(->S Can)] on any @es[done] is empty.
+The premises about the control wires are given by the
+definition of @es[compile], and by the fact that unassigned
+input wires are set to @es[0] by @es[eval^circuit]. This proof
+follows by induction on the structure of @es[done].
 
-@section[#:tag "just:adq:sketches"]{proof sketches}
+The other side, proving that @es[blocked-pure] corresponds to non-constructive
+circuits is given by:
+
+@proof-splice["blocked-is-nc"]
+
 
 @section[#:tag "just:adequacy-and-consistency"]{Adequacy and Consistency}
