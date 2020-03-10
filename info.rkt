@@ -1,6 +1,6 @@
 #lang info
 
-(define deps '("circuitous-lib"
+(define deps '("https://github.com/florence/circuitous.git?path=circuitous-lib"
                "plot-lib"
                "scribble-abbrevs"
                "ppict"
@@ -8,7 +8,7 @@
                "base"
                "at-exp-lib"
                "parser-tools-lib"
-               "pict-lib"
+               "https://github.com/florence/pict.git?path=pict-lib#diss"
                "redex-lib"
                "redex-gui-lib"
                ["redex-pict-lib" #:version "1.7"]
@@ -22,7 +22,7 @@
                "pict-snip-lib"
                "html-parsing"
 	       "rosette"
-               "diagrama-lib"))
+               "https://github.com/florence/diagrama.git?path=diagrama-lib"))
 
 (define collection "esterel-calculus")
 (define build-deps '("debug"))
