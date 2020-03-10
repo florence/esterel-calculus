@@ -359,7 +359,7 @@
        #:statement
        @list{For all @es[r-pure], @es[θ], @es[cs_1], @es[cs_2]
         let @es[(= c (compile r-pure))],
-        if @es/unchecked[(⟶ cs_1 cs_2)],
+        if @es/unchecked[(⟶^c cs_1 cs_2)],
         @es[(≃ (of (compile r-pure) SEL) 0)],
         @es[(binds (compile r-pure) θ)],
         @es[(= (of cs_1 GO) ⊥)], and

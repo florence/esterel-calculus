@@ -7,8 +7,11 @@
           "../lib/rule-figures.rkt"
           "../lib/cite.rkt")
 
-@title[#:style paper-title-style]{Final Thoughts}
+@title[#:tag "final" #:style paper-title-style]{Final Thoughts}
 @section[#:tag "future"]{Future Work}
+@subsection{Extending proofs to multiple instants, and guarding compilation
+
+}
 @subsection{Removing θ from ρ}
 
 I suspect that there is a variant of my calculus which is both stronger

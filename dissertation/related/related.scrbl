@@ -5,7 +5,7 @@
           "../lib/proofs.rkt"
           "../lib/cite.rkt")
 
-@title[#:style paper-title-style]{Related Work}
+@title[#:tag "related" #:style paper-title-style]{Related Work}
 
 @section{Esterel}
 

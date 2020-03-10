@@ -19,60 +19,57 @@
 
 @title[#:style paper-title-style  #:tag "just:sound"]{Justifying Soundness}
 
-As the calculus relates terms within a single execution, the
-statement of soundness does too. The formal statement of
-soundness is:
+The formal statement of soundness is:
 
 @proof-splice["soundness"]
 
 The proof is given in the appendix as
 @proof-ref["soundness"]. To pick the statement apart, it
-says that if two terms are @es[≡] then, when we restrict
-ourselves to looking at a single instant, the compilation of
-those circuits is @es[≃^circuit].
+says that if two terms are @es[≡] then, and those terms have
+correct binding, then, when we restrict ourselves to looking at a
+single instant, the compilation of those circuits is
+@es[≃^circuit].
 
 This proof proceeds by induction over the structure of the
 equality relation @es[≡]. Thus, the majority of the work in
 the proof goes into showing that it holds for each rule of
 @es[⇀]. These proofs all rely on the idea that, because the
 set of inputs to the circuit is finite. Therefore each of
-these proofs---which are given in detail in
-@secref["proof:reduction"]---proceeds by induction on the
-term to eventually find a concrete circuit. Then the
-circuits on the each side are given to the circuit solver which proves
-that they are equal.
+these proofs proceeds by induction on the the structure of
+@es[≡] to reach the base case of @es[⇀]. Each rule in @es[⇀]
+is then proved sound, in general, by induction of
+@es[p-pure] term to eventually find a concrete circuit. Then
+the circuits on the each side are given to the circuit
+solver which proves that they are equal.
 
 @section[#:tag "just:sound:lemma"]{Important lemma's}
 
 This section will discuss the most interesting or
 informative lemma's needed to prove soundness of the various
 rules of @es[⇀]. May of the lemma's are trivial or uninformative, and so will not be discussed here.
-The interested reader may seem them in all of their gory detail in @secref["proof:sound"]
-and @secref["proof:reduction"].
+The interested reader may seem them in all of their gory detail in appendies A.2 and A.3.
 
 A first informative proof to look at is the proof that @rule["trap"] is sound:
-
 @proof-splice["trap"]
 
 The full proof may be found at @proof-ref["trap"]. The first
 thing to note is that this proof does not require the
-premise that we are in the first instant. Many of the
-equations do not touch @es[pause], and therefore are not
-sensitive to instants. This proofs proceeds by induction over
-the structure of @racket[stopped]. The two base cases
+premise that we are in the first instant, or correct binding. Many of the
+equations do not touch @es[pause] or binding forms, and therefore are not
+sensitive to instants or binding. This proofs proceeds by induction over
+the structure of @es[stopped]. The two base cases
 are @es[(= stopped nothing)] and @es[(= stopped (emit 0))].
-These case simply invoke the solver, for example:
+These case simply invoke the solver, for example:@note{@racket[harp] is the implementation of @es[harp].}
 @check[(assert-same
         (compile-esterel (term (trap nothing)))
         (compile-esterel (term (harp nothing))))]
-The last case proceeds by induction on @es[(emit n)] for @es[(> n 0)].
+The last case proceeds by induction on the @es[n] from @es[(exit n)].
 It's relatively easy to argue that if the rule is sound for @es[n],
 its sound for @es[(Σ n 1)].
 
 The next proof of interest is the proof that @rule["emit"] is sound.
 This proof is more complex because it must deal with both evaluation contexts
 and environments.
-
 @proof-splice["emit"]
 
 The full proof is given in @proof-ref["emit"]. This proof
@@ -84,9 +81,8 @@ more interesting. The proof uses the idea that evaluation
 contexts correspond exactly to the set of contexts such that
 in @es[(compile (in-hole E-pure p-pure))], the @es[GO] and
 signal wires from the top of the term are passed, unchanged,
-to @es[p-pure]. This is stated formally with these two
+to the subcircuit for @es[(compile p-pure)]. This is stated formally with these two
 lemma's:
-
 @proof-splice["S-maintains-across-E"]
 @proof-splice["GO-maintains-across-E"]
 
@@ -95,13 +91,12 @@ The full proof of which are given, in
 @proof-ref["GO-maintains-across-E"]. Both lemma's follow
 directly by induction on @es[E-pure] and the definition of
 @es[compile]. These two lemma's together give that the
-inputs of the circuit are unchanged. The remainder of the
-inductive case follows that the @es[So] wires are always
-@es[or]ed with each other, therefore a @es[1] in any subterm
+inputs of the subcircuit are unchanged by the context. The remainder of the
+inductive case for @proof-ref["emit"] follows from the notion that the @es[So] wires are always
+or'ed with each other, therefore a @es[1] in any subterm
 leads to the overall signal wire being @es[1].
 
-The last proof I will describe here is the proof for @rule["is-absent"].
-
+The last proof I will describe here is the proof for @rule["is-absent"]:
 @proof-splice["is-absent"]
 
 The full proof is given in @proof-ref["is-absent"]. This
@@ -121,7 +116,6 @@ This proof is essentially just a chaining of several other lemmas. As
 with @proof-ref["emit"], @proof-ref["S-maintains-across-E"] and @proof-ref["GO-maintains-across-E"]
 are used to shed the evaluation contexts in the rule. From there the proof mostly follows from the following
 lemma:
-
 @proof-splice["Can-S-is-sound"]
 
 To understand this proof statement, I must explain a little bit of notation. The phrase
@@ -152,9 +146,8 @@ we must use our inductive hypothesis to show that the output
 of the bound signal is @es[0], and use that to invoke our
 inductive hypothesis to show that the goal signal is also
 @es[0]. The @es[seq] case of @es[Can] relies on the return
-codes. Thus we use an pair auxiliary lemmas to reason about
+codes. Thus we use an auxiliary lemma to reason about
 those codes:
-
 @proof-splice["Can-K-is-sound"]
 
 Which is similar to @proof-ref["Can-S-is-sound"], except that it
@@ -162,7 +155,6 @@ tells us which return code wires must be @es[0]. The proof
 of which is essentially the same as @proof-ref["Can-S-is-sound"].
 
 These two lemmas also have counterparts for @es[Can-θ]:
-
 @proof-splice["Can-rho-S-is-sound"]
 @proof-splice["Can-rho-K-is-sound"]
 

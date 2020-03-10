@@ -20,7 +20,7 @@
 
 @para[#:style 'pretitle]{@latex-lit["appendices"]}
 
-@title[#:style paper-title-style]{Definitions}
+@title[#:tag "sec:def" #:style paper-title-style]{Definitions}
 
 @section[#:tag "sec:defcirc" "Circuits"]
 
@@ -171,17 +171,20 @@
 }
 
 @definition[#:notation @es[(all-bot p-pure θ cs)]
-            #:index @es[all-bot]]{
+            #:index @es[all-bot]
+            #:tag "nc"]{
  @[with-paper-rewriters @[render-judgment-form all-bot]]
 }
 
 @definition[#:notation @es[(all-bot-S p-pure θ cs)]
-            #:index @es[all-bot-S]]{
+            #:index @es[all-bot-S]
+            #:tag "nc-S"]{
  @[with-paper-rewriters @[render-judgment-form all-bot-S]]
 }
 
 @definition[#:notation @es[(all-bot-n p-pure θ cs)]
-            #:index @es[all-bot-n]]{
+            #:index @es[all-bot-n]
+            #:tag "nc-κ"]{
  @[with-paper-rewriters @[render-judgment-form all-bot-n]]
 }
 
@@ -195,6 +198,13 @@
 }
 
 @definition[#:notation @es[(all-bot-rec p-pure θ cs)]
-            #:index @es[all-bot-rec]]{
+            #:index @es[all-bot-rec]
+            #:tag "nc-r"]{
  @all-bot-rec-pict
+}
+
+@section[#:tag "eval-and-testing" "@es[⇁]"]
+
+@definition[#:notation @es[⇁]]{
+ TODO
 }

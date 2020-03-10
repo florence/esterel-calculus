@@ -179,7 +179,7 @@ variables.
         @es[S],
         if @es[(L∈ Si (inputs (compile p-pure_i)))]
         then
-        @es[(= (of (compile q-pure_i) Si) (of (compile p-pure_i) Si))]}]{
+        @es[(≃ (of (compile q-pure_i) Si) (of (compile p-pure_i) Si))]}]{
  @cases[#:induction
         #:of E-pure
         #:language esterel/typeset]{
@@ -203,7 +203,7 @@ variables.
        #:title "GO is maintained across E"
        #:statement
        @list{For all @es[(= p-pure (in-hole E q-pure))],
-       @es[(= (of (compile q-pure) GO) (of (compile p-pure) GO))]}]{
+       @es[(≃ (of (compile q-pure) GO) (of (compile p-pure) GO))]}]{
  This proof follows the exact same argument as @proof-ref["S-maintains-across-E"].
 }
 

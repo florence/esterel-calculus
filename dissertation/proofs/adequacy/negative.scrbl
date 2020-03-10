@@ -20,14 +20,14 @@
        @list{For all @es[(= q-pure (ρ θ A p-pure))],
                      
         If @es[(closed q-pure)], and
-        there does not exists some @es[θ_o] and @es[p-pure_o]
-        such that
+        there does not exists any @es[θ_o] and @es[p-pure_o]
+        such that (either
         @es[(⟶^r q-pure (ρ θ_o A (in-hole E p-pure_o)))]
         or
         there exists some @es[r]
-        such that @es[(⟶^s q-pure (⟶^r (ρ θ A (in-hole E r-pure)) (ρ θ_o A (in-hole E p-pure_o))))]
+        such that @es[(⟶^s q-pure (⟶^r (ρ θ A (in-hole E r-pure)) (ρ θ_o A (in-hole E p-pure_o))))])
         then either
-         @es/unchecked[(L∈ p done)]
+        @es/unchecked[(L∈ p done)]
         or
         @es[(blocked-pure θ A hole p-pure)]}]{
  As @es[blocked-pure] and whether or not a term is @es[done] are decidable properties,

@@ -5,7 +5,7 @@
           "../lib/proofs.rkt"
           "../lib/cite.rkt")
 
-@title[#:style paper-title-style]{Background}
+@title[#:tag "background" #:style paper-title-style]{Background}
 
 This chapter provides the background material necessary to
 understand this dissertation. This chapter is meant as a

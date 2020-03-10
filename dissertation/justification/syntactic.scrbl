@@ -18,14 +18,15 @@
 
 @title[#:style paper-title-style #:tag "just:syntactic"]{Justifying Syntactic}
 
-One could argue that the Calculus is not syntactic, in that it
-does not literally talk about the syntax of the programs one writes
-in Full Esterel. However I would argue that it is ``syntactic enough'',
-which is to say it is purely syntactic except in a few places where
-something new has been added by necessity.
+One could argue that the Calculus is not syntactic, in that
+it does not literally talk about the syntax of the programs
+one writes in Full Esterel. However I would argue that it is
+``syntactic enough'', which is to say it allows for
+reasoning with the Kernel Esterel syntax, except in a few
+places where new syntax has been added by necessity.
 
-The first place it steps outside the syntax of normal
-Esterel is in adding @es[GO].@note{Not that environments
+The first place the calculus steps outside the syntax of Kernel
+Esterel is the addition of @es[GO].@note{Note that environments
  that contain @es[WAIT] can be completely removed by running
  the @rule["emit"] and @rule["signal"] rules backwards,
  therefore they will never show up at the "end" of a chain of
@@ -45,5 +46,3 @@ which have not been proven to contain instantaneous loops. In essence
 my adding a new form. As this is a minor, and necessary, addition
 I do not find that it detracts from the overall syntacticness of
 the calculus.
-
-TODO How to talk about full esterel and missing features in the context

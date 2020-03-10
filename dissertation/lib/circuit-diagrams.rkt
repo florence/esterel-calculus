@@ -22,7 +22,7 @@
     (format-symbol "~a~a" tag (apply ~a t)))
   (define h (- (* wire-spacing (if add-k3? 6 5))
                (* 1/2 wire-spacing)))
-  (define w (* 2 (+ (length (append si so)) 5)))
+  (define w (* 2 (+ (length (append si so)) 6)))
   (define box
     (with-unit
      (lambda (u)
@@ -48,12 +48,12 @@
       (move-down wire-spacing) (add-wire 'left 'SUSP)
       (move-down wire-spacing) (add-wire 'left 'KILL))
      (save (move-up (/ h 2)) (move-left (/ w 2))
-           (move-right wire-spacing)
+           (move-right (* 1.2 wire-spacing))
            (add-wire 'up 'E_i)
            (for/after ([s (in-list si)])
              (after (move-right wire-spacing) (add-wire 'up s))))
      (save (move-up (/ h 2)) (move-right (/ w 2))
-           (move-left wire-spacing) (add-wire 'up 'E_o)
+           (move-left (* 1.2 wire-spacing)) (add-wire 'up 'E_o)
            (for/after ([s (in-list so)])
              (after (move-left wire-spacing) (add-wire 'up s))))
      (save (move-up (/ h 2)) (move-right (/ w 2))
@@ -380,7 +380,7 @@
            (after
             (line-to x (- y 2))
             (tag-location 'E_i)
-            (label "E_i" 'left)))))))
+            (img (textify "E_i") 'rc)))))))
     (define E_o
       (after
        (move-to-tag 'pE_o)
@@ -392,7 +392,7 @@
                 #:tag-in3 'qE_qo
                 #:tag-out 'E_oo)
        (move-to-tag 'E_oo)
-       (label "E_o" 'right)
+       (img (textify "E_o") 'lc)
        (move-to-tag 'qE_qo)
        (line-left 12)
        (line-to-tag 'qE_o #:h-first #f)))
@@ -431,7 +431,7 @@
       (after
        (move-to-tag 'E_i)
        (move-down 1)
-       (label "S" 'left)
+       (img (textify "S^i") 'rc)
        (line-to-tag 'S1)
        (split
         (img (blank))
@@ -536,7 +536,7 @@
          (move-to Ex Ey)
          (line-up 2)
          (line-to gx (- Ey 2))
-         (label "E_i" 'left)
+         (img (textify "E_i") 'rc)
          (move-down 1)
          (label "S" 'left)
          (line-to-tag 'Sres)
@@ -547,7 +547,7 @@
       (move-to-tag 'pE_o)
       (line-up 2)
       (line-right 12)
-      (label "E_o" 'right))
+      (img (textify "E_o") 'lc))
      (save
       (move-to-tag 'pSEL)
       (split
@@ -1056,7 +1056,7 @@
 (define compile-def
   (list
    (list 'nothing "⟦nothing⟧" (es/unchecked (compile nothing)) nothing)
-   (list 'exit "⟦(exit n)⟧" (es/unchecked (compile (exit n))) (only-kode 'n))
+   (list 'exit "⟦(exit n)⟧" (es/unchecked (compile (exit n))) (only-kode 'n+2))
    (list 'emit "⟦(emit S)⟧" (es/unchecked (compile (emit S))) emit)
    (list 'pause "⟦pause⟧" (es/unchecked (compile pause)) pause)
    (list 'signal "⟦(signal S p)⟧" (es/unchecked (compile (signal S p-pure))) signal-pict)

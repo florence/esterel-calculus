@@ -493,6 +493,8 @@
      (curry binop '⟶^S)]
     ['⟶^r
      (curry binop '⟶^R)]
+    ['⟶^c
+     (curry binop '⟶^C)]
     ['⇀^r
      (curry binop '⇀^R)]
     
@@ -1251,6 +1253,8 @@
       (lambda () (render-op '⟶^S))]
      ['⟶^r
       (lambda () (render-op '⟶^R))]
+     ['⟶^c
+      (lambda () (render-op '⟶^C))]
      ['⇀^r (lambda () (render-op '⇀^R))]
     
      ['blocked blocked-pict]

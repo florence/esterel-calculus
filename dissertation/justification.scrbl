@@ -15,4 +15,4 @@ the calculus has each of these properties.
 @include-section["justification/setup.scrbl"]
 @include-section["justification/soundness.scrbl"]
 @include-section["justification/adequacy.scrbl"]
-@include-section["justification/together.scrbl"]
+@;@include-section["justification/together.scrbl"]

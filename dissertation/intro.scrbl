@@ -13,8 +13,8 @@ creation and verification of the maintenance and test
 computer, landing gear control computer, and virtual display
 systems of civilian and military aircraft at Dassault
 Aviation@~cite[esterel-avionics] and the specification of
-part of Texas Instrument's digital signal
-processors@~cite[twelve-years-later].
+part of digital signal processors at Texas
+Instruments@~cite[twelve-years-later].
 
 Its success can partially be attributed to how it is
 radically different from other languages. It gives the
@@ -55,24 +55,24 @@ Each of Esterel's many semantics do some of these jobs very
 well. However there are no semantics for Esterel which are
 simultaneously, local, syntactic, sound, and adequate
 enough to give an evaluator for the language. This is the
-contribution of the dissertation: @centered{There exists a
- syntactic, local, consistent, sound, and adequate for
+contribution of this dissertation: @centered{There exists a
+ syntactic, local, consistent, sound, and adequate semantics for
  Esterel.}
 
-I have proven this calculus is sound for Loop Free, Pure
-Esterel programs with respect to the circuit semantics for
-Esterel@~cite[esterel02]. In addition I will give evidence
-and arguments for the soundness of the rest of the calculus,
-as well as future directions for making the calculus more
-powerful and useful.
+I have proven this syntactic, local semantics---this
+calculus---is consistent, sound, and adequate for Loop Free,
+Pure Esterel programs with respect to the circuit semantics
+for Esterel@~cite[esterel02]. In addition I will give
+evidence and arguments for the soundness of the rest of the
+calculus, as well as future directions for making the
+calculus more powerful and useful.
 
 @section[#:tag "intro:syntactic"]{Syntactic}
 
 The benefits of a syntactic semantics is primarily human:
 They allow reasoning about a programming language to be
 expressed directly in terms of that language, rather than in
-terms of some external domain. At least in principle.
-
+terms of some external domain, at least in principle.
 Often developing a semantics which uses @italic{only} the
 syntax of a language is impractical, or even impossible.
 See, for instance, the @es[σ] and @es[ρ] forms of the
@@ -87,7 +87,6 @@ they still map very closely to the syntax of the surface
 language, and the extensions they use are minor and either
 can be mapped directly to the surface language syntax or
 require only minor annotations to the surface syntax.
-
 Therefore, even in the case of minor syntactic extensions, a
 syntactic semantics still allows for explanations of program
 transformations using the notation users of that language
@@ -108,13 +107,13 @@ Consistency is one of the most essential
 of these facets. A consistent semantics is one that does not
 allow contradictions to be derived: for example, by not
 allowing two programs to be proven equal if they evaluate to
-different values.
+different values. 
 
 @section[#:tag "intro:sound"]{Sound}
 
 Soundness is necessary for an semantics which describes an
 already established language. A sound semantics is one which
-agrees which the existing, ground truth semantics. In other
+agrees with an existing, ground truth semantics. In other
 words, a semantics which is not sound describes a @italic{
  different} language that the one it is supposed to describe.
 Thus soundness, like consistency is essential for any
@@ -138,3 +137,20 @@ evaluator for a language. This is not ideal, as it means
 there is some aspect of the language the semantics does not
 describe. Therefore, to make sure a semantics has broad coverage
 of the aspects of a language, an adequate semantics is desirable.
+
+@section{Overview}
+
+The dissertation is divided into 5 more Chapters, and three
+Appendices. @Secref["background"] covers summarizes the
+background a reader will need to understand this document,
+as well as pointers to the background reading I assume the
+reader has. @Secref["sec:calculus"] the describes the
+calculus I have designed. @Secref["just"] gives the evidence
+that my calculus meets the properties above. @Secref["related"]
+gives existing work related to my calculus. @Secref["final"]
+gives some final thoughts and future directions.
+
+Appendix A lists definitions for all of the notation
+I use here. Appendix B gives the proofs of the my
+theorems. Appendix C gives an overview of the
+implementation of a circuit solver I implemented for my proofs.

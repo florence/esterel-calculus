@@ -8,7 +8,7 @@
           esterel-calculus/redex/model/calculus
           (except-in scribble-abbrevs/latex definition))
 
-@title[#:style paper-title-style]{Core Theorems}
+@title[#:tag "sec:prf" #:style paper-title-style]{Core Theorems}
 
 This section contains the core proofs to justify soundness,
 adequacy, and consistency of the calculus with respect to

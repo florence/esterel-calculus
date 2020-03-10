@@ -19,7 +19,7 @@
 
 @title[#:style paper-title-style #:tag "just:setup"]{Setup for the proofs}
 
-The justifications for Soundness, Consistency, and Adequacy involve
+The justifications for Soundness and Adequacy involve
 formal proofs. However these proofs have some require some setup and have
 some caveats. The purpose of this section is to give the rest of the setup
 needed to understand the statements of the theorems and their proofs.
@@ -38,13 +38,13 @@ into circuits of the the shape given in
 @figure-ref["circ-shape"]. The circuit compiler I describe
 here is the same as the one given in @citet[esterel02],
 except for two changes in the compilation of @es[par]. These
-changes are necessary for soundness, and were implemented in
+changes are necessary for soundness, and were derived from
 the Esterel v7 compiler. I will describe them more later.
 
 
 @figure["circ-shape"
         @list{The shape of circuits returned by @es[(compile p-pure)]}
-        (esterel-interface @es[(compile p-pure)])].
+        (esterel-interface @es[(compile p-pure)])]
 
 The circuit compilation function, in essence, takes the program graphs described
 in @secref["back:esterel:cannot"], and expresses them as a circuit. The circuits
@@ -52,18 +52,18 @@ are more complex, as they handle more of Esterel than the simple diagrams I used
 but at their core they expressed the same execution model.
 The four input wires on the left of the diagram (@es[GO], @es[RES], @es[SUSP], @es[KILL])
 are control wires which guide the execution of the circuit. The @es[GO] wire is true
-when the circuit is supposed to start for the first time---It corresponds
+when the circuit is supposed to start for the first time---it corresponds
 to an coming control edge that connects to the start of the program in the program graph model. The @es[RES] wire is true
 when the circuit may resume execution in a previous instant (when, say, it has
-a register containing an @es[1])---It corresponds to an control edge that
-connects the ``input'' for a pause. The @es[SUSP] wire is used by the compilation
+a register containing an @es[1])---it corresponds to an control edge that
+connects the ``output'' from a pause. The @es[SUSP] wire is used by the compilation
 of @es[suspend] to, well, suspend a term. The @es[KILL] wire is used by @es[trap]
 and @es[exit] to abort the execution of a circuit. Neither @es[SUSP] nor @es[KILL]
-we expressed in the graph model.
+are expressed in the program graph model.
 
 The two wires on the top @es[E_i] and @es[E_o] represent
 bundles of wires that are input and output signals of the
-term. Any free variable which is used in an @es[present]
+term. Any free variable which is used in an @es[if]
 will have a corresponding wire in @es[E_i]. Any free
 variable which is use in an @es[emit] will have a
 corresponding wire in @es[E_o].
@@ -75,7 +75,8 @@ the term would @es[pause], @es[K2] is @es[1] when the term would exit to the fir
 the @es[Kn] wires are a one-hot encoding of the return code.
 
 The final output wire @es[SEL] is @es[1] if there is any register in the circuit which holds a @es[1].
-Registers are used to encode whether or not the program @es[pause]ed with the term. That is, each @es[pause]
+Such a circuit is said to be @es[SEL]ected.
+Registers are used to encode whether or not the program @es[pause]d with the term. That is, each @es[pause]
 will generate a register, and that register will have an @es[1] when the term should resume from that @es[pause].
 
 A quick note about these circuits: their activation is
@@ -98,11 +99,11 @@ change, which is discussed about in @secref["future"].
              circ))
  ]
 
-The simplest clause of the compiler is the compilation of @es[nothing], see in @figure-ref["comp:nothing"].
-This compilation connect the @es[GO] wire directly to @es[K0], as if @es[nothing] is reached
+The simplest clause of the compiler is the compilation of @es[nothing], shown in @figure-ref["comp:nothing"].
+Its compilation connects the @es[GO] wire directly to @es[K0], as when @es[nothing] is reached
 it immediately terminates. Remember that any wire not draw in the diagram is taken to be @es[0], therefore
 this term can never be selected, and can never have a different exit code.
-
+  
 @circ-fig['nothing]
 
 The next simplest compilation clause is @es[exit], which just connects @es[GO] to the return code wire
@@ -120,10 +121,10 @@ a signal @es[S] as @es[So], and the input wires @es[Si].
 
 @circ-fig['emit]
 
-The last term without subterms, @es[pause] is also significantly more complex than the others.
+The last term without subterms, @es[pause], is also significantly more complex than the others.
 It's compilation is in @figure-ref["comp:pause"]. Firstly, the @es[GO] wire is connected
 to the @es[K1] wire, as a @es[pause] will, well, pause the first time is reached.
-The @es[SEL] wire is fairly simple: it is true when the register is true. The @es[K0] wire
+The @es[SEL] wire is similarly straightforward: it is true when the register is true. The @es[K0] wire
 just says that a @es[pause] finishes when it is @es[SEL]ected, and @es[RES]umed. The complex part
 goes into determining if the term gets selected. A term is selected if it is not @es[KILL]ed, and
 if either it is reached for the first time (@es[GO]) or it was already selected and it is being @es[SUSP]ended,
@@ -132,13 +133,13 @@ in which case it's selection status needs to be maintained.
 @circ-fig['pause]
 
 The compilation of @es[signal] (@figure-ref["comp:signal"]) is fairly simple: the inner term is compiled,
-and the wires for the given signal are re
+and the wires for the given signal are connected to each other.
 
 @circ-fig['signal]
 
-The compilation of @es[present] (@figure-ref["comp:present"]) compiles both terms, and broadcasts all inputs except for @es[GO]
-to both subcircuits. All outputs are or'ed. The @es[GO] wire is wire of both subcircuits
-is given by the overall @es[GO] and which value of the conditioned signal. The @es[(compile p-pure)]
+The compilation of @es[if] (@figure-ref["comp:present"]) compiles both terms, and broadcasts all inputs except for @es[GO]
+to both subcircuits. All outputs are or'ed. The @es[GO] wire of both subcircuits
+is given by the overall @es[GO] and value of the conditioned signal. The @es[(compile p-pure)]
 subcircuit activates if and only if both @es[GO] and @es[Si] are @es[1]. The @es[(compile p-pure)]
 subcircuit activates if and only if @es[GO] is @es[1] and @es[Si] is @es[0]. That is a branch is activated
 if and only if the @es[present] is activated and the signal is in the corresponding state.
@@ -148,7 +149,7 @@ if and only if the @es[present] is activated and the signal is in the correspond
 The compilation of @es[suspend] (@figure-ref["comp:suspend"]) does nothing special to @es[GO]:
 remember @es[suspend]ed term's behave normally on the first instant they are reached. The however
 the compilation intercepts the @es[RES] wire, and only @es[RES]umes the subcircuit
-if the suspension signal @es[S] is @es[0]. If the signal is @es[1] then the circuit is suspended
+if the suspension signal @es[S] is @es[0]. If the signal is @es[1] then the circuit is @es[SUSP]ended
 instead, and this information is passed to the @es[K1] wire. All of this only occurs, however,
 if the subcircuit is @es[SEL]ected. If it is not, the @es[RES] and @es[SUSP] wires are suppressed.
 
@@ -168,7 +169,8 @@ the subciruits.
 The compilation of @es[trap] (@figure-ref["comp:trap"])
 intercepts the @es[K2] wire (which represents the abortion
 of this term) and passes it back to the @es[KILL] wire of
-the subcircuit. It then shifts the return codes in the same
+the subcircuit, killing it when this @es[trap] catches it corresponding
+@es[exit]. It then shifts the return codes in the same
 way as @es[↓].
 
 @circ-fig['trap]
@@ -244,31 +246,48 @@ to hold. With the @citet[esterel02] compiler, however, we are free
 to let @es[KILL] be @es[0], even when @es[GO] is @es[1]. This means that in the second
 instant the @es[pause] is @es[SEL]ected. However there is no @es[pause] in @es[(exit 2)],
 therefor its @es[SEL] wire must be @es[0]. The new compiler handles this correctly by
-killing the other branch of the @es[par] even if the out @es[KILL] wire is @es[0].
+killing the other branch of the @es[par] even if the outer @es[KILL] wire is @es[0].
 
 Note that these two issues both rely on both subcircuits
-being active at some point to trigger the change in
-behavior. As @es[par] is the only chase where two
-subcircuit's can be active simultaneously, this is the only
+being simultaneously active at some point to trigger the change in
+behavior. As @es[par] is the only case where two
+subcircuits can be active simultaneously, this is the only
 case that requires this special care.
 
 
-TODO loop
+@;TODO loop
 
 
-TODO ρ
-@circ-fig['empty-rho]
+@;TODO ρ
+
+The compilation of @es[ρ] follows along similar lines to the
+compilation of @es[signal]: we take one signal at a time out
+of the environment and connect its input wire to it's output
+wire (@figure-ref["comp:non-empty-rho"]), with one exception. The wire connection goes
+through @es/unchecked[(compile statusr)] which connects the
+two wires if @es[(= statusr unknown)]. However if
+@es[(= statusr present)] then the connection is cut, and the
+input wire is defined to be @es[1].
+
 @circ-fig['non-empty-rho]
 
-@section[#:tag "just:sound:solver"]{The Circuit Solver}
+Once all signals have been compiled, the @es[A] part is
+compiled in a similar manner
+(@figure-ref["comp:empty-rho"]). If the @es[A] is @es[WAIT],
+the @es[GO] wire is taken from the environment. If @es[A] is
+@es[GO], then the @es[GO] wire will be defined to be @es[1].
+
+@circ-fig['empty-rho]
+
+@section[#:tag "just:sound:solver"]{The Circuit Solver, Circuitous}
 
 To reason about circuits in a more automated fashion, I have
 implemented a symbolic reasoning engine---a solver---for
 concrete circuits. The solver I use is an implementation of
 the algorithm for executing constructive circuits given by
 @citet[malik-circuit] (and extended by
-@citet[constructive-boolean-circuits] to handle registers),
-implemented in the language Rosette@~cite[rosette].
+@citet[shiple-constructive-circuit] to handle registers)
+in the language Rosette@~cite[rosette].
 
 Rosette is an domain specific language embedded within
 Racket@~cite[plt-tr1], which is designed for defining other
@@ -278,15 +297,15 @@ Specifically Rosette allows for symbolic execution of
 programs such that the result of a program is not a value,
 but a symbolic expression which represents the value. This
 symbolic value may then be turned into a logic formal that
-can be reasoned about using an SMT solver.
+can be given to an SMT solver.
 
-In this case I have implement an interpreter using circuits.
+In this case I have implement an interpreter for circuits.
 Two circuits can then be run on symbolic inputs, and the
 statement that the outputs are equal for all possible input
 assignments is validated by an SMT solver. The source for
 this solver may be found at
 https://github.com/florence/circuitous/, and the core of the
-solver is listed in @secref["ap:solver"].
+solver is listed in appendix C.
 
 As an example of how this solver works, take the circuits
 for @es[(compile nothing)] and @es[(compile (emit S))]:
@@ -301,7 +320,9 @@ for @es[(compile nothing)] and @es[(compile (emit S))]:
     (define emit
       (compile-esterel (term (emit S))))]]
 
-This may be defined using the sovler like so:
+This may be defined using the sovler like so:@note{@racket[term] is used to
+construct a term in a language, in this Esterel. It comes from the semantics
+engineering library Redex@~cite[redex-book].}
 
 @[check
   (define nothing
@@ -309,8 +330,8 @@ This may be defined using the sovler like so:
      (K0 = GO)))
   (define emit
     (circuit #:inputs (GO)
-     #:outputs (S K0)
-     (S = GO)
+     #:outputs (S^o K0)
+     (S^o = GO)
      (K0 = GO)))]
 
 Or alternatively they can be defined directly:
@@ -337,7 +358,7 @@ if the wire carries an @es[0].@note{In Racket, true and false are written as @ra
  and @racket[#f].} If both variables are false, then the wire carries the special value @es[⊥].
 Both variables may not be true at the same time. Therefore, the above error message can be interpreted
 as saying the two models differ when the @es[GO] wire is bottom. This is because in @es[nothing] the
-lack of an @es[S] wire means that it is interpreted as always beginning @es[0].
+lack of an @es[So] wire means that it is interpreted as always beginning @es[0].
 
 Circuitous can also handle register and assertions over multiple instants. Concider:
 
@@ -368,9 +389,9 @@ for each input on every instant. In this case the first line
 after model shows us that the circuits differ in the second
 instant, where the value of @racket[b] is flipped. This
 occurs when @racket[a] is true in the first instant (that is
-@racket[pos-a$0] is true).
+@racket[pos-a$0] is @racket[#t]).
 
-The last important part of circuitous for the proofs is the
+The last important part of Circuitous for the proofs is its
 ability to determine constructiveness:
 
 @[check
@@ -381,7 +402,7 @@ ability to determine constructiveness:
              (a = a))))]
 
 The function @racket[assert-totally-constructive] verifies
-that, assuming all inputs are not @es[⊥], then no internal
+that, assuming all inputs are not @es[⊥], then no internal or output
 wires are @es[⊥].@note{When there is an input which is
  @es[⊥], then the circuit is trivially non-constructive,
  therefore this case is uninteresting.}
@@ -402,7 +423,7 @@ Which show that @racket[delay1] and @racket[delay2] are
 equal when @racket[a] is always false, but not equal when
 @racket[a] is always true.
 
-@section[#:tag "just:sound:pure"]{Pure Esterel}
+@section[#:tag "just:sound:pure"]{Caveat: Pure Esterel}
 
 There is a caveat to the Soundness, Consistency, and Adequacy theorems:
 They both work on Pure Esterel programs. I find this,
@@ -423,7 +444,7 @@ them. Therefore I would argue that a the proofs for Pure
 Esterel intuitively generalize to Esterel with Host Language
 terms.
 
-@section[#:tag "just:sound:free"]{Loop Free}
+@section[#:tag "just:sound:free"]{Caveat: Loop Free}
 
 My proofs are also only give on the fragment of Pure Esterel
 which does not contain loops. This is for a similar reason
@@ -440,7 +461,7 @@ could just duplicate the loop body@note{This is the solution
 the compilation of the program quadratic, which is rather
 terrible. Much work has gone in to handling loop compilation
 correctly and efficiently (such as chapter 12 of
-@citet[esterel02], as @citet[new-method-schizophrenic]), and
+@citet[esterel02], and @citet[new-method-schizophrenic]), and
 thus I defer to the community on the correct way to handle
 loop compilation, and do not touch on it here. Therefore I
 defer to the community on showing that duplicating loop
@@ -450,10 +471,10 @@ primary issues with loops are schizophrenia and
 instantaneous loop bodies, 2) my calculus handles these in a
 fairly intuitive and simple way, and 3) proving correctness
 of these cases would be tedious, difficult, and probably not
-very informative, I simply postulate the correctness of the
+very informative. Thus, I simply postulate the correctness of the
 calculus on loops.
 
-@section[#:tag "just:sound:instants"]{Instants}
+@section[#:tag "just:sound:instants"]{Caveat: Instants}
 
 
 One final caveat: The theorems soundness, consistency, and adequacy
@@ -462,8 +483,12 @@ postulate, however, that they hold between instants. This is
 because the inter-instant translation function
 @es[next-instant] is nearly identical to the same function
 from @citet[esterel02]@note{Section 8.3, page 89 of the
- current draft} which as been proven correct by Lionel Rieg
-in Coq.@note{ Unfortunately, as of the writing of this
+ current draft} which as been proven correct@note{
+ Specifically, Lionel has shown, up to bisimilarity, a
+ program passed through @es[next-instant] under the
+ Constructive Semantics remains the same program with respect
+ to the state semantics.} by Lionel Rieg
+in Coq.@note{Unfortunately, as of the writing of this
  dissertation this work is unpublished.}, but with trivial
 extensions to handle @es[loop^stop] and @es[ρ]. Therefore I feel comfortable postulating
 that the calculus is correct across instants.
@@ -535,7 +560,7 @@ the following:
            The @es[⇁] relation and the @es[next-instant] function is used to define a
            multi-instant evaluator for Esterel. This evaluator checks at
            every reduction step that the step taken by @es[⇁] is also
-           in @es[⇀].}
+           in @es[⇀]. The relation @es[⇁] is given in the appendix A.}
           @item{@itemlistheader{Redex/Hiphop.js bridge} 
            HipHop.js is an Esterel implementation embedded into Javascript. We
            built a library that can translate Redex expressions into
@@ -563,20 +588,35 @@ multiple instants.@note{Each test runs for a random number
  of instants.} These tests are to provide evidence for consistency and
 adequacy, not just against the circuit semantics but against
 real implementations as well. The real implementations are
-import because they accept Esterel terms that use host
+important because they accept Esterel terms that use host
 language expressions, which the circuit compiler does not.
 Therefore these tests in particular give evidence that
 adequacy holds in the presence of Full Esterel.
 
 
 In addition I have run @(~a circuit-test-count) random test
-which generate a random pure program (with loops), apply a
+which generate a random pure program (with loops), and apply
 all rules from the calculus (specifically from @es[⟶], the
 compatible closure of @es[⇀]), and then check that the
-circuits were equal using the Circuitous library. These
+circuits are equal using the Circuitous library. These
 tests provide evidence for soundness, and especially for the
 soundness with loops.
 
 @section{Agda Codebase}
 
-TODO
+Some proofs I reference are not given in this document. Instead they are given in a separate Agda code base.
+This code base is an old attempt to prove the correctness of a previous version of the calculus@~cite[florence-2019].
+While the calculus has since changed, @es[Can] has not. Therefore I re-use some of the proofs from
+that work which relate to @es[Can].
+
+@section{Notation}
+
+At times my theorem statements will say something to the
+effect of @italic{For all @es[p-pure]}. This is a pun which
+is meant to read as @italic{For all terms @es[p-pure] drawn
+ from the set of terms @es[p-pure]}. Similarly I will
+sometimes say @italic{For all
+ @es[(= r-pure (in-hole E-pure p-pure))]}. This is shorthand
+for @italic{For all @es[r-pure], @es[E-pure], and
+ @es[p-pure] such that
+ @es[(= r-pure (in-hole E-pure p-pure))]}.
