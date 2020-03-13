@@ -35,12 +35,15 @@ suited to different purposes.
 
 Some of these semantics are adequate to give an
 evaluator for programs, giving meaning to full programs by
-running them. Others give us local reasoning, allowing for
+running them---Such as the Constructive Operational
+Semantics (COS)@~cite[optimizations-for-esterel-programs-thesis],
+and the State Behavioral Semantics (SBS)@~cite[esterel02]. Others give us local reasoning, allowing for
 modular reasoning about fragments of full programs (i.e.
-constant propagation or modular compilation). Still others
-give syntactic reasoning, which reason about programs
+constant propagation or modular compilation)---such as
+the Circuit Semantics@~cite[esterel02] or the Axiomatic Semantics (AS)@~cite[tini-axiomatic].
+Still others give syntactic reasoning, which reason about programs
 directly using their syntax, without going through an
-external domain. This allows for more direct communication
+external domain---Such as the COS, SBS, and AS. This allows for more direct communication
 with programmers in the domain they already understand. This
 is useful, for example, when giving good crash reports,
 explaining program refactorings, or for optimization
@@ -53,11 +56,11 @@ language.
 
 Each of Esterel's many semantics do some of these jobs very
 well. However there are no semantics for Esterel which are
-simultaneously, local, syntactic, sound, and adequate
-enough to give an evaluator for the language. This is the
-contribution of this dissertation: @centered{There exists a
- syntactic, local, consistent, sound, and adequate semantics for
- Esterel.}
+simultaneously, local, syntactic, sound, and adequate enough
+to give an evaluator for the language. This is the
+contribution of this dissertation is the construction of
+syntactic, local, consistent, sound, and adequate semantics
+for Esterel.
 
 I have proven this syntactic, local semantics---this
 calculus---is consistent, sound, and adequate for Loop Free,
@@ -67,9 +70,9 @@ evidence and arguments for the soundness of the rest of the
 calculus, as well as future directions for making the
 calculus more powerful and useful.
 
-@section[#:tag "intro:syntactic"]{Syntactic}
+@;@section[#:tag "intro:syntactic"]{Syntactic}
 
-The benefits of a syntactic semantics is primarily human:
+@bold{Syntactic.} The benefits of a syntactic semantics is primarily human:
 They allow reasoning about a programming language to be
 expressed directly in terms of that language, rather than in
 terms of some external domain, at least in principle.
@@ -92,26 +95,42 @@ syntactic semantics still allows for explanations of program
 transformations using the notation users of that language
 are familiar with, rather than some external domain.
 
+In order to make my calculus sound and adequate I have added
+two new forms to the syntax of Kernel Esterel: a variant of
+@citet[felleisen-hieb]'s @es[ρ], and a loop variant
+@es[loop^stop]. This is discussed in more detail in
+@secref["sec:calculus"].
 
-@section[#:tag "intro:local"]{Local}
+@;@section[#:tag "intro:local"]{Local}
 
-The benefits of a local semantics are useful for both human
-and machine reasoning. Reasoning about full programs is
-difficult, impractical, and in often impossible in the case
-of libraries. Modular reasoning is essential for working
-with large programs, thus we want a local semantics.
+@bold{Local.} The benefits of a local semantics are useful
+for both human and machine reasoning. Reasoning about full
+programs is difficult, impractical, and in often impossible
+in the case of libraries. Modular reasoning is essential for
+working with large programs, thus we want a local semantics.
 
-@section[#:tag "intro:consistent"]{Consistent}
+Locality in my calculus is handled by allowing the equations
+of the calculus to be using under any program context. In
+practice this means that most equations apply anywhere in a
+program, while some work as long as entire scope of a signal
+is visible. Detains my be found in @secref["calc:eql"] and
+@secref["just:local"].
 
-Consistency is one of the most essential
+@;@section[#:tag "intro:consistent"]{Consistent}
+
+@bold{Consistent.} Consistency is one of the most essential
 of these facets. A consistent semantics is one that does not
 allow contradictions to be derived: for example, by not
 allowing two programs to be proven equal if they evaluate to
-different values. 
+different values.
 
-@section[#:tag "intro:sound"]{Sound}
+The Consistency of the calculus given by proof, as a
+corollary of Adequacy. Details may be found in
+@secref["just:consistent"].
 
-Soundness is necessary for an semantics which describes an
+@;@section[#:tag "intro:sound"]{Sound}
+
+@bold{Sound.} Soundness is necessary for an semantics which describes an
 already established language. A sound semantics is one which
 agrees with an existing, ground truth semantics. In other
 words, a semantics which is not sound describes a @italic{
@@ -119,7 +138,15 @@ words, a semantics which is not sound describes a @italic{
 Thus soundness, like consistency is essential for any
 semantics.
 
-@section[#:tag "intro:adequate"]{Adequate}
+The soundness of the calculus is also given by proof.
+Specifically it is proven with respect to the circuit
+semantics@~cite[esterel02], for pure, loop free, programs
+withing a single instant. Evidence for the Soundness for
+multi-instant, loop containing programs is given by informal
+arguments and random testing. This is discussed
+more in @secref["just:setup"]and  @secref["just:sound"].
+
+@;@section[#:tag "intro:adequate"]{Adequate}
 @[define semantics-note
   @note{There are many ways to define what @italic{
     semantics} means. Literally, a semantics is that which gives
@@ -127,7 +154,7 @@ semantics.
    over to defining ``meaning''. Therefore, I am intentionally
    using a very broad definition.}]
 
-Adequacy describes the power of a semantics. If we take the
+@bold{Adequate.} Adequacy describes the power of a semantics. If we take the
 word @italic{semantics} to mean ``something which allows for
 formal reasoning about a language''@semantics-note, then we can have semantics
 which allow for manipulations or transformations of a
@@ -137,6 +164,15 @@ evaluator for a language. This is not ideal, as it means
 there is some aspect of the language the semantics does not
 describe. Therefore, to make sure a semantics has broad coverage
 of the aspects of a language, an adequate semantics is desirable.
+
+Adequacy is also given by proof. Like soundness, it is
+proven for pure, loop free, programs for one instant.
+Evidence for the Adequacy of loop containing programs with
+host language expressions across multiple instants is also
+given by informal argument and random testing. This is discussed
+more in @secref["just:setup"]and  @secref["just:adequacy"].
+
+@;@section{Overview}
 
 @section{Overview}
 

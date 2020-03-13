@@ -261,6 +261,8 @@ With this we may then write the rule:@(linebreak)
 
 @section{Auxiliary Judgments}
 
+@subsection[#:tag "calc:eql"]{The equality relation}
+
 @subsection[#:tag "binding"]{Correct Binding}
 
 @subsection{Schizophrenia}
