@@ -18,8 +18,13 @@
 
 @title[#:style paper-title-style #:tag "just:local"]{Justifying Local}
 
-Justifying that the calculus allows for local reasoning is
-not difficult. The relation @es[≡] contains a context rule
-which states that the the rules of the calculus apply in any
-program context. I would argue that this is the definition
-of locality in terms of calculi.
+Intuitively, the notion of locality the calculus enables
+reasoning anywhere in a program, even when the full program
+is not known. The definition of the @es[≡] relation is
+closed under program contexts, which meets the letter of
+this intuition. Some rules, like @rule["emit"] and
+@rule["is-present"], require some information about their
+external context, but this is limited to the scope of the
+variable they are reasoning about. If the binder of that
+signal is visible, the rules will still apply in any outer
+context.

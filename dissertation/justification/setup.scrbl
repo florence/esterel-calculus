@@ -53,11 +53,12 @@ but at their core they expressed the same execution model.
 The four input wires on the left of the diagram (@es[GO], @es[RES], @es[SUSP], @es[KILL])
 are control wires which guide the execution of the circuit. The @es[GO] wire is true
 when the circuit is supposed to start for the first time---it corresponds
-to an coming control edge that connects to the start of the program in the program graph model. The @es[RES] wire is true
+to an coming control edge that connects to the start of the program in the program graph model.
+The @es[RES] wire is true
 when the circuit may resume execution in a previous instant (when, say, it has
 a register containing an @es[1])---it corresponds to an control edge that
 connects the ``output'' from a pause. The @es[SUSP] wire is used by the compilation
-of @es[suspend] to, well, suspend a term. The @es[KILL] wire is used by @es[trap]
+of @es[suspend] to suspend a term. The @es[KILL] wire is used by @es[trap]
 and @es[exit] to abort the execution of a circuit. Neither @es[SUSP] nor @es[KILL]
 are expressed in the program graph model.
 
@@ -426,72 +427,64 @@ equal when @racket[a] is always false, but not equal when
 @section[#:tag "just:sound:pure"]{Caveat: Pure Esterel}
 
 There is a caveat to the Soundness, Consistency, and Adequacy theorems:
-They both work on Pure Esterel programs. I find this,
-however, to not restrict the validity of the theorems much.
+They both work on Pure Esterel programs.
 
 Pure Esterel, the subset of Esterel which does not handle
 Host Language Programs,@note{ That is Pure Esterel is the
  part of Esterel which contains only Esterel terms, not a
  ``side-effect free'' fragment of Esterel} defines the
-essence of Esterel. The addition forms either add
+essence of Esterel. The additional forms either add
 traditional programming language variables (@es[var]), or
 extend the reasoning mechanism used for signals to allow
 them to carry values (@es[shared]). These extensions either
 re-use much of the mechanisms that are proven correct by the
 soundness and adequacy proofs, or are traditional enough
 that there is little interesting added when reasoning about
-them. Therefore I would argue that a the proofs for Pure
-Esterel intuitively generalize to Esterel with Host Language
-terms.
+them. I postulate that the Soundness, Consistency, and Adequacy
+theorems hold for all of Kernel Esterel, and give some
+evidence for this in @secref["just:sound:testing"].
 
 @section[#:tag "just:sound:free"]{Caveat: Loop Free}
 
 My proofs are also only give on the fragment of Pure Esterel
-which does not contain loops. This is for a similar reason
-to using Pure Esterel: Proving the calculus correct on loop
-is difficult but adds little value. At the core, this is
-because of Schizophrenia (See @secref["back:esterel:schizo"]
-for a refresher). The calculus, rather trivially, does not
-suffer from schizophrenia because it duplicates the loop
-body on reduction, preventing conflict between different
-iterations of the loop. Handling schizophrenia in the
-circuit semantics is a more complicated problem. While one
-could just duplicate the loop body@note{This is the solution
- that the random tests for my calculus use.} this is makes
-the compilation of the program quadratic, which is rather
-terrible. Much work has gone in to handling loop compilation
-correctly and efficiently (such as chapter 12 of
-@citet[esterel02], and @citet[new-method-schizophrenic]), and
-thus I defer to the community on the correct way to handle
-loop compilation, and do not touch on it here. Therefore I
-defer to the community on showing that duplicating loop
-bodies is equivalent to these more complex methods, and do
-not touch on them in my proofs. In short, because 1) the
-primary issues with loops are schizophrenia and
-instantaneous loop bodies, 2) my calculus handles these in a
-fairly intuitive and simple way, and 3) proving correctness
-of these cases would be tedious, difficult, and probably not
-very informative. Thus, I simply postulate the correctness of the
-calculus on loops.
+which does not contain loops. At the core, this is because
+of Schizophrenia (See @secref["back:esterel:schizo"] for a
+refresher) instantaneous loops. The calculus does not suffer
+from schizophrenia because it duplicates the loop body on
+reduction, preventing conflict between different iterations
+of the loop. In addition @es[loop^stop] allows for handling
+instantaneous loops dynamically. Handling schizophrenia in
+the circuit semantics is a more complicated problem. While
+one could just duplicate the loop body@note{This is the
+ solution that the random tests for my calculus use.} this is
+not the approach that is usually taken. Much work has gone
+in to handling loop compilation correctly and efficiently
+(such as chapter 12 of @citet[esterel02], and
+@citet[new-method-schizophrenic]). In addition the circuit
+semantics requires that instantaneous loops ruled out
+statically. Thus, I postulate the correctness of the
+calculus on loops, and again provide evidence in
+@secref["just:sound:testing"].
 
 @section[#:tag "just:sound:instants"]{Caveat: Instants}
 
 
-One final caveat: The theorems soundness, consistency, and adequacy
-restrict themselves to a single instant of execution. I
-postulate, however, that they hold between instants. This is
-because the inter-instant translation function
+One final caveat: The theorems soundness, consistency, and
+adequacy restrict themselves to a single instant of
+execution. I postulate, however, that they hold between
+instants. The inter-instant translation function
 @es[next-instant] is nearly identical to the same function
 from @citet[esterel02]@note{Section 8.3, page 89 of the
  current draft} which as been proven correct@note{
  Specifically, Lionel has shown, up to bisimilarity, a
  program passed through @es[next-instant] under the
  Constructive Semantics remains the same program with respect
- to the state semantics.} by Lionel Rieg
-in Coq.@note{Unfortunately, as of the writing of this
- dissertation this work is unpublished.}, but with trivial
-extensions to handle @es[loop^stop] and @es[ρ]. Therefore I feel comfortable postulating
-that the calculus is correct across instants.
+ to the state semantics.} by Lionel Rieg in Coq.@note{
+ Unfortunately, as of the writing of this dissertation this
+ work is unpublished.}, but with trivial extensions to handle
+@es[loop^stop] and @es[ρ]. In addition I provide evidence
+that these theorems hold over multiple instants in
+@secref["just:sound:testing"].
 
 @section[#:tag "just:sound:testing"]{Evidence via Testing}
 
@@ -542,11 +535,9 @@ that the calculus is correct across instants.
 
 @(define itemlistheader bold)
    
-While I have presented the above as caveats, I have evidence
-that the postulates above hold, in addition to evidence that
-my theorems are correct beyond the proofs themselves. This
-evidence comes from random testing. To do this, I provide
-the following:
+I have evidence that the postulates in the previous sections
+hold, and that the theorems I have prove hold in the form of random testing.
+To do this, I provide the following:
 
 @itemlist[@item{@itemlistheader{Redex COS model} I built a
            Redex@~cite[redex-book] model of the COS semantics. The semantics is a

@@ -1181,11 +1181,6 @@
      ['eval^circuit (lambda () (eval-c-pict))]
      ['eval^esterel (lambda () (eval-e-pict))]
 
-     ['all-bot (lambda () (mf-t "all-bot"))]
-     ['all-bot-S (lambda () (mf-t "all-bot-S"))]
-     ['all-bot-n (lambda () (mf-t "all-bot-n"))]
-     ['all-bot-rec (lambda () (mf-t "all-bot-rec"))]
-
      ['not (lambda () (words "¬"))]
      
      ['done (λ () (render-op/instructions (nt-t "p") `((superscript D))))]

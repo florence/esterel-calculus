@@ -14,15 +14,15 @@
 @title[#:style paper-title-style #:tag "just:adequacy"]{Justifying Adequacy}
 
 Adequacy is the statement that a calculus can define an evaluator for
-it's language. In this case, we want Computation Adequacy, which is the statement
+it's language. In this case, we want Computational Adequacy, which is the statement
 that an evaluator defined by the calculus is equivalent to the evaluator
 for the ground-truth semantics:
 @proof-splice["comp-ad"]
 
 The full proof can be found at @proof-ref["comp-ad"]. The first premise of this theorem
-requires that the program be closed, as the evaluator is only really meant to work on full programs.
-However closed here is slightly different from the usual definition of close, because it restricts
-programs to those which will also generate closed circuits. Which is to say:
+requires that the program be @es[closed], as the evaluator is only really meant to work on full programs.
+However @es[closed] here is slightly different from the usual definition, because it restricts
+programs to those which will also generate closed circuits which will execute their first instant. Which is to say:
 
 @extract-definition["closed"]
 
@@ -44,7 +44,8 @@ canonical form, they may still step via @rule["par-swap"],
 but may not take any other steps. To prove this @es[⟶] is
 broken up into two parts: @es[⟶^s], which contains only the
 compatible closure of @rule["par-swap"], and @es[⟶^r], which
-is the compatible closure of every rule. With that we can
+is the compatible closure of every rule.@note{The @tt{S} stands for ``swap'', and the @tt{R} stands
+ for ``remainder''.} With that we can
 state theorem about these canonical forms like so:
 @proof-splice["step-is-v"]
 
@@ -54,7 +55,7 @@ either takes a step in @es[⟶^r], or if @es[q-pure] takes a
 step in @es[⟶^s], then that term cannot take a step either,
 then @es[q-pure] must be one of our canonical forms. We only
 need to check for one step of @es[⟶^s], because if multiple @es[⟶^s] could uncover
-a reduction in @es[⟶^s], then there would exist some term which would be one step @es[⟶^s] away
+a reduction in @es[⟶^r], then there would exist some term which would be one step @es[⟶^s] away
 from a @es[⟶^r] reduction which would violate the lemma. The negative existential in this
 would make it very tricky to prove. However, we are in luck: everything used in this statement
 is decidable. Therefore this is proved by proving it's contrapositive:
@@ -79,9 +80,9 @@ The full proof is given in
 term can take. Because it is strictly decreasing and gives
 back a non-negative number, we must eventually reach a case
 where no more @es[⟶^r] steps can be taken. Whats more its
-easy to show that @es[⟶^r] does not change the count,
+easy to show that @es[⟶^s] does not change the count,
 therefore the overall relation is strongly canonicalizing.
-This proof follows almost directly by induction on the
+This proof follows by induction on the
 structure of @es[⟶^r]. The grammar term @es[p-pure+GO] is
 like @es[p-pure], but it accepts a @es[GO] at the top of the
 term (as full programs have exactly one @es[GO], at the
@@ -123,7 +124,7 @@ assuming @es[GO] is @es[⊥], @es[Can] is perfectly adequate
 to describe evaluation:
 @proof-splice["adequacy-of-can"]
 
-The full prove is in @proof-ref["adequacy-of-can"]. To unpack: If we are
+The full proof is in @proof-ref["adequacy-of-can"]. To unpack: If we are
 given some term @es[r-pure], and two circuit states @es[cs_1] and @es[cs_2]
 such that both circuit states are states of the compilation of @es[r-pure], and
 @es[cs_1] steps to @es[cs_2], and we know about the signals of @es[(compile r-pure)]
@@ -142,11 +143,11 @@ The first of these, @es[all-bot-S], tracks that for any signal in @es/unchecked[
 
 The last of the judgments, @es[all-bot-rec]
 (@figure-ref["nc2"]) looks complex, but all it says is that
-the @es[all-bot] judgment holds for subterms, circuits, and
+the @es[all-bot] judgment holds for subterms, subcircuits, and
 environments that match how @es[Can] recurs over the term.
 Together all of these properties mean that ``@es[Can]
 accurately predicts when wires are @es[⊥]''. Therefore the
-overall proof states that``@es[Can] accurately predicts when
+overall proof states that ``@es[Can] accurately predicts when
 wires are @es[⊥] when @es[GO] is @es[⊥]''@note{ This is why
  I call this proof ``adequacy''. When combined with the
  soundness of @es[Can], it tells us when @es[Can] gives a

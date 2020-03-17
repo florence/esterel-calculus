@@ -47,9 +47,9 @@
             #:tag "binds"]{
  @es[(binds (compile p-pure) θ)] if and only if
  @es[∀] @es[(L∈ S (Ldom θ))],
- @es[(= (θ-get-S θ S) present)] if and only if @es[(≃ (of (compile p-pure) Si) 1)],
+ @es[(= (θ-get-S θ S) present)] ⇔ @es[(≃ (of (compile p-pure) Si) 1)],
  and
- @es[(= (θ-get-S θ S) absent)] if any only if @es[(≃ (of (compile p-pure) Si) 0)].
+ @es[(= (θ-get-S θ S) absent)] ⇔ @es[(≃ (of (compile p-pure) Si) 0)].
  @;{
   Note that this would mean that
   @es[(binds (compile p-pure) (mtθ+S S absent))] implies that

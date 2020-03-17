@@ -33,21 +33,20 @@ single instant, the compilation of those circuits is
 This proof proceeds by induction over the structure of the
 equality relation @es[≡]. Thus, the majority of the work in
 the proof goes into showing that it holds for each rule of
-@es[⇀]. These proofs all rely on the idea that, because the
-set of inputs to the circuit is finite. Therefore each of
-these proofs proceeds by induction on the the structure of
-@es[≡] to reach the base case of @es[⇀]. Each rule in @es[⇀]
-is then proved sound, in general, by induction of
-@es[p-pure] term to eventually find a concrete circuit. Then
-the circuits on the each side are given to the circuit
-solver which proves that they are equal.
+@es[⇀]. Therefore each of these proofs proceeds by induction
+on the the structure of @es[≡] to reach the base case of
+@es[⇀]. Each rule in @es[⇀] is then proved sound, in
+general, by induction of @es[p-pure] term to eventually find
+a concrete circuit. Then the circuits on the each side of
+the relation are given to the circuit solver which proves
+that they are equal.
 
 @section[#:tag "just:sound:lemma"]{Important lemma's}
 
 This section will discuss the most interesting or
 informative lemma's needed to prove soundness of the various
 rules of @es[⇀]. May of the lemma's are trivial or uninformative, and so will not be discussed here.
-The interested reader may seem them in all of their gory detail in appendies A.2 and A.3.
+The interested reader may seem them in appendices A.2 and A.3.
 
 A first informative proof to look at is the proof that @rule["trap"] is sound:
 @proof-splice["trap"]
@@ -56,16 +55,18 @@ The full proof may be found at @proof-ref["trap"]. The first
 thing to note is that this proof does not require the
 premise that we are in the first instant, or correct binding. Many of the
 equations do not touch @es[pause] or binding forms, and therefore are not
-sensitive to instants or binding. This proofs proceeds by induction over
-the structure of @es[stopped]. The two base cases
-are @es[(= stopped nothing)] and @es[(= stopped (emit 0))].
-These case simply invoke the solver, for example:@note{@racket[harp] is the implementation of @es[harp].}
+sensitive to instants or binding. This proofs proceeds by cases on
+the structure of @es[stopped]. The case where
+are @es[(= stopped nothing)] can just invoke the solver:@note{@racket[harp] is the implementation of @es[harp].}
 @check[(assert-same
         (compile-esterel (term (trap nothing)))
         (compile-esterel (term (harp nothing))))]
-The last case proceeds by induction on the @es[n] from @es[(exit n)].
-It's relatively easy to argue that if the rule is sound for @es[n],
-its sound for @es[(Σ n 1)].
+We can also see that these two are the same if we draw out the circuits on paper: they give us the same graph!
+The last case is @es[(= stopped (exit n))].
+In this case we do cases on @es[harp].
+In the first of these cases we have @es[(= stopped (exit 0))], we have a concrete circuit, and so can use the solver again.
+In the last case we have @es[(= stopped (exit n))], where @es[(< n 0)]. Again if we draw
+this out we find that we get the exact same graph.
 
 The next proof of interest is the proof that @rule["emit"] is sound.
 This proof is more complex because it must deal with both evaluation contexts
@@ -108,11 +109,11 @@ the State Behavioral Semantics@~cite[esterel02] or the
 Constructive Operation
 Semantics@~cite[optimizations-for-esterel-programs-thesis]
 drop this assumption by reflecting register state back in
-the syntax of the program. However since our semantics
-relies on an inter-instant translation function, we restrict
+the syntax of the program. However since the calculus
+relies on an inter-instant translation function, this proof is restricted
 this proofs to a single instant.
 
-This proof is essentially just a chaining of several other lemmas. As
+This proof is essentially a chaining of several other lemmas. As
 with @proof-ref["emit"], @proof-ref["S-maintains-across-E"] and @proof-ref["GO-maintains-across-E"]
 are used to shed the evaluation contexts in the rule. From there the proof mostly follows from the following
 lemma:
@@ -120,7 +121,7 @@ lemma:
 
 To understand this proof statement, I must explain a little bit of notation. The phrase
 @es[(binds (compile p-pure) θ)] exists to tie the syntactic world of Esterel to the circuit world.
-In, in essence, states that the knowledge contained in the map @es[θ] also holds when reasoning about the circuit.
+It, in essence, states that the knowledge contained in the map @es[θ] also holds when reasoning about the circuit.
 Formally, it is defined as:
 
 @extract-definition["binds"]

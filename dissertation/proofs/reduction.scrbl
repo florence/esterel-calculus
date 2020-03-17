@@ -35,7 +35,7 @@ respect to the compilation function.
 @proof[#:label "trap"
        #:title "trap is sound"
        #:statement
-       @list{as @es[(⇀ (trap stopped) (harp stopped))], show that
+       @list{For all @es[stopped], as @es[(⇀ (trap stopped) (harp stopped))], it must be that
         @es[(≃^circuit (compile (trap stopped)) (compile (harp stopped)))]}]{
  @cases[#:of stopped
         #:language esterel/typeset
@@ -51,12 +51,11 @@ respect to the compilation function.
         @#:case[(exit n)]{
           Where @es[(> n 0)].
 
-          Note that @es[(= (harp (exit n)) (exit (sub1 n)))].
-          When you draw the pictures of the two
-          circuits they are the same circuit.
+          In this case, @es[(= (harp (exit n)) (exit (sub1 n)))].
 
-         TODO induction}
-        ]}
+          If we draw the circuit for @es[(compile (exit n))] and
+          @es[(compile (exit (sub1 n)))], we see that they give us the
+          same graph. }]}
 
 @proof[#:label "suspend"
        #:title "suspend is sound"
@@ -150,9 +149,9 @@ respect to the compilation function.
 
 @proof[#:label "emit"
        #:title "Emit is sound"
-       #:statement @list{as
+       #:statement @list{For all @es[(= r-pure (ρ θr GO (in-hole E-pure (emit S))))], as@(linebreak)
         @es[(⇀ (ρ θr GO (in-hole E-pure (emit S))) (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E-pure nothing)))]
-        
+        it must be that@(linebreak)
         @es[(≃^circuit (compile (ρ θr GO (in-hole E-pure (emit S)))) (compile (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E-pure nothing))))]}]{
  @cases[#:of E-pure
         #:language esterel/typeset
@@ -196,7 +195,9 @@ respect to the compilation function.
 @proof[#:label "is-absent"
        #:title "is-absent is sound"
        #:statement
-       @list{as @es[(⇀ (ρ θ A (in-hole E-pure (present S p-pure q-pure))) (ρ θ A (in-hole E-pure q-pure)))]@(linebreak)
+       @list{
+        For all @es[(= r-pure (ρ θ A (in-hole E-pure (present S p-pure q-pure))))],@(linebreak)
+        as @es[(⇀ (ρ θ A (in-hole E-pure (present S p-pure q-pure))) (ρ θ A (in-hole E-pure q-pure)))]@(linebreak)
         when @es[(θ-ref-S θ S unknown)]@(linebreak)
         and @es[(L¬∈ S (->S (Can-θ (ρ θ A (in-hole E-pure (present S p-pure q-pure))) ·)))],@(linebreak)
         if @es[(≃ (of (compile (ρ θ A (in-hole E-pure (present S p-pure q-pure)))) SEL) 0)],@(linebreak)

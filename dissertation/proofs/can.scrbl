@@ -65,9 +65,8 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
        #:statement
        @list{For any term and environment @es[p-pure] and @es[θ] and any signal @es[S],
         if @es[(binds (compile p-pure) θ)],
-        @es[(L¬∈ S (->S (Can p-pure θ)))],
-        
-        @es[(≃ (of (compile p-pure) SEL) 0)], and
+        @es[(L¬∈ S (->S (Can p-pure θ)))], and
+        @es[(≃ (of (compile p-pure) SEL) 0)], 
         then @es[(≃ (of (compile p-pure) So) 0)]}
 
        #:interpretation
@@ -303,7 +302,7 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
         @es[(L¬∈ κ (->K (Can-θ (ρ θr A p-pure) ·)))]
         and @es[(≃ (of (compile (ρ θr A p-pure)) SEL) 0)]
         
-        @es[(≃ (of (compile (ρ θr A p-pure)) Kκ) 0)]}
+        @es[(≃ (of (compile (ρ θr A p-pure)) (K κ)) 0)]}
        #:interpretation
        @list{This theorem states that @es/unchecked[Can-θ] accurately predicts when control wires
         will be set to @es[0].}]{
