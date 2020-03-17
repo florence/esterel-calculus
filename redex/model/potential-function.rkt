@@ -92,10 +92,7 @@
 
 (define-metafunction esterel-eval
   Can : p θ -> Can-result
-  [(Can (ρ θ_1 A p) θ_2)
-   (S-code-s (Lset-sub (->S (Can-θ (ρ θ_1 A p) θ_2)) (Ldom θ_1))
-             (->K (Can-θ (ρ θ_1 A p) θ_2))
-             (Lset-sub (->sh (Can-θ (ρ θ_1 A p) θ_2)) (Ldom θ_1)))]
+
 
   [(Can nothing θ) (S-code-s (L0set) (L1set 0) (L0set))]
 
@@ -153,6 +150,11 @@
   [(Can (signal S p) θ)
    (S-code-s (Lset-sub (->S (Can p θ_2)) (L1set S)) (->K (Can p θ_2)) (->sh (Can p θ_2)))
    (where θ_2 (<- θ (mtθ+S S unknown)))]
+
+  [(Can (ρ θ_1 A p) θ_2)
+   (S-code-s (Lset-sub (->S (Can-θ (ρ θ_1 A p) θ_2)) (Ldom θ_1))
+             (->K (Can-θ (ρ θ_1 A p) θ_2))
+             (Lset-sub (->sh (Can-θ (ρ θ_1 A p) θ_2)) (Ldom θ_1)))]
 
   [(Can (shared s := e p) θ)
    (S-code-s (->S (Can p θ)) (->K (Can p θ)) (Lset-sub (->sh (Can p θ)) (L1set s)))]

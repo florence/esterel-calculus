@@ -171,6 +171,8 @@ these variables must be used, as the name suggests,
 sequentially. Specifically they may appear in only
 a single branch of any given @es[par].
 
+TODO discuss @es[e] in the calculus.
+
 @bold{Concurrent State} Shared variables give concurrent access
 to state that may be shared between branches of a @es[par]. Shared variables are
 declared with @es[(shared s := e p)] and mutated with

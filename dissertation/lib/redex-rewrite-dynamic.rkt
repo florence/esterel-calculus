@@ -445,6 +445,11 @@
              ") = "
              (list-ref lws 7)
              ""))]
+    ['if
+     (λ (lws)
+       (match lws
+         [(list open _ rest ...)
+          (list* open "if0" " " rest)]))]
 
     ['Lflatten
      (lambda (lws)
@@ -795,10 +800,10 @@
      (λ (lws)
        (define arg1 (list-ref lws 2))
        (list (down-super-p) arg1 ""))]
-    ['greater-than-0
+    ['greater-than-2
      (λ (lws)
        (define arg1 (list-ref lws 2))
-       (list "" arg1 " > 0"))]
+       (list "" arg1 " > 2"))]
     ['without (λ (lws)
                 (define K (list-ref lws 2))
                 (define n (list-ref lws 3))
@@ -929,6 +934,7 @@
     ['same (λ (lws) (binop "=" lws))]
     ['Σ (λ (lws) (infix "+" lws))]
     ['∧ (λ (lws) (infix "∧" lws))]
+    ['- (λ (lws) (infix "-" lws))]
     ['<= (λ (lws) (list (list-ref lws 0)
                         (hbl-append (plus-equals) (def-t " "))
                         (list-ref lws 2)

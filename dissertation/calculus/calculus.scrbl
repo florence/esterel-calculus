@@ -98,6 +98,7 @@ translation function @es[next-instant].
 The final administrative rules handle loops:@(linebreak)
 @[render-specific-rules '(loop loop^stop-exit)]@(linebreak)
 
+TODO grammar extention
 
 These rules give us the first extension to Kernel Esterel I
 use: @es[loop^stop]. The first rule, @rule["loop"] expands a
@@ -257,13 +258,137 @@ metafunctions in @figure-ref["Can"] and @figure-ref["Can-rho"].
 @figure["Can"
         "Can"
         Can-pict]
+
+@(define S (with-paper-rewriters (text "S" (default-style))))
+
+The first metafunction, @es[Can], computes what might happen
+during the execution of a program, given an environment of
+signals. The metafunction @es[Can] returns three sets.
+The first set
+@S is a set
+of the signals that might be emitted during execution. The
+second set @es[K] is a set of return codes (@es[κ]), which
+describe in what ways the in which the program might
+terminate. The code @es[0] means the program may reduce to
+@es[nothing]. The code @es[1] means the program might pause
+(reduce to @es[paused]). A code of @es[(= κ 2)] or greater
+means the program might reduce to @es[(exit (- κ 2))]. The
+final set @es[sh] is a set of shared variables which may be
+written to during execution of the program.
+
+I will note accessing only one of these sets will a
+superscript: @es/unchecked[(->S Can)] for the @S set,
+@es/unchecked[(->K Can)] for the @es[K] set, and
+@es/unchecked[(->sh Can)] for the @es[sh] set.
+
+Note that @es[Can] takes in an map @es[θ] not a
+restricted map @es[θr]. This is because @es[Can] will record
+@es[0]s into this map, and it cannot arrive at a
+contraction. This because it only records a signal @es[S] as @es[0] in the map
+if @es[S] cannot be emitted, therefore it cannot enter the contradictory corner
+of @figure-ref["back:lattice"].
+
+While I will explain this version of @es[Can] here, a much
+more detailed explaination can be found in chapters 4 and 5
+of @cite/title[compiling-esterel].
+
+the first three clauses of @es[Can] handle the return codes
+for irreducible terms: @es[nothing] gets @es[0], etc. The @S
+and @es[sh] sets are empty for these, as they can neither emit signals
+nor write to shared variables.
+
+The next clause, for @es[emit], puts @es[S] in the @S set, and @es[0] in the @es[K] set,
+as @es[(emit S)] can reduce to  only @es[nothing], and emit only @es[S].
+
+The next three clauses handles @es[if]. When @es[θ] knows that @es[S] is @es[present],
+then @es[Can] will only inspect the @es[p] branch, as the @es[q] branch cannot be reached.
+The reverse is true when @es[θ] maps @es[S] to @es[absent]. Otherwise, both branches are analyzed
+and, as both branches can happen, their result sets are unioned.
+
+The next clause handles @es[suspend], which just gives the
+result of analyzing the body of the @es[suspend]. This is
+because @es[suspend] does nothing on the first instant, and
+our calculus will transform it into a @es[if] on future instants, therefore
+no special reasoning is needed.
+
+The next two clauses handle @es[seq]. If @es[0] is not in
+the possible return codes of the first part of the @es[seq],
+we know that it cannot reduce to @es[nothing], therefore the
+@es[q] can never be reached. Therefore in this case @es[Can]
+only analyzes @es[p]. If @es[0] is in the possible return
+codes of @es[p], @es[Can] analyzes both parts, and unions
+the results. However @es[0] is removed from the return codes
+of @es[p], as if @es[p] reduces to nothing then the return
+code will given by only @es[q].
+
+The next two clauses handle loops, which just behave as their bodies.
+In the case of @es[loop^stop] the right hand side, which is the loops origional body,
+is not analyzed as it an never be reached.
+
+Next is @es[par]. The @S and @es[sh] sets are just the union
+of the sets from the recursive calls. The return codes are
+give by the set of pairwise @es[max] of each possible return
+code of the subterm. This mimics exactly what the
+@rule["par-nothing"], @rule["par-1exit"], and
+@es["par-2exit"] rules do.
+
+The next clause handles @es[trap]. Again the @S and @es[sh] sets
+are the same as the sets for the subterm. The return codes
+are given by the metafunction @es[↓], which does for return
+codes what @es[harp] does for terms.
+
+The next two clauses handle @es[signal] forms. If the signal
+@es[S] cannot be emitted by the body @es[p], then the term
+is re-analyzed with @es[S] set to @es[0], as this refined
+information may give a more accurate result of what the term
+can do. Otherwise the recursive call is used as is. In both
+cases @es[S] is removed from the result set, as it's name
+may not be unique and thus emissions from within this
+@es[signal] form need to be hidden to avoid conflicts with
+other signals of the same name.
+
+The clause for @es[ρ] delegates to the @es[Can-θ] function,
+which will be explained later. Like the @es[signal] case, it
+removes all of its bound variables from its result.
+
+The last few clauses handled state and host language
+expressions. The analysis of the shared from is like that of
+the @es[signal] form, except that there is no special case
+for when the shared variable cannot be written to. Because
+Esterel does not make control flow decisions based on the
+writability of shared variable, there is not need for the
+extra step. Writing to a shared variable behaves akin to
+emitting a signal: the return code is @es[0] and the variable
+is added to the @es[sh] set.
+
+The last three forms handle sequential variables. No special
+analysis is done for these forms as Esterel does not think
+them into its concurrency mechanism.
+
+
 @figure["Can-rho"
         "Can rho"
         Canθ-pict]
-TODO explain.
 
-With this we may then write the rule:@(linebreak)
-@[render-specific-rules '(is-absent)]@(linebreak)
+The @es[Can-θ] function handles the analysis of @es[ρ]
+forms. It essentially behaves as if the form was made of
+nested @es[signal] forms: for each signal, if the signal is
+@es[unknown] and not in the @S set of the recursive call
+then the form is re-analyzed with that signal set to
+@es[absent]. Otherwise the signal's value remains unchanged.
+The primary difference between this and the signal rule is
+that the bound variables are not removed from the resulting
+@S set---this is handled by @es[Can].
+
+We can understand why this is by looking at the rule which
+uses @es[Can-θ]:@(linebreak)
+@[render-specific-rules '(is-absent)]@(linebreak) This rule
+says that we may take the else branch of an @es[if], when
+the signal is bound in an environment in a relative
+evaluation context to the conditional, an the signal cannot
+be emitted by the program. If the signals in @es[θr] were
+removed from the result of @es[Can-θ] this rule would always
+fire.
 
 @subsection{State rules}
 

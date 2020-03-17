@@ -290,8 +290,7 @@
 
 (define κ-pict
   (with-paper-rewriters
-   (parameterize ([rule-pict-style 'vertical])
-     (render-language esterel-eval #:nts '(κ)))))
+   (hbl-append (es κ) (text " ∈ Natural Numbers" (default-style))))) 
 
 (define ↓-pict
   (with-paper-rewriters
@@ -299,26 +298,6 @@
                   [where-make-prefix-pict (λ () (text "if " (default-style)))])
      (frame (inset (render-metafunction ↓ #:contract? #t)
                    6 4 4 6)))))
-
-(define κmax-stuff
-  (with-paper-rewriters
-   (frame (inset (vl-append
-                  (hbl-append (es/unchecked max-mf)
-                              (words " : ")
-                              (es κ)
-                              (words " ")
-                              (es κ)
-                              (words " → ")
-                              (es κ))
-                  (indent (vl-append
-                           (hbl-append (es (max-mf κ_1 κ_2))
-                                       (words " computes"))
-                           (hbl-append (words "the maximum of ")
-                                       (es κ_1) (words " and"))
-                           (hbl-append (es κ_2) (words " where we define "))
-                           (hbl-append (es nothin) (words " < ")
-                                       (es paus) (words " < 0 < 1 < ...")))))
-                 6 4 4 6))))
 
 (define Can-pict
   (with-paper-rewriters
@@ -332,7 +311,7 @@
                        (or (= i 16)
                            (= i 17)))])
        (render-metafunction Can #:contract? #t))
-     (vr-append 10 ↓-pict κmax-stuff)))))
+     (vr-append 10 ↓-pict)))))
 
 (define Canθ-pict
   (with-paper-rewriters

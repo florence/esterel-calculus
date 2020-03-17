@@ -1151,6 +1151,22 @@
      #:debug? #f #:limits? #f #:external? #t
      #:memory-limits? #f)
 
+
+    (check-not-exn
+     (lambda ()
+       (execute-test
+        (term (shared s495335
+                :=
+                (+ 2 0 0 0 0)
+                (seq
+                 (shared s495336 := (+ s495335) (<= s495336 (+)))
+                 (suspend (<= s495335 (+)) ST))))
+        '(ST)
+        '()
+        '((ST))
+        #:debug? #f #:limits? #f #:external? #f
+        #:memory-limits? #f)))
+
     (test-case "generative"
       (time
        (test-case "external"
