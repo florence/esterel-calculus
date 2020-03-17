@@ -433,16 +433,10 @@ Pure Esterel, the subset of Esterel which does not handle
 Host Language Programs,@note{ That is Pure Esterel is the
  part of Esterel which contains only Esterel terms, not a
  ``side-effect free'' fragment of Esterel} defines the
-essence of Esterel. The additional forms either add
-traditional programming language variables (@es[var]), or
-extend the reasoning mechanism used for signals to allow
-them to carry values (@es[shared]). These extensions either
-re-use much of the mechanisms that are proven correct by the
-soundness and adequacy proofs, or are traditional enough
-that there is little interesting added when reasoning about
-them. I postulate that the Soundness, Consistency, and Adequacy
-theorems hold for all of Kernel Esterel, and give some
-evidence for this in @secref["just:sound:testing"].
+essence of Esterel. I postulate that the Soundness,
+Consistency, and Adequacy theorems hold for all of Kernel
+Esterel, and give some evidence for this in
+@secref["just:sound:testing"].
 
 @section[#:tag "just:sound:free"]{Caveat: Loop Free}
 
@@ -462,7 +456,7 @@ in to handling loop compilation correctly and efficiently
 (such as chapter 12 of @citet[esterel02], and
 @citet[new-method-schizophrenic]). In addition the circuit
 semantics requires that instantaneous loops ruled out
-statically. Thus, I postulate the correctness of the
+statically. I postulate the correctness of the
 calculus on loops, and again provide evidence in
 @secref["just:sound:testing"].
 
@@ -476,13 +470,13 @@ instants. The inter-instant translation function
 @es[next-instant] is nearly identical to the same function
 from @citet[esterel02]@note{Section 8.3, page 89 of the
  current draft} which as been proven correct@note{
- Specifically, Lionel has shown, up to bisimilarity, a
+ Specifically, it is proven that, up to bisimilarity, a
  program passed through @es[next-instant] under the
  Constructive Semantics remains the same program with respect
  to the state semantics.} by Lionel Rieg in Coq.@note{
  Unfortunately, as of the writing of this dissertation this
- work is unpublished.}, but with trivial extensions to handle
-@es[loop^stop] and @es[ρ]. In addition I provide evidence
+ work is unpublished.}, but with extensions to handle
+@es[loop^stop] and @es[ρ]. I also provide evidence
 that these theorems hold over multiple instants in
 @secref["just:sound:testing"].
 
