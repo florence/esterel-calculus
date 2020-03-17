@@ -4,7 +4,7 @@
                   esterel-eval θ-ref-S θ-ref-s θ-ref-x
                   add2 <- dom get-unknown-signals
                   mtθ+S mtθ+s mtθ+x
-                  Lwithoutdom L∈dom θ-get-S)
+                  Lwithoutdom L∈dom θ-get-S Σ)
          esterel-calculus/redex/model/lset
          redex/reduction-semantics)
 (module+ test (require rackunit))
@@ -97,13 +97,13 @@
              (->K (Can-θ (ρ θ_1 A p) θ_2))
              (Lset-sub (->sh (Can-θ (ρ θ_1 A p) θ_2)) (Ldom θ_1)))]
 
-  [(Can nothing θ) (S-code-s (L0set) (L1set nothin) (L0set))]
+  [(Can nothing θ) (S-code-s (L0set) (L1set 0) (L0set))]
 
-  [(Can pause θ) (S-code-s (L0set) (L1set paus) (L0set))]
+  [(Can pause θ) (S-code-s (L0set) (L1set 1) (L0set))]
 
-  [(Can (exit n) θ) (S-code-s (L0set) (L1set n) (L0set))]
+  [(Can (exit n) θ) (S-code-s (L0set) (L1set (Σ n 2)) (L0set))]
 
-  [(Can (emit S) θ) (S-code-s (L1set S) (L1set nothin) (L0set))]
+  [(Can (emit S) θ) (S-code-s (L1set S) (L1set 0) (L0set))]
 
   [(Can (present S p q) θ)
    (Can p θ)
@@ -123,11 +123,11 @@
 
   [(Can (seq p q) θ)
    (Can p θ)
-   (judgment-holds (L¬∈ nothin (->K (Can p θ))))]
+   (judgment-holds (L¬∈ 0 (->K (Can p θ))))]
 
   [(Can (seq p q) θ)
    (S-code-s (LU (->S (Can p θ)) (->S (Can q θ)))
-             (LU (Lset-sub (->K (Can p θ)) (L1set nothin)) (->K (Can q θ)))
+             (LU (Lset-sub (->K (Can p θ)) (L1set 0)) (->K (Can q θ)))
              (LU (->sh (Can p θ)) (->sh (Can q θ))))]
 
   [(Can (loop p) θ)
@@ -157,12 +157,12 @@
   [(Can (shared s := e p) θ)
    (S-code-s (->S (Can p θ)) (->K (Can p θ)) (Lset-sub (->sh (Can p θ)) (L1set s)))]
   [(Can (<= s e) θ)
-   (S-code-s (L0set) (L1set nothin) (L1set s))]
+   (S-code-s (L0set) (L1set 0) (L1set s))]
 
   [(Can (var x := e p) θ)
    (Can p θ)]
   [(Can (:= x e) θ)
-   (S-code-s (L0set) (L1set nothin) (L0set))]
+   (S-code-s (L0set) (L1set 0) (L0set))]
   [(Can (if x p q) θ)
    (S-code-s (LU (->S (Can p θ)) (->S (Can q θ)))
              (LU (->K (Can p θ)) (->K (Can q θ)))
@@ -253,7 +253,7 @@
    `(Can_K (par (present SS (exit 0) nothing)
                 nothing)
            {(sig SS unknown) ·})
-   (term (L2set 0 nothin)))
+   (term (L2set 2 0)))
   (check-equal?
    `(Can (seq
           (ρ {(sig S_I unknown) ((sig S_C unknown) ·)}
@@ -265,7 +265,7 @@
                     (present S_C (emit S_C) nothing))
                    pause)))
           (loop nothing)) ·)
-   `(S-code-s (L0set) (L1set paus) (L0set)))
+   `(S-code-s (L0set) (L1set 1) (L0set)))
   (check-equal?
    `(Can (seq
           (ρ {(sig S_I unknown) ((sig S_C unknown) ·)}
@@ -277,7 +277,7 @@
                     (present S_C (emit S_C) nothing))
                    pause)))
           (loop nothing)) ·)
-   `(S-code-s (L0set) (L1set paus) (L0set)))
+   `(S-code-s (L0set) (L1set 1) (L0set)))
 
   (check-equal?
    `(Cannot  (shared s2 := (+ s) pause)
@@ -287,10 +287,10 @@
 
   (check-equal?
    `(Can_K (trap (exit 0)) ·)
-   (term (L1set nothin)))
+   (term (L1set 0)))
   (check-equal?
    `(Can_K (trap (par (exit 0) pause)) ·)
-   `(L1set nothin))
+   `(L1set 0))
   (check-equal?
    `(Can_shared (ρ ((shar s 0 old) ·) GO (<= s (+ 0))) ·)
    `())
@@ -299,24 +299,24 @@
    `())
 
   (check-equal? (term (Can-θ (ρ · GO (emit S)) ·))
-                (term (S-code-s (L1set S) (L1set nothin) (L0set))))
+                (term (S-code-s (L1set S) (L1set 0) (L0set))))
   (check-equal? (term (Can-θ (ρ · WAIT (emit S)) ·))
-                (term (S-code-s (L1set S) (L1set nothin) (L0set))))
+                (term (S-code-s (L1set S) (L1set 0) (L0set))))
 
   (check-equal? (term (Can-θ (ρ ({sig S1 unknown} ·) GO (present S1 nothing (emit S))) ·))
-                (term (S-code-s (L1set S) (L1set nothin) (L0set))))
+                (term (S-code-s (L1set S) (L1set 0) (L0set))))
   (check-equal? (term (Can-θ (ρ ({sig S1 unknown} ·) WAIT (present S1 nothing (emit S))) ·))
-                (term (S-code-s (L1set S) (L1set nothin) (L0set))))
+                (term (S-code-s (L1set S) (L1set 0) (L0set))))
 
   (check-equal? (term (Can-θ (ρ ({sig S1 unknown} ·) GO (present S1 (emit S) nothing)) ·))
-                (term (S-code-s (L0set) (L1set nothin) (L0set))))
+                (term (S-code-s (L0set) (L1set 0) (L0set))))
   (check-equal? (term (Can-θ (ρ ({sig S1 unknown} ·) WAIT (present S1 (emit S) nothing)) ·))
-                (term (S-code-s (L0set) (L1set nothin) (L0set))))
+                (term (S-code-s (L0set) (L1set 0) (L0set))))
 
   (check-equal? (term (Can-θ (ρ ({sig S1 unknown} ·) GO (present S1 (emit S1) (emit S))) ·))
-                (term (S-code-s (L2set S1 S) (L2set nothin nothin) (L0set))))
+                (term (S-code-s (L2set S1 S) (L2set 0 0) (L0set))))
   (check-equal? (term (Can-θ (ρ ({sig S1 unknown} ·) WAIT (present S1 (emit S1) (emit S))) ·))
-                (term (S-code-s (L2set S1 S) (L2set nothin nothin) (L0set))))
+                (term (S-code-s (L2set S1 S) (L2set 0 0) (L0set))))
   (check-equal?
    (term (Can (loop^stop nothing (seq (emit S) (seq (<= s (+ 1)) pause))) ·))
-   (term (S-code-s (L0set) (L1set nothin) (L0set)))))
+   (term (S-code-s (L0set) (L1set 0) (L0set)))))

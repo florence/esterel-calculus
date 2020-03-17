@@ -173,12 +173,7 @@ Various lists-as-sets utility functions
        (Lmax* L-κ_r L-κ))])
 (define-metafunction esterel-eval
   κmax : κ κ -> κ
-  [(κmax nothin κ) κ]
-  [(κmax paus nothin) paus]
-  [(κmax paus κ) κ]
-  [(κmax n_1 n_2)
-   ,(max `n_1 `n_2)]
-  [(κmax n κ) n])
+  [(κmax n_1 n_2) ,(max (term n_1) (term n_2))])
 
 (define (Lmap f L)
   (let loop ([L L])
@@ -201,16 +196,16 @@ Various lists-as-sets utility functions
 
 (module+ test
   (check-equal? (term (Lmax* () ())) (term ()))
-  (check-equal? (term (Lmax* (L1set paus) (L2set 0 1)))
-                (term (L2set 0 1)))
-  (check-equal?  (list->set (term (Lflatten (Lmax* (L2set paus 0) (L2set 0 1)))))
-                (set (term 0) (term 1)))
-  (check-equal? (list->set (term (Lflatten (Lmax* (L2set 0 1) (L2set paus 0)))))
-                (set (term 0) (term 1)))
-  (check-equal? (list->set (term (Lflatten (Lmax* (L2set 2 nothin) (L2set 0 1)))))
-                (set (term 0) (term 1) (term 2)))
-  (check-equal?  (list->set (term (Lflatten (Lmax* (L2set 0 1) (L2set 2 nothin)))))
-                (set (term 0) (term 1) (term 2))))
+  (check-equal? (term (Lmax* (L1set 1) (L2set 2 3)))
+                (term (L2set 2 3)))
+  (check-equal?  (list->set (term (Lflatten (Lmax* (L2set 1 2) (L2set 2 3)))))
+                (set (term 2) (term 3)))
+  (check-equal? (list->set (term (Lflatten (Lmax* (L2set 2 3) (L2set 1 2)))))
+                (set (term 2) (term 3)))
+  (check-equal? (list->set (term (Lflatten (Lmax* (L2set 4 0) (L2set 2 3)))))
+                (set (term 2) (term 3) (term 4)))
+  (check-equal?  (list->set (term (Lflatten (Lmax* (L2set 2 3) (L2set 4 0)))))
+                (set (term 2) (term 3) (term 4))))
 
 (define-metafunction esterel-eval
   Lharp... : L-κ -> L-κ

@@ -53,10 +53,10 @@ that represent various ways a program fragment may be in a completed state:
    (parameterize ([render-language-nts '(done paused stopped)])
      (render-language esterel-eval)))]
 
-Terms which are @es[stopped] can no longer evaluate and will do
-nothing further in future instants. Paused terms @es[paused] are
+Stopped terms (@es[stopped]) can no longer evaluate and will do
+nothing further in future instants. Paused terms (@es[paused]) are
 terms which will not reduce further this instant, but will evaluate further in
-future instants. Terms which are @es[done] are stopped or paused.
+future instants. Done terms (@es[done]) are stopped or paused.
 
 The first two rules deal with sequencing:@(linebreak)
 @[render-specific-rules '(seq-done seq-exit)]@(linebreak)
@@ -87,7 +87,7 @@ It should be noted that all of the @es[par] administrative reductions only take 
 both branches have completed. This is because @es[par]s act a join points, synchronizing the results
 of both branches, and giving us determinism.
 
-Next us is @es[suspend]:@(linebreak)
+Next up is @es[suspend]:@(linebreak)
 @[render-specific-rules '(suspend)]@(linebreak)
 Which just states that the suspension of a @es[stopped] term is equivalent to just that
 term. Because this @es[⇀] only works within one instant, and @es[suspend]
@@ -97,8 +97,19 @@ translation function @es[next-instant].
 
 The final administrative rules handle loops:@(linebreak)
 @[render-specific-rules '(loop loop^stop-exit)]@(linebreak)
-TODO
 
+
+These rules give us the first extension to Kernel Esterel I
+use: @es[loop^stop]. The first rule, @rule["loop"] expands a
+@es[loop] into a @es[loop^stop]. This @es[(loop^stop p q)]
+is essentially equivalent to @es[(seq p (loop p))]---that
+is, it represent one unrolling of a loop---however, unlike
+@es[seq], the second part is inaccessible: if @es[p] reduces
+to @es[nothing], the loop cannot restart, instead the
+program gets stuck. This is to handle instantaneous loops,
+which are an error in Esterel. The second loop rule,
+@rule["loop^stop-exit"], is analagous to @rule["seq-exit"],
+aborting the loop if it @es[exit]s.
 
 @subsection{Signal rules}
 
@@ -255,8 +266,11 @@ With this we may then write the rule:@(linebreak)
 @[render-specific-rules '(is-absent)]@(linebreak)
 
 @subsection{State rules}
+
 @[render-specific-rules '(shared set-old set-new)]@(linebreak)
-@[render-specific-rules '(var set-var if-true if-false)]@(linebreak)
+@[render-specific-rules '(var set-var)]@(linebreak)
+@[render-specific-rules '(if-true if-false)]@(linebreak)
+ 
 
 
 @section{Auxiliary Judgments}

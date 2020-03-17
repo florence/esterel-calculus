@@ -314,7 +314,7 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
 @proof[#:label "paused-is-k1"
        #:title "Can K on paused is {1}"
        #:statement
-       @list{For all @es[paused], @es[θ], @es[(=/checked (->K (Can paused θ)) (L1set paus))]}]{
+       @list{For all @es[paused], @es[θ], @es[(=/checked (->K (Can paused θ)) (L1set 1))]}]{
  @cases[#:of paused_o
         #:language esterel/typeset
         #:induction]{
@@ -323,16 +323,16 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
    By the definition of @es[Can],
    @es[(=/checked (->K (Can (suspend p S) θ)) (->K (Can p θ)))], thus this follows by induction.}
   @#:case[(seq paused q)]{
-   By induction we know that @es[(=/checked (->K (Can paused θ)) (L1set paus))].
+   By induction we know that @es[(=/checked (->K (Can paused θ)) (L1set 1))].
    By the definition of @es[Can], this means @es[(=/checked (->K (Can (seq paused q) θ)) (->K (Can paused θ)))].
-   Therefore, @es[(=/checked (->K (Can (seq paused q) θ)) (L1set paus))]. }
+   Therefore, @es[(=/checked (->K (Can (seq paused q) θ)) (L1set 1))]. }
   @#:case[(par paused_1 paused_2)]{By induction
-   @es[(=/checked (->K (Can paused_1 θ)) (->K (Can paused_2 θ)) (L1set paus))].
+   @es[(=/checked (->K (Can paused_1 θ)) (->K (Can paused_2 θ)) (L1set 1))].
    Thus, by the definition of @es[Can],
-   @es[(=/checked (->K (Can (par paused_1 paused_2) θ)) (L1set paus))].}
+   @es[(=/checked (->K (Can (par paused_1 paused_2) θ)) (L1set 1))].}
   @#:case[(trap paused)]{
-  By induction @es[(=/checked (->K (Can paused θ)) (L1set paus))].
+  By induction @es[(=/checked (->K (Can paused θ)) (L1set 1))].
   By the definition of @es[↓] and @es[Can],@(linebreak)
-   @es[(=/checked (->K (Can (trap paused) θ)) (Lharp... (->K (Can paused θ))) (Lharp... (L1set paus)) (L1set paus))].} 
+   @es[(=/checked (->K (Can (trap paused) θ)) (Lharp... (->K (Can paused θ))) (Lharp... (L1set 1)) (L1set 1))].} 
   @#:case[(loop^stop paused q) #:ignore]
 }}                    

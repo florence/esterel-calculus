@@ -205,14 +205,14 @@
           (trap E-pure)
           hole)
 
-  (κ ::= nothin paus n)
+  (κ ::= n)
 
   ;; lists as sets
   (L ::= () (any L))
   (L-S ::= () (S L-S))  (𝕊 ::= L-S L-s)
   (L-κ ::= () (κ L-κ))
   (L-s ::= () (s L-s))
-  (K ::= L-n) ;; codes are lists of nats
+  (K ::= L-κ) ;; codes are lists of nats
   ;; list as maps
   ;; no duplicate keys are allowed
   (M ::= () ((variable L) M))
@@ -259,10 +259,10 @@
 
 (define-metafunction esterel-eval
   max-mf : κ κ -> κ
-  [(max-mf nothin κ) κ]
-  [(max-mf κ nothin) κ]
-  [(max-mf paus κ) κ]
-  [(max-mf κ paus) κ]
+  [(max-mf 0 κ) κ]
+  [(max-mf κ 0) κ]
+  [(max-mf 1 κ) κ]
+  [(max-mf κ 1) κ]
   [(max-mf n_1 n_2) ,(max `n_1 `n_2)])
 
 (define-metafunction esterel-eval
@@ -347,16 +347,18 @@
 
 (define-metafunction esterel-eval
   ↓ : κ -> κ
-  [(↓ nothin) nothin]
-  [(↓ paus) paus]
-  [(↓ 0) nothin]
+  [(↓ 0) 0]
+  [(↓ 1) 1]
+  [(↓ 2) 0]
   [(↓ n) (sub1 n)
-         (side-condition (term (greater-than-0 n)))])
+         (side-condition (term (greater-than-2 n)))])
 
 (define-metafunction esterel-eval
-  greater-than-0 : n -> boolean
-  [(greater-than-0 0) #f]
-  [(greater-than-0 n) #t])
+  greater-than-2 : n -> boolean
+  [(greater-than-2 0) #f]
+  [(greater-than-2 1) #f]
+  [(greater-than-2 2) #f]
+  [(greater-than-2 n) #t])
 
 (define-judgment-form esterel-eval
   #:mode (∉ I I)

@@ -2,7 +2,6 @@
 (require redex/reduction-semantics
          esterel-calculus/redex/model/shared
          esterel-calculus/redex/model/lset
-         esterel-calculus/redex/model/lmap
          esterel-calculus/redex/model/potential-function
          racket/random
          syntax/parse/define)

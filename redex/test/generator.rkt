@@ -338,33 +338,33 @@
    -----
    (loop-safe (ρ θ A p))]
   [(loop-safe p)
-   (L¬∈ nothin (K p))
+   (L¬∈ 0 (K p))
    -----
    (loop-safe (loop p))]
   [(loop-safe p)
    (loop-safe q)
-   (L¬∈ nothin (K p))
-   (L¬∈ nothin (K q))
+   (L¬∈ 0 (K p))
+   (L¬∈ 0 (K q))
    -----
    (loop-safe (loop^stop p q))])
   
 
 (define-metafunction esterel-check
   K : p-pure-ext -> L ;; of κ
-  [(K nothing) (L1set nothin)]
-  [(K pause) (L1set paus)]
-  [(K (exit n)) (L1set n)]
-  [(K (emit S)) (L1set nothin)]
+  [(K nothing) (L1set 0)]
+  [(K pause) (L1set 1) ]
+  [(K (exit n)) (L1set (Σ n 2))]
+  [(K (emit S)) (L1set 0)]
   [(K (suspend p S)) (K p)]
   [(K (present S p q)) (LU (K p) (K q))]
   [(K (seq p q))
-   (LU (Lremove (K p) nothin) (K q))
-   (judgment-holds (L∈ nothin (K p)))]
+   (LU (Lremove (K p) 0) (K q))
+   (judgment-holds (L∈ 0 (K p)))]
   [(K (seq p q)) (K p)]
-  [(K (loop p)) (Lremove (K p) nothin)]
+  [(K (loop p)) (Lremove (K p) 0)]
   [(K (loop^stop p q))
-   (LU (Lremove (K p) nothin)
-       (Lremove (K q) nothin))]
+   (LU (Lremove (K p) 0)
+       (Lremove (K q) 0))]
   [(K (par p q)) (Lmax* (K p) (K q))]
   [(K (trap p)) (Lharp... (K p))]
   [(K (signal S p)) (K p)]
