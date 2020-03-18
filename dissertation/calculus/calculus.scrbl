@@ -3,9 +3,12 @@
 @(require "../lib/redex-rewrite.rkt"
           "../lib/util.rkt"
           "../lib/proofs.rkt"
+          "../lib/proof-extras.rkt"
           "../lib/misc-figures.rkt"
           "../lib/rule-figures.rkt"
+          "../lib/jf-figures.rkt"
           "../lib/cite.rkt"
+          "../notations.scrbl"
           esterel-calculus/redex/model/shared
           scriblib/figure
           redex/pict
@@ -95,13 +98,15 @@ has different behaviors on initial versus future instants, this is the only rule
 that touches @es[suspend]. The rest of @es[suspend]'s behavior will be handled by the inter-instant
 translation function @es[next-instant].
 
-The final administrative rules handle loops:@(linebreak)
+
+
+The final administrative rules handle loops. However to handle loops
+we must add a new form to Kernel Esterel:
+@centered[lang/loop]
+This new form, @es[loop^stop] represents a loop which has been unrolled once.
+To understand its usage, the loop rules are:@(linebreak)
 @[render-specific-rules '(loop loop^stop-exit)]@(linebreak)
-
-TODO grammar extention
-
-These rules give us the first extension to Kernel Esterel I
-use: @es[loop^stop]. The first rule, @rule["loop"] expands a
+The first rule, @rule["loop"] expands a
 @es[loop] into a @es[loop^stop]. This @es[(loop^stop p q)]
 is essentially equivalent to @es[(seq p (loop p))]---that
 is, it represent one unrolling of a loop---however, unlike
@@ -259,7 +264,10 @@ metafunctions in @figure-ref["Can"] and @figure-ref["Can-rho"].
         "Can"
         Can-pict]
 
-@(define S (with-paper-rewriters (text "S" (default-style))))
+@[begin
+ (define S (with-paper-rewriters (text "S" (default-style))))
+ (define K (with-paper-rewriters (text "K" (default-style))))
+ (define sh (with-paper-rewriters (text "sh" (default-style))))]
 
 The first metafunction, @es[Can], computes what might happen
 during the execution of a program, given an environment of
@@ -267,19 +275,19 @@ signals. The metafunction @es[Can] returns three sets.
 The first set
 @S is a set
 of the signals that might be emitted during execution. The
-second set @es[K] is a set of return codes (@es[κ]), which
+second set @K is a set of return codes (@es[κ]), which
 describe in what ways the in which the program might
 terminate. The code @es[0] means the program may reduce to
 @es[nothing]. The code @es[1] means the program might pause
 (reduce to @es[paused]). A code of @es[(= κ 2)] or greater
 means the program might reduce to @es[(exit (- κ 2))]. The
-final set @es[sh] is a set of shared variables which may be
+final set @sh is a set of shared variables which may be
 written to during execution of the program.
 
 I will note accessing only one of these sets will a
 superscript: @es/unchecked[(->S Can)] for the @S set,
-@es/unchecked[(->K Can)] for the @es[K] set, and
-@es/unchecked[(->sh Can)] for the @es[sh] set.
+@es/unchecked[(->K Can)] for the @K set, and
+@es/unchecked[(->sh Can)] for the @sh set.
 
 Note that @es[Can] takes in an map @es[θ] not a
 restricted map @es[θr]. This is because @es[Can] will record
@@ -294,10 +302,10 @@ of @cite/title[compiling-esterel].
 
 the first three clauses of @es[Can] handle the return codes
 for irreducible terms: @es[nothing] gets @es[0], etc. The @S
-and @es[sh] sets are empty for these, as they can neither emit signals
+and @sh sets are empty for these, as they can neither emit signals
 nor write to shared variables.
 
-The next clause, for @es[emit], puts @es[S] in the @S set, and @es[0] in the @es[K] set,
+The next clause, for @es[emit], puts @es[S] in the @S set, and @es[0] in the @K set,
 as @es[(emit S)] can reduce to  only @es[nothing], and emit only @es[S].
 
 The next three clauses handles @es[if]. When @es[θ] knows that @es[S] is @es[present],
@@ -325,14 +333,14 @@ The next two clauses handle loops, which just behave as their bodies.
 In the case of @es[loop^stop] the right hand side, which is the loops origional body,
 is not analyzed as it an never be reached.
 
-Next is @es[par]. The @S and @es[sh] sets are just the union
+Next is @es[par]. The @S and @sh sets are just the union
 of the sets from the recursive calls. The return codes are
 give by the set of pairwise @es[max] of each possible return
 code of the subterm. This mimics exactly what the
 @rule["par-nothing"], @rule["par-1exit"], and
 @es["par-2exit"] rules do.
 
-The next clause handles @es[trap]. Again the @S and @es[sh] sets
+The next clause handles @es[trap]. Again the @S and @sh sets
 are the same as the sets for the subterm. The return codes
 are given by the metafunction @es[↓], which does for return
 codes what @es[harp] does for terms.
@@ -359,7 +367,7 @@ Esterel does not make control flow decisions based on the
 writability of shared variable, there is not need for the
 extra step. Writing to a shared variable behaves akin to
 emitting a signal: the return code is @es[0] and the variable
-is added to the @es[sh] set.
+is added to the @sh set.
 
 The last three forms handle sequential variables. No special
 analysis is done for these forms as Esterel does not think
@@ -390,24 +398,116 @@ be emitted by the program. If the signals in @es[θr] were
 removed from the result of @es[Can-θ] this rule would always
 fire.
 
-@subsection{State rules}
+@subsection{Host language rules}
+
+TODO extend θ to handle sh and x
 
 @[render-specific-rules '(shared set-old set-new)]@(linebreak)
+
+
+
 @[render-specific-rules '(var set-var)]@(linebreak)
 @[render-specific-rules '(if-true if-false)]@(linebreak)
- 
 
+@section{The full calculus}
+
+@section[#:tag "calc:eql"]{The evaluator}
+
+The evaluator defined by the calculus is a partial function which
+evaluates one instant of execution.
+Its signature is similar to that of the circuit evaluator @es[esterel^circuit]:
+@centered[(with-paper-rewriters (render-metafunction eval^esterel #:only-contract? #t))]
+It takes a 
+a set of output signals and a program, and gives back a pair
+containing a map with the status of each of those signals
+and a Boolean which tells us if the program is constructive
+or not. The evaluator itself is has two clauses:
+@centered[(with-paper-rewriters (render-metafunction eval^esterel))]
+
+The first clause handling constructive programs, and the second clause handling
+non-constructive programs. If a program is @es[≡] to another program which is done (@es[done]),
+and that program has an environment which is @italic{complete} with respect to that program,
+them, the program is constructive. The @es[complete-with-respect-to] relation hold if
+every signal is either set to @es[1], or is set to @es[⊥] and that signal is not in the
+result of @es/unchecked[(->S Can-θ)]:
+@extract-definition["complete-wrt"]
+This completeness winds up meaning that every signal in the environment has a definite value.
+From there the value of the signals is extracted using the metafunction @es[restrict],
+which gives back a map like @es[θr_2], but with every signal that can be set to @es[0] set to @es[0],
+and with the domain restricted to @es[O]:
+@extract-definition["restrict"]
+
+The second clause of @es[eval^esterel] recognizes programs
+which are non-constructive. This is accomplished with a
+special judgment, @es[(blocked-pure θr A E p)], which can be
+read as ``In the program context consisting of the state
+@es[θr], the control variable @es[A] and the evaluation
+context @es[E] the program @es[p] is blocked on some signal
+or shared variable''. In this case the program is
+non-constructive, and its signal statuses are given by the
+same @es[restrict] metafunction. The resulting signal statuses
+may, however, contain @es[⊥] in this case.
+
+@subsection{The values of shared variables}
+
+@subsection{The blocked judgment}
+
+The @es[(blocked-pure θr A E p)] judgment traverses the the
+program and checks that at the leaf of each evaluation
+context there is either a @es[if] which is blocked on a
+signal, a host language expression which is blocked on a
+shared variable, or an @es[emit] or @es[<=] which cannot
+execute because of the current control variable.
+
+This is clearest to see in the cases which handle Pure Esterel
+programs, seen in @figure-ref["calc:eval:blocked:pure"]. The first
+case, @rule["if"], checks that, for a conditional, the status
+of its signal is @es[unknown], and that that signal is not in the result
+of @es/unchecked[(->S Can-θ)] for the whole program. These conditions mean that
+the @rule["is-absent"] cannot fire. The second rule @rule["emit-wait"]
+says that the program is blocked on an @es[emit] if the control
+variable is telling us to @es[WAIT]. Note that both of these
+clauses assume that @es[S] is in @es[θr]. We will return to this in
+@secref["calc:eval:stuck"].
+
+The remainder of the judgment recurs through the term following the
+grammar of evaluation contexts, copying each layer of the context
+into the evaluation context on the left of the judgment, so that
+the overall program can be reconstructed in the base cases.
+
+The only interesting part here is the handling of @es[par]
+which requires three separate clause. Together these clauses
+ensure that at least one branch of the @es[par] is blocked,
+and that the other branch is either blocked, or is done
+evaluating.
+
+@figure["calc:eval:blocked:pure" "The blocked judgment on pure terms" 
+         pure-blocked-pict]
+
+The handling of forms that refer to the host language, seen
+in @figure-ref["calc:eval:blocked:host"]. They are all base
+cases, an are either blocked because a write to a shared
+variable may not be performed due to the control variable
+(@rule["set-shared-wait"]), or because a host language
+expression is blocked. The blocked judgment for a host
+language expression (@figure-ref["calc:eval:blocked:e"])
+says that the expression may not be evaluated if at least
+one of the shared variables that the expression references
+might still be written to by the full program.
+
+@figure["calc:eval:blocked:host" "The blocked judgment on terms using the host language" 
+         blocked-pict]
+@figure["calc:eval:blocked:e" "The blocked judgment host language expressions" 
+         blocked-e-pict]
+
+@subsection[#:tag "calc:eval:stuck"]{Open programs and instantaneous loops}
+TODO Loops
+
+@subsection{Future Instants}
 
 @section{Auxiliary Judgments}
 
-@subsection[#:tag "calc:eql"]{The equality relation}
+@subsection{Binding & Schizophrenia}
 
-@subsection[#:tag "binding"]{Correct Binding}
-
-@subsection{Schizophrenia}
-
-@section{Eval & Future Instants}
-
-@section{Existing Semantics}
 
 

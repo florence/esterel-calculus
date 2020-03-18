@@ -13,7 +13,8 @@
          redex/reduction-semantics
          redex/pict
          (only-in scribble/base
-                  linebreak as-index index index*)
+                  linebreak as-index index index*
+                  italic centered)
          (only-in plot/utils treeof)
          racket/runtime-path
          (only-in scribble/base bold italic)
@@ -279,16 +280,16 @@
      (list
       (list noindent (bold "Definition: "))
       (index-as idx (flatten notation))
-      (list (linebreak) nopagebreak noindent)
+      (list nopagebreak noindent)
       (if read-as
           (append
-           (list nobreak nopagebreak)
+           (list (linebreak) nobreak nopagebreak)
            (list (italic "read as: "))
            (list nobreak nopagebreak)
            (flatten read-as)
-           (list (linebreak) nopagebreak noindent))
+           (list nopagebreak noindent))
           empty)
-      (list def)
+      [centered [italic def]]
       pagebreak0)))
   (when key (hash-set! def-table key x))
   x)
@@ -297,7 +298,7 @@
   (cond
     [(hash-ref def-table str #f)
      =>
-     (lambda (x) (nested-flow (style #f empty) (decode-flow x)))]
+     (curry cons (linebreak))]
     [else
      (error 'extract-definition "no such definition ~a. Did you remember to load the notations first?" str)]))
   
@@ -471,16 +472,21 @@
      (cond
        [(and (ormap symbol? (flatten (syntax->datum #'pats)))
              (not (empty? (flatten (syntax->datum #'comps)))))
+        (define t
+          (syntax-property
+           (quasisyntax/loc this-syntax
+             (redex-check
+              lang
+              pats
+              #,(if (do-judgment? #'trm)
+                    #`(void (judgment-holds trm))
+                    #`(void (term trm)))
+              #:attempts at
+              #:print? #f))
+           'original-for-check-syntax
+           #t))
         #`(lift-to-compile-time-for-effect!
-           #,(quasisyntax/loc this-syntax
-               (redex-check
-                lang
-                pats
-                #,(if (do-judgment? #'trm)
-                      #`(void (judgment-holds trm))
-                      #`(void (term trm)))
-                #:attempts at
-                #:print? #f)))]
+           #,t)]
        [else #'(void)])]))
 
 (define-syntax lift-to-compile-time-for-effect!

@@ -102,8 +102,7 @@
 (define-judgment-form esterel/typeset
   #:mode     (closed I)
   #:contract (closed p-pure+GO)
-  [(where (ρ θr GO q-pure) p-pure+GO)
-   (side-condition (= (FV p-pure+GO) (L0set)))
+  [(where (ρ θr GO q-pure) p-pure+GO) (side-condition (= (FV p-pure+GO) (L0set)))
    -----
    (closed p-pure+GO)])
 

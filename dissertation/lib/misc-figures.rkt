@@ -103,13 +103,15 @@
 (define-extended-language esterel+loop esterel/typeset
   (p ::= .... (loop^stop p q)))
 (define lang/loop
-  (render-language esterel+loop #:nts '(p q)))
+  (with-paper-rewriters
+   (render-language esterel+loop #:nts '(p q))))
 
 (define-extended-language esterel+env esterel/typeset
   (p q ::= .... (ρ θr A p))
   (status ::= present absent unknown)
   (statusr ::= present unknown)
   (A ::= GO WAIT))
+
 (define lang/env
   (with-paper-rewriters
    (define lhs-spacer

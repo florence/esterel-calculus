@@ -112,6 +112,7 @@
 @definition[
  #:notation @es[(restrict θ O p)]
  #:index @es[restrict]
+ #:tag "restrict"
  #:read-as @list{Restrict @es[θ] to signals in @es[O], given their values
   as determined by the program @es[p].}]{
  @(let ()
@@ -142,8 +143,9 @@
 }
 
 @definition[#:notation @es[(complete-with-respect-to θr done)]
-            #:index @es[complete-with-respect-to]]{
- For all @es[(L∈ S (Ldom θr))],
+            #:index @es[complete-with-respect-to]
+            #:tag "complete-wrt"]{
+ For all @es[(L∈ S (Ldom θr))], either
  @es[(= (θ-get-S θr S) present)] or
  @es[(= (θ-get-S θr S) unknown)]
  and @es[(L¬∈ S (->S (Can-θ (ρ θr GO done) ·)))].

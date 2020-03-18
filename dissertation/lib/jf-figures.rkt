@@ -18,7 +18,9 @@
          blocked-pict
          pure-blocked-pict
          blocked-e-pict
-         all-bot-rec-pict)
+         all-bot-rec-pict
+         blocked-pict
+         blocked-e-pict)
          
 
 (define (with-layout layout render-the-judgment-form
@@ -129,12 +131,9 @@
 
 
 (define blocked-layout
-  '(("var" "set-seq")
-    ("emit-wait" "set-shared-wait")
-    ("if"  "suspend" "trap")
-    ("par-both" "parl" "parr")
-    ("seq" "loop^stop")
-    ("shared" "set-shared")))
+  '(("set-shared-wait")
+    ("shared" "set-shared")
+    ("var" "set-seq")))
 
 (define pure-blocked-layout
   '(("if" "emit-wait")

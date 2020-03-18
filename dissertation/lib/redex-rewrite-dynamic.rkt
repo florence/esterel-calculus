@@ -623,10 +623,11 @@
     ['blocked-e
      (λ (lws)
        (list ""
-             (list-ref lws 2)
-             (text " ⊢ " (default-style) (default-font-size))
-             (list-ref lws 3)
-             " blocked"))]
+             (list-ref lws 2) "; "
+             (list-ref lws 3) "; "
+             (list-ref lws 4)
+             (render-op "⊢_e")
+             (list-ref lws 5)))]
     ['good
      (λ (lws)
        (list ""

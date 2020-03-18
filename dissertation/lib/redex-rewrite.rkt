@@ -35,8 +35,7 @@
 (provide es es/unchecked esblock define/esblock
          with-paper-rewriters
          render-op
-         (contract-out
-          [rule (-> is-rule-label? pict?)])
+         rule
          current-reduction-arrow
          indent
          words bords ;; bords = bold words
@@ -73,7 +72,11 @@
 
 (define (rule name)
   (define (t s) (text s Linux-Liberterine-name))
-  (define (b s) (text s (cons 'bold Linux-Liberterine-name)))
+  (define (b s)
+    (text s
+          (if (is-rule-label? s)
+              (cons 'bold Linux-Liberterine-name)
+              Linux-Liberterine-name)))
   (hbl-append (t "[") (b (~a name)) (t "]")))
 
 (define is-rule-label?

@@ -204,60 +204,60 @@
 
 (define-judgment-form esterel-standard
   #:mode     (blocked-pure I I I I)
-  #:contract (blocked-pure θ A E p)
-  [(θ-ref-S θ S unknown) (L∈ S (->S (Can-θ (ρ θ A (in-hole E (present S p q))) ·)))
+  #:contract (blocked-pure θr A E p)
+  [(θ-ref-S θr S unknown) (L∈ S (->S (Can-θ (ρ θr A (in-hole E (present S p q))) ·)))
    ---------- "if"
-   (blocked-pure θ A E (present S p q))]
+   (blocked-pure θr A E (present S p q))]
 
-  [(blocked-pure θ A (in-hole E (par hole q)) p) (blocked-pure θ A (in-hole E (par p hole)) q)
+  [(blocked-pure θr A (in-hole E (par hole q)) p) (blocked-pure θr A (in-hole E (par p hole)) q)
    ---------- "par-both"
-   (blocked-pure θ A E (par p q))]
+   (blocked-pure θr A E (par p q))]
 
-  [(blocked-pure θ A (in-hole E (par hole done)) p)
+  [(blocked-pure θr A (in-hole E (par hole done)) p)
    ---------- "parl"
-   (blocked-pure θ A E (par p done))]
+   (blocked-pure θr A E (par p done))]
 
-  [(blocked-pure θ A (in-hole E (par done hole)) q)
+  [(blocked-pure θr A (in-hole E (par done hole)) q)
    ---------- "parr"
-   (blocked-pure θ A E (par done q))]
+   (blocked-pure θr A E (par done q))]
 
-  [(blocked-pure θ A (in-hole E (seq hole q)) p)
+  [(blocked-pure θr A (in-hole E (seq hole q)) p)
    --------- "seq"
-   (blocked-pure θ A E (seq p q))]
+   (blocked-pure θr A E (seq p q))]
 
-  [(blocked-pure θ A (in-hole E (loop^stop hole q)) p)
+  [(blocked-pure θr A (in-hole E (loop^stop hole q)) p)
    --------- "loop^stop"
-   (blocked-pure θ A E (loop^stop p q))]
+   (blocked-pure θr A E (loop^stop p q))]
 
-  [(blocked-pure θ A (in-hole E (suspend hole S)) p)
+  [(blocked-pure θr A (in-hole E (suspend hole S)) p)
    --------- "suspend"
-   (blocked-pure θ A E (suspend p S))]
+   (blocked-pure θr A E (suspend p S))]
 
-  [(blocked-pure θ A (in-hole E (trap hole)) p)
+  [(blocked-pure θr A (in-hole E (trap hole)) p)
    --------- "trap"
-   (blocked-pure θ A E (trap p))]
+   (blocked-pure θr A E (trap p))]
   [-------- "emit-wait"
-   (blocked-pure θ WAIT E (emit S))])
+   (blocked-pure θr WAIT E (emit S))])
 
 
 (define-extended-judgment-form esterel-standard blocked-pure
   #:mode     (blocked I I I I)
-  #:contract (blocked θ A E p)
-  [(blocked-e θ A (in-hole E (shared s := e p)) e)
+  #:contract (blocked θr A E p)
+  [(blocked-e θr A (in-hole E (shared s := e p)) e)
    -------- "shared"
-   (blocked θ A E (shared s := e p))]
-  [(blocked-e θ A (in-hole E (<= s e)) e)
+   (blocked θr A E (shared s := e p))]
+  [(blocked-e θr A (in-hole E (<= s e)) e)
    -------- "set-shared"
-   (blocked θ A E (<= s e))]
+   (blocked θr A E (<= s e))]
   [-------- "set-shared-wait"
-   (blocked θ WAIT E (<= s e))]
-  [(blocked-e θ A (in-hole E (var x := e p)) e)
+   (blocked θr WAIT E (<= s e))]
+  [(blocked-e θr A (in-hole E (var x := e p)) e)
    -------- "var"
-   (blocked θ A E (var x := e p))]
+   (blocked θr A E (var x := e p))]
 
-  [(blocked-e θ A (in-hole E (:= x e)) e)
+  [(blocked-e θr A (in-hole E (:= x e)) e)
    -------- "set-seq"
-   (blocked θ A E (:= x e))])
+   (blocked θr A E (:= x e))])
 
 (module+ test
   (check-false
@@ -265,11 +265,10 @@
 
 (define-judgment-form esterel-eval
   #:mode     (blocked-e I I I I)
-  #:contract (blocked-e θ A p e)
-  [(L∈-OI s (LFV/e e))
-   (L∈ s (->sh (Can-θ (ρ θ A p) ·)))
+  #:contract (blocked-e θr A p e)
+  [(L∈-OI s (LFV/e e)) (L∈ s (->sh (Can-θ (ρ θr A p) ·)))
    ------------ "not ready"
-   (blocked-e θ A p e)])
+   (blocked-e θr A p e)])
 
 (module+ test
   (check-false
