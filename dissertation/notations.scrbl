@@ -152,6 +152,16 @@
 }
 
 
+@section[#:tag "sec:defaux" "Auxiliary"]
+
+@definition[
+ #:notation @es[(next-instant complete*)]
+ #:index @es[next-instant]
+ #:tag "next-instant"
+ ]{
+ @with-paper-rewriters[@render-metafunction[next-instant #:contract? #t]]
+}
+
 @definition[
  #:notation @list{@es[(count p)]}
  #:index @es[count]
@@ -163,8 +173,6 @@
 
 }
 
-
-@section[#:tag "sec:defaux" "Auxiliary"]
 
 @definition[#:notation @es[(closed p-pure+GO)]
             #:tag "closed"

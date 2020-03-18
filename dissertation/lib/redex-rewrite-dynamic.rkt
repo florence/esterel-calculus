@@ -635,7 +635,10 @@
              (text " ⊢ " (default-style) (default-font-size))
              (list-ref lws 3)
              " det"))]
-    ['next-instant (λ (lws) (list (mf-t "Ɛ") (list-ref lws 2) ""))]
+    ['next-instant (λ (lws) (list (mf-t "Ɛ")
+                                  ((white-square-bracket) #t)
+                                  (list-ref lws 2)
+                                  ((white-square-bracket) #f)))]
     ['reset-θ (λ (lws) (list "⌊" (list-ref lws 2) "⌋"))]
     ['S-code-s
      (λ (lws)
@@ -1126,6 +1129,7 @@
      ;; hack to have two ρ forms
      ['ρ1 (λ () (text "ρ" (non-terminal-style) (default-font-size)))]
      
+     ['reset-θ (λ () (def-t "⌊·⌋"))]
 
      ;; D is used as a convention to mean a deterministic `E` but
      ;; we forgo this for the typesetting
@@ -1192,6 +1196,7 @@
      
      ['done (λ () (render-op/instructions (nt-t "p") `((superscript D))))]
      ['stopped (λ () (render-op/instructions (nt-t "p") `((superscript S))))]
+     ['complete* (λ () (render-op/instructions (nt-t "p") `((superscript C))))]
      ['paused
       (lambda () (text "p̂" (cons 'no-combine (non-terminal-style)) (default-font-size)))]
 

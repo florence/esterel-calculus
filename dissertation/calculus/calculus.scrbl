@@ -33,10 +33,7 @@
        #:tag "sec:calculus"]{A Calculus for Esterel}
 
 
-@section{Kernel Esterel}
-
-@figure["pure-kernel" "Pure fragment of Kernel Esterel"
-        lang/pure]
+TODO introduction
 
 @section{The Calculus}
 
@@ -505,9 +502,44 @@ TODO Loops
 
 @subsection{Future Instants}
 
-@section{Auxiliary Judgments}
+While both the calculus and the evaluator only handle single
+instants, we can still describe multiple instants. This is
+done via the inter-instant transition metafunction
+@es[next-instant]. This relies on the notion of a complete
+term:
+@centered[[with-paper-rewriters (render-language esterel-eval #:nts '(complete*))]]
+which is a term which is either constructive or @es[done].
+Such a term is either a program or a fragment of a program
+which has finished evaluating for the current instant. The
+@es[next-instant] metafunction turns such a term into a term
+which will begin execution at the start of the next instant.
+The function is defined in @figure-ref["calc:eval:next"].
 
-@subsection{Binding & Schizophrenia}
+@figure["calc:eval:next" "The inter-instant transition function" @extract-definition["next-instant"]]
+
+This function walks down the structure of the program
+updating it so that it will unpause, if possible. The first
+clause uses the metafunction @es[reset-θ], which takes an
+environment and sets the status of every signal to
+@es[unknown], and the status of every shared variable to
+@es[old]. The second clause replaces a @es[pause] with a
+@es[nothing], causing execution to resume from that point.
+
+All but two of the remaining clauses simply recur down the
+structure of evaluation contexts. The exceptions are
+@es[loop^stop] and @es[suspend]. @es[loop^stop] is replaced
+by the traditional unfolding of a loop, because in the next
+instant the body of the loop that was executing is allowed
+to terming, restarting the loop.
+
+The @es[suspend] transformation is more complex. We want a
+term which entered a @es[suspend] to pause in that suspend
+if the given signal is @es[present] in the next instant.
+Therefore we transform an @es[suspend] to do exactly that:
+if the signal is @es[present] then @es[pause], otherwise do
+nothing and resume executing the loop body.
+
+@section{Correct Binding & Schizophrenia}
 
 
 

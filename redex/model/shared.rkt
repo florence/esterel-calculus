@@ -276,7 +276,7 @@
 
 (define-metafunction esterel-eval
   next-instant : complete* -> p
-  [(next-instant (ρ θ GO p)) (ρ (reset-θ θ) WAIT (next-instant p))]
+  [(next-instant (ρ θr GO p)) (ρ (reset-θ θr) WAIT (next-instant p))]
   [(next-instant pause) nothing]
   [(next-instant nothing) nothing]
   [(next-instant (loop^stop p q)) (seq (next-instant p) (loop q))]
