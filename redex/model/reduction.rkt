@@ -288,7 +288,7 @@
   (check-false
    (judgment-holds
     (blocked
-     ((sig SJ absent)
+     ((sig SJ unknown)
       ((sig SP unknown)
        ((sig SQ unknown)
         ((sig Sb unknown)
@@ -309,7 +309,7 @@
   (check-true
    (judgment-holds
     (blocked
-     ((sig SJ absent)
+     ((sig SJ unknown)
       ((sig SP unknown)
        ((sig SQ unknown)
         ((sig Sb unknown)
@@ -330,7 +330,7 @@
   (check-false
    (judgment-holds
     (blocked
-     ((sig SJ absent)
+     ((sig SJ unknown)
       ((sig SP unknown)
        ((sig SQ unknown)
         ((sig Sb unknown)
@@ -351,7 +351,7 @@
   (check-true
    (judgment-holds
     (blocked
-     ((sig SJ absent)
+     ((sig SJ unknown)
       ((sig SP unknown)
        ((sig SQ unknown)
         ((sig Sb unknown)
@@ -372,7 +372,7 @@
   (check-false
    (judgment-holds
     (blocked
-     ((sig SJ absent)
+     ((sig SJ unknown)
       ((sig SP unknown)
        ((sig SQ unknown)
         ((sig Sb unknown)
@@ -395,7 +395,7 @@
   (check-true
    (judgment-holds
     (blocked
-     ((sig SJ absent)
+     ((sig SJ unknown)
       ((sig SP unknown)
        ((sig SQ unknown)
         ((sig Sb unknown)
@@ -418,7 +418,7 @@
   (check-false
    (judgment-holds
     (blocked
-     ((sig SJ absent)
+     ((sig SJ unknown)
       ((sig SP unknown)
        ((sig SQ unknown)
         ((sig Sb unknown)
@@ -441,7 +441,7 @@
   (check-true
    (judgment-holds
     (blocked
-     ((sig SJ absent)
+     ((sig SJ unknown)
       ((sig SP unknown)
        ((sig SQ unknown)
         ((sig Sb unknown)
