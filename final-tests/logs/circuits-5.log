@@ -117,3 +117,22 @@ has been running for 23552 seconds
        ("signal" . 111)
        ("suspend" . 21)
        ("trap" . 28))
+user break
+  context...:
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/core/equality.rkt:53:0: @equal?
+   ...form/control.rkt:31:25
+   /Users/florence/dissertation-tests/circuitous/circuitous-lib/circuitous/private/shared.rkt:7:0: deref
+   .../more-scheme.rkt:261:28
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/form/control.rkt:33:0: branch-and-merge
+   ...form/control.rkt:30:25
+   ...form/control.rkt:31:25
+   .../more-scheme.rkt:261:28
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/form/control.rkt:33:0: branch-and-merge
+   .../more-scheme.rkt:261:28
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/form/control.rkt:33:0: branch-and-merge
+   .../more-scheme.rkt:261:28
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/form/control.rkt:33:0: branch-and-merge
+   .../more-scheme.rkt:261:28
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/form/control.rkt:33:0: branch-and-merge
+   .../more-scheme.rkt:261:28
+   ...

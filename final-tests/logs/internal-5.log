@@ -878,3 +878,423 @@ running test 43900
 has been running for 60259 seconds
 running test 44000
 has been running for 60293 seconds
+running test 44100
+has been running for 60875 seconds
+running test 44200
+has been running for 60946 seconds
+running test 44300
+has been running for 60969 seconds
+running test 44400
+has been running for 61005 seconds
+running test 44500
+has been running for 61084 seconds
+running test 44600
+has been running for 61130 seconds
+running test 44700
+has been running for 61151 seconds
+running test 44800
+has been running for 61172 seconds
+running test 44900
+has been running for 62753 seconds
+running test 45000
+has been running for 62808 seconds
+running test 45100
+has been running for 62880 seconds
+running test 45200
+has been running for 62914 seconds
+running test 45300
+has been running for 62936 seconds
+running test 45400
+has been running for 63000 seconds
+running test 45500
+has been running for 63036 seconds
+running test 45600
+has been running for 63103 seconds
+running test 45700
+has been running for 63528 seconds
+running test 45800
+has been running for 63618 seconds
+running test 45900
+has been running for 63648 seconds
+running test 46000
+has been running for 63672 seconds
+running test 46100
+has been running for 63698 seconds
+running test 46200
+has been running for 63715 seconds
+running test 46300
+has been running for 63766 seconds
+running test 46400
+has been running for 63789 seconds
+running test 46500
+has been running for 66046 seconds
+running test 46600
+has been running for 66664 seconds
+running test 46700
+has been running for 66702 seconds
+running test 46800
+has been running for 66729 seconds
+running test 46900
+has been running for 66774 seconds
+running test 47000
+has been running for 66793 seconds
+running test 47100
+has been running for 66828 seconds
+running test 47200
+has been running for 66897 seconds
+running test 47300
+has been running for 66920 seconds
+running test 47400
+has been running for 67128 seconds
+running test 47500
+has been running for 67267 seconds
+running test 47600
+has been running for 67298 seconds
+running test 47700
+has been running for 67496 seconds
+running test 47800
+has been running for 67513 seconds
+running test 47900
+has been running for 70367 seconds
+running test 48000
+has been running for 70521 seconds
+running test 48100
+has been running for 70776 seconds
+running test 48200
+has been running for 70797 seconds
+running test 48300
+has been running for 70891 seconds
+running test 48400
+has been running for 70910 seconds
+running test 48500
+has been running for 70950 seconds
+running test 48600
+has been running for 70989 seconds
+running test 48700
+has been running for 71458 seconds
+running test 48800
+has been running for 72078 seconds
+running test 48900
+has been running for 72098 seconds
+running test 49000
+has been running for 72124 seconds
+running test 49100
+has been running for 72149 seconds
+running test 49200
+has been running for 72308 seconds
+running test 49300
+has been running for 72325 seconds
+running test 49400
+has been running for 72351 seconds
+running test 49500
+has been running for 72405 seconds
+running test 49600
+has been running for 72504 seconds
+running test 49700
+has been running for 72533 seconds
+running test 49800
+has been running for 72608 seconds
+running test 49900
+has been running for 72657 seconds
+running test 50000
+has been running for 72727 seconds
+running test 50100
+has been running for 72760 seconds
+running test 50200
+has been running for 72971 seconds
+running test 50300
+has been running for 73040 seconds
+running test 50400
+has been running for 73066 seconds
+running test 50500
+has been running for 73094 seconds
+running test 50600
+has been running for 73167 seconds
+running test 50700
+has been running for 73191 seconds
+running test 50800
+has been running for 73538 seconds
+running test 50900
+has been running for 73584 seconds
+running test 51000
+has been running for 73618 seconds
+running test 51100
+has been running for 73665 seconds
+running test 51200
+has been running for 73688 seconds
+running test 51300
+has been running for 73751 seconds
+running test 51400
+has been running for 73799 seconds
+running test 51500
+has been running for 73827 seconds
+running test 51600
+has been running for 73860 seconds
+running test 51700
+has been running for 73881 seconds
+running test 51800
+has been running for 73949 seconds
+running test 51900
+has been running for 73979 seconds
+running test 52000
+has been running for 74022 seconds
+running test 52100
+has been running for 74062 seconds
+running test 52200
+has been running for 74123 seconds
+running test 52300
+has been running for 74141 seconds
+running test 52400
+has been running for 74248 seconds
+running test 52500
+has been running for 74286 seconds
+running test 52600
+has been running for 74318 seconds
+running test 52700
+has been running for 74420 seconds
+running test 52800
+has been running for 74659 seconds
+running test 52900
+has been running for 74748 seconds
+running test 53000
+has been running for 74861 seconds
+running test 53100
+has been running for 74954 seconds
+running test 53200
+has been running for 74974 seconds
+running test 53300
+has been running for 75002 seconds
+running test 53400
+has been running for 75026 seconds
+running test 53500
+has been running for 75064 seconds
+running test 53600
+has been running for 75098 seconds
+running test 53700
+has been running for 75154 seconds
+running test 53800
+has been running for 75421 seconds
+running test 53900
+has been running for 75432 seconds
+running test 54000
+has been running for 75488 seconds
+test: VERY BAD: programs were ((par (signal S5362459 (emit S5362459)) (signal S5362460 (suspend pause Sw))) ()) -> ((par (signal S5362459 (emit S5362459)) (signal S5362460 (suspend (hat pause) Sw))) #<set:>)
+(ρ ((sig Sw unknown) ((sig Su unknown) ((sig S1 unknown) ·))) WAIT (par (ρ ((sig S5362459 unknown) ·) WAIT (emit S5362459)) (ρ ((sig S5362460 unknown) ·) WAIT (suspend pause Sw)))) -> ((ρ ((sig S1 unknown) ((sig S5362459 unknown) ((sig S5362460 unknown) ((sig Su unknown) ((sig Sw unknown) ·))))) WAIT (suspend (seq (present Sw pause nothing) nothing) Sw)) #<set:>)
+exec: #f
+others: ((circuits #<set: S1>))
+under (Sw)
+The original call was (relate ((par (signal S5362459 (emit S5362459)) (signal S5362460 (suspend pause Sw))) ()) (ρ ((sig Sw unknown) ((sig Su unknown) ((sig S1 unknown) ·))) WAIT (par (ρ ((sig S5362459 unknown) ·) WAIT (emit S5362459)) (ρ ((sig S5362460 unknown) ·) WAIT (suspend pause Sw)))) ((Sw) (Sw) (Sw)) (Sw) (Su S1) #:oracle #f)
+calculus equasions applied: ((signal (par (ρ ((sig S5362459 unknown) ·) WAIT (emit S5362459)) (signal S5362460 (suspend pause Sw)))) (signal (par (ρ ((sig S5362459 unknown) ·) WAIT (emit S5362459)) (ρ ((sig S5362460 unknown) ·) WAIT (suspend pause Sw)))) (par-swap (par (ρ ((sig S5362460 unknown) ·) WAIT (suspend pause Sw)) (ρ ((sig S5362459 unknown) ·) WAIT (emit S5362459)))) (par-swap (par (ρ ((sig S5362459 unknown) ·) WAIT (emit S5362459)) (ρ ((sig S5362460 unknown) ·) WAIT (suspend pause Sw)))) (par-swap (par (ρ ((sig S5362460 unknown) ·) WAIT (suspend pause Sw)) (ρ ((sig S5362459 unknown) ·) WAIT (emit S5362459)))) (par-swap (par (ρ ((sig S5362459 unknown) ·) WAIT (emit S5362459)) (ρ ((sig S5362460 unknown) ·) WAIT (suspend pause Sw)))) (par-swap (par (ρ ((sig S5362460 unknown) ·) WAIT (suspend pause Sw)) (ρ ((sig S5362459 unknown) ·) WAIT (emit S5362459)))) (par-swap (par (ρ ((sig S5362459 unknown) ·) WAIT (emit S5362459)) (ρ ((sig S5362460 unknown) ·) WAIT (suspend pause Sw)))) (par-swap (par (ρ ((sig S5362460 unknown) ·) WAIT (suspend pause Sw)) (ρ ((sig S5362459 unknown) ·) WAIT (emit S5362459)))) (par-swap (par (ρ ((sig S5362459 unknown) ·) WAIT (emit S5362459)) (ρ ((sig S5362460 unknown) ·) WAIT (suspend pause Sw)))))
+
+  context...:
+   parse-loop241
+   /Users/florence/dissertation-tests/Racket/share/pkgs/sandbox-lib/racket/sandbox.rkt:412:0: call-with-limits
+   /Users/florence/dissertation-tests/esterel-calculus/redex/test/model-test.rkt:189:2: for-loop
+   /Users/florence/dissertation-tests/esterel-calculus/redex/test/model-test.rkt:169:0: relate
+   .../more-scheme.rkt:261:28
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:455:2: loop
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:423:0: check-one
+   "/Users/florence/dissertation-tests/esterel-calculus/redex/test/long-tests/internal.rkt": [running body]
+   temp35_0
+   for-loop
+   run-module-instance!
+   perform-require!
+redex-check: <pkgs>/esterel-calculus/redex/test/model-test.rkt:43
+counterexample found after 54058 attempts:
+((par (signal S5362459 (emit S5362459)) (signal S5362460 (suspend pause Sw)))
+ (Sw)
+ (Su S1)
+ ((Sw) (Sw) (Sw)))
+running test 54100
+has been running for 75544 seconds
+running test 54200
+has been running for 75567 seconds
+running test 54300
+has been running for 75620 seconds
+running test 54400
+has been running for 75733 seconds
+running test 54500
+has been running for 75762 seconds
+running test 54600
+has been running for 75835 seconds
+running test 54700
+has been running for 76015 seconds
+running test 54800
+has been running for 76034 seconds
+running test 54900
+has been running for 76072 seconds
+running test 55000
+has been running for 76110 seconds
+running test 55100
+has been running for 76257 seconds
+running test 55200
+has been running for 76330 seconds
+running test 55300
+has been running for 76345 seconds
+running test 55400
+has been running for 76372 seconds
+running test 55500
+has been running for 76401 seconds
+running test 55600
+has been running for 76489 seconds
+running test 55700
+has been running for 76617 seconds
+running test 55800
+has been running for 76643 seconds
+running test 55900
+has been running for 76994 seconds
+running test 56000
+has been running for 77028 seconds
+running test 56100
+has been running for 77054 seconds
+running test 56200
+has been running for 77879 seconds
+running test 56300
+has been running for 77896 seconds
+running test 56400
+has been running for 77991 seconds
+running test 56500
+has been running for 78179 seconds
+running test 56600
+has been running for 78278 seconds
+running test 56700
+has been running for 78732 seconds
+running test 56800
+has been running for 78756 seconds
+running test 56900
+has been running for 78911 seconds
+running test 57000
+has been running for 79199 seconds
+running test 57100
+has been running for 79232 seconds
+running test 57200
+has been running for 79250 seconds
+running test 57300
+has been running for 79314 seconds
+running test 57400
+has been running for 79340 seconds
+running test 57500
+has been running for 79377 seconds
+running test 57600
+has been running for 79397 seconds
+running test 57700
+has been running for 79453 seconds
+running test 57800
+has been running for 79497 seconds
+running test 57900
+has been running for 79525 seconds
+running test 58000
+has been running for 79556 seconds
+running test 58100
+has been running for 79622 seconds
+running test 58200
+has been running for 79683 seconds
+running test 58300
+has been running for 79699 seconds
+running test 58400
+has been running for 79883 seconds
+running test 58500
+has been running for 79936 seconds
+running test 58600
+has been running for 80062 seconds
+running test 58700
+has been running for 80150 seconds
+running test 58800
+has been running for 80208 seconds
+running test 58900
+has been running for 80239 seconds
+running test 59000
+has been running for 80304 seconds
+running test 59100
+has been running for 80342 seconds
+running test 59200
+has been running for 80376 seconds
+running test 59300
+has been running for 80402 seconds
+running test 59400
+has been running for 80534 seconds
+running test 59500
+has been running for 80553 seconds
+running test 59600
+has been running for 80592 seconds
+running test 59700
+has been running for 80737 seconds
+running test 59800
+has been running for 80773 seconds
+running test 59900
+has been running for 80799 seconds
+running test 60000
+has been running for 80834 seconds
+running test 60100
+has been running for 80862 seconds
+running test 60200
+has been running for 80899 seconds
+running test 60300
+has been running for 81144 seconds
+running test 60400
+has been running for 81215 seconds
+running test 60500
+has been running for 81244 seconds
+running test 60600
+has been running for 81311 seconds
+running test 60700
+has been running for 81328 seconds
+running test 60800
+has been running for 81379 seconds
+running test 60900
+has been running for 81803 seconds
+running test 61000
+has been running for 81829 seconds
+running test 61100
+has been running for 81885 seconds
+running test 61200
+has been running for 81957 seconds
+running test 61300
+has been running for 82005 seconds
+running test 61400
+has been running for 82027 seconds
+running test 61500
+has been running for 82080 seconds
+running test 61600
+has been running for 82227 seconds
+running test 61700
+has been running for 82281 seconds
+running test 61800
+has been running for 82316 seconds
+running test 61900
+has been running for 82349 seconds
+running test 62000
+has been running for 82457 seconds
+running test 62100
+has been running for 82482 seconds
+running test 62200
+has been running for 82616 seconds
+running test 62300
+has been running for 82637 seconds
+running test 62400
+has been running for 82698 seconds
+running test 62500
+has been running for 82741 seconds
+running test 62600
+has been running for 82985 seconds
+running test 62700
+has been running for 83013 seconds
+user break
+  context...:
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/binding-forms.rkt:591:0: rec-freshen-nospec
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/binding-forms.rkt:600:18
+   /Users/florence/dissertation-tests/Racket/collects/racket/private/map.rkt:35:13: map
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/binding-forms.rkt:749:12
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/binding-forms.rkt:182:0: canonicalize
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/binding-forms.rkt:141:20: temp5
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/judgment-form.rkt:583:2: for-loop
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/judgment-form.rkt:463:0: call-judgment-form
+   ...udgment-form.rkt:379:19
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/judgment-form.rkt:391:2: for-loop
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/judgment-form.rkt:1412:5: for-loop
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/judgment-form.rkt:1407:0: combine-judgment-rhses
+   ...udgment-form.rkt:1401:18
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/judgment-form.rkt:481:2: form-proc/cache
+   [repeats 8 more times]
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/judgment-form.rkt:463:0: call-judgment-form
+   ...
