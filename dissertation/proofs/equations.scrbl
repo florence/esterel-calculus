@@ -157,7 +157,7 @@
 
 @[equality-proof
   #:title "Can take the else branch for adjacent signals"
-  #:label "else branch"
+  #:label "else-branch"
   #:∀ S p q
   #:assume (L¬∈ S (->S (Can p (mtθ+S S unknown)))) (L¬∈ S (->S (Can q (mtθ+S S unknown))))
   (de
