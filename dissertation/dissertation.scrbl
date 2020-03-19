@@ -18,4 +18,5 @@
 @include-section["notations.scrbl"]
 @include-section["proofs/proofs.scrbl"]
 @include-section["solver.scrbl"]
+@include-section["proofs/equations.scrbl"]
 @index-section[]

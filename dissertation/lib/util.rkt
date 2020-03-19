@@ -491,7 +491,10 @@
 
 (define-syntax lift-to-compile-time-for-effect!
   (syntax-parser
-    [(_ e:expr)
+    [(_ (~optional (~and a #:expand)) e*:expr)
+     #:with e (if (attribute a)
+                  (local-expand #'e* 'expression #f)
+                  #'e*)
      (define forms-to-require
        (list*
         (syntax-local-introduce
@@ -530,7 +533,7 @@
        #`(let-syntax
              ([whatever
                (lambda (_)
-                 (convert-to-syntax-error! (quote-syntax e) e)
+                 (convert-to-syntax-error! (quote-syntax e*) e)
                  #'(void))])
            (whatever trm))))]))
 

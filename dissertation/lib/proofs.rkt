@@ -1,5 +1,6 @@
 #lang racket
-(provide cases state sequenced base)
+(provide cases state sequenced base
+         render-derivation)
 
 (require (for-syntax syntax/parse
                      redex/private/term-fn
@@ -49,18 +50,19 @@
               (text "no derivations")
               (render-derivation (first devs)))))]))
 
-(define (render-derivation r)
-  (match-define (derivation term name subs) r)
-  (define t (render-term/pretty-write esterel/typeset term))
-  (define child (apply hbl-append 10 (map render-derivation subs)))
-  (define line-width (max (pict-width t) (pict-width child)))
-  (define nam (if name (text (string-append " [" name "]")) (blank)))
-  (inset
-   (vc-append
-    child
-    (inset (hc-append (hline line-width 5) nam) 0 0 (- (pict-width nam)) 0)
-    t)
-   0 0 (pict-width nam) 0))
+(define (render-derivation r #:pretty? [pretty? #t])
+  (parameterize ([pretty-print-columns (if pretty? (pretty-print-columns) 'infinity)])
+    (match-define (derivation term name subs) r)
+    (define t (render-term/pretty-write esterel/typeset term))
+    (define child (apply hbl-append 10 (map render-derivation subs)))
+    (define line-width (max (pict-width t) (pict-width child)))
+    (define nam (if name (text (string-append " [" name "]")) (blank)))
+    (inset
+     (vc-append
+      child
+      (inset (hc-append (hline line-width 5) nam) 0 0 (- (pict-width nam)) 0)
+      t)
+     0 0 (pict-width nam) 0)))
 
 
 (define-for-syntax (do-judgment? stx)

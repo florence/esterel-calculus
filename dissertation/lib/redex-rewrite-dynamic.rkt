@@ -2,7 +2,6 @@
 
 (require (except-in esterel-calculus/redex/model/shared quasiquote)
          esterel-calculus/redex/model/instant
-         esterel-calculus/redex/model/eval
          (prefix-in calculus: esterel-calculus/redex/model/calculus)
          (prefix-in standard: esterel-calculus/redex/model/reduction)
          pict
@@ -161,12 +160,12 @@
    (let loop ([all all])
      (match all
        [(list* x (and dots (struct* lw ([e (or '... "...")]))) y rst)
-        (append (do-binop op dots y x)
+        (append (do-binop op dots y x) (list "")
                 (loop (cons y rst)))]
        [(list* x (and dots (struct* lw ([e (or '... "...")]))) rst)
         (list x dots "")]
        [(list* x y rst)
-        (append (do-binop op x y)
+        (append (do-binop op x y) (list "")
                 (loop (cons y rst)))]
        [(list x) (list x "")]))))
 
@@ -427,6 +426,10 @@
              ""))]
     ['≡
      (curry binop "≡")]
+    ['≡j
+     (curry binop "≡")]
+     ['⇀j
+     (curry binop "⇀")]
     ['≃
      (curry binop "≃")]
     ['¬≃
@@ -1249,6 +1252,8 @@
      ['≃^esterel ≃-e-pict]
      ['≃ (lambda () (def-t "≃"))]
      ['≡
+      (lambda () (render-op '≡))]
+     ['≡j
       (lambda () (render-op '≡))]
      ['⇀
       (lambda () (render-op '⇀))]

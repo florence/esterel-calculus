@@ -9,6 +9,8 @@
          ≃
          ¬≃
          =>
+         ≡j
+         ⇀j
          outputs
          inputs
          parens
@@ -35,7 +37,8 @@
           (all-from-out esterel-calculus/redex/model/lset
                         esterel-calculus/redex/model/shared
                         esterel-calculus/redex/model/count
-                        esterel-calculus/redex/model/potential-function)
+                        esterel-calculus/redex/model/potential-function
+                        esterel-calculus/redex/model/calculus)
           quasiquote
           L∈))
 
@@ -45,6 +48,9 @@
   esterel-calculus/redex/model/lset
   esterel-calculus/redex/model/count
   esterel-calculus/redex/model/potential-function
+  
+  racket/stxparam
+  racket/pretty
   (only-in esterel-calculus/redex/model/reduction
            blocked-pure)
   (only-in esterel-calculus/dissertation/lib/util
@@ -52,6 +58,7 @@
   scribble/examples
   (only-in esterel-calculus/redex/model/reduction
            blocked)
+  (only-in esterel-calculus/redex/model/calculus ⇀)
   (for-syntax syntax/parse))
 
 (define evalor
@@ -255,4 +262,29 @@
 
    (--> (in-hole E (emit S)) (par (emit S) (in-hole E nothing))
         emit)))
+
+(define-judgment-form esterel/typeset
+  #:contract (≡j p q)
+  [(⇀j p q string)
+   ----------------- step
+   (≡j p q)]
+  [(≡j p q)
+   ----------------- ctx
+   (≡j (in-hole C p) (in-hole C q))]
+  [----------------- refl
+   (≡j p p)]
+  [(≡j q p)
+   ----------------- sym
+   (≡j p q)]
+  [(≡j p r) (≡j r q)
+   ----------------- trans
+   (≡j p q)])
+(define-judgment-form esterel/typeset
+  #:contract (⇀j p q string)
+  [(where (_ ... (string q) _ ...) ,(apply-reduction-relation/tag-with-names ⇀ (term p)))
+   ---------
+   (⇀j p q string)])
+
+ 
+
    

@@ -2,7 +2,6 @@
 
 (require esterel-calculus/redex/model/shared
          esterel-calculus/redex/model/instant
-         esterel-calculus/redex/model/eval
          (prefix-in calculus: esterel-calculus/redex/model/calculus)
          (prefix-in standard: esterel-calculus/redex/model/reduction)
          scribble/base

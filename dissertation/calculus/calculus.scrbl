@@ -541,5 +541,10 @@ nothing and resume executing the loop body.
 
 @section{Correct Binding & Schizophrenia}
 
+@include-section["examples.scrbl"]
+
+
+
+
 
 
