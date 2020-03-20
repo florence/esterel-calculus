@@ -8,7 +8,8 @@
           "../lib/rule-figures.rkt"
           "../lib/jf-figures.rkt"
           "../lib/cite.rkt"
-          "../notations.scrbl"
+          (only-in "../notations.scrbl")
+          (only-in "../proofs/proofs.scrbl")
           esterel-calculus/redex/model/shared
           scriblib/figure
           redex/pict
@@ -496,8 +497,6 @@ non-constructive, and its signal statuses are given by the
 same @es[restrict] metafunction. The resulting signal statuses
 may, however, contain @es[⊥] in this case.
 
-@subsection{The values of shared variables}
-
 @subsection{The blocked judgment}
 
 The @es[(blocked-pure θr A E p)] judgment traverses the the
@@ -591,6 +590,55 @@ if the signal is @es[present] then @es[pause], otherwise do
 nothing and resume executing the loop body.
 
 @section{Correct Binding & Schizophrenia}
+
+A natural question about the calculus for someone familiar
+with Esterel might be ``what about schizophrenic
+variables''? A natural question about the calculus for
+someone familiar with the lambda calculus might be ``is
+there an @rule["α"] rule?''. These question can be answered
+at the same time.
+
+Instead of working up to α-equivalence, as is comment in the
+lambda calculus world, I take a different tact inspired by
+Esterel, circuits, and Schizophrenic variables and work up
+to what I have called correct binding. The judgment for a program
+with correct binding is given in @figure-ref["CBfig"].
+
+@figure["CBfig" "The correct binding judgment" CB-pict]
+
+This judgment tells us that a program which has correct
+binding cannot accidentally capture a variable it should not
+when it takes a reduction step. To understand this look at
+the rule for @es[seq] in @es[CB]. It states that the bound
+variables of @es[p] must not overlap with the free variables
+of @es[q]. This means that if an environment is lifted out
+of @es[p], it cannot capture any variables in @es[q].
+
+This approach explains all the rules of @es[CB] in fact.
+For any term, if that term could be part of an evaluation context
+or could reduce to a term which could be part of an evaluation context,
+then the term that would be in the hole of that context must have
+distinct bound variables from any possible adjacent free variables.
+
+This binding structure also prevents schizophrenic
+variables, because at their heart schizophrenic variables
+are variables which have two instances, and one captures the
+other! Thus, the loop clause in @es[CB] forbids the bound
+and free variables of the loop body from overlapping at all.
+This way then the loop expands into @es[loop^stop], the
+constraint given the corresponding clause (which is the same
+as the constraint given for @es[seq]) is preserved,
+preventing any variable capture.
+
+Correct binding is preserve by reduction:
+@proof-splice["cbpreserved"]
+The full prove is given in
+@proof-ref["cbpreserved"]. This follows by case analysis
+over the rules of @es[⇀]. I should also note that any
+program any be renamed into a program with correct binding
+by making all variable names unique. Therefore I work up to
+correct binding, that is, I assume that any program used in
+the calculus or in my proofs has correct binding.
 
 @include-section["examples.scrbl"]
 

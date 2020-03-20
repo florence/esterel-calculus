@@ -362,3 +362,131 @@ respect to the compilation function.
 
 }
 
+@proof[#:label "cbpreserved"
+       #:title "Correct binding is preserved"
+       #:statement
+       @list{For all @es[p-pure], @es[q],
+        if @es[(⇀ p q)] and @es[(CB p)]
+        them @es[(CB q)]}]{
+ @cases[#:of/reduction-relation (⇀ p q)
+        #:drawn-from ⇀
+        #:language esterel-eval]{
+  @#:case[(⇀ (par nothing done) done par-nothing)]{
+   By the definition of @es[CB], our premise gives us that @es[(CB done)].
+  }
+  @#:case[(⇀ (par (exit n) paused) (exit n) par-1exit)]{
+   For any @es[n], @es[(CB (exit n))] by the definition of @es[CB].
+  }
+  @#:case[(⇀ (par (exit n_1) (exit n_2)) (exit (max-mf n_1 n_2)) par-2exit)]{
+   For any @es[n], @es[(CB (exit n))] by the definition of @es[CB].}
+  
+  @#:case[(⇀ (ρ θr A (in-hole E (present S p q))) (ρ θr A (in-hole E p))
+             (judgment-holds (θ-ref-S θr S present))
+             is-present)]
+
+  @#:case[(⇀ (ρ θr A (in-hole E (present S p q))) (ρ θr A (in-hole E q))
+             (judgment-holds (L∈ S (Ldom θr)))
+             (judgment-holds (θ-ref-S θr S unknown))
+             (judgment-holds (L¬∈ S (->S (Can-θ (ρ θr A (in-hole E (present S p q))) ·))))
+             is-absent)]{This case is analogous to the previous one}
+
+  @#:case[(⇀ (seq nothing q) q
+             seq-done)]{
+   by the definition of @es[(CB (seq nothing q))], we know that @es[(CB q)]
+  }
+
+  @#:case[(⇀ (seq (exit n) q) (exit n)
+             seq-exit)]{
+   For any @es[n], @es[(CB (exit n))] by the definition of @es[CB].
+  }
+  
+  @#:case[(⇀ (suspend stopped S) stopped
+             suspend)]{                   
+   By the definition of @es[(CB (suspend stopped S))], we know that @es[(CB stopped)]
+  }
+
+  @#:case[(⇀ (trap stopped) (harp stopped)
+             trap)]{                
+   As @es[stopped] is either @es[nothing] or @es[(exit n)], we know by the definition
+   of @es[CB] that @es[(CB stopped)].
+  }
+
+  @#:case[(⇀ (signal S p) (ρ (mtθ+S S unknown) WAIT p)
+             signal)]{
+   As this proof does not change the bound or free variables,
+   the term should remain @es[CB].
+  }
+
+  @#:case[(⇀ (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p))) (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p))
+             (side-condition (term (A->= A_1 A_2))) 
+             merge)]
+
+  @#:case[(⇀ (ρ θr GO (in-hole E (emit S))) (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E nothing))
+             (judgment-holds (L∈ S (Ldom θr)))
+             emit)]
+  @#:case[(⇀ (loop p) (loop^stop p p)
+             loop)]{
+  The premise of @es[(CB (loop p))] gives us that the bound and free
+  variables of @es[p] are distinct. This give us the premise of @es[(CB (loop^stop p p))].}
+  @#:case[(⇀ (loop^stop (exit n) q) (exit n)
+             loop^stop-exit)]{
+   For any @es[n], @es[(CB (exit n))] by the definition of @es[CB].
+  }
+  @;ignore par swap
+  @#:case[(⇀ (par p q) (par q p) par-swap)]{
+   As set intersection is associative,
+   this follows directly.
+  }
+  @#:case[(⇀
+           (ρ θr A (in-hole E (shared s := e p)))
+           (ρ θr A (in-hole E (ρ (mtθ+s s ev old) WAIT p)))
+           (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
+           (side-condition (term (all-ready? (LFV/e e) θr A (in-hole E (shared s := e p)))))
+           (where ev (δ e θr))
+           shared)]
+  @#:case[(⇀
+           (ρ θr A (in-hole E (var x := e p)))
+           (ρ θr A (in-hole E (ρ (mtθ+x x (δ e θr)) WAIT p)))
+           (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
+           (side-condition (term (all-ready? (LFV/e e) θr A (in-hole E (var x := e p)))))
+           var)]
+  @#:case[(⇀
+           (ρ θr A (in-hole E (:= x e)))
+           (ρ (id-but-typeset-some-parens (<- θr (mtθ+x x (δ e θr)))) A (in-hole E nothing))
+           (judgment-holds (L∈ x (Ldom θr)))
+           (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
+           (side-condition (term (all-ready? (LFV/e e) θr A (in-hole E (:= x e)))))
+           set-var)]
+   
+   
+  @#:case[(⇀ (ρ θr A (in-hole E (if x p q)))
+             (ρ θr A (in-hole E q))
+             (judgment-holds (θ-ref-x θr x 0))
+             if-false)]{
+  This case follows by an analogous argument to the case for @rule["is-absent"].}
+  @#:case[(⇀ (ρ θr A (in-hole E (if x p q)))
+             (ρ θr A (in-hole E p))
+             (judgment-holds (L∈ x (Ldom θr)))
+             (judgment-holds (¬θ-ref-x θr x 0))
+             if-true)]{
+  This case follows by an analogous argument to the case for @rule["is-present"].}
+
+  @#:case[(⇀
+           (ρ θr GO (in-hole E (<= s e)))
+           (ρ (id-but-typeset-some-parens (<- θr (mtθ+s s (δ e θr) new))) GO (in-hole E nothing))
+           (judgment-holds (θ-ref-s θr s _ old))
+           (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
+           (side-condition (term (all-ready? (LFV/e e) θr (in-hole E (<= s e)))))
+           set-old)]
+
+  @#:case[(⇀
+           (ρ θr GO (in-hole E (<= s e)))
+           (ρ (id-but-typeset-some-parens (<- θr (mtθ+s s (Σ ev (δ e θr)) new))) GO (in-hole E nothing))
+           (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
+           (judgment-holds (θ-ref-s θr s _ new))
+           (side-condition (term (all-ready? (LFV/e e) θr (in-hole E (<= s e)))))
+           (where ev (δ e θr))
+           set-new)]
+ }
+}
+        

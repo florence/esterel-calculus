@@ -87,7 +87,7 @@
     (judgment-holds (leftmost θ GO (<= s e) D))
     (judgment-holds (θ-ref-s θ s _ old))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
-    (side-condition (term (all-ready? (LFV/e e) θ A (in-hole D (<= s e)))))
+    (side-condition (term (all-ready? (LFV/e e) θ GO (in-hole D (<= s e)))))
     set-old)
    (-->
     (ρ θ GO (in-hole D (<= s e)))
@@ -95,7 +95,7 @@
     (judgment-holds (leftmost θ GO (<= s e) D))
     (judgment-holds (θ-ref-s θ s ev new))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
-    (side-condition (term (all-ready? (LFV/e e) θ A (in-hole D (<= s e)))))
+    (side-condition (term (all-ready? (LFV/e e) θ GO (in-hole D (<= s e)))))
     set-new)
    ;; unshared state
    (-->

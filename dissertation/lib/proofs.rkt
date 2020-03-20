@@ -271,7 +271,7 @@
      #'((hbl-append
          (with-paper-rewriters  (term->pict/checked lang left))
          (with-paper-rewriters  (term->pict/checked lang ->2))
-         (with-paper-rewriters  (term->pict/checked lang right)))
+         (with-paper-rewriters  (term->pict lang right)))
         ...)
      #:with (unloced ...)
      #'([name
@@ -281,7 +281,7 @@
          (linebreak)
          (let ([l
                 (flatten
-                 (list (list (with-paper-rewriters (term->pict/checked lang converted-clause)) (linebreak)) ...))])
+                 (list (list (with-paper-rewriters (term->pict lang converted-clause)) (linebreak)) ...))])
            (if (empty? l)
                ""
                (splice (list* "where" (linebreak) l))))

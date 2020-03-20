@@ -115,7 +115,6 @@
    (CB (emit S))]
 
   [(distinct (BV p) (BV q)) (distinct (FV p) (BV q)) (distinct (BV p) (FV q))
-   (distinct (Xs (FV p)) (Xs (FV q))) (CB p) (CB q)
    ------- "par"
    (CB (par p q))]
 

@@ -177,7 +177,7 @@
    (judgment-holds (L⊂ (get-shareds-in L) (Lunflatten (dom θ))))
    (judgment-holds (distinct (->sh (Can-θ (ρ θ A p) ·))
                              L))]
-  [(all-ready? L θ p)
+  [(all-ready? L θ A p)
    #f])
 
 (define-metafunction esterel-eval
@@ -187,26 +187,26 @@
   [(get-shareds-in (_ L)) (get-shareds-in L)])
 
 (module+ test
-  (check-true (term (all-ready? () · nothing)))
-  (check-true (term (all-ready? (x ()) · nothing)))
+  (check-true (term (all-ready? () · GO nothing)))
+  (check-true (term (all-ready? (x ()) · GO nothing)))
   ;; does not care about free vars
   (check-true (term (all-ready? (s1 ())
-                                ((shar s1 0 old) ((shar s2 0 old) ·))
+                                ((shar s1 0 old) ((shar s2 0 old) ·)) GO
                                 nothing)))
   (check-true (term (all-ready? (s1 (s1 ()))
-                                ((shar s1 0 old) ((shar s2 0 old) ·))
+                                ((shar s1 0 old) ((shar s2 0 old) ·)) GO
                                 nothing)))
   (check-false (term (all-ready? (s1 (s1 (s2 (s1 ()))))
-                                ((shar s1 0 old) ((shar s2 0 old) ·))
+                                ((shar s1 0 old) ((shar s2 0 old) ·)) GO
                                 (<= s2 (+ 1)))))
   (check-true (term (all-ready? (s2 ())
-                                ((shar s1 0 old) ((shar s2 0 old) ·))
+                                ((shar s1 0 old) ((shar s2 0 old) ·)) GO
                                 nothing)))
   (check-false (term (all-ready? (s2 ())
-                                ((shar s1 0 old) ((shar s2 0 old) ·))
+                                ((shar s1 0 old) ((shar s2 0 old) ·)) GO
                                 (<= s2 (+ 1)))))
   (check-false (term (all-ready? (s3 ())
-                                 ((shar s1 0 old) ((shar s2 0 old) ·))
+                                 ((shar s1 0 old) ((shar s2 0 old) ·)) GO
                                  nothing))))
 
 (define-metafunction esterel-eval

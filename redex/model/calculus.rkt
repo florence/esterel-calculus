@@ -90,7 +90,6 @@
         (judgment-holds (¬θ-ref-x θr x 0))
         if-true)
 
-
    (-->
     (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p)))
     (ρ (id-but-typeset-some-parens (<- θr_1 θr_2)) A_1 (in-hole E p))
@@ -107,7 +106,7 @@
     (ρ (id-but-typeset-some-parens (<- θr (mtθ+s s (δ e θr) new))) GO (in-hole E nothing))
     (judgment-holds (θ-ref-s θr s _ old))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
-    (side-condition (term (all-ready? (LFV/e e) θr A (in-hole E (<= s e)))))
+    (side-condition (term (all-ready? (LFV/e e) θr GO (in-hole E (<= s e)))))
     set-old)
 
    (-->
@@ -115,7 +114,7 @@
     (ρ (id-but-typeset-some-parens (<- θr (mtθ+s s (Σ ev (δ e θr)) new))) GO (in-hole E nothing))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
     (judgment-holds (θ-ref-s θr s ev new))
-    (side-condition (term (all-ready? (LFV/e e) θr A (in-hole E (<= s e)))))
+    (side-condition (term (all-ready? (LFV/e e) θr GO (in-hole E (<= s e)))))
     set-new)))
 (define ⟶ (compatible-closure ⇀ esterel-eval p))
 
