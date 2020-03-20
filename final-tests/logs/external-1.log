@@ -1,0 +1,181 @@
+running test 100
+has been running for 163 seconds
+running test 200
+has been running for 336 seconds
+running test 300
+has been running for 519 seconds
+running test 400
+has been running for 704 seconds
+running test 500
+has been running for 897 seconds
+running test 600
+has been running for 1062 seconds
+running test 700
+has been running for 1283 seconds
+running test 800
+has been running for 1500 seconds
+running test 900
+has been running for 1667 seconds
+running test 1000
+has been running for 1831 seconds
+running test 1100
+has been running for 2038 seconds
+running test 1200
+has been running for 2201 seconds
+running test 1300
+has been running for 2384 seconds
+running test 1400
+has been running for 2552 seconds
+running test 1500
+has been running for 2771 seconds
+running test 1600
+has been running for 2950 seconds
+running test 1700
+has been running for 3134 seconds
+running test 1800
+has been running for 3310 seconds
+running test 1900
+has been running for 3504 seconds
+running test 2000
+has been running for 3685 seconds
+running test 2100
+has been running for 3881 seconds
+running test 2200
+has been running for 4058 seconds
+running test 2300
+has been running for 4250 seconds
+running test 2400
+has been running for 4530 seconds
+running test 2500
+has been running for 4745 seconds
+running test 2600
+has been running for 4920 seconds
+running test 2700
+has been running for 5167 seconds
+running test 2800
+has been running for 5381 seconds
+running test 2900
+has been running for 5549 seconds
+running test 3000
+has been running for 5744 seconds
+running test 3100
+has been running for 5937 seconds
+running test 3200
+has been running for 6143 seconds
+running test 3300
+has been running for 6390 seconds
+running test 3400
+has been running for 8243 seconds
+running test 3500
+has been running for 8406 seconds
+running test 3600
+has been running for 8568 seconds
+test: VERY BAD: inconsistent output states:
+ programs were ((shared s179382 := (+ 0 0 4 4 0 0 3) (shared s179383 := (+ s179382 0 10 s179382 s179382) (trap (<= s179382 (+))))) ()) -> ()
+(ρ ((sig Sabsent unknown) ((sig SΓ unknown) ((sig SX unknown) ((sig Sr unknown) ·)))) WAIT (shared s179382 := (+ 0 0 4 4 0 0 3) (shared s179383 := (+ s179382 0 10 s179382 s179382) (trap (<= s179382 (+)))))) -> #f
+exec : ()
+others: ()
+under (() () () () () () () ())
+The original call was (relate ((shared s179382 := (+ 0 0 4 4 0 0 3) (shared s179383 := (+ s179382 0 10 s179382 s179382) (trap (<= s179382 (+))))) ()) (ρ ((sig Sabsent unknown) ((sig SΓ unknown) ((sig SX unknown) ((sig Sr unknown) ·)))) WAIT (shared s179382 := (+ 0 0 4 4 0 0 3) (shared s179383 := (+ s179382 0 10 s179382 s179382) (trap (<= s179382 (+)))))) (() () () () () () () ()) (Sabsent SΓ) (SX Sr) #:oracle (() () () () () () () ()))
+calculus equasions applied: ((#f (shared s179382 := (+ 0 0 4 4 0 0 3) (shared s179383 := (+ s179382 0 10 s179382 s179382) (trap (<= s179382 (+)))))) (#f (shared s179382 := (+ 0 0 4 4 0 0 3) (shared s179383 := (+ s179382 0 10 s179382 s179382) (trap (<= s179382 (+)))))) (#f (shared s179382 := (+ 0 0 4 4 0 0 3) (shared s179383 := (+ s179382 0 10 s179382 s179382) (trap (<= s179382 (+)))))) (#f (shared s179382 := (+ 0 0 4 4 0 0 3) (shared s179383 := (+ s179382 0 10 s179382 s179382) (trap (<= s179382 (+)))))) (#f (shared s179382 := (+ 0 0 4 4 0 0 3) (shared s179383 := (+ s179382 0 10 s179382 s179382) (trap (<= s179382 (+)))))) (#f (shared s179382 := (+ 0 0 4 4 0 0 3) (shared s179383 := (+ s179382 0 10 s179382 s179382) (trap (<= s179382 (+)))))) (#f (shared s179382 := (+ 0 0 4 4 0 0 3) (shared s179383 := (+ s179382 0 10 s179382 s179382) (trap (<= s179382 (+)))))) (#f (shared s179382 := (+ 0 0 4 4 0 0 3) (shared s179383 := (+ s179382 0 10 s179382 s179382) (trap (<= s179382 (+)))))) (#f (shared s179382 := (+ 0 0 4 4 0 0 3) (shared s179383 := (+ s179382 0 10 s179382 s179382) (trap (<= s179382 (+)))))) (#f (shared s179382 := (+ 0 0 4 4 0 0 3) (shared s179383 := (+ s179382 0 10 s179382 s179382) (trap (<= s179382 (+)))))))
+
+  context...:
+   /Users/florence/dissertation-tests/Racket/share/pkgs/sandbox-lib/racket/sandbox.rkt:412:0: call-with-limits
+   /Users/florence/dissertation-tests/esterel-calculus/redex/test/model-test.rkt:189:2: for-loop
+   /Users/florence/dissertation-tests/esterel-calculus/redex/test/model-test.rkt:169:0: relate
+   .../more-scheme.rkt:261:28
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:455:2: loop
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:423:0: check-one
+   "/Users/florence/dissertation-tests/esterel-calculus/redex/test/long-tests/external.rkt": [running body]
+   temp35_0
+   for-loop
+   run-module-instance!
+   perform-require!
+redex-check: <pkgs>/esterel-calculus/redex/test/model-test.rkt:43
+counterexample found after 3679 attempts:
+((shared s179382
+   :=
+   (+ 0 0 4 4 0 0 3)
+   (shared s179383
+     :=
+     (+ s179382 0 10 s179382 s179382)
+     (trap (<= s179382 (+)))))
+ (Sabsent SΓ)
+ (SX Sr)
+ (() () () () () () () ()))
+running test 3700
+has been running for 8728 seconds
+running test 3800
+has been running for 8930 seconds
+running test 3900
+has been running for 9119 seconds
+running test 4000
+has been running for 9303 seconds
+running test 4100
+has been running for 9470 seconds
+running test 4200
+has been running for 9636 seconds
+running test 4300
+has been running for 9795 seconds
+running test 4400
+has been running for 9973 seconds
+running test 4500
+has been running for 10135 seconds
+running test 4600
+has been running for 10375 seconds
+running test 4700
+has been running for 10805 seconds
+running test 4800
+has been running for 10970 seconds
+running test 4900
+has been running for 11223 seconds
+running test 5000
+has been running for 11402 seconds
+running test 5100
+has been running for 11600 seconds
+running test 5200
+has been running for 11763 seconds
+running test 5300
+has been running for 11951 seconds
+running test 5400
+has been running for 12121 seconds
+running test 5500
+has been running for 12312 seconds
+running test 5600
+has been running for 12492 seconds
+running test 5700
+has been running for 12693 seconds
+running test 5800
+has been running for 12963 seconds
+running test 5900
+has been running for 13137 seconds
+running test 6000
+has been running for 13330 seconds
+running test 6100
+has been running for 13492 seconds
+running test 6200
+has been running for 13679 seconds
+running test 6300
+has been running for 13859 seconds
+running test 6400
+has been running for 14704 seconds
+running test 6500
+has been running for 15039 seconds
+running test 6600
+has been running for 15216 seconds
+running test 6700
+has been running for 15391 seconds
+running test 6800
+has been running for 15588 seconds
+running test 6900
+has been running for 15800 seconds
+running test 7000
+has been running for 16011 seconds
+running test 7100
+has been running for 16300 seconds
+running test 7200
+has been running for 16454 seconds
+running test 7300
+has been running for 16631 seconds
+running test 7400
+has been running for 16787 seconds
