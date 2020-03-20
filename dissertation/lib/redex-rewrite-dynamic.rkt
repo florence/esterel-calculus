@@ -685,8 +685,14 @@
      (λ (lws)
        (define L (list-ref lws 2))
        (define θ (list-ref lws 3))
-       (list "∀ s ∈ " L ". " θ
-             (hbl-append (def-t "(s) = ⟨_ , ") (literal-t "ready") (def-t "⟩"))))]
+       (define A (list-ref lws 4))
+       (define p (list-ref lws 5))
+       (list (hbl-append (def-t "∀ ") (nt-t "s")) " ∈ " L ". "
+             (hbl-append
+              (nt-t "s") (def-t " ∉ ") (es/unchecked (->sh Can-θ)) ((white-square-bracket) #t)
+              (def-t "(") (alt-ρ) (def-t " ⟨"))
+             θ ", " A "⟩ " p ")"
+             (hbl-append (def-t ", ·") ((white-square-bracket) #f))))]
     ['distinct
      (λ (lws)
        (list ""
@@ -1302,7 +1308,8 @@
       (lambda ()
         (render-op/instructions
          (text "S" (non-terminal-style) (default-font-size))
-         `((superscript i))))])
+         `((superscript i))))]
+     ['δ (λ () (text "Eval" '"Dobkin" 15))])
     (define owsb (white-square-bracket))
     (parameterize* ([default-font-size (get-the-font-size)]
                    [metafunction-font-size (get-the-font-size)]

@@ -78,7 +78,7 @@
     (ρ θ A (in-hole D (ρ (mtθ+s s ev old) WAIT p)))
     (judgment-holds (leftmost θ A (shared s := e p) D))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
-    (side-condition (term (all-ready? (LFV/e e) θ (in-hole D (shared s := e p)))))
+    (side-condition (term (all-ready? (LFV/e e) θ A (in-hole D (shared s := e p)))))
     (where ev (δ e θ))
     shared)
    (-->
@@ -87,7 +87,7 @@
     (judgment-holds (leftmost θ GO (<= s e) D))
     (judgment-holds (θ-ref-s θ s _ old))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
-    (side-condition (term (all-ready? (LFV/e e) θ (in-hole D (<= s e)))))
+    (side-condition (term (all-ready? (LFV/e e) θ A (in-hole D (<= s e)))))
     set-old)
    (-->
     (ρ θ GO (in-hole D (<= s e)))
@@ -95,7 +95,7 @@
     (judgment-holds (leftmost θ GO (<= s e) D))
     (judgment-holds (θ-ref-s θ s ev new))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
-    (side-condition (term (all-ready? (LFV/e e) θ (in-hole D (<= s e)))))
+    (side-condition (term (all-ready? (LFV/e e) θ A (in-hole D (<= s e)))))
     set-new)
    ;; unshared state
    (-->
@@ -103,7 +103,7 @@
     (ρ θ A (in-hole D (ρ (mtθ+x x (δ e θ)) WAIT p)))
     (judgment-holds (leftmost θ A (var x := e p) D))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
-    (side-condition (term (all-ready? (LFV/e e) θ (in-hole D (var x := e p)))))
+    (side-condition (term (all-ready? (LFV/e e) θ A (in-hole D (var x := e p)))))
     var)
    (-->
     (ρ θ A (in-hole D (:= x e)))
@@ -111,7 +111,7 @@
     (judgment-holds (leftmost θ A (:= x e) D))
     (judgment-holds (L∈ x (Ldom θ)))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θ)))
-    (side-condition (term (all-ready? (LFV/e e) θ (in-hole D (:= x e)))))
+    (side-condition (term (all-ready? (LFV/e e) θ A (in-hole D (:= x e)))))
     set-var)
    ;; if
    (--> (ρ θ A (in-hole D (if x p q)))

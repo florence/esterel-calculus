@@ -57,10 +57,10 @@ to lift a signal out of an evaluation context an out environment is needed:
 @proof-splice["lift-signals"]
 The full proof is given in @proof-ref["lift-signals"]. This is because
 the only rule that allows for moving environments around is the @rule["merge"]
-rule, which requires two environments. This however, could be
+rule, which requires two environments. This could be
 fixed by adding the axiom @es[(≡ p (ρ · WAIT p))]. Such an axiom should
-be easy to prove sound, as will be seen in @secref["just:sound:compiler"],
-because the compilation of @es[p] and @es[(ρ · WAIT p)] should be identical.
+be easy to prove sound because, as is shown in @secref["just:sound:compiler"],
+the compilation of @es[p] and @es[(ρ · WAIT p)] should be identical.
 
 Next, we another weakness in the calculus. The next theorem should be true,
 but cannot be proven in the calculus:

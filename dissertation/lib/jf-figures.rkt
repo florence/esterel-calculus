@@ -9,6 +9,7 @@
          "redex-rewrite.rkt"
          redex/reduction-semantics
          redex/pict
+         (only-in "proof-extras.rkt" ≡j)
          esterel-calculus/dissertation/proofs/adequacy/can-props)
 
 (provide CB-pict
@@ -20,7 +21,8 @@
          blocked-e-pict
          all-bot-rec-pict
          blocked-pict
-         blocked-e-pict)
+         blocked-e-pict
+         ≡j-pict)
          
 
 (define (with-layout layout render-the-judgment-form
@@ -274,3 +276,11 @@
      →-pict
      (with-layout →*-layout (λ () (render-judgment-form →*))))
     (render-language esterel-eval #:nts '(C)))))
+
+
+(define ≡j-layout
+  '(("step" "refl")
+    ("sym" "trans" "ctx")))
+
+(define ≡j-pict
+  (with-layout ≡j-layout (lambda () (render-judgment-form ≡j))))

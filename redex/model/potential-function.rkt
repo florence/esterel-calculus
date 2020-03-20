@@ -171,11 +171,11 @@
              (LU (->sh (Can p θ)) (->sh (Can q θ))))])
 
 (define-metafunction esterel-eval
-  all-ready? : L θ p -> boolean
-  [(all-ready? L θ p)
+  all-ready? : L θ A p -> boolean
+  [(all-ready? L θ A p)
    #t
    (judgment-holds (L⊂ (get-shareds-in L) (Lunflatten (dom θ))))
-   (judgment-holds (distinct (->sh (Can-θ (ρ θ GO p) ·))
+   (judgment-holds (distinct (->sh (Can-θ (ρ θ A p) ·))
                              L))]
   [(all-ready? L θ p)
    #f])

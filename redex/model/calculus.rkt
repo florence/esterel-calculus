@@ -62,21 +62,21 @@
     (ρ θr A (in-hole E (shared s := e p)))
     (ρ θr A (in-hole E (ρ (mtθ+s s ev old) WAIT p)))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
-    (side-condition (term (all-ready? (LFV/e e) θr (in-hole E (shared s := e p)))))
+    (side-condition (term (all-ready? (LFV/e e) θr A (in-hole E (shared s := e p)))))
     (where ev (δ e θr))
     shared)
    (-->
     (ρ θr A (in-hole E (var x := e p)))
     (ρ θr A (in-hole E (ρ (mtθ+x x (δ e θr)) WAIT p)))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
-    (side-condition (term (all-ready? (LFV/e e) θr (in-hole E (var x := e p)))))
+    (side-condition (term (all-ready? (LFV/e e) θr A (in-hole E (var x := e p)))))
     var)
    (-->
     (ρ θr A (in-hole E (:= x e)))
     (ρ (id-but-typeset-some-parens (<- θr (mtθ+x x (δ e θr)))) A (in-hole E nothing))
     (judgment-holds (L∈ x (Ldom θr)))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
-    (side-condition (term (all-ready? (LFV/e e) θr (in-hole E (:= x e)))))
+    (side-condition (term (all-ready? (LFV/e e) θr A (in-hole E (:= x e)))))
     set-var)
    
    ;; if
@@ -107,7 +107,7 @@
     (ρ (id-but-typeset-some-parens (<- θr (mtθ+s s (δ e θr) new))) GO (in-hole E nothing))
     (judgment-holds (θ-ref-s θr s _ old))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
-    (side-condition (term (all-ready? (LFV/e e) θr (in-hole E (<= s e)))))
+    (side-condition (term (all-ready? (LFV/e e) θr A (in-hole E (<= s e)))))
     set-old)
 
    (-->
@@ -115,7 +115,7 @@
     (ρ (id-but-typeset-some-parens (<- θr (mtθ+s s (Σ ev (δ e θr)) new))) GO (in-hole E nothing))
     (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
     (judgment-holds (θ-ref-s θr s ev new))
-    (side-condition (term (all-ready? (LFV/e e) θr (in-hole E (<= s e)))))
+    (side-condition (term (all-ready? (LFV/e e) θr A (in-hole E (<= s e)))))
     set-new)))
 (define ⟶ (compatible-closure ⇀ esterel-eval p))
 

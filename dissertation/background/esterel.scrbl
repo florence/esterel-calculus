@@ -147,7 +147,12 @@ instant. This ensures that each instant, in fact, terminates.
 
 TODO
 
+TODO: dont say state here
 @section["The host language and state in Esterel"]
+
+TODO update sequential -> host language
+TODO discuss only using +
+TODO change gaurntees around the host language variables 
 
 The last line of the grammar at the start of @secref["background-esterel"] extends Pure Esterel with forms
 which can track values, in addition to Boolean signals.

@@ -397,16 +397,67 @@ fire.
 
 @subsection{Host language rules}
 
-TODO extend θ to handle sh and x
+To handle host language forms, @es[θ] and @es[θr] must be extended
+to accept shared and host language variables. Thus @es[θ] will
+also map @es[x]s to their values, and @es[sh]s to a pair
+of a value and their current status:
+@[centered [with-paper-rewriters [render-language esterel-eval #:nts '(shared-status)]]]
 
+To understand these @es[shared-status]es, observer the rules
+for shared variables:@(linebreak)
 @[render-specific-rules '(shared set-old set-new)]@(linebreak)
+The first rule is analogous to the @rule["signal"] rule,
+converting a shared variable binder into a local environment
+with the control variable @es[WAIT]. However the rule
+@rule["shared"] must evaluate a host language expression to
+determine the default value for the shared variable. To do
+this it check if every single shared and host language
+variable in the host language expression is bound in the
+local environment, and that all of the referenced shared
+variables cannot be written to, according to
+@es/unchecked[(->sh Can-θ)]. Only if this is true can the expression
+@es[e] be given to the host language evaluator @es[δ], which
+accepts the host language expression and the binding
+environment. The new environment initializes
+the shared variable's status to @es[old], because the default
+value of the shared value acts as if it came from the previous instant
+and should only be used if the shared variable is not written to.
+
+The @rule["set-old"] and @rule["set-new"] rules both update the value of a shared variable,
+using the same rules as @rule["shared"] to decide if the host language expression
+can be evaluated. The different is in the actual updating. If the status
+is @es[old], then the new value replaces the old value, and the status is
+set to @es[new]. If the status is already @es[new], then the value
+gotten from evaluating @es[e] is combined by the associative and commutative operator
+for that variable. In this model the only operator is @es[+], however in a real
+program the operator is given by the user. Like @rule["emit"], these rules
+may only fire when the control variable is @es[GO], for a similar reason as
+to @rule["emit"].
 
 
-
+Initializing and updating host language variables is
+simpler:@(linebreak)
 @[render-specific-rules '(var set-var)]@(linebreak)
-@[render-specific-rules '(if-true if-false)]@(linebreak)
+The initialization of the host language variable via
+@rule["var"] is nearly identical to the initialization of
+shared variables, the only difference being the type of
+variable, and the lack of a status. Updating a host language
+variable is also akin to @rule["set-old"], except that
+because Esterel doesn't directly provide guarantees about
+concurrency with host language variables, the new value just
+replaces the old one in the environment.
 
-@section{The full calculus}
+We can condition on host language variables using the common @es[if0] form:@(linebreak)
+@[render-specific-rules '(if-true if-false)]@(linebreak)
+Which behaves like one would expect from an @es[if0] rule.
+
+@subsection{The full calculus}
+
+As a calculus should be congruent equality relation. The relation @es[⇀]
+generates this relation via its symmetric, transitive, reflexive,
+compatible closure, seen in @figure-ref["eql-rel"].
+
+@figure["eql-rel" "The full equality relation" ≡j-pict]
 
 @section[#:tag "calc:eql"]{The evaluator}
 
