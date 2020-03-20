@@ -398,6 +398,26 @@
 
 
 (module+ test
+  (test-case "SEL wire doesn't interfere with testing"
+    (check-not-exn
+     (lambda ()
+       (execute-test
+        (term pause)
+        '()
+        '(SEL)
+        '(() () ())
+        #:debug? #f #:limits? #f #:external? #f
+        #:memory-limits? #f))))
+  (test-case "input signal wire doesn't interfere with testing"
+    (check-not-exn
+     (lambda ()
+       (execute-test
+        (term (signal S2 (emit S2)))
+        '(S1)
+        '()
+        '((S1))
+        #:debug? #f #:limits? #f #:external? #f
+        #:memory-limits? #f))))
   (test-case "std reduction fork regression"
     (check-not-exn
      (lambda ()

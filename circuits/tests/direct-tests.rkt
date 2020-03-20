@@ -6,16 +6,16 @@
 
 (check-equal?
  (circuit-term (compile-esterel (term nothing)))
- (term ((K0 = GO) (SEL = false))))
+ (term ((--SEL = false) (K0 = GO))))
 (check-equal?
  (circuit-term (compile-esterel (term (exit 0))))
- (term ((K2 = GO) (SEL = false))))
+ (term ((--SEL = false) (K2 = GO))))
 (check-equal?
  (circuit-term (compile-esterel (term (emit Ss))))
  (sort
   (term ((K0 = GO)
          (Ss = GO)
-         (SEL = false)))
+         (--SEL = false)))
   variable<?
   #:key first))
 (check-equal?
@@ -23,7 +23,7 @@
  (sort
   (term ((K0 = K0-internal)
          (K0-internal = GO)
-         (SEL = (or psel qsel))
+         (--SEL = (or psel qsel))
          (psel = false)
          (qsel = false)))
   variable<?
@@ -33,10 +33,10 @@
  (sort
   (term ((K1 = GO)
          (K0 = (and reg-out RES))
-         (SEL = reg-out)
+         (--SEL = reg-out)
          (reg-in = (and (not KILL) do-sel))
          (do-sel = (or GO resel))
-         (resel = (and SUSP SEL))))
+         (resel = (and --SUSP --SEL))))
   variable<?
   #:key first))
 (check-equal?
@@ -44,8 +44,8 @@
  (sort
   (term ((susp-res = (and (not S) do-res))
          (do-res = (and susp-sel RES))
-         (SEL = susp-sel)
-         (susp-susp = (or SUSP do-susp))
+         (--SEL = susp-sel)
+         (susp-susp = (or --SUSP do-susp))
          (do-susp = (and S do-res))
          (K1 = (or do-susp false))
          (susp-sel = false)
@@ -58,10 +58,10 @@
   (term
    ((K5 = (or GO qK5))
     (q-GO = false)
-    (q-SUSP = SUSP)
+    (q---SUSP = --SUSP)
     (q-KILL = KILL)
     (q-RES = RES)
-    (SEL = (or psel qsel))
+    (--SEL = (or psel qsel))
     (K0 = qK0)
     (K1 = qK1)
     (K2 = qK2)
@@ -69,7 +69,7 @@
     (K4 = qK4)
     (K6 = qK6)
     (psel = false)
-    (qsel = q-SEL)))
+    (qsel = q---SEL)))
   variable<?
   #:key first))
 (check-equal?
@@ -81,9 +81,9 @@
     (rem1 = (or rem rname))
     (both = (or lname rname))
     (K0 = (and lem1 (and rem1 both)))
-    (lem = (and SEL (and RES (not psel))))
-    (rem = (and SEL (and RES (not qsel))))
-    (SEL = (or psel qsel))
+    (lem = (and --SEL (and RES (not psel))))
+    (rem = (and --SEL (and RES (not qsel))))
+    (--SEL = (or psel qsel))
     (psel = false)
     (qsel = false)
     (lname = GO)

@@ -32,7 +32,7 @@
       (check-pred
        unsat?
        (verify-same
-        #:constraints (if guard? 'true '(implies SEL (not GO)))
+        #:constraints (if guard? 'true '(implies --SEL (not GO)))
         (compile x)
         (compile y))
        (format

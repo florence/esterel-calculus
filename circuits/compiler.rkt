@@ -38,7 +38,7 @@
 
 
 (define-extended-language constructive+ constructive
-  (a ::= .... GO RES SUSP KILL SEL (K n))
+  (a ::= .... GO RES --SUSP KILL --SEL (K n))
   (n k ::= natural)
   (entropy ::= any))
 
@@ -99,7 +99,7 @@
   guard : c:P -> c:P
   [(guard c:P)
    (++/P
-    ((c:a_go = (and GO (not SEL))))
+    ((c:a_go = (and GO (not --SEL))))
     (rename** c:P
               [GO c:a_go]))
    (where/error c:a_go (afresh GO-safe c:P))])
@@ -121,11 +121,11 @@
   (make-circuit
    #:inputs (remove-duplicates
              (append
-              '(GO RES SUSP KILL)
+              '(GO RES --SUSP KILL)
               (remove*
                (flatten regs)
                (term (FV ,c)))))
-   #:outputs (cons 'SEL
+   #:outputs (cons '--SEL
                    (filter-map
                     (lambda (x)
                       (and
@@ -145,7 +145,7 @@
    #:inputs (remove*
              (flatten regs)
              (term (FV ,c)))
-   #:outputs (cons 'SEL
+   #:outputs (cons '--SEL
                    (filter-map
                     (lambda (x)
                       (and
@@ -167,7 +167,7 @@
        (for/list ([x (in-list ins)]
                   #:when (not (member x i)))
          `(,x #f)))))
-  (define p++regs (term (compile-esterel/top ,p)))
+  (define p++regs (term (compile-esterel/top ,p (,ins ,outs))))
   (define results
     (apply
      execute
@@ -198,22 +198,22 @@
           x))
 
 (define-metafunction L+
-  compile-esterel/top : e:p -> (c:P ((c:a c:a) ...))
-  [(compile-esterel/top e:p)
+  compile-esterel/top : e:p c:entropy -> (c:P ((c:a c:a) ...))
+  [(compile-esterel/top e:p c:entropy)
    ((++/P
      c:P
      ((GO = (not c:a_reg-out))
       (c:a_reg-in = (not false))
       (RES = true)
-      (SUSP = false)
+      (--SUSP = false)
       (KILL = false)))
     ((c:a_reg-in c:a_reg-out)
      (c:a c:b) ...))
     
    (where (c:P ((c:a c:b) ...))
-          (compile-esterel/get-registers e:p))
-   (where c:a_reg-out (afresh reg-out c:P))
-   (where c:a_reg-in (afresh reg-out (c:a_reg-out . c:P)))])
+          (compile-esterel/get-registers/entropy e:p c:entropy))
+   (where c:a_reg-out (afresh reg-out (c:entropy . c:P)))
+   (where c:a_reg-in (afresh reg-out (c:a_reg-out . (c:entropy . c:P))))])
 
 
 
@@ -221,10 +221,10 @@
   compile : e:p c:entropy -> (c:P (e:S ...) (c:n ...)  ((c:a c:a) ...))
   [(compile (nts variable c:n) c:entropy)
    ((((synth variable -GO entropy) = GO)
-     ((synth variable -SUSP entropy) = SUSP)
+     ((synth variable ---SUSP entropy) = --SUSP)
      ((synth variable -KILL entropy) = KILL)
      ((synth variable -RES entropy) = RES)
-     (SEL = (synth variable -SEL entropy))
+     (--SEL = (synth variable ---SEL entropy))
      ,@(for/list ([i (in-range 0 (add1 (term c:n)))])
          (term ((K ,i) = (synth variable K ,i entropy)))))
      
@@ -233,33 +233,33 @@
     ())]
   [(compile nothing _)
    ((((K 0) = GO)
-     ;; add SEL explicitly to allow for mentioning it in properties
-     (SEL = false))
+     ;; add --SEL explicitly to allow for mentioning it in properties
+     (--SEL = false))
     ()
     (0)
     ())]
   [(compile (exit c:k) _)
    ((((K ,(+ 2 (term c:k))) = GO)
-     ;; add SEL explicitly to allow for mentioning it in properties
-     (SEL = false))
+     ;; add --SEL explicitly to allow for mentioning it in properties
+     (--SEL = false))
     ()
     (,(+ 2 (term c:k)))
     ())]
   [(compile (emit e:S) _)
    ((((K 0) = GO)
      (e:S = GO)
-     ;; add SEL explicitly to allow for mentioning it in properties
-     (SEL = false))
+     ;; add --SEL explicitly to allow for mentioning it in properties
+     (--SEL = false))
     (e:S)
     (0)
     ())]
   [(compile pause c:entropy)
    ((((K 1) = GO)
      ((K 0) = (and c:a_reg-out RES))
-     (SEL = c:a_reg-out)
+     (--SEL = c:a_reg-out)
      (c:a_reg-in = (and (not KILL) c:a_do-sel))
      (c:a_do-sel = (or GO c:a_resel))
-     (c:a_resel = (and SUSP SEL)))
+     (c:a_resel = (and --SUSP --SEL)))
     ()
     (0 1)
     ((c:a_reg-in c:a_reg-out)))
@@ -270,13 +270,13 @@
   [(compile (present e:S e:p e:q) c:entropy)
    ((++/P ((c:a_then = (and GO e:S))
            (c:a_else = (and GO (not e:S)))
-           (SEL = (or any_psel any_qsel)))
+           (--SEL = (or any_psel any_qsel)))
           (rename** c:P_p
                     [GO c:a_then]
-                    [SEL any_psel])
+                    [--SEL any_psel])
           (rename** c:P_q
                     [GO c:a_else]
-                    [SEL any_qsel]))
+                    [--SEL any_qsel]))
          
     (++/filter (e:S_p ...) (e:S_q ...))
     (++/filter/sort (c:n_p ...) (c:n_q ...))
@@ -296,19 +296,19 @@
                  c:entropy_r))
    (where/error c:a_then (afresh then c:entropy_r2))
    (where/error c:a_else (afresh else c:entropy_r2))
-   (where/error any_psel (maybe-afresh c:P_p SEL pSEL-present c:entropy_r2))
-   (where/error any_qsel (maybe-afresh c:P_q SEL qSEL-present c:entropy_r2))]
+   (where/error any_psel (maybe-afresh c:P_p --SEL p--SEL-present c:entropy_r2))
+   (where/error any_qsel (maybe-afresh c:P_q --SEL q--SEL-present c:entropy_r2))]
   [(compile (suspend e:p e:S) c:entropy)
    ((++/P ((c:a_susp-res = (and (not e:S) c:a_do-res))
            (c:a_do-res = (and any_susp-sel RES))
-           (c:a_susp-susp = (or SUSP c:a_do-susp))
+           (c:a_susp-susp = (or --SUSP c:a_do-susp))
            (c:a_do-susp = (and e:S c:a_do-res))
-           (SEL = any_susp-sel)
+           (--SEL = any_susp-sel)
            ((K 1) = (or c:a_do-susp any_k1rename)))
           (rename** c:P
                     [RES c:a_susp-res]
-                    [SEL any_susp-sel]
-                    [SUSP c:a_susp-susp]
+                    [--SEL any_susp-sel]
+                    [--SUSP c:a_susp-susp]
                     [(K 1) any_k1rename]))
     (e:S_out ...)
     (++/filter/sort (1) (c:k_out ...))
@@ -321,17 +321,17 @@
    (where/error c:a_susp-res (afresh susp-res c:entropy_r))
    (where/error c:a_do-res (afresh do-res c:entropy_r))
    (where/error any_susp-sel
-                (maybe-afresh c:P SEL susp-sel c:entropy_r))
+                (maybe-afresh c:P --SEL susp-sel c:entropy_r))
    (where/error c:a_susp-susp (afresh susp-susp c:entropy_r))
    (where/error c:a_do-susp (afresh do-susp c:entropy_r))]
   [(compile (seq e:p e:q) c:entropy)
    ((++/P
-     ((SEL = (or c:a_psel c:a_qsel)))
+     ((--SEL = (or c:a_psel c:a_qsel)))
      (rename** c:P_p
-               [SEL c:a_psel]
+               [--SEL c:a_psel]
                [(K 0) any_k0rename])
      (rename** c:P_q
-               [SEL c:a_qsel]
+               [--SEL c:a_qsel]
                [GO any_k0rename]))
     (++/filter (e:S_p ...) (e:S_q ...))
     (++/filter/sort ,(r:remove 0 (term (c:n_p ...)))
@@ -397,14 +397,14 @@
    (where/error any_srename (maybe-afresh c:P e:S e:S (c:P c:entropy)))]
   [(compile (par e:p e:q) c:entropy)
    ((++/P c:P_sync
-          ((SEL = (or any_psel any_qsel)))
+          ((--SEL = (or any_psel any_qsel)))
           (rename** c:P_p
                     [KILL c:a_outkill]
-                    [SEL any_psel]
+                    [--SEL any_psel]
                     [(K c:n_p) c:a_prename] ...)
           (rename** c:P_q
                     [KILL c:a_outkill]
-                    [SEL any_qsel]
+                    [--SEL any_qsel]
                     [(K c:n_q) c:a_qrename] ...))
     (++/filter (e:S_p ...) (e:S_q ...))
     (++/filter/sort (c:n_p ...) (c:n_q ...))
@@ -415,8 +415,8 @@
    (where/error (c:P_q (e:S_q ...) (c:n_q ...) ((c:a_qreg-in c:a_qreg-out) ...))
                 (compile e:q (c:P_p . c:entropy)))
    (where/error c:entropy_r (c:P_q c:P_p . c:entropy))
-   (where/error any_psel (maybe-afresh c:P_p SEL psel c:entropy_r))
-   (where/error any_qsel (maybe-afresh c:P_q SEL qsel c:entropy_r))
+   (where/error any_psel (maybe-afresh c:P_p --SEL psel c:entropy_r))
+   (where/error any_qsel (maybe-afresh c:P_q --SEL qsel c:entropy_r))
    (where/error (c:P_sync (c:a_prename ...)
                           (c:a_qrename ...)
                           c:a_outkill)
@@ -579,8 +579,8 @@
    ,(let ()
       (define lem (variable-not-in (term c:entropy) 'lem))
       (define rem (variable-not-in (term c:entropy) 'rem))
-      (for/fold ([P (term ((,lem = (and SEL (and RES (not any_psel))))
-                           (,rem = (and SEL (and RES (not any_qsel))))))]
+      (for/fold ([P (term ((,lem = (and --SEL (and RES (not any_psel))))
+                           (,rem = (and --SEL (and RES (not any_qsel))))))]
                  [lem lem]
                  [rem rem]
                  [kill (term KILL)]

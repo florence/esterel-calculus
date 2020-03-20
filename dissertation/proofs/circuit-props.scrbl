@@ -33,7 +33,7 @@ variables.
   @#:case[pause]{
    @check[
  (assert-same
-  #:constraints '(not (or GO (and SEL RES)))
+  #:constraints '(not (or GO (and --SEL RES)))
   (compile-esterel (term pause))
   (compile-esterel (term nothing)))]
    Thus this follows by the same argument as the @es[nothing] case.}
@@ -129,7 +129,7 @@ variables.
   just a label on the wire, therefore this holds for all @es[n].}
   @#:case[pause]{
    @check[(assert-totally-constructive
-           #:constraints '(not (or GO (and SEL RES)))
+           #:constraints '(not (or GO (and --SEL RES)))
            (compile-esterel (term pause)))]
   }
   @#:case[(trap p-pure_i)]{This case follows by

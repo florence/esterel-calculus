@@ -85,7 +85,7 @@
  (list (set)))
 (test-case "internal eval issues"
   (define p++regs
-    (term (compile-esterel/top (trap (seq nothing (exit 0))))))
+    (term (compile-esterel/top (trap (seq nothing (exit 0))) ())))
   (check-equal?
    (length
     (execute

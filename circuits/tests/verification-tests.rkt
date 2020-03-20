@@ -210,13 +210,13 @@
 (check-pred
  unsat?
  (verify-same
- #:constraints '(implies SEL (not GO))
+ #:constraints '(implies --SEL (not GO))
  (compile-esterel (term (ρ · GO (seq nothing nothing))))
  (compile-esterel (term (ρ · GO nothing)))))
 (check-pred
  unsat?
  (verify-same
-  #:constraints '(implies (+ SEL) (- GO))
+  #:constraints '(implies (+ --SEL) (- GO))
   (constructive->classical
    (compile-esterel (term (ρ · GO (seq nothing nothing)))))
   (constructive->classical
@@ -255,11 +255,11 @@
   (check-pred
    unsat?
    (verify-same
-    #:constraints (term (implies SEL (not GO)))
+    #:constraints (term (implies --SEL (not GO)))
     p q))
   (check-pred
    unsat?
    (verify-same
-    #:constraints (term (implies (+ SEL) (- GO)))
+    #:constraints (term (implies (+ --SEL) (- GO)))
     (constructive->classical p)
     (constructive->classical q))))

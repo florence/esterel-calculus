@@ -17,7 +17,7 @@
 (check-pred
  unsat?
  (verify-same
-  #:constraints '(implies SEL (not GO))
+  #:constraints '(implies --SEL (not GO))
   (compile-esterel/guard (term pause))
   (compile-esterel (term pause))))
 (check-pred
@@ -28,6 +28,6 @@
 (check-pred
  unsat?
  (verify-same
-  #:constraints '(implies SEL (not GO))
+  #:constraints '(implies --SEL (not GO))
   (compile-esterel/guard (term (par pause pause)))
   (compile-esterel (term (par pause pause)))))
