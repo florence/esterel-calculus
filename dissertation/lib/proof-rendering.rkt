@@ -18,8 +18,19 @@
      (~optional (~and elide? #:elide))))
   (define-syntax-class dev
     #:literals (de)
-    #:datum-literals (ctx trans step refl sym)
+    #:datum-literals (ctx trans step refl sym hole)
     #:attributes (derive render elide? p q)
+    [pattern
+     (de hole :elide p:expr q:expr)
+     #:attr derive
+     #'(begin
+         (log-disseration-warning "hole in proof")
+         (derivation
+          (list '≡j (term p) (term q))
+          "hole"
+          (list)))
+     #:attr render
+     #'"TODO"]
     [pattern
      (de :elide ctx p:expr q:expr deriv:de-c)
      #:attr derive

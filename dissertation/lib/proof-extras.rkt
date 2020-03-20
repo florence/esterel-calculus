@@ -265,6 +265,8 @@
 
 (define-judgment-form esterel/typeset
   #:contract (≡j p q)
+  [----------------- HOLE
+   (≡j p q)]
   [(⇀j p q string)
    ----------------- step
    (≡j p q)]
