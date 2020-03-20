@@ -49,4 +49,39 @@ as the transitivity and symmetry of the equality relation.
 The second proof shows that we can take the else branch of an @es[if] whenever
 we can determine the signal cannot be emitted:
 @proof-splice["else-branch"]
-The full proof is given is @proof-ref["else-branch"].
+The full proof is given in @proof-ref["else-branch"].
+
+
+The next proof demonstrates some of the weaknesses of the calculus. Specifically, in order
+to lift a signal out of an evaluation context an out environment is needed:
+@proof-splice["lift-signals"]
+The full proof is given in @proof-ref["lift-signals"]. This is because
+the only rule that allows for moving environments around is the @rule["merge"]
+rule, which requires two environments. This however, could be
+fixed by adding the axiom @es[(≡ p (ρ · WAIT p))]. Such an axiom should
+be easy to prove sound, as will be seen in @secref["just:sound:compiler"],
+because the compilation of @es[p] and @es[(ρ · WAIT p)] should be identical.
+
+Next, we another weakness in the calculus. The next theorem should be true,
+but cannot be proven in the calculus:
+@proof[#:label "unprovable-lifting"
+       #:title "Lift Signal Emission (Unprovable)"
+       #:no-proof #t
+       #:type 'theorem
+       #:statement
+       @list{For all @es[E], @es[S],
+        @es[(≃^esterel (in-hole E (emit S)) (par (emit S) (in-hole E nothing)))]
+        }]
+In fact it cannot prove even this weaker statement:
+@proof[#:label "unprovable-lifting2"
+       #:title "Lift Signal Emission, with Binder (Unprovable)"
+       #:type 'theorem
+       #:no-proof #t
+       #:statement @list{
+        For all @es[E], @es[S],
+        @es[(≃^esterel (signal S (in-hole E (emit S))) (signal S (par (emit S) (in-hole E nothing))))]
+        }]
+This is because in order to lift up an @es[emit] we must run the @es[emit], putting a @es[present]
+in an environment, then using @rule["sym"] run the @es[emit] backwards to place it elsewhere. However
+this can only be done if the environment has a @es[GO], which the calculus cannot insert. Possible solutions
+to this, to strengthen the calculus, are discussed in @secref["future:remove"].

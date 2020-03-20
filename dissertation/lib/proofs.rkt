@@ -1,6 +1,7 @@
 #lang racket
 (provide cases state sequenced base
-         render-derivation)
+         render-derivation
+         dj?)
 
 (require (for-syntax syntax/parse
                      redex/private/term-fn

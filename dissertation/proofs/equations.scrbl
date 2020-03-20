@@ -39,7 +39,10 @@
                    (redex-check
                     esterel/typeset (x ...)
                     (implies
-                     (and (~? (~@ (judgment-holds assumptions) ...)))
+                     (and (~? (~@ (if (dj? assumptions)
+                                      (judgment-holds assumptions)
+                                      (term assumptions))
+                                  ...)))
                      (judgment-holds ≡j dee))
                     #:attempts 20
                     #:print? #f))
@@ -49,9 +52,11 @@
       #:title title
       #:label tag
       #:statement @list{For all @[add-between [list @es[x] ...] ", "],
-  @(~? @~@{If @[add-between [list (es assumptions) ...] "and, "], then})
+  @(~? @~@{If @[add-between [list (es assumptions) ...] " and, "], then})
   @(statement dee)}
-      (with-paper-rewriters (render dee)))))]
+      @list{
+  @(with-paper-rewriters (render dee))
+  By the above and @proof-ref["soundness"], we may conclude that @(statement dee).})))]
 
 @[equality-proof
   #:title "Can swap adjacent signals"
@@ -192,3 +197,69 @@
        
    (signal S
      q))]
+
+
+@[equality-proof
+  #:title "Lifting signals"
+  #:label "lift-signals"
+  #:∀ S p E A
+  (de trans
+      (ρ · A
+         (in-hole E (signal S p)))
+      (de ctx
+          (ρ · A
+             (in-hole E (signal S p)))
+          (ρ · A
+             (in-hole E (ρ (mtθ+S S unknown) WAIT p)))
+          (de step
+              (signal S p)
+              (ρ (mtθ+S S unknown) WAIT p)
+              "signal"))
+      (ρ · A
+         (in-hole E (ρ (mtθ+S S unknown) WAIT p)))
+      (de step
+          (ρ · A
+             (in-hole E (ρ (mtθ+S S unknown) WAIT p)))
+          (ρ (mtθ+S S unknown) A
+             (in-hole E p))
+          "merge")
+      (ρ (mtθ+S S unknown) A
+         (in-hole E p))
+      (de sym
+          (ρ (mtθ+S S unknown) A
+             (in-hole E p))
+          (ρ · A
+             (ρ (mtθ+S S unknown) WAIT
+                (in-hole E p)))
+          (de step
+              (ρ · A
+                 (ρ (mtθ+S S unknown) WAIT
+                    (in-hole E p)))
+              (ρ (mtθ+S S unknown) A
+                 (in-hole E p))
+              "merge"))
+      (ρ · A
+         (ρ (mtθ+S S unknown) WAIT
+            (in-hole E p)))
+      (de ctx
+          (ρ · A
+             (ρ (mtθ+S S unknown) WAIT
+                (in-hole E p)))
+          (ρ · A
+             (signal S
+               (in-hole E p)))
+          (de sym
+
+              (ρ (mtθ+S S unknown) WAIT
+                 (in-hole E p))
+              (signal S
+                (in-hole E p))
+              (de step
+                  (signal S
+                    (in-hole E p))
+                  (ρ (mtθ+S S unknown) WAIT
+                     (in-hole E p))
+                  "signal")))
+      (ρ · A
+         (signal S (in-hole E p))))]
+

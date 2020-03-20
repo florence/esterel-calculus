@@ -12,7 +12,7 @@
 @subsection{Extending proofs to multiple instants, and guarding compilation
 
 }
-@subsection{Removing θ from ρ}
+@subsection[#:tag "future:remove"]{Removing θ from ρ}
 
 I suspect that there is a variant of my calculus which is both stronger
 (in the sense that it can prove more things equal) and does not require the
@@ -40,6 +40,8 @@ validate that @es[(≡ (par (emit S) q) (seq (emit S) q))],
 which has a slightly simpler circuit because there is not
 synchronizer. This rule cannot be proven by the current calculus, because in enables
 reasoning about @es[emit]s when there is no @es[GO].
+
+TODO @proof-ref["unprovable-lifting"]
 
 The definition of @es[Can] would also need to change in this variant of the calculus.
 The @es[Can] function would likely still need an @es[θ] argument, therefore @es[Can]

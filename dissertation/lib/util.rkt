@@ -314,6 +314,7 @@
                          #:interpretation [interp #f]
                          #:type [type 'lemma]
                          #:title [title #f]
+                         #:no-proof [no-proof #f]
                          loc
                          . the-proof)
   (->*
@@ -321,7 +322,8 @@
    (#:annotations list?
     #:interpretation (treeof pre-flow?)
     #:type (or/c 'lemma 'theorem)
-    #:title (or/c #f string?))
+    #:title (or/c #f string?)
+    #:no-proof boolean?)
    #:rest (treeof pre-flow?)
    (treeof pre-flow?))
   (when (hash-has-key? proof-name-table label)
@@ -347,11 +349,17 @@
        (nested-flow (style "interpretation" '())
                     (decode-flow (list interp)))
        "")
-   (nested-flow (style "myproof" '())
-                (decode-flow
-                 (cons
-                  (index (list (or title label) "proof") "")
-                  (render-proof-item-body loc the-proof))))))
+   (cond
+     [(not no-proof)
+      (nested-flow (style "myproof" '())
+                   (decode-flow
+                    (cons
+                     (index (list (or title label) "proof") "")
+                     (render-proof-item-body loc the-proof))))]
+     [(empty? the-proof)
+      (list)]
+     [else
+      (error 'proof "prove provided, but no-proof is true")])))
 
 
 (define (wrap-latex-begin-end env content #:followup [followup #f])

@@ -7,6 +7,7 @@
          "proofs.rkt"
          pict
          "redex-rewrite.rkt"
+         "util.rkt"
          (for-syntax syntax/parse)
          (only-in scribble/base linebreak)
          syntax/parse/define)
@@ -24,13 +25,23 @@
      (de hole :elide p:expr q:expr)
      #:attr derive
      #'(begin
-         (log-disseration-warning "hole in proof")
+         (log-diss-warning "hole in proof")
          (derivation
           (list '≡j (term p) (term q))
-          "hole"
+          "HOLE"
           (list)))
      #:attr render
      #'"TODO"]
+    [pattern
+     (de premise :elide p:expr q:expr)
+     #:attr derive
+     #'(begin
+         (derivation
+          (list '≡j (term p) (term q))
+          "PREMISE"
+          (list)))
+     #:attr render
+     #'@list{By our premises, @[hc-append 5 @es[p] @es[≡] @es[q]]}]
     [pattern
      (de :elide ctx p:expr q:expr deriv:de-c)
      #:attr derive
@@ -43,7 +54,7 @@
         [linebreak]
         @sequenced[
  @#:step[fst]{@deriv.render}
- @#:step[_]{By @rule["ctx"] and @fst, @hc-append[(es p) (es ≡) (es p)]}]]]
+ @#:step[_]{By @rule["ctx"] and @fst, @hc-append[5 (es p) (es ≡) (es p)]}]]]
     [pattern
      (de :elide
          trans
@@ -82,7 +93,7 @@
  @#:step[fst]{@derivh.render}
  @#:step[_]{@derivr.render} ...
  @#:step[lst]{@deriv.render}
- @#:step[_]{By @rule["trans"], and @fst through @lst, @hc-append[(es p) (es ≡) (es q)]}
+ @#:step[_]{By @rule["trans"], and @fst through @lst, @hc-append[5 (es p) (es ≡) (es q)]}
  ]]]
     
     [pattern
@@ -110,7 +121,7 @@
         "refl")
      #:attr q #'p
      #:attr render
-     #'@list{By @rule["refl"], @hc-append[(es p) (es ≡) (es q)]}]
+     #'@list{By @rule["refl"], @hc-append[5 (es p) (es ≡) (es q)]}]
     [pattern
      (de :elide step p:expr q:expr rule-name)
      #:attr derive
@@ -130,7 +141,7 @@
     #:attributes (derive render statement)
     [pattern
      d:dev
-     #:attr statement #'(hc-append 5 (es d.p) (es ≡) (es d.q))
+     #:attr statement #'(hc-append 5 (es d.p) (es ≃^esterel) (es d.q))
      #:attr derive
      #`(let ([y d.derive])
          (if (judgment-holds ≡j y)
