@@ -100,3 +100,41 @@ has been running for 9144 seconds
        ("signal" . 62)
        ("suspend" . 9)
        ("trap" . 37))
+running test 700
+has been running for 26568 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 0)
+       ("is-present" . 0)
+       ("loop" . 57)
+       ("loop^stop-exit" . 0)
+       ("merge" . 84)
+       ("par-1exit" . 5)
+       ("par-2exit" . 1)
+       ("par-nothing" . 46)
+       ("par-swap" . 208)
+       ("seq-done" . 69)
+       ("seq-exit" . 41)
+       ("signal" . 94)
+       ("suspend" . 13)
+       ("trap" . 39))
+redex-check: <pkgs>/esterel-calculus/circuits/tests/random-tests.rkt:34
+checking (ρ · WAIT (par (seq (seq pause pause) (seq pause pause)) (par (present SD pause pause) (par pause pause)))) raises an exception
+read-solution: unrecognized solver output: #<eof>
+  context...:
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/solver/smt/base-solver.rkt:133:0: read-solution
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/solver/smt/base-solver.rkt:92:0: solver-check
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/query/core.rkt:54:0: ∃-solve
+   /Users/florence/dissertation-tests/circuitous/circuitous-lib/circuitous/private/interp-unit.rkt:221:2: verify/f
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/core/bool.rkt:304:0: evaluate-with-asserts
+   /Users/florence/dissertation-tests/circuitous/circuitous-lib/circuitous/private/interp-unit.rkt:117:2: verify-same/multi
+   /Users/florence/dissertation-tests/esterel-calculus/circuits/tests/regression.rkt:45:4: for-loop
+   /Users/florence/dissertation-tests/esterel-calculus/circuits/tests/regression.rkt:23:2: for-loop
+   /Users/florence/dissertation-tests/esterel-calculus/circuits/tests/regression.rkt:22:0: test-term
+   .../more-scheme.rkt:261:28
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:455:2: loop
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:423:0: check-one
+   "/Users/florence/dissertation-tests/esterel-calculus/redex/test/long-tests/circuit.rkt": [running body]
+   temp35_0
+   for-loop
+   run-module-instance!
+   ...

@@ -1,0 +1,17 @@
+running test 100
+has been running for 34 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 0)
+       ("is-present" . 0)
+       ("loop" . 0)
+       ("loop^stop-exit" . 0)
+       ("merge" . 0)
+       ("par-1exit" . 0)
+       ("par-2exit" . 0)
+       ("par-nothing" . 13)
+       ("par-swap" . 14)
+       ("seq-done" . 24)
+       ("seq-exit" . 0)
+       ("signal" . 0)
+       ("suspend" . 2)
+       ("trap" . 0))
