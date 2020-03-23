@@ -352,6 +352,8 @@
   (eval-pict "E"))
 (define (eval-c-pict)
   (eval-pict "C"))
+(define (eval-h-pict)
+  (eval-pict "H"))
 (define (≃-e-pict)
   (≃-pict "Est"))
 (define (≃-c-pict)
@@ -438,6 +440,8 @@
      (curry binop ">")]
     ['<
      (curry binop "<")]
+    ['⊆
+     (curry binop "⊆")]
     ['Eval
      (λ (lws)
        (list (hbl-append (text "Eval" (metafunction-style) (default-font-size))
@@ -552,7 +556,7 @@
        (define e (list-ref lws 2))
        (define θ (list-ref lws 3))
        (list (hbl-append 2
-                         (text "Eval" '"Dobkin" 15)
+                         (eval-h-pict)
                          ;(text "Eval" '(italic . "Brush Script MT") 10)
                          ;(text "Eval" '"SignPainter" 10)
                          ;(text "Eval" '"Snell Roundhand" 10)
@@ -1309,7 +1313,7 @@
         (render-op/instructions
          (text "S" (non-terminal-style) (default-font-size))
          `((superscript i))))]
-     ['δ (λ () (text "Eval" '"Dobkin" 15))])
+     ['δ (λ () (eval-h-pict))])
     (define owsb (white-square-bracket))
     (parameterize* ([default-font-size (get-the-font-size)]
                    [metafunction-font-size (get-the-font-size)]

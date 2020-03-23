@@ -365,7 +365,7 @@ respect to the compilation function.
 @proof[#:label "cbpreserved"
        #:title "Correct binding is preserved"
        #:statement
-       @list{For all @es[p-pure], @es[q],
+       @list{For all @es[p], @es[q],
         if @es[(⇀ p q)] and @es[(CB p)]
         them @es[(CB q)]}]{
  @cases[#:of/reduction-relation (⇀ p q)
@@ -382,7 +382,20 @@ respect to the compilation function.
   
   @#:case[(⇀ (ρ θr A (in-hole E (present S p q))) (ρ θr A (in-hole E p))
              (judgment-holds (θ-ref-S θr S present))
-             is-present)]
+             is-present)]{
+   @[sequenced
+     @#:step[sub]{By the definition of @es[BV] and @es[FV]
+         @es[(⊆ (BV (present S p q)) (BV q))]
+         and @es[(⊆ (FV (present S p q)) (FV q))]}
+     @#:step[t]{By @proof-ref["cb-extract"],
+         we know that @es[(CB q)].}
+     @#:step[cb]{By @sub, @t, and @proof-ref["cbpreserved-E"]
+         we know that @es[(CB (in-hole E q))].}
+     @#:step[_]{
+         By @cb, we can conclude that
+         @es[(CB (ρ θr A (in-hole E p)))].
+        }
+     ]}
 
   @#:case[(⇀ (ρ θr A (in-hole E (present S p q))) (ρ θr A (in-hole E q))
              (judgment-holds (L∈ S (Ldom θr)))
@@ -419,11 +432,13 @@ respect to the compilation function.
 
   @#:case[(⇀ (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p))) (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p))
              (side-condition (term (A->= A_1 A_2))) 
-             merge)]
+             merge)]{This case is given by @tt{R-maintain-lift-0}
+   in the Agda codebase.}
 
   @#:case[(⇀ (ρ θr GO (in-hole E (emit S))) (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E nothing))
              (judgment-holds (L∈ S (Ldom θr)))
-             emit)]
+             emit)]{This follows by an analogous argument to the case
+   for @rule["is-present"].}
   @#:case[(⇀ (loop p) (loop^stop p p)
              loop)]{
   The premise of @es[(CB (loop p))] gives us that the bound and free
@@ -443,20 +458,23 @@ respect to the compilation function.
            (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
            (side-condition (term (all-ready? (LFV/e e) θr A (in-hole E (shared s := e p)))))
            (where ev (δ e θr))
-           shared)]
+           shared)]{This follows by an analogous argument to the case
+   for @rule["is-present"].}
   @#:case[(⇀
            (ρ θr A (in-hole E (var x := e p)))
            (ρ θr A (in-hole E (ρ (mtθ+x x (δ e θr)) WAIT p)))
            (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
            (side-condition (term (all-ready? (LFV/e e) θr A (in-hole E (var x := e p)))))
-           var)]
+           var)]{This follows by an analogous argument to the case
+   for @rule["is-present"].}
   @#:case[(⇀
            (ρ θr A (in-hole E (:= x e)))
            (ρ (id-but-typeset-some-parens (<- θr (mtθ+x x (δ e θr)))) A (in-hole E nothing))
            (judgment-holds (L∈ x (Ldom θr)))
            (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
            (side-condition (term (all-ready? (LFV/e e) θr A (in-hole E (:= x e)))))
-           set-var)]
+           set-var)]{This follows by an analogous argument to the case
+   for @rule["is-present"].}
    
    
   @#:case[(⇀ (ρ θr A (in-hole E (if x p q)))
@@ -477,7 +495,8 @@ respect to the compilation function.
            (judgment-holds (θ-ref-s θr s _ old))
            (judgment-holds (L⊂ (LFV/e e) (Ldom θr)))
            (side-condition (term (all-ready? (LFV/e e) θr (in-hole E (<= s e)))))
-           set-old)]
+           set-old)]{
+  This case follows by an analogous argument to the case for @rule["is-present"].}
 
   @#:case[(⇀
            (ρ θr GO (in-hole E (<= s e)))
@@ -486,7 +505,86 @@ respect to the compilation function.
            (judgment-holds (θ-ref-s θr s _ new))
            (side-condition (term (all-ready? (LFV/e e) θr (in-hole E (<= s e)))))
            (where ev (δ e θr))
-           set-new)]
+           set-new)]{
+  This case follows by an analogous argument to the case for @rule["is-present"].}
  }
 }
-        
+
+
+@proof[#:label "cbpreserved-E"
+       #:title "Correct binding in preserve by context insertion"
+       #:statement
+       @list{For all @es[E], @es[p], @es[q],
+        if @es[(⊆ (FV q) (FV p))], @es[(⊆ (BV q) (BV p))],
+        @es[(CB (in-hole E p))], @es[(CB q)]
+        then @es[(CB (in-hole E q))]}]{
+ @cases[
+ #:of E
+ #:language esterel/typeset
+ #:induction
+ @#:case[hole]{This follows trivially by the premise that @es[(CB q)].}
+ @#:case[(seq E_o r)]{
+   @sequenced[
+ @#:step[e]{By the definition of @es[CB] and the premise that
+     @es[(CB (in-hole E p))],
+     we know that @es[(CB (in-hole E_o p))].}
+ @#:step[i]{By @e we may invoke our induction hypothesis
+     to conclude that @es[(CB (in-hole E_o q))]}
+ 
+ @#:step[sub]{By @proof-ref["FV-subset"], we know that
+     @es[(⊆ (FV (in-hole E_o p)) (FV (in-hole E_o q)))]
+     and
+     @es[(⊆ (BV (in-hole E_o p)) (BV (in-hole E_o q)))].}
+ @#:step[inter]{By @sub and the definition of @es[⋂], we can conclude
+     that
+     @es[(distinct (BV (in-hole E_o q)) (FV r))]}
+ @#:step[_]{By @i and @inter, we can conclude that @es[(CB (in-hole E q))].}]}
+ @#:case[(loop^stop E_o r)]{As @es[loop^stop] has the same conditions
+   as @es[seq], this case is analogous to the previous one.}
+ @#:case[(par E_o r)]{
+   @sequenced[
+ @#:step[e]{By the definition of @es[CB] and the premise that
+     @es[(CB (in-hole E p))],
+     we know that @es[(CB (in-hole E_o p))].}
+ @#:step[i]{By @e we may invoke our induction hypothesis
+     to conclude that @es[(CB (in-hole E_o q))]}
+ 
+ @#:step[sub]{By @proof-ref["FV-subset"], we know that
+     @es[(⊆ (FV (in-hole E_o p)) (FV (in-hole E_o q)))]
+     and
+     @es[(⊆ (BV (in-hole E_o p)) (BV (in-hole E_o q)))].}
+ @#:step[inter]{By @sub and the definition of @es[⋂], we can conclude
+     that
+     @es[(distinct (BV (in-hole E_o q)) (FV r))] and that
+     @es[(distinct (FV (in-hole E_o q)) (BV r))]}
+ 
+ @#:step[_]{By @i and @inter, we can conclude that @es[(CB (in-hole E q))].}
+ ]}
+ @#:case[(par r E_o)]{This case is analogous to the previous one.}
+ @#:case[(trap E_o)]{This case follows by a straightforward induction.}
+ @#:case[(suspend E_o S)]{This case follows by a straightforward induction
+  and @proof-ref["FV-subset"].}
+ 
+
+]}
+
+
+@proof[#:label "FV-subset"
+       #:title "FV and in-hole maintain subset"
+       #:statement
+       @list{For all @es[E], @es[p], @es[q],
+        if @es[(⊆ (FV q) (FV p))] and @es[(⊆ (BV q) (BV p))],
+        then @es[(⊆ (FV (in-hole E p)) (FV (in-hole E q)))]
+        and @es[(⊆ (BV (in-hole E p)) (BV (in-hole E q)))]}]{
+ This follows by a straightforward induction over @es[E].
+}
+
+
+@proof[#:label "cb-extract"
+       #:title "Subterms have correct binding"
+       #:statement
+       @list{For all @es[C], @es[q],
+        if @es[(CB (in-hole C q))],
+        then @es[(CB q)]}]{
+ This follows by a straightforward induction over @es[C].
+}

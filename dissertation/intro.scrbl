@@ -5,7 +5,7 @@
  "lib/redex-rewrite.rkt"
  scriblib/footnote]
 
-@title{An Introduction}
+@title[#:tag "intro"]{An Introduction}
 
 The language Esterel has found success in many
 safety-critical applications. It has been used in the

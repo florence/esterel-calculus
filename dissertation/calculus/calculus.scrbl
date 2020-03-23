@@ -34,7 +34,9 @@
        #:tag "sec:calculus"]{A Calculus for Esterel}
 
 
-TODO introduction
+With the background out of the way, this section dives directly into describing
+the calculus for Esterel. This section relies heavily on the background given in
+@secref["background-calculi"] and @secref["background-esterel"].
 
 @section{The Calculus}
 
@@ -548,7 +550,37 @@ might still be written to by the full program.
          blocked-e-pict]
 
 @subsection[#:tag "calc:eval:stuck"]{Open programs and instantaneous loops}
-TODO Loops
+
+There are two major cases that make @es[eval^esterel] is a
+partial function. The first is in the case of programs which
+are open. If a program has a free variable is may reach a
+state where it is not @es[blocked] or @es[done], but it
+cannot progress. For example, the program @es[(ρ · GO (emit S))]
+can never be equal to a term which is @es[blocked], because
+the @es[blocked] judgment will see that the control variable is not
+@es[WAIT], and will therefore determine that @es[emit]s can be run.
+On the other hand @es[(emit S)] is not in the grammar of @es[done],
+because @es[emit]s are terms which can execute. Therefore
+this particular program is stuck. Therefor @es[eval^esterel] is not
+defined on such terms.
+
+The other major case is that of instantaneous loops.
+Instantaneous loops will always reach a case where they
+contain a program fragment that matches
+@es[(loop^stop nothing q)]. Such a program has had the loop
+body terminate in the current instant, and there is no rule
+which can reduce this term. This term is not @es[done],
+however, because it is not a complete program state. In
+addition This program is not counted as @es[blocked]. This
+is because if such a program were to be counted as
+non-constructive then the definitions of non-constructive in
+Esterel would not cleanly match the definition of
+non-constructive in circuits, because the Esterel compiler,
+as given in chapter 11 of @citet[esterel02],
+requires that instantaneous loops be eliminated statically
+before compilation, and therefore is not defined on such
+programs. Therefore I have chosen to make @es[eval^esterel]
+also not defined on such programs.
 
 @subsection{Future Instants}
 

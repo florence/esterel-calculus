@@ -4,9 +4,12 @@
 
 @title[#:style paper-title-style #:tag "just"]{Justifying the Calculus}
 
-The five properties I promise the Calculus for Esterel would have are:
-Syntactic, Local, Consistent, Sound, and Adequate. This section justifies that
-the calculus has each of these properties.
+The five properties I promise the Calculus for Esterel would
+have are: Syntactic, Local, Consistent, Sound, and Adequate.
+This section justifies that the calculus has each of these
+properties. This section relies heavily on the background
+given in @secref["background-circuits"], as well as the
+descriptions of the properties given in @secref["intro"].
 
 
 @include-section["justification/syntactic.scrbl"]
