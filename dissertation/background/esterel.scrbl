@@ -37,16 +37,20 @@ is trivially macro expressible.
 
 My semantics will focus on Kernel Esterel, a core language
 in which most of Full Esterel can be expressed. It's grammar
-is:
-
-@centered[lang/state]
+is: @centered[lang/state] The Kernel I am using is adapted
+from the Kernel used in Section 2.2 of
+@cite/title[compiling-esterel]. The translation from Full
+Esterel to this Kernel is given in appendix B of that book.
 
 @section["Pure Esterel"]
 
 The first two lines of the grammar give the subset of
 Esterel called Pure Esterel. Pure Esterel defines a
 ``core'' to the language which we can use to introduce
-and examine the important concepts in the language.
+and examine the important concepts in the language. Pure
+here refers just this fragment of Esterel only contain
+Esterel terms, without reference to a host language, not
+to a fragment of Esterel without state.
 
 @bold{Instants} Esterel divides computation in instants.
 Each instant begins in response to some external stimuli,
@@ -145,14 +149,28 @@ instant. This ensures that each instant, in fact, terminates.
 
 @subsection[#:tag "back:esterel:schizo" "Schizophrenia"]
 
-TODO
+Reincarnated and Schizophrenic variables are a problem
+related to improper handling of variables and loops in
+Esterel semantics, particularly when compiling to circuits.
+Chapter 12 of @cite/title[esterel02] goes into this in
+detail. Here I will only give a cursory overview of this
+issue.
 
-TODO: dont say state here
-@section["The host language and state in Esterel"]
+@index{Reincarnation} occurs when loop which contains
+the declaration of a variable or signal completes execution
+and restarts in the same instant. This results in two instances of
+the same variable, and the variable is said to be reincarnated.
 
-TODO update sequential -> host language
-TODO discuss only using +
-TODO change gaurntees around the host language variables 
+@index{Schizophrenia} occurs when a reincarnated variable
+takes on a different value during the two instances of the
+loop body. This can seem at odds with the statement that ``A
+signal may only have one value in a single instant'', and is
+why these two instances must be though of as separate
+variables to have a correct semantics. For instance, circuit
+compilers must duplicate part of all of a loop body to
+ensure that there are, in fact, two distinct variables.
+
+@section["The host language and Esterel"]
 
 The last line of the grammar at the start of @secref["background-esterel"] extends Pure Esterel with forms
 which can track values, in addition to Boolean signals.
@@ -164,22 +182,23 @@ language. That language controls when instants in
 Esterel run, and communicates with Esterel using
 signal presence and is own values. In turn values in Esterel
 are computed using the host language's expressions, which may refer to variables bound by Esterel.
-Values can be stored in either sequential or shared variables.
+Values can be stored in either host language or shared variables.
 
-@bold{Sequential State} Sequential variables are like traditional programming
+@bold{Host Language Variables} Host language variables are like traditional programming
 variables. They are declared and initialized by the
 @es[(var x := e p)] form, and written to with the
 @es[(:= x e)] form. Kernel Esterel also includes another conditional
 form @es[(if x p q)], which conditions on the host languages
 notion of truth. To maintain deterministic concurrency
-these variables must be used, as the name suggests,
-sequentially. Specifically they may appear in only
-a single branch of any given @es[par].
+these variables must be used in a way where
+concurrent updates are not observable: for example
+by never using them in multiple branches of an @es[par].
+How exactly this is guaranteed depends on the Esterel
+implementation.
 
-TODO discuss @es[e] in the calculus.
-
-@bold{Concurrent State} Shared variables give concurrent access
-to state that may be shared between branches of a @es[par]. Shared variables are
+@bold{Shared Variables} Shared variables give concurrent access
+to state that may be shared between branches of a @es[par], such
+that Esterel guarantees deterministic concurrency. Shared variables are
 declared with @es[(shared s := e p)] and mutated with
 @es[(<= s e)]. To ensure determinism shared variables have
 two restrictions. The first is that they must be paired with
@@ -199,6 +218,11 @@ uses the same mechanism as determining absence for a signal.@note{In fact,
  that is computed the same way as with a shared variable. In
  Kernel Esterel value carrying signals are represented as a
  signal paired with a shared variable.}
+
+In the calculus I present here, I will assume a host language
+which always use the combination function @es[e], and that
+the host language only contains numerical literals, and @es[+]
+and @es[-].
 
 @section[#:tag "back:esterel:cannot" "Constructive programs"]
 
