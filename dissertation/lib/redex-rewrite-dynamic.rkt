@@ -1018,7 +1018,8 @@
     ['≃^esterel
      (lambda (e) (binop (≃-e-pict) e))]
     ['circ
-     (curry infix "×")]
+     (lambda (lws)
+       (cons "" (infix "×" lws)))]
     ['present
      (lambda (lws)
        (match lws

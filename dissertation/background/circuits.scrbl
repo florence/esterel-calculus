@@ -259,7 +259,7 @@ or @es[1] is assigned the initial value @es[⊥]. Any wires in
 the set @es[I] or @es[O] which do not have a corresponding
 internal wire are given the value @es[0]. For example,
 the circuit
-@centered[@es[(= circuit (circ ((internal = input) {input} {output1 internal})))]]
+@centered[@es[(= circuit (circ {(internal = input)} {input} {output1 internal}))]]
 would have the initial state
 @centered[@es[(= cs_0 {{internal ↦ ⊥} {input ↦ 0} {output1 ↦ ⊥}})]]
 
@@ -296,22 +296,39 @@ have after evaluating the circuit. The second part is true
 when the circuit has no wires which are @es[⊥]---that is it
 is true when the circuit is constructive.
 
+@subsection{Registers}
+
+This model can extend to registers by treating each register
+as a pair of an input and output wire. Initially these input
+wires is set to @es[0], and on each subsequent cycle (e.g.
+each subsequent call to @es[eval^circuit]) these input wires
+are given the value of their corresponding output wire.
+
 @subsection{Contextual Equivalence}
 I take the following to be the definition of
 contextual equivalence on circuits:@(linebreak)
-@definition[#:notation @es[(≃^circuit c_1 c_2)]]{ for all
+@definition[#:notation @es[(≃^circuit c_1 c_2)]]{For all
  assignments to the inputs, and all output sets @es[O],
  @es[(= (eval^circuit O c_1) (tup θ B))] if and only if
  @es[(= (eval^circuit O c_2) (tup θ B))]. }
-This definition is based on the @citet[mendler-2012] and @citet[esterel02].
-Specifically Lemma 7 of @citet[esterel02] gives us that
-this reduction relation is equivalent to what @citet[mendler-2012] call
-ternary simulation
-of the circuits. Corollary 3 of @citet[mendler-2012] tells us that this
-is equivalent to the algorithm given by @citet[malik-circuit]
-for evaluating a circuit. Theorems 1, 2, 3, and 5 of @citet[mendler-2012] also give us that ternary
-simulation is equivalent to the UN-delay model of circuits. This UN-delay model
-is compositional, and thus can be used for hierarchical circuit analysis.
-From this I conclude that the definition of contextual equivalence
-above is correct.
+Intuitively, we can understand this definition as saying that the only
+observables of a circuit are the values of its output wires and whether
+or not it it constructive, and the only observation a circuit can make about its
+context is the state of its input wires.
+
+More formally, this definition is based on the
+@citet[mendler-2012] and @citet[esterel02]. Specifically
+Lemma 7 of @citet[esterel02] gives us that this reduction
+relation is equivalent to what @citet[mendler-2012] call
+ternary simulation of the circuits. Corollary 3 of
+@citet[mendler-2012] tells us that this is equivalent to the
+algorithm given by @citet[malik-circuit] for evaluating a
+circuit. Theorems 1, 2, 3, and 5 of @citet[mendler-2012]
+also give us that ternary simulation is equivalent to the
+UN-delay model of circuits. This UN-delay model is
+compositional, and thus can be when analyzing a circuit
+without knowing its context. From this I conclude that the
+definition of contextual equivalence above is correct.
+
+
 
