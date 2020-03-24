@@ -715,7 +715,7 @@ the calculus or in my proofs has correct binding.
 
 Using correct binding instead of α-equivalence also explains
 the lack of a @rule["gc"], as appears in the state
-calculus@~cite[felleisen-heib]. As the calculus does not
+calculus@~cite[felleisen-hieb]. As the calculus does not
 rename variables, but instead constantly replaces instances
 of variables in the environment with the new instances,
 there is a possible size to every environment. This matches
