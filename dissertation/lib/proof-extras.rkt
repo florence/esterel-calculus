@@ -118,40 +118,41 @@
    (--> cs (update cs w B)
         (judgment-holds (wire-in w cs))
         (where ⊥ (of cs w))
-        (judgment-holds (eval^boolean cs (of (circuit-of cs) w) B)))))
+        (judgment-holds (eval^boolean cs (of (circuit-of cs) w) B))
+        eval-wire)))
 
 (define-judgment-form esterel/typeset
   #:mode (eval^boolean I I O)
-  [---------
+  [--------- id
    (eval^boolean cs B B)]
-  [---------
+  [--------- deref
    (eval^boolean cs w (of cs w))]
   ;; not
   [(eval^boolean cs wire-value 0)
-   ---------
+   --------- not-0
    (eval^boolean cs (not wire-value) 1)]
   [(eval^boolean cs wire-value 1)
-   ---------
+   --------- not-1
    (eval^boolean cs (not wire-value) 0)]
   ;; and
   [(eval^boolean cs wire-value_1 0)
-   ---------
+   --------- and-0-left
    (eval^boolean cs (and wire-value_1 wire-value_2) 0)]
   [(eval^boolean cs wire-value_2 0)
-   ---------
+   --------- and-0-right
    (eval^boolean cs (and wire-value_1 wire-value_2) 0)]
   [(eval^boolean cs wire-value_1 1) (eval^boolean cs wire-value_2 1)
-   ---------
+   ---------  and-1
    (eval^boolean cs (and wire-value_1 wire-value_2) 1)]
   ;; or
   [(eval^boolean cs wire-value_1 1)
-   ---------
+   --------- or-1-left
    (eval^boolean cs (or wire-value_1 wire-value_2) 1)]
   [(eval^boolean cs wire-value_2 1)
-   ---------
+   --------- or-1-right
    (eval^boolean cs (or wire-value_1 wire-value_2) 1)]
   [(eval^boolean cs wire-value_1 0) (eval^boolean cs wire-value_2 0)
-   ---------
+   --------- or-0
    (eval^boolean cs (and wire-value_1 wire-value_2) 0)])
   
 

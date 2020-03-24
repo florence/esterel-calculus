@@ -7,6 +7,8 @@
           "../lib/cite.rkt"
           "../lib/circuit-diagrams.rkt"
           "../lib/misc-figures.rkt"
+          "../lib/rule-figures.rkt"
+          "../lib/jf-figures.rkt"
           scriblib/figure
           redex/pict
           (except-in diagrama nothing) diagrama/circuit pict)
@@ -156,43 +158,49 @@ to @es[0] or @es[1] its output will never change.
 @figure["extended-truth-tables"
         @list{Truth tables for each gate, extended with @es[⊥]}
         #:style right-figure-style
-        (nested
+        (centered
          @[tabular
+           #:row-properties '(top)
            (list
-            (list @es[a] @es[and] @es[b]  @es[=] @es[o])
-            (list @es[1] @[blank] @es[1] @[blank] @es[1])
-            (list @es[1] @[blank] @es[0] @[blank] @es[0])
-            (list @es[1] @[blank] @es[⊥] @[blank] @es[⊥])
-            (list @es[0] @[blank] @es[1] @[blank] @es[0])
-            (list @es[0] @[blank] @es[0] @[blank] @es[0])
-            (list @es[0] @[blank] @es[⊥] @[blank] @es[0])
-            (list @es[⊥] @[blank] @es[1] @[blank] @es[⊥])
-            (list @es[⊥] @[blank] @es[0] @[blank] @es[0])
-            (list @es[⊥] @[blank] @es[⊥] @[blank] @es[⊥]))
-           #:row-properties '(bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border ())]
-         ;; or
-         @[tabular
-           (list
-            (list @es[a] @es[or] @es[b] @es[=] @es[o])
-            (list @es[1] @[blank] @es[1] @[blank] @es[1])
-            (list @es[1] @[blank] @es[0] @[blank] @es[1])
-            (list @es[1] @[blank] @es[⊥] @[blank] @es[1])
-            (list @es[0] @[blank] @es[1] @[blank] @es[1])
-            (list @es[0] @[blank] @es[0] @[blank] @es[0])
-            (list @es[0] @[blank] @es[⊥] @[blank] @es[⊥])
-            (list @es[⊥] @[blank] @es[1] @[blank] @es[1])
-            (list @es[⊥] @[blank] @es[0] @[blank] @es[⊥])
-            (list @es[⊥] @[blank] @es[⊥] @[blank] @es[⊥]))
-           #:row-properties '(bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border ())]
-         ;; not
-         @[tabular
-           (list
-            (list @es[¬] @es[a] @es[=] @es[o])
-            (list @[blank] @es[1] @[blank] @es[0])
-            (list @[blank] @es[0] @[blank] @es[1])
-            (list @[blank] @es[⊥] @[blank] @es[⊥]))
-           #:row-properties '(bottom-border bottom-border bottom-border ())])]
-TODO Scott domains?
+            (list
+             @[tabular
+               (list
+                (list @es[a] @es[and] @es[b]  @es[=] @es[o])
+                (list @es[1] @[blank] @es[1] @[blank] @es[1])
+                (list @es[1] @[blank] @es[0] @[blank] @es[0])
+                (list @es[1] @[blank] @es[⊥] @[blank] @es[⊥])
+                (list @es[0] @[blank] @es[1] @[blank] @es[0])
+                (list @es[0] @[blank] @es[0] @[blank] @es[0])
+                (list @es[0] @[blank] @es[⊥] @[blank] @es[0])
+                (list @es[⊥] @[blank] @es[1] @[blank] @es[⊥])
+                (list @es[⊥] @[blank] @es[0] @[blank] @es[0])
+                (list @es[⊥] @[blank] @es[⊥] @[blank] @es[⊥]))
+               #:row-properties '(bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border ())]
+             (blank 30)
+             ;; or
+             @[tabular
+               (list
+                (list @es[a] @es[or] @es[b] @es[=] @es[o])
+                (list @es[1] @[blank] @es[1] @[blank] @es[1])
+                (list @es[1] @[blank] @es[0] @[blank] @es[1])
+                (list @es[1] @[blank] @es[⊥] @[blank] @es[1])
+                (list @es[0] @[blank] @es[1] @[blank] @es[1])
+                (list @es[0] @[blank] @es[0] @[blank] @es[0])
+                (list @es[0] @[blank] @es[⊥] @[blank] @es[⊥])
+                (list @es[⊥] @[blank] @es[1] @[blank] @es[1])
+                (list @es[⊥] @[blank] @es[0] @[blank] @es[⊥])
+                (list @es[⊥] @[blank] @es[⊥] @[blank] @es[⊥]))
+               #:row-properties '(bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border bottom-border ())]
+             (blank 30)
+             ;; not
+             @[tabular
+               (list
+                (list @es[¬] @es[a] @es[=] @es[o])
+                (list @[blank] @es[1] @[blank] @es[0])
+                (list @[blank] @es[0] @[blank] @es[1])
+                (list @[blank] @es[⊥] @[blank] @es[⊥]))
+               #:row-properties '(bottom-border bottom-border bottom-border ())]
+             (blank 30)))])]
 
 @section{Cycles & Constructivity}
 
@@ -253,34 +261,57 @@ internal wire are given the value @es[0]. For example,
 the circuit
 @centered[@es[(= circuit (circ ((internal = input) {input} {output1 internal})))]]
 would have the initial state
-@centered[@es[(= cs_0 {{internal ↦ ⊥} {input ↦ 0} {output1 ↦ ⊥}})]].
+@centered[@es[(= cs_0 {{internal ↦ ⊥} {input ↦ 0} {output1 ↦ ⊥}})]]
+
+I will write @es[(of c w)] for accessing the expression in the circuit
+@es[c] for the wire @es[w]. I will write @es[(of cs w)] for accessing
+the value of @es[w] in @es[cs]. I will write @es/unchecked[(Ldom cs)]
+for the set of all wires defined in @es[cs].
 
 The circuit can then be evaluated by the reduction relation @es[⟶^c],
-which is define in @figure-ref["c-step"].
+which is define in @figure-ref["c-step"]. This reduction relation
+has only one rule, which selects one wire in the circuit which currently has
+the value @es[⊥], and attempts to evaluated it using the relation @es/unchecked[(eval^boolean · · ·)].
+This relation is adapted from Section 10.3.1 of @cite/title[esterel02]. This relation evaluates
+Boolean expressions, giving back a Boolean when the expression is constructive. The relation
+does not hold when the truth table in @figure-ref["extended-truth-tables"] would give back @es[⊥].
 
 @figure["c-step"
         "Reduction relation for circuits"
-        @with-paper-rewriters[[render-reduction-relation ⟶^c]]]
+        @circuit-red-pict]
 
 
 @figure["e-step"
         "Reduction relation for wire expressions"
-        @with-paper-rewriters[[render-judgment-form eval^boolean]]]
+        @eval^boolean-pict]
 
-
-
-symbolic interpretation.
-Define EvalC.
+The evaluator for circuits @es[eval^circuit] has the
+signature:
+@centered[@[with-paper-rewriters [render-metafunction eval^circuit #:only-contract? #t]]]
+It takes in a set of wires @es[O] we wish to observe and a
+circuit, and fully evaluates the circuit using @es[⟶^c]. The
+result a pair of @es[θ] and @es[Bool]. The first part is a
+map @es[θ] that maps the wires in @es[O] to the values they
+have after evaluating the circuit. The second part is true
+when the circuit has no wires which are @es[⊥]---that is it
+is true when the circuit is constructive.
 
 @subsection{Contextual Equivalence}
-@newline
-
-
-@definition[#:notation @es[(≃^circuit c_1 c_2)]]{
- @es[(≃^circuit c_1 c_2)] if and only if,
- for all assignments to the inputs, and all
- possible output sets @es[O],
- @es[(= (eval^circuit O c_1) (eval^circuit O c_2))]
- and @es[c_1] and @es[c_2] have the same constructivity.
-}
+I take the following to be the definition of
+contextual equivalence on circuits:@(linebreak)
+@definition[#:notation @es[(≃^circuit c_1 c_2)]]{ for all
+ assignments to the inputs, and all output sets @es[O],
+ @es[(= (eval^circuit O c_1) (tup θ B))] if and only if
+ @es[(= (eval^circuit O c_2) (tup θ B))]. }
+This definition is based on the @citet[mendler-2012] and @citet[esterel02].
+Specifically Lemma 7 of @citet[esterel02] gives us that
+this reduction relation is equivalent to what @citet[mendler-2012] call
+ternary simulation
+of the circuits. Corollary 3 of @citet[mendler-2012] tells us that this
+is equivalent to the algorithm given by @citet[malik-circuit]
+for evaluating a circuit. Theorems 1, 2, 3, and 5 of @citet[mendler-2012] also give us that ternary
+simulation is equivalent to the UN-delay model of circuits. This UN-delay model
+is compositional, and thus can be used for hierarchical circuit analysis.
+From this I conclude that the definition of contextual equivalence
+above is correct.
 

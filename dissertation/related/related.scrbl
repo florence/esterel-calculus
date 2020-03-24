@@ -12,5 +12,5 @@
 The canconical citation for Esterel is @citet[esterel92].
 
 Other semantics include the COS and its circuit semantics.
-@section{Semantics}
+@section{Semantic}
 @section{Circuits}

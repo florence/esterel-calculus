@@ -37,7 +37,11 @@
     ['standard-reduction
      (render-op/instructions
       (drop-below-ascent (text "⇁" Linux-Liberterine-name (default-font-size)) 2)
-      `((superscript E)))]))
+      `((superscript E)))]
+    ['circuit
+     (render-op/instructions
+      (drop-below-ascent (text "⇀" Linux-Liberterine-name (default-font-size)) 2)
+      `((superscript C)))]))
 
 (set-arrow-pict! '--> reduction-arrow)
 
@@ -1132,7 +1136,7 @@
    ;                                                              
 
    (with-atomic-rewriters
-    (;; for poster
+    (;; for postercircuit-red-pict
      ['C^esterel (lambda () (render-op/instructions (nt-t "C") `((superscript E))))]
      ['C^js (lambda () (render-op/instructions (nt-t "C") `((superscript JS))))]
      ['e^js (lambda () (render-op/instructions (nt-t "e") `((superscript JS))))]

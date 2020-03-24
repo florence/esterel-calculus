@@ -9,7 +9,7 @@
          "redex-rewrite.rkt"
          redex/reduction-semantics
          redex/pict
-         (only-in "proof-extras.rkt" ≡j)
+         (only-in "proof-extras.rkt" ≡j eval^boolean)
          esterel-calculus/dissertation/proofs/adequacy/can-props)
 
 (provide CB-pict
@@ -22,7 +22,8 @@
          all-bot-rec-pict
          blocked-pict
          blocked-e-pict
-         ≡j-pict)
+         ≡j-pict
+         eval^boolean-pict)
          
 
 (define (with-layout layout render-the-judgment-form
@@ -284,3 +285,12 @@
 
 (define ≡j-pict
   (with-layout ≡j-layout (lambda () (render-judgment-form ≡j))))
+
+(define eval^boolean-layout
+  '(("id" "deref")
+    ("not-0" "not-1")
+    ("and-0-left" "and-0-right" "and-1")
+    ("or-1-left" "or-1-right" "or-0")))
+
+(define eval^boolean-pict
+  (with-layout eval^boolean-layout (lambda () (render-judgment-form eval^boolean))))

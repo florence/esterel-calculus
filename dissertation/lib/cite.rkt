@@ -240,6 +240,8 @@
                                 #:volume 40
                                 #:pages (list 283 329))))
 
+(define mendler-2012 constructive-boolean-circuits)
+
 (define shiple-constructive-circuit
   (make-bib
    #:title "Constructive Analysis of Cycle Circuits"

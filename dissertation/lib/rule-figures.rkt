@@ -5,14 +5,15 @@
          redex/reduction-semantics
          pict
          "redex-rewrite.rkt"
-         (only-in "proof-extras.rkt" ⇀2))
+         (only-in "proof-extras.rkt" ⇀2 ⟶^c))
 
 (provide calculus-side-condition-beside-rules
          calculus-rule-groups
          reduction-relation-pict
          render-rules
          render-specific-rules
-         render-specific-rules2)
+         render-specific-rules2
+         circuit-red-pict)
 
 ;; approximate, determined by experimentation via `frame`
 ;; and running latex and eyeballing the output,
@@ -171,3 +172,13 @@
                                                   `(("" ,@r))
                                                   calculus-side-condition-beside-rules)])
      (render-reduction-relation ⇀2))))
+
+
+(define circuit-red-pict
+  (with-paper-rewriters
+   (parameterize* ([render-reduction-relation-rules #f]
+                   [rule-pict-style (render-rules 'circuit
+                                                  ⟶^c
+                                                  `(("" eval-wire))
+                                                  calculus-side-condition-beside-rules)])
+     (render-reduction-relation ⟶^c))))
