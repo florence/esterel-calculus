@@ -270,7 +270,7 @@
   [(binds circuit A) #t])
 
 (define-metafunction esterel/typeset
-  eval^esterel : O p -> (tup L-S bool)
+  eval^esterel : O p -> (tup θ bool)
   [(eval^esterel O (ρ θr_1 GO p-pure))
    (tup (restrict θr_2 O (ρ θr_2 GO done)) tt)
    (where/hidden q-pure p-pure)

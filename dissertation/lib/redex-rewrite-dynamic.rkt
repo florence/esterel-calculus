@@ -29,9 +29,15 @@
 (define (reduction-arrow)
   (match (current-reduction-arrow)
     ['calculus
-     (drop-below-ascent (text "⇀" Linux-Liberterine-name (default-font-size)) 2)]
+     (render-op/instructions
+      (drop-below-ascent
+       (text "⇀" Linux-Liberterine-name (default-font-size))
+       2)
+      `((superscript E)))]
     ['standard-reduction
-     (drop-below-ascent (text "⇁" Linux-Liberterine-name (default-font-size)) 2)]))
+     (render-op/instructions
+      (drop-below-ascent (text "⇁" Linux-Liberterine-name (default-font-size)) 2)
+      `((superscript E)))]))
 
 (set-arrow-pict! '--> reduction-arrow)
 
@@ -346,7 +352,7 @@
 (define (eval-pict x)
   (render-op/instructions
    (text "eval" (metafunction-style) (default-font-size))
-   `((subscript ,x))))
+   `((superscript ,x))))
 
 (define (eval-e-pict)
   (eval-pict "E"))
@@ -427,11 +433,11 @@
              (list-ref lws 6)
              ""))]
     ['≡
-     (curry binop "≡")]
+     (curry binop "≡^E")]
     ['≡j
-     (curry binop "≡")]
+     (curry binop "≡^E")]
      ['⇀j
-     (curry binop "⇀")]
+     (curry binop "⇀^E")]
     ['≃
      (curry binop "≃")]
     ['¬≃
@@ -1281,15 +1287,15 @@
      ['≃^esterel ≃-e-pict]
      ['≃ (lambda () (def-t "≃"))]
      ['≡
-      (lambda () (render-op '≡))]
+      (lambda () (render-op '≡^E))]
      ['≡j
-      (lambda () (render-op '≡))]
+      (lambda () (render-op '≡^E))]
      ['⇀
-      (lambda () (render-op '⇀))]
+      (lambda () (render-op (reduction-arrow)))]
      ['⇀2
-      (lambda () (render-op '⇀))]
+      (lambda () (render-op (reduction-arrow)))]
      ['⟶
-      (lambda () (render-op '⟶))]
+      (lambda () (render-op '⟶^E))]
      ['⟶^s
       (lambda () (render-op '⟶^S))]
      ['⟶^r

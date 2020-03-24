@@ -28,7 +28,7 @@
 
 The calculus is designed to prove equivalences between
 program fragments because any two expressions that are
-@es[≡e]. This section is designed to give some examples of
+@es[≡]. This section is designed to give some examples of
 how this is done, and some examples which cannot be proved
 in the calculus, to give some sense of its limits.
 
@@ -50,7 +50,6 @@ The second proof shows that we can take the else branch of an @es[if] whenever
 we can determine the signal cannot be emitted:
 @proof-splice["else-branch"]
 The full proof is given in @proof-ref["else-branch"].
-
 
 The next proof demonstrates some of the weaknesses of the calculus. Specifically, in order
 to lift a signal out of an evaluation context an out environment is needed:
