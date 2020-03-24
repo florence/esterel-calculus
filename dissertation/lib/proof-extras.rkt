@@ -9,6 +9,8 @@
          ≃
          ¬≃
          =>
+         ⟶^c
+         eval^boolean 
          ≡j
          ⇀j
          outputs
@@ -83,7 +85,7 @@
           (suspend p-unex S) (present S p-unex p-unex))
   (wire w ::= variable)
   (c circuit ::= (circ EQ I O))
-  (cs ::= ((w = B⊥) ...))
+  (cs ::= (cstate circuit (w ↦ B⊥) ...))
   (I O ::= (w ...))
   (EQ ::= ((w = wire-value) ...))
   (bool ::= tt ff)
@@ -95,12 +97,80 @@
        (and w ... hole w ...)
        (or w ... hole w ...))
   (B⊥ ::= 0 1 ⊥)
+  (B ::= 0 1)
   (wire-value
    ::=
-   w 0 1
+   w B
    (not wire-value)
    (and wire-value wire-value ...)
    (or wire-value wire-value ...)))
+
+
+(define-judgment-form esterel-eval
+  #:mode (wire-in O I)
+  [----------
+   (wire-in w (cstate _ _ ... (w = _) _ ...))])
+
+(define ⟶^c
+  (reduction-relation
+   esterel/typeset
+   #:domain cs
+   (--> cs (update cs w B)
+        (judgment-holds (wire-in w cs))
+        (where ⊥ (of cs w))
+        (judgment-holds (eval^boolean cs (of (circuit-of cs) w) B)))))
+
+(define-judgment-form esterel/typeset
+  #:mode (eval^boolean I I O)
+  [---------
+   (eval^boolean cs B B)]
+  [---------
+   (eval^boolean cs w (of cs w))]
+  ;; not
+  [(eval^boolean cs wire-value 0)
+   ---------
+   (eval^boolean cs (not wire-value) 1)]
+  [(eval^boolean cs wire-value 1)
+   ---------
+   (eval^boolean cs (not wire-value) 0)]
+  ;; and
+  [(eval^boolean cs wire-value_1 0)
+   ---------
+   (eval^boolean cs (and wire-value_1 wire-value_2) 0)]
+  [(eval^boolean cs wire-value_2 0)
+   ---------
+   (eval^boolean cs (and wire-value_1 wire-value_2) 0)]
+  [(eval^boolean cs wire-value_1 1) (eval^boolean cs wire-value_2 1)
+   ---------
+   (eval^boolean cs (and wire-value_1 wire-value_2) 1)]
+  ;; or
+  [(eval^boolean cs wire-value_1 1)
+   ---------
+   (eval^boolean cs (or wire-value_1 wire-value_2) 1)]
+  [(eval^boolean cs wire-value_2 1)
+   ---------
+   (eval^boolean cs (or wire-value_1 wire-value_2) 1)]
+  [(eval^boolean cs wire-value_1 0) (eval^boolean cs wire-value_2 0)
+   ---------
+   (eval^boolean cs (and wire-value_1 wire-value_2) 0)])
+  
+
+
+(define-metafunction esterel/typeset
+  update : cs w B⊥ -> cs
+  [(update
+    (cstate c
+           (w_1 ↦ B⊥_1) ...
+           (w ↦ _)
+           (w_2 ↦ B⊥_2) ...)
+    w B⊥)
+   (cstate c
+           (w_1 ↦ B⊥_1) ...
+           (w  ↦ B⊥)
+           (w_2 ↦ B⊥_2) ...)])
+(define-metafunction esterel/typeset
+  circuit-of : cs -> c
+  [(circuit-of (cstate c _ ...)) c])
 
 (define-metafunction esterel/typeset
   guard : c -> c
@@ -134,6 +204,8 @@
 
 
 (define-metafunction esterel/typeset
+  [(of (circ (_ ... (w = e) _ ...) _ _) w) e]
+  [(of (cstate c _ ... (w ↦ e) _ ...) w) e]
   [(of circuit w) w]
   [(of cs w) 0]
   [(of Path i) a-wire-name])
@@ -225,11 +297,11 @@
    (judgment-holds (L¬∈ S (Can-θ p ·)))]
   [(DR status S p)
    status])
-  
-   
+
 (define-metafunction esterel/typeset
-  eval^circuit : O circuit -> any
-  [(eval^circuit O circuit) 1])
+  eval^circuit : O circuit -> (tup θ bool)
+  [(eval^circuit O circuit) (tup · ff)])
+   
 
 (define-metafunction esterel/typeset
   [(≃^circuit c_1 c_2) 1])

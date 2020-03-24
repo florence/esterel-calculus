@@ -442,6 +442,25 @@
      (curry binop "<")]
     ['⊆
      (curry binop "⊆")]
+    
+    ['update
+     (lambda (lws)
+       (match-define (list open update cs w B close) lws)
+       (list "" cs " ← " "{ " w " ↦ " B " }"))]
+    ['wire-in
+     (lambda (lws)
+       (match-define (list open name w c close) lws)
+       (list w
+             " ∈ Dom"
+             ((white-square-bracket) #t)
+             c
+             ((white-square-bracket) #f)))]
+    ['eval^boolean
+     (lambda (lws)
+       (match-define (list open eval cs of b close) lws)
+       (list "" cs " ⊢ " of " ↪ " b ""))]
+    ['circuit-of (lambda (lws) (list (es c)))]
+    
     ['Eval
      (λ (lws)
        (list (hbl-append (text "Eval" (metafunction-style) (default-font-size))

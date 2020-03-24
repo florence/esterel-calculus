@@ -3,10 +3,12 @@
 @(require "../lib/redex-rewrite.rkt"
           "../lib/util.rkt"
           "../lib/proofs.rkt"
+          (except-in "../lib/proof-extras.rkt" =)
           "../lib/cite.rkt"
           "../lib/circuit-diagrams.rkt"
           "../lib/misc-figures.rkt"
           scriblib/figure
+          redex/pict
           (except-in diagrama nothing) diagrama/circuit pict)
 
 @title[#:style paper-title-style #:tag "background-circuits"]{Circuits}
@@ -232,11 +234,38 @@ take no more than @es[n] iterations to find that fixed-point (where
 
 @[figure "circuit-grammar" "A Grammar for Circuits"  circuit-lang]
 
-Now, on to the painfully formal definition of a circuit. A circuit @es[c] can be defined as a triple
+Now, on to the formal definition of a circuit. A circuit @es[c] can be defined as a triple
 @es[(circ EQ I O)] were @es[I] is a set of names of input wires, @es[O] is a set of names
 of output wires, and @es[EQ] is a set of equations @es[(w = wire-value)], which
-defines the wire named @es[w] by the expression @es[wire-value], which is drawn
-from the grammar given in @figure-ref["circuit-grammar"].
+defines the internal wire named @es[w] by the expression @es[wire-value], which is drawn
+from the grammar given in @figure-ref["circuit-grammar"]. Wire names are assumed to be unique.
+
+Circuit evaluation takes place on a circuit state which is,
+in essence and environment for the circuit. It takes the
+form of a mapping from the wire names of the circuit to the
+current state of the circuit. I will denote a circuit state
+for a circuit @es[circuit] as @es[cs]. There is a special
+circuit state @es[cs_0] for every circuit in which every
+internal wire @es[w] which is not equal to a constant @es[0]
+or @es[1] is assigned the initial value @es[⊥]. Any wires in
+the set @es[I] or @es[O] which do not have a corresponding
+internal wire are given the value @es[0]. For example,
+the circuit
+@centered[@es[(= circuit (circ ((internal = input) (input) (output1 internal))))]]
+would have the initial state
+@centered[@es[(= cs_0 {{internal ↦ ⊥} {input ↦ 0} {output1 ↦ ⊥}})]].
+
+The circuit can then be evaluated by the reduction relation @es[⟶^c],
+which is define in @figure-ref["cstep"].
+
+@figure["c-step"
+        "Reduction relation for circuits"
+        @with-paper-rewriters[[render-reduction-relation ⟶^c]]]
+
+
+@figure["e-step"
+        "Reduction relation for wire expressions"
+        @with-paper-rewriters[[render-judgment-form eval^boolean]]]
 
 
 
