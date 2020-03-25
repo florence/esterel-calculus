@@ -271,7 +271,7 @@ for the set of all wires defined in @es[cs].
 The circuit can then be evaluated by the reduction relation @es[⟶^c],
 which is define in @figure-ref["c-step"]. This reduction relation
 has only one rule, which selects one wire in the circuit which currently has
-the value @es[⊥], and attempts to evaluated it using the relation @es/unchecked[(eval^boolean · · ·)].
+the value @es[⊥], and attempts to evaluated it using the relation @es[(eval^boolean cs e B)].
 This relation is adapted from Section 10.3.1 of @cite/title[esterel02]. This relation evaluates
 Boolean expressions, giving back a Boolean when the expression is constructive. The relation
 does not hold when the truth table in @figure-ref["extended-truth-tables"] would give back @es[⊥].

@@ -20,27 +20,68 @@
       (pict+tag (pict+tag-pict pict) tag)
       (pict+tag pict tag)))
   
-(define (text t f s)
+(define (text t f s #:kern? [kern? #t])  
   (lift-to-taggable
-   (pict:text t f s)
+   (if kern?
+       (kern-text t f s)
+       (pict:text t f s))
    t))
+
+(define (kern-text t f s)
+  (define split (breakout-manual-adjustment t))
+  (apply hbl-append
+         (for/list ([segement (in-list split)])
+           (if (pict? segement)
+               segement
+               (pict:text segement f s)))))
+
+(define (breakout-manual-adjustment t)
+  (define (stringify x)
+    (apply string (reverse x)))
+  (for/fold ([current empty]
+             [all empty]
+             #:result (reverse (cons (stringify current) all)))
+            ([c (in-string t)])
+    (match (hash-ref adjustment-table c c)
+      [(? pict? x)
+       (values empty (list* x (stringify current) all))]
+      [(? char? c) (values (cons c current) all)])))
+
+
+
+(define hookup
+  (drop-below-ascent
+   (text "⇀" Linux-Liberterine-name (default-font-size) #:kern? #f)
+   2))
+(define hookdown
+  (drop-below-ascent
+   (text "⇁" Linux-Liberterine-name (default-font-size)  #:kern? #f)
+   2))
+(define right
+  (drop-below-ascent
+   (text "⟶" Linux-Liberterine-name (default-font-size)  #:kern? #f)
+   2))
+
+(define adjustment-table
+  (hash
+   #\⇀ hookup
+   #\⇁ hookdown
+   #\⟶ right))
 
 (define current-reduction-arrow (make-parameter 'calculus))
 (define (reduction-arrow)
   (match (current-reduction-arrow)
     ['calculus
      (render-op/instructions
-      (drop-below-ascent
-       (text "⇀" Linux-Liberterine-name (default-font-size))
-       2)
+      hookup
       `((superscript E)))]
     ['standard-reduction
      (render-op/instructions
-      (drop-below-ascent (text "⇁" Linux-Liberterine-name (default-font-size)) 2)
+      hookdown
       `((superscript E)))]
     ['circuit
      (render-op/instructions
-      (drop-below-ascent (text "⇀" Linux-Liberterine-name (default-font-size)) 2)
+      hookup
       `((superscript C)))]))
 
 (set-arrow-pict! '--> reduction-arrow)
@@ -1282,8 +1323,8 @@
      ['cs
       (lambda ()
         (render-op/instructions
-         (text "ɕ" (non-terminal-style) (default-font-size))
-         `((superscript s))))]
+         (text "θ" (non-terminal-style) (default-font-size))
+         `((superscript ɕ))))]
      ['present (λ () (text "1" (default-style) (default-font-size)))]
      ['absent (λ () (text "0" (default-style) (default-font-size)))]
      ['unknown (λ () (text "⊥" (default-style) (default-font-size)))]

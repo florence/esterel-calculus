@@ -33,24 +33,22 @@ To prepare the reader this section will walk through soem exa
 
 
 
-
-@section{Local}
-
-@section{Syntactic}
-
-@section{Sound}
-
-@section{Adequate}
-
 what is a semantics?
 
-eval().
+@section{Syntactic}
+Notions of reduction
 
+@section{Local}
 Program Contexts.
-Evaluation Contexts
 
+@section{Sound}
+external model
+
+@section{Adequate}
 eval via reduction relation.
 
-contextual equivalence.
+@section{State}
+maps
+Evaluation Contexts
 
-soundness. (external eval)
+@section{Contextual equivalence}
