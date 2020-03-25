@@ -324,11 +324,13 @@ ternary simulation of the circuits. Corollary 3 of
 @citet[mendler-2012] tells us that this is equivalent to the
 algorithm given by @citet[malik-circuit] for evaluating a
 circuit. Theorems 1, 2, 3, and 5 of @citet[mendler-2012]
-also give us that ternary simulation is equivalent to the
-UN-delay model of circuits. This UN-delay model is
-compositional, and thus can be when analyzing a circuit
-without knowing its context. From this I conclude that the
-definition of contextual equivalence above is correct.
+also give us that ternary simulation is equivalent to their
+UN-delay model of circuits, which is a model of electrical
+characteristics of circuit (See definition 6 in that paper).
+This UN-delay model is compositional, and thus can be when
+analyzing a circuit without knowing its context. From this I
+conclude that the definition of contextual equivalence above
+is correct.
 
 
 
