@@ -34,10 +34,10 @@
   (with-paper-rewriters
    (apply
     v-append
-    20
+    15
     (for/list ([this-line-cases (in-list layout)])
       (apply hbl-append
-             15
+             10
              (for/list ([this-case (in-list this-line-cases)])
                (parameterize ([judgment-form-cases (list this-case)]
                               [judgment-form-show-rule-names #t])
@@ -139,10 +139,10 @@
     ("seq-¬0" "seq-0")
     ("par")
     ("signal-0" "signal-⊥")
-    ("ρ-empty")
+    ("ρ-{}")
     ("ρ-1")
     ("ρ-0")
-    ("ρ-⊥")))
+    ("ρ-¬⊥")))
 
 
 (define all-bot-rec-pict

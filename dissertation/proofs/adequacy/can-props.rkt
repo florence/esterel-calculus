@@ -74,8 +74,7 @@
    -------- "seq-¬0"
    (all-bot-rec (seq p-pure q-pure) θ cs)]
   [(L∈ 0 (->K (Can p-pure θ)))
-   (all-bot p-pure θ (sub (seq p-pure q-pure) p-pure cs))
-   (all-bot q-pure θ (sub (seq p-pure q-pure) q-pure cs))
+   (all-bot p-pure θ (sub (seq p-pure q-pure) p-pure cs)) (all-bot q-pure θ (sub (seq p-pure q-pure) q-pure cs))
    -------- "seq-0"
    (all-bot-rec (seq p-pure q-pure) θ cs)]
   [(all-bot p-pure θ (sub (par p-pure q-pure) p-pure cs)) (all-bot q-pure θ (sub (par p-pure q-pure) q-pure cs))
@@ -86,26 +85,24 @@
    (all-bot-rec (trap p-pure) θ cs)]
   [(L¬∈ S (->S (Can p-pure (<- θ  (mtθ+S S ⊥)))))
    (all-bot p-pure (<- θ (mtθ+S S absent)) (sub (signal S p-pure) p-pure cs))
-   -------- "signal-0"
+   -------- "sig-0"
    (all-bot-rec (signal S p-pure) θ cs)]
   [(L∈ S (->S (Can p-pure (<- θ  (mtθ+S S ⊥)))))
    (all-bot p-pure (<- θ (mtθ+S S unknown)) (sub (signal S p-pure) p-pure cs))
-   -------- "signal-⊥"
+   -------- "sig-⊥"
    (all-bot-rec (signal S p-pure) θ cs)]
   [(all-bot-rec p-pure θ (sub (ρ · WAIT p-pure) p-pure cs))
-   -------- "ρ-empty"
+   -------- "ρ-{}"
    (all-bot-rec (ρ · WAIT p-pure) θ cs)]
-  [(L∈dom S θ) (θ-ref-S θr S unknown)
-   (L¬∈ S (->S (Can-θ (ρ (Lwithoutdom θr S) WAIT p-pure) (<- θ (mtθ+S S unknown)))))
+  [(L∈dom S θ) (θ-ref-S θr S unknown) (L¬∈ S (->S (Can-θ (ρ (Lwithoutdom θr S) WAIT p-pure) (<- θ (mtθ+S S unknown)))))
    (all-bot-rec (ρ (Lwithoutdom θr S) WAIT p-pure) (<- θ (mtθ+S S absent)) (sub (ρ θr WAIT p-pure) (ρ (Lwithoutdom θr S) WAIT p-pure) cs))
    -------- "ρ-0"
    (all-bot-rec (ρ θr WAIT p-pure) θ cs)]
-  [(L∈dom S θ) (θ-ref-S θ S unknown)
-   (L∈ S (->S (Can-θ (ρ (Lwithoutdom θr S) WAIT p-pure) (<- θ (mtθ+S S unknown)))))
+  [(L∈dom S θ) (θ-ref-S θ S unknown) (L∈ S (->S (Can-θ (ρ (Lwithoutdom θr S) WAIT p-pure) (<- θ (mtθ+S S unknown)))))
    (all-bot-rec (ρ (Lwithoutdom θr S) WAIT p-pure) (<- θ (mtθ+S S unknown)) (sub (ρ θr WAIT p-pure) (ρ (Lwithoutdom θr S) WAIT p-pure) cs))
    -------- "ρ-⊥"
    (all-bot-rec (ρ θr WAIT p-pure) θ cs)]
-  [(L∈dom S θ) (θ-ref-S θ S present)
+  [(L∈dom S θ) (¬θ-ref-S θ S ⊥)
    (all-bot-rec (ρ (Lwithoutdom θr S) WAIT p-pure) (<- θ (mtθ+S S present)) (sub (ρ θr WAIT p-pure) (ρ (Lwithoutdom θr S) WAIT p-pure) cs))
-   -------- "ρ-1"
+   -------- "ρ-¬⊥"
    (all-bot-rec (ρ θr WAIT p-pure) θ cs)])

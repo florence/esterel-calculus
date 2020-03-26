@@ -31,7 +31,7 @@
   (define split (breakout-manual-adjustment t))
   (apply hbl-append
          (for/list ([segement (in-list split)])
-           (if (pict? segement)
+           (if (or (pict-convertible? segement) (pict? segement))
                segement
                (pict:text segement f s)))))
 
@@ -43,7 +43,7 @@
              #:result (reverse (cons (stringify current) all)))
             ([c (in-string t)])
     (match (hash-ref adjustment-table c c)
-      [(? pict? x)
+      [(or (? pict-convertible? x) (? pict? x))
        (values empty (list* x (stringify current) all))]
       [(? char? c) (values (cons c current) all)])))
 
@@ -58,9 +58,7 @@
    (text "⇁" Linux-Liberterine-name (default-font-size)  #:kern? #f)
    2))
 (define right
-  (drop-below-ascent
-   (text "⟶" Linux-Liberterine-name (default-font-size)  #:kern? #f)
-   2))
+  (text "⟶" Linux-Liberterine-name (default-font-size)  #:kern? #f))
 
 (define adjustment-table
   (hash
