@@ -13,11 +13,14 @@
          esterel-calculus/dissertation/proofs/adequacy/can-props)
 
 (provide CB-pict
+         CB-loop-pict
+         CB-host-pict
          eval-pict
          ≡e-pict
          →-pict
          blocked-pict
          pure-blocked-pict
+         loop-blocked-pict
          blocked-e-pict
          all-bot-rec-pict
          blocked-pict
@@ -41,63 +44,23 @@
                  (render-the-judgment-form))))))))
 
 
-(define (check-the-names judgment-form-name filename layout-names)
-  (define (right-name? found-name) (equal? found-name judgment-form-name))
-  (define all-the-names
-    (call-with-input-file filename
-      (λ (port)
-        (read-line port)
-        (let loop ()
-          (define exp (read port))
-          (when (eof-object? exp)
-            (error 'calculus-figures.rkt
-                   "error in hack parsing that is designed to find all of the rule names"))
-          (define (check-clauses clauses)
-            (for/list ([clause (in-list clauses)])
-              (for/first ([thing (in-list clause)]
-                          #:when (string? thing))
-                thing)))
-          (match exp
-            [`(define-judgment-form ,lang
-                #:mode (,(? right-name? I) ,_ ...)
-                #:contract ,_
-                ,clauses ...)
-             (check-clauses clauses)]
-            [`(define-judgment-form ,lang
-                #:contract ,_
-                #:mode (,(? right-name? I) ,_ ...)
-                ,clauses ...)
-             (check-clauses clauses)]
-            [`(define-judgment-form ,lang
-                #:mode (,(? right-name? I) ,_ ...)
-                ,clauses ...)
-             (check-clauses clauses)]
-            [_ (loop)])))))
-  (unless (andmap string? all-the-names)
-    (error 'calculus-figures.rkt
-           "error in check-the-names hack that is designed to find all of the rule names for ~a"
-           filename))
-  (let ([all-names (sort all-the-names string<?)]
-        [used-names (sort (flatten layout-names) string<?)])
-    (unless (equal? all-names used-names)
-      (error 'calculus-figures.rkt
-             "mismatch between layout names and full set of names for ~a:\n  all: ~s\n used: ~s\n  ~a"
-             judgment-form-name all-names used-names filename))))
+
 
 
 
 (define CB-layout
   '(("nothing" "pause" "emit")
-    ("signal" "present")
-    ("shared" "<=")
+    ("exit" "trap")
+    ("signal" "if")
     ("seq" "suspend" "ρ")
-    ("par" ":=")
-    ("loop^stop" "var")
-    ("loop" "trap" "exit" "if")))
+    ("par")))
+(define CB-loop-layout
+  '(("loop" "loop-stop")))
+(define CB-host-layout
+  '(("shared" "<=")
+    ("var" ":=")
+    ("if0")))
 
-(check-the-names 'CB
-                 (collection-file-path "binding.rkt" "esterel-calculus" "redex" "test")
-                 CB-layout)
 
 (define (relation-type-frame p) (frame (inset p 4)))
 
@@ -106,7 +69,6 @@
    (rt-superimpose
     (vr-append
      5
-     (relation-type-frame (es (CB p)))
      (frame (inset (vl-append
                     5
                     (vl-append
@@ -130,7 +92,16 @@
     (inset 
      (with-layout CB-layout #:v-append vl-append
        (λ () (render-judgment-form CB)))
-     0 10 0 0))))
+     0 0 0 0))))
+
+(define CB-loop-pict
+  (with-paper-rewriters
+   (with-layout CB-loop-layout #:v-append vl-append
+                (λ () (render-judgment-form CB)))))
+(define CB-host-pict
+  (with-paper-rewriters
+   (with-layout CB-host-layout #:v-append vl-append
+                (λ () (render-judgment-form CB)))))
 
 
 (define blocked-layout
@@ -141,24 +112,21 @@
 (define pure-blocked-layout
   '(("if" "emit-wait")
     ("suspend" "trap")
-    ("seq" "loop^stop")
+    ("seq")
     ("parl" "parr")
     ("par-both")))
-
-
-(check-the-names 'blocked-pure
-                 (collection-file-path "reduction.rkt" "esterel-calculus" "redex" "model")
-                 pure-blocked-layout)
+(define loop-blocked-layout
+  '(("loop^stop")))
 
 (define blocked-pict (with-layout blocked-layout (λ () (render-judgment-form S:blocked))))
 (define pure-blocked-pict (with-layout pure-blocked-layout (λ () (render-judgment-form S:blocked-pure))))
+(define loop-blocked-pict (with-layout loop-blocked-layout (λ () (render-judgment-form S:blocked-pure))))
+
+
 
 (define blocked-e-layout
   '(("not ready")))
 
-(check-the-names 'blocked-e
-                 (collection-file-path "reduction.rkt" "esterel-calculus" "redex" "model")
-                 blocked-e-layout)
 
 (define blocked-e-pict (with-layout blocked-e-layout (λ () (render-judgment-form S:blocked-e))))
 
@@ -175,10 +143,6 @@
     ("ρ-1")
     ("ρ-0")
     ("ρ-⊥")))
-
-(check-the-names 'all-bot-rec
-                 (collection-file-path "can-props.rkt" "esterel-calculus" "dissertation" "proofs"  "adequacy")
-                 all-bot-rec-layout)
 
 
 (define all-bot-rec-pict
@@ -245,23 +209,12 @@
   '(("step" "sym")
     ("ref" "trn")))
 
-(check-the-names '≡e
-                 (collection-file-path "eval.rkt" "esterel-calculus" "redex" "model")
-                 ≡-layout)
 
 (define →*-layout
   '(("step" "ref")))
 
-(check-the-names '→*
-                 (collection-file-path "eval.rkt" "esterel-calculus" "redex" "model")
-                 →*-layout)
-
 (define →-layout
   '(("context")))
-
-(check-the-names '→
-                 (collection-file-path "eval.rkt" "esterel-calculus" "redex" "model")
-                 →-layout)
 
 (define ≡e-pict (with-layout ≡-layout (λ () (render-judgment-form ≡e))))
 (define →-pict (with-layout →-layout (λ () (render-judgment-form →))))

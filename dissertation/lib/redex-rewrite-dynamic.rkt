@@ -1337,9 +1337,9 @@
      ['≡j
       (lambda () (render-op '≡^E))]
      ['⇀
-      (lambda () (render-op (reduction-arrow)))]
+      (lambda () (reduction-arrow))]
      ['⇀2
-      (lambda () (render-op (reduction-arrow)))]
+      (lambda () (reduction-arrow))]
      ['⟶
       (lambda () (render-op '⟶^E))]
      ['⟶^s

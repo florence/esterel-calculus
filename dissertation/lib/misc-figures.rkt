@@ -13,6 +13,7 @@
          lang/env lang/loop lang/eval
          next-instant-pict
          Can-pict Canθ-pict
+         Can-all-pict Can-loop-pict Can-host-pict
          supp-non-terminals
          theta-stuff-1
          theta-stuff-1b
@@ -64,9 +65,17 @@
     (with-paper-rewriters
      (render-language whatever))))
 
+(define-extended-language el esterel/typeset
+  (E ::=
+     hole
+     (seq E q)
+     (par E q)
+     (par p E)
+     (suspend E S)
+     (trap E)))
 (define lang/eval
   (with-paper-rewriters
-   (render-language esterel-eval #:nts '(E))))
+   (render-language el #:nts '(E))))
       
 
 (define circuit-lang
@@ -101,10 +110,12 @@
      (vl-append (nt-∈-line "S" "signal variables" lhs-spacer))))))
 
 (define-extended-language esterel+loop esterel/typeset
-  (p ::= .... (loop^stop p q)))
+  (p ::= .... (loop^stop p q))
+  (E ::= .... (loop^stop E q))
+  (paused ::= .... (loop^stop paused q)))
 (define lang/loop
   (with-paper-rewriters
-   (render-language esterel+loop #:nts '(p q))))
+   (render-language esterel+loop #:nts '(p q E paused))))
 
 (define-extended-language esterel+env esterel/typeset
   (p q ::= .... (ρ θr A p))
@@ -301,7 +312,7 @@
      (frame (inset (render-metafunction ↓ #:contract? #t)
                    6 4 4 6)))))
 
-(define Can-pict
+(define Can-all-pict
   (with-paper-rewriters
    (vl-append
     20
@@ -310,10 +321,37 @@
      (parameterize ([metafunction-pict-style 'left-right/vertical-side-conditions]
                     [sc-linebreaks
                      (for/list ([i (in-range 23)])
-                       (or (= i 16)
-                           (= i 17)))])
+                       (or (= i 15)
+                           (= i 16)))])
        (render-metafunction Can #:contract? #t))
      (vr-append 10 ↓-pict)))))
+(define Can-pict
+  (with-paper-rewriters
+   (vl-append
+    20
+    κ-pict 
+    (rt-superimpose
+     (parameterize ([metafunction-pict-style 'left-right/vertical-side-conditions]
+                    [metafunction-cases
+                     (list 0 1 2 3 4 5 6 7 8 9 12 14 15 16)]
+                    [sc-linebreaks
+                     (for/list ([i (in-range 15)])
+                       (or (= i 12)
+                           (= i 13)))])
+       (render-metafunction Can #:contract? #t))
+     (vr-append 10 ↓-pict)))))
+(define Can-loop-pict
+  (with-paper-rewriters
+   (parameterize ([metafunction-pict-style 'left-right/vertical-side-conditions]
+                  [metafunction-cases
+                   (list 10 11)])
+     (render-metafunction Can #:contract? #f))))
+(define Can-host-pict
+  (with-paper-rewriters
+   (parameterize ([metafunction-pict-style 'left-right/vertical-side-conditions]
+                  [metafunction-cases
+                   (list 17 18 19 20 21 22)])
+     (render-metafunction Can #:contract? #f))))
 
 (define Canθ-pict
   (with-paper-rewriters

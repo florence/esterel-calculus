@@ -10,6 +10,7 @@
            compile-def
            esterel-interface
            synchronizer)
+          racket/format
           "../lib/proof-extras.rkt"
           (only-in "../proofs/proofs.scrbl")
           (only-in "../notations.scrbl")
@@ -19,10 +20,10 @@
 
 @title[#:style paper-title-style #:tag "just:setup"]{Setup for the proofs}
 
-The justifications for Soundness and Adequacy involve
-formal proofs. However these proofs have some require some setup and have
-some caveats. The purpose of this section is to give the rest of the setup
-needed to understand the statements of the theorems and their proofs.
+The justifications for Soundness and Adequacy involve formal
+proofs. The purpose of this section is to give
+the setup needed to understand the statements of the
+theorems and their proofs.
 
 
 @section[#:tag "just:sound:compiler"]{The compiler}
@@ -255,12 +256,6 @@ behavior. As @es[par] is the only case where two
 subcircuits can be active simultaneously, this is the only
 case that requires this special care.
 
-
-@;TODO loop
-
-
-@;TODO ρ
-
 The compilation of @es[ρ] follows along similar lines to the
 compilation of @es[signal]: we take one signal at a time out
 of the environment and connect its input wire to it's output
@@ -424,44 +419,8 @@ Which show that @racket[delay1] and @racket[delay2] are
 equal when @racket[a] is always false, but not equal when
 @racket[a] is always true.
 
-@section[#:tag "just:sound:pure"]{Caveat: Pure Esterel}
 
-There is a caveat to the Soundness, Consistency, and Adequacy theorems:
-They both work on Pure Esterel programs.
-
-Pure Esterel, the subset of Esterel which does not handle
-Host Language Programs,@note{ That is Pure Esterel is the
- part of Esterel which contains only Esterel terms, not a
- ``side-effect free'' fragment of Esterel} defines the
-essence of Esterel. I postulate that the Soundness,
-Consistency, and Adequacy theorems hold for all of Kernel
-Esterel, and give some evidence for this in
-@secref["just:sound:testing"].
-
-@section[#:tag "just:sound:free"]{Caveat: Loop Free}
-
-My proofs are also only give on the fragment of Pure Esterel
-which does not contain loops. At the core, this is because
-of Schizophrenia (See @secref["back:esterel:schizo"] for a
-refresher) instantaneous loops. The calculus does not suffer
-from schizophrenia because it duplicates the loop body on
-reduction, preventing conflict between different iterations
-of the loop. In addition @es[loop^stop] allows for handling
-instantaneous loops dynamically. Handling schizophrenia in
-the circuit semantics is a more complicated problem. While
-one could just duplicate the loop body@note{This is the
- solution that the random tests for my calculus use.} this is
-not the approach that is usually taken. Much work has gone
-in to handling loop compilation correctly and efficiently
-(such as chapter 12 of @citet[esterel02], and
-@citet[new-method-schizophrenic]). In addition the circuit
-semantics requires that instantaneous loops ruled out
-statically. I postulate the correctness of the
-calculus on loops, and again provide evidence in
-@secref["just:sound:testing"].
-
-@section[#:tag "just:sound:instants"]{Caveat: Instants}
-
+@section[#:tag "just:sound:instants"]{On Instants}
 
 One final caveat: The theorems soundness, consistency, and
 adequacy restrict themselves to a single instant of
@@ -480,112 +439,6 @@ from @citet[esterel02]@note{Section 8.3, page 89 of the
 that these theorems hold over multiple instants in
 @secref["just:sound:testing"].
 
-@section[#:tag "just:sound:testing"]{Evidence via Testing}
-
-@(require racket/runtime-path racket/system racket/port racket/string racket/format)
-@(define-runtime-path loc "../../final-tests/logs/")
-       
-            
-   
-@(define impure-test-count*
-   (parameterize ([current-directory loc])
-     (define numbers
-       (with-output-to-string
-         (lambda ()
-           (system* (find-executable-path  "bash")
-                    "-c"
-                    @~a{for x in *ternal*; do grep "running test" $x | tail -1; done | awk '{ print $3 }'}))))
-     (apply + (port->list read (open-input-string numbers)))))
-
-@(define circuit-test-count*
-   (parameterize ([current-directory loc])
-     (define numbers
-       (with-output-to-string
-         (lambda ()
-           (system* (find-executable-path  "bash")
-                    "-c"
-                    @~a{for x in *circuit*; do grep "running test" $x | tail -1; done | awk '{ print $3 }'}))))
-     (apply + (port->list read (open-input-string numbers)))))
-
-
-@;{@(unless (number? impure-test-count*)
-      (error 'arg "expected a test count, got ~a" test-count))}
-@;{@(unless (number? circuit-test-count*)
-      (error 'arg "expected a test count, got ~a" test-count))}
-
-@(define impure-test-count
-   (if impure-test-count*
-       (max impure-test-count*
-            (* 100000 (floor (/ impure-test-count* 100000))))
-       "TODO"))
-
-@(define circuit-test-count
-   (if circuit-test-count*
-       (max
-        circuit-test-count*
-        (* 100000 (floor (/ circuit-test-count* 100000))))
-       "TODO"))
-@(define |Esterel v5| @nonbreaking{Esterel v5})
-
-@(define itemlistheader bold)
-   
-I have evidence that the postulates in the previous sections
-hold, and that the theorems I have prove hold in the form of random testing.
-To do this, I provide the following:
-
-@itemlist[@item{@itemlistheader{Redex COS model} I built a
-           Redex@~cite[redex-book] model of the COS semantics. The semantics is a
-           rule-for-rule translation of the COS semantics from @citet[compiling-esterel],
-           aside from some minor syntax differences. This provides an executable model
-           of the COS semantics.}
-          @item{@itemlistheader{Redex calculus model} I have also build
-           a Redex model of the calculus. This defines two relations:
-           the core relation of the calculus @es[⇀], and a new
-           relation @es[⇁] which gives an evaluation strategy for @es[⇀].
-           The @es[⇁] relation and the @es[next-instant] function is used to define a
-           multi-instant evaluator for Esterel. This evaluator checks at
-           every reduction step that the step taken by @es[⇁] is also
-           in @es[⇀]. The relation @es[⇁] is given in the appendix A.}
-          @item{@itemlistheader{Redex/Hiphop.js bridge} 
-           HipHop.js is an Esterel implementation embedded into Javascript. We
-           built a library that can translate Redex expressions into
-           Hiphop.js@~cite[hiphop] programs and then evaluate them.@note{Special thanks to Jesse Tov
-           for helping out with this.}
-           There is also a
-           compiler form a subset of Hiphop.js to the Redex model of the calculus,
-           allowing many of the Hiphop.js tests be run directly against the calculus. This translator does not accept
-           all Hiphop.js programs, because Hiphop.js programs embed
-           JavaScript code as the Redex model cannot evaluate the
-           JavaScript.}
-          @item{@itemlistheader{Redex/@|Esterel\ v5| bridge}
-           There is also built a translator that produces @|Esterel\ v5| programs
-           from Redex terms.}
-          @item{@itemlistheader{Redex circuit compiler}
-           Finally I have built a compiler from pure Esterel (with loops)
-           to circuits, which runs on top of the circuit library Circuitous.}]
-
-
-I have run @(~a impure-test-count) tests which on Full
-Esterel programs which test that the Hiphop.js,
-@|Esterel\ v5|, the COS, the calculus, and the circuit
-compiler agree on the result of running programs for
-multiple instants.@note{Each test runs for a random number
- of instants.} These tests are to provide evidence for consistency and
-adequacy, not just against the circuit semantics but against
-real implementations as well. The real implementations are
-important because they accept Esterel terms that use host
-language expressions, which the circuit compiler does not.
-Therefore these tests in particular give evidence that
-adequacy holds in the presence of Full Esterel.
-
-
-In addition I have run @(~a circuit-test-count) random test
-which generate a random pure program (with loops), and apply
-all rules from the calculus (specifically from @es[⟶], the
-compatible closure of @es[⇀]), and then check that the
-circuits are equal using the Circuitous library. These
-tests provide evidence for soundness, and especially for the
-soundness with loops.
 
 @section{Agda Codebase}
 
@@ -593,6 +446,7 @@ Some proofs I reference are not given in this document. Instead they are given i
 This code base is an old attempt to prove the correctness of a previous version of the calculus@~cite[florence-2019].
 While the calculus has since changed, @es[Can] has not. Therefore I re-use some of the proofs from
 that work which relate to @es[Can].
+
 
 @section{Notation}
 
