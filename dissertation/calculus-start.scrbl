@@ -35,7 +35,7 @@
 
 With the background out of the way, this section dives
 directly into describing the calculus for Esterel.
-Specifically this describes the calculus for the Pure
+Specifically this describes the calculus for single instants of Pure
 Esterel without loops. This section relies heavily on the
 background given in @secref["background-esterel"] and
 @secref["background-calculi"].
@@ -274,7 +274,7 @@ Thus to take the else branch we analyze the program for what can be emitted. Thi
 metafunctions in @figure-ref["Can"] and @figure-ref["Can-rho"].
 
 @figure["Can"
-        "Can"
+        "Can on pure, loop free terms"
         Can-pict]
 
 @[begin

@@ -62,13 +62,19 @@ contribution of this dissertation is the construction of
 syntactic, local, consistent, sound, and adequate semantics
 for Esterel.
 
-I have proven this syntactic, local semantics---this
-calculus---is consistent, sound, and adequate for Loop Free,
+I have shown that this syntactic, local semantics---this
+calculus---is consistent, sound, and adequate. I show this
+using three pieces of evidence: proofs, testing, and prior
+work. This evidence, this tripod the calculus stands upon,
+is neccesary because not all parts of the calculus stand
+equally upon all three legs. My proofs apply only to loop
+free, pure Esterel programs, and are proven with respect to
 Pure Esterel programs with respect to the circuit semantics
-for Esterel@~cite[esterel02]. In addition I will give
-evidence and arguments for the soundness of the rest of the
-calculus, as well as future directions for making the
-calculus more powerful and useful.
+for Esterel@~cite[esterel02]. The full calculus, on the
+other hand, is tested against several different Esterel
+semantics and implementations. May parts of the calculus are
+also borrowed from these prior semantics, helping increase
+confidence in their correctness.
 
 @;@section[#:tag "intro:syntactic"]{Syntactic}
 
@@ -144,7 +150,7 @@ semantics@~cite[esterel02], for pure, loop free, programs
 withing a single instant. Evidence for the Soundness for
 multi-instant, loop containing programs is given by informal
 arguments and random testing. This is discussed
-more in @secref["just:setup"]and  @secref["just:sound"].
+more in @secref["just:sound"].
 
 @;@section[#:tag "intro:adequate"]{Adequate}
 @[define semantics-note
@@ -170,20 +176,26 @@ proven for pure, loop free, programs for one instant.
 Evidence for the Adequacy of loop containing programs with
 host language expressions across multiple instants is also
 given by informal argument and random testing. This is discussed
-more in @secref["just:setup"]and  @secref["just:adequacy"].
+more in @secref["just:adequacy"].
 
 @;@section{Overview}
 
 @section{Overview}
 
-The dissertation is divided into 5 more Chapters, and three
+The dissertation is divided into 6 more Chapters, and three
 Appendices. @Secref["background"] covers summarizes the
 background a reader will need to understand this document,
 as well as pointers to the background reading I assume the
-reader has. @Secref["sec:calculus"] the describes the
-calculus I have designed. @Secref["just"] gives the evidence
-that my calculus meets the properties above. @Secref["related"]
-gives existing work related to my calculus. @Secref["final"]
+reader has. @Secref["sec:free-and-pure"] then describes the
+calculus I have designed on pure, loop free Esterel programs. @Secref["just"] the proofs that
+that my calculus meets the properties above.
+Then @secref["sec:proofs"] gives
+the proofs for Consistency, Soundness, and Adequacy on this
+part of the calculus. Next @secref["sec:the-rest"]
+gives the remainder of the calculus and describes the remainder of
+the evidence that the calculus is correct. 
+@Secref["related"]
+gives existing work related to my calculus. Finally, @secref["final"]
 gives some final thoughts and future directions.
 
 Appendix A lists definitions for all of the notation
