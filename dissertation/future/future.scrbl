@@ -9,9 +9,12 @@
 
 @title[#:tag "final" #:style paper-title-style]{Final Thoughts}
 @section[#:tag "future"]{Future Work}
-@subsection{Extending proofs to multiple instants, and guarding compilation
+@subsection{Extending proofs to multiple instants, and guarding compilation}
 
-}
+must use guard to ensure GO => NOT SEL
+
+Then show inter-instant sound somehow
+
 @subsection[#:tag "future:remove"]{Removing θ from ρ}
 
 I suspect that there is a variant of my calculus which is both stronger
@@ -38,10 +41,9 @@ evaluation context with respect to an @es[if]. But it would
 also let us move @es[emit]s elsewhere. For example, we could
 validate that @es[(≡ (par (emit S) q) (seq (emit S) q))],
 which has a slightly simpler circuit because there is not
-synchronizer. This rule cannot be proven by the current calculus, because in enables
+synchronizer. It would also let the calculus prove
+@proof-ref["unprovable-lifting"]. This rule cannot be proven by the current calculus, because in enables
 reasoning about @es[emit]s when there is no @es[GO].
-
-TODO @proof-ref["unprovable-lifting"]
 
 The definition of @es[Can] would also need to change in this variant of the calculus.
 The @es[Can] function would likely still need an @es[θ] argument, therefore @es[Can]
@@ -51,4 +53,7 @@ is not clear to me yet how exactly this would work, and proving it correct is
 another thing entirely.
 
 @subsection{Fully Abstract Compilation}
+
+get stuff from poster
+
 @section{Conclusion}
