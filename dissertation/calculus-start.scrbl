@@ -43,12 +43,6 @@ background given in @secref["background-esterel"] and
 @section{The Calculus}
 
 This section will walk through the rules of the calculus to explain their function.
-The rules can, broadly, be broken up into three categories: Administrative reduction which
-shuffle the term around to find the next redex;
-Signal Reductions, which manipulate and read signal states; and State rules which give Esterel's interaction with the
-Host language. The description here is incremental, introducing concepts as it goes
-along. The complete rules and grammars can be found in one place in Appendix A.
-
 The calculus is built around the relation @es[⇀], which
 defines the notions of reduction for the the equality
 relation @es[≡]. These relations work within a single
@@ -56,6 +50,18 @@ instance of execution, which will lead the evaluator
 @es[eval^esterel] to be an evaluator for a single instant.
 Multi-instant evaluation is described in
 @secref["sec:calc:future"].
+
+The rules of @es[⇀], broadly, be broken up into three
+categories: Administrative reductions which shuffle the term
+around to find the next redex; Signal Reductions, which
+manipulate and read signal states; and Host language rules
+which give Esterel's interaction with the Host language. The
+description here is incremental, introducing concepts as it
+goes along, and only the administrative and signal rules are
+described here. The host language rules are given in
+@secref["sec:full:host"]. The complete rules and grammars
+can be found in one place in Appendix A.
+
 
 
 @subsection{Administrative rules}
@@ -97,7 +103,8 @@ The next rules handle @es[par]:@(linebreak)
 @[render-specific-rules '(par-swap par-nothing par-1exit par-2exit)]@(linebreak)
 The first rule swaps the two branches of an @es[par]. This rule is useful for exposing redexes
 to the next three rules.
-The second rule allows an @es[par] to reduce to its second branch when the first is @es[done].
+The second rule allows an @es[par] to reduce to its second branch when it is @es[done]
+and the other branch has completed.
 Combined with @rule["par-swap"], it means that the program will progress with the behavior
 of one branch if the other is @es[nothing].
 The last two rules handle @es[exit]s in @es[par]s. In short, an @es[exit] will preempt
@@ -111,9 +118,9 @@ Next up is @es[suspend]:@(linebreak)
 @[render-specific-rules '(suspend)]@(linebreak)
 Which just states that the suspension of a @es[stopped] term is equivalent to just that
 term. Because this @es[⇀] only works within one instant, and @es[suspend]
-has different behaviors on initial versus future instants, this is the only rule
+has different behaviors on initial versus future instants. This is the only rule
 that touches @es[suspend]. The rest of @es[suspend]'s behavior will be handled by the inter-instant
-translation function @es[next-instant].
+translation function @es[next-instant], which is discussed in @secref["sec:calc:future"].
 
 
 @subsection{Signal rules}
@@ -129,7 +136,7 @@ the metafunction @es[Can].
 Environments represent state information that is local to a portion of a program.
 In full environments look like:
 @[centered lang/env]
-Local environments contain two parts: a map @es[θr], and a control variable @es[A].
+Local environments @es[ρ] contain two parts: a map @es[θr], and a control variable @es[A].
 The information contained in these environments is scoped to the program fragment @es[p].
 The map @es[θr] maps signals
 that are in scope of the term @es[p] to their status.
@@ -166,13 +173,13 @@ evaluation would demand a value for @es[S1] before determining a value for @es[S
 However we might try to reason about a fragment of this program locally, ignoring it's context. For example
 we might ignore the context:
 @[centered
-  @es[(signal S1 (if S1 hole nothing))]]
+  @es[(signal S1 (present S1 hole nothing))]]
 and focus on the fragment
 @[centered
   @es[(signal S2
         (seq (emit S2)
              (present S2 nothing (emit S1))))]]
-However when we look at this fragment it looks like we can @es[emit] the @es[S2], allowing the
+it looks like we can @es[emit] the @es[S2], allowing the
 fragment to reduce to
 @[centered
   @es[(signal S2 nothing)]]
@@ -216,7 +223,10 @@ The @es[GO] and @es[(emit S1)] tells us that this program @italic{must}
 emit @es[S1]. However the @es[absent] in the environment tells us
 that @es[S1] @italic{cannot} be emitted. This is the exact contradiction we wish to avoid.
 Therefore the calculus forbids directly recording @es[absent] in the environment.
-@Secref["calc:can"] explains how @es[absent] is recorded in the caclulus.
+While such a program should never be reachable from a program without environments,
+it makes proofs about the calculus simpler to exclude such programs from
+the grammar altogether.
+@Secref["calc:can"] explains how @es[absent] is recorded in the calculus.
 
 Note that a term that swapping things around, recording that
 something @italic{must} be emitted in a program that
@@ -243,12 +253,12 @@ program fragment will be executed yet or not.
 
 The next set of rules require evaluation contexts. Like the evaluation contexts we saw in @secref["background-calculi"],
 these control where evaluation may take place (and therefore where state is valid), however,
-they in this case our evaluation contexts can decompose non-deterministically because of @es[par]:
+in this case the evaluation contexts can decompose non-deterministically because of @es[par]:
 
 @[centered lang/eval]
 
 With these in hand we can now look at the next three rules. Firstly, local environments
-may be merged together if they are with an evaluation context of each other:@(linebreak)
+may be merged together if they are within an evaluation context of each other:@(linebreak)
 @[render-specific-rules '(merge)]@(linebreak)
 This merge overwrites bindings in the outer map with the inner one. In addition this merge may
 only happen if it would not expose the outer environment to more control information
@@ -295,7 +305,9 @@ terminate. The code @es[0] means the program may reduce to
 (reduce to @es[paused]). A code of @es[(= κ 2)] or greater
 means the program might reduce to @es[(exit (- κ 2))]. The
 final set @sh is a set of shared variables which may be
-written to during execution of the program.
+written to during execution of the program. This third set
+is discussed when the host language portion of the calculus
+is introduced in @secref["sec:full:host:can"].
 
 I will note accessing only one of these sets will a
 superscript: @es/unchecked[(->S Can)] for the @S set,
@@ -305,7 +317,7 @@ superscript: @es/unchecked[(->S Can)] for the @S set,
 Note that @es[Can] takes in an map @es[θ] not a
 restricted map @es[θr]. This is because while @es[Can] will record
 @es[0]s into this map, and it cannot arrive at a
-contraction. This because it only records a signal @es[S] as @es[0] in the map
+contraction. This because it only temporarily records a signal @es[S] as @es[0] in the map
 if @es[S] cannot be emitted, therefore it cannot enter the contradictory corner
 of @figure-ref["back:lattice"].
 
@@ -314,7 +326,7 @@ more detailed explanation can be found in chapters 4 and 5
 of @cite/title[compiling-esterel], from which this version
 of @es[Can] is adapted.
 
-the first three clauses of @es[Can] handle the return codes
+The first three clauses of @es[Can] handle the return codes
 for irreducible terms: @es[nothing] gets @es[0], etc. The @S
 and @sh sets are empty for these, as they can neither emit signals
 nor write to shared variables.
@@ -366,15 +378,8 @@ may not be unique and thus emissions from within this
 @es[signal] form need to be hidden to avoid conflicts with
 other signals of the same name.
 
-The clause for @es[ρ] delegates to the @es[Can-θ] function,
-which will be explained later. Like the @es[signal] case, it
+The clause for @es[ρ] delegates to the @es[Can-θ] metafunction. Like the @es[signal] case, it
 removes all of its bound variables from its result.
-
-
-@figure["Can-rho"
-        "Can rho"
-        Canθ-pict]
-
 The @es[Can-θ] function handles the analysis of @es[ρ]
 forms. It essentially behaves as if the form was made of
 nested @es[signal] forms: for each signal, if the signal is
@@ -384,6 +389,10 @@ then the form is re-analyzed with that signal set to
 The primary difference between this and the signal rule is
 that the bound variables are not removed from the resulting
 @S set---this is handled by @es[Can].
+
+@figure["Can-rho"
+        "Can rho"
+        Canθ-pict]
 
 We can understand why this is by looking at the rule which
 uses @es[Can-θ]:@(linebreak)
@@ -446,7 +455,7 @@ may, however, contain @es[⊥] in this case.
 The @es[(blocked-pure θr A E p)] judgment traverses the the
 program and checks that at the leaf of each evaluation
 context there is either an @es[if] which is blocked on an
-@es[if] or an @es[emit].
+signal or an @es[emit] which is awaiting an @es[GO].
 
 The relation is in @figure-ref["calc:eval:blocked:pure"]. The first
 case, @rule["if"], checks that, for a conditional, the status
@@ -494,11 +503,9 @@ this particular program is stuck. Therefore
 
  A natural question about the calculus for
 someone familiar with the lambda calculus might be ``is
-there an @rule["α"] rule?''.
-
-Instead of working up to α-equivalence, as is common in the
+there an @rule["α"] rule?''. Instead of working up to α-equivalence, as is common in the
 lambda calculus world, I take a different tact inspired by
-Esterel and circuits and, work up
+Esterel, circuits, and schizophrenia and work up
 to what I have called correct binding. The judgment for a program
 with correct binding is given in @figure-ref["CBfig"].
 
@@ -523,13 +530,13 @@ Correct binding is preserve by reduction:
 The full proof is given in
 @proof-ref["cbpreserved"]. This follows by case analysis
 over the rules of @es[⇀]. I should also note that any
-program any be renamed into a program with correct binding
+program can any be renamed into a program with correct binding
 by making all variable names unique. Therefore I work up to
 correct binding, that is, I assume that any program used in
 the calculus or in my proofs has correct binding.
 
 Using correct binding instead of α-equivalence also explains
-the lack of a @rule["gc"], as appears in the state
+the lack of a @rule["gc"] rule, as appears in the state
 calculus@~cite[felleisen-hieb]. As the calculus does not
 rename variables, but instead constantly replaces instances
 of variables in the environment with the new instances,
@@ -537,7 +544,7 @@ there is a possible size to every environment. This matches
 well with actual Esterel implementations which, absent host
 language allocation, execute in a bounded amount of memory.
 In addition Correct Binding will be used to explain
-how the calculus avoid schizophrenic variables, which is explained
+how the calculus avoids schizophrenic variables, which is explained
 in @secref["sec:calc:loop:cb"].
 
 @include-section["calculus/examples.scrbl"]

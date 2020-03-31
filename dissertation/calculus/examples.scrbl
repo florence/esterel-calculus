@@ -28,7 +28,7 @@
 
 The calculus is designed to prove equivalences between
 program fragments because any two expressions that are
-@es[≡]. This section is designed to give some examples of
+@es[≡] are contextually equivalent. This section is designed to give some examples of
 how this is done, and some examples which cannot be proved
 in the calculus, to give some sense of its limits.
 
@@ -61,7 +61,7 @@ fixed by adding the axiom @es[(≡ p (ρ · WAIT p))]. Such an axiom should
 be easy to prove sound because, as is shown in @secref["just:sound:compiler"],
 the compilation of @es[p] and @es[(ρ · WAIT p)] should be identical.
 
-Next, we another weakness in the calculus. The next theorem should be true,
+Next, we have another weakness in the calculus. The next theorem should be true,
 but cannot be proven in the calculus:
 @proof[#:label "unprovable-lifting"
        #:title "Lift Signal Emission (Unprovable)"

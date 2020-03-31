@@ -135,17 +135,19 @@ A side note on diagrams: Sometime circuit diagrams may refer
 to wires in a sub-circuits that are not present. For
 example, see @figure-ref["zero-example"], which shows the
 compilation rules for two of Esterel's forms. If the second
-circuit is substitute in for @es[(compile p)], then the
+circuit is substituted in for @es[(compile p)], then the
 wires @es[SEL], @es[K1] and @es[K2] will be missing. For
 convenience, these missing wires are defined to be @es[0].
 
 
 @section{Interpreting a circuit}
 
-As an intuition for how to execute a circuit: take each wire an initialize it
+As an intuition for how to execute a circuit: initialize every wire
 to the special value @es[⊥]. Then set each input wire to its initial value.
 From here iterate through each gate in the circuit, updating the output of each
-gate if the inputs allow it to change. The output of each gate is
+gate if the inputs allow it to change. Continue this until a fixed-point is reached.
+
+The output of each gate is
 given by the truth tables in @figure-ref["extended-truth-tables"],
 which have been extended to handle @es[⊥]. These extensions follow the
 principle that if a value is enough to determine the output of a
@@ -212,18 +214,18 @@ based on @citet[malik-circuit],
 @citet[esterel02].
 
 A circuit with a cycle may or may not be electrically
-stable. Wires which do not stabilize are given the
-wires with the value @es[⊥]. Initially, all wires are in this state,
-as we do not yet know their value.
+stable. Wires which do not stabilize will have the value
+@es[⊥] when a fixed-point is reached. Initially, all wires
+are in this state, as we do not yet know their value.
 
 A circuit which does not stabilize is called
 @index['("non-constructive" "constructive")]{
  non-constructive}. Like constructivity in Esterel, this term
 is an allusion to Constructive Logic, a connection which
-@~cite[constructive-boolean-circuits] formalize. But to a
+@~cite[constructive-boolean-circuits] formalizes. But to a
 first approximation: Using three values for Booleans @es[1],
 @es[0], and @es[⊥] is one way of formalizing a logic without
-the law of the excluded middle. That is, in circuits
+the law of the excluded middle. That is, in circuits,
 @es[(or X (not X))] may not always produce @es[1], but can
 also produce @es[⊥].
   
@@ -235,7 +237,7 @@ functions which define the gates are monotonic: once a value transitions
 from @es[⊥] to @es[0] or @es[1] it can never change. This means that
 there is a fixed-point when evaluating that circuit, and it should
 take no more than @es[n] iterations to find that fixed-point (where
-@es[n] is the size of the circuit).
+@es[n] is the number of gates in the circuit).
 
 
 @section[#:tag "back:circ:form"]{Circuits, more formally}
@@ -316,21 +318,21 @@ observables of a circuit are the values of its output wires and whether
 or not it it constructive, and the only observation a circuit can make about its
 context is the state of its input wires.
 
-More formally, this definition is based on the
-@citet[mendler-2012] and @citet[esterel02]. Specifically
-Lemma 7 of @citet[esterel02] gives us that this reduction
-relation is equivalent to what @citet[mendler-2012] call
-ternary simulation of the circuits. Corollary 3 of
-@citet[mendler-2012] tells us that this is equivalent to the
-algorithm given by @citet[malik-circuit] for evaluating a
-circuit. Theorems 1, 2, 3, and 5 of @citet[mendler-2012]
-also give us that ternary simulation is equivalent to their
-UN-delay model of circuits, which is a model of electrical
-characteristics of circuit (See definition 6 in that paper).
-This UN-delay model is compositional, and thus can be when
-analyzing a circuit without knowing its context. From this I
-conclude that the definition of contextual equivalence above
-is correct.
+I am basing this definition on the procedure given by
+@citet[malik-circuit]. This procedure is equivalent to the
+reduction relation given here by @citet[mendler-2012] and
+@citet[esterel02]. Specifically Lemma 7 of @citet[esterel02]
+gives us that this reduction relation is equivalent to what
+@citet[mendler-2012] call ternary simulation of the
+circuits. Corollary 3 of @citet[mendler-2012] tells us that
+this is equivalent to the algorithm given by
+@citet[malik-circuit] for evaluating a circuit. Theorems 1,
+2, 3, and 5 of @citet[mendler-2012] also give us that
+ternary simulation is equivalent to their UN-delay model of
+circuits, which is a model of electrical characteristics of
+circuit (See definition 6 in that paper). This UN-delay
+model is compositional, and thus can be when analyzing a
+circuit without knowing its context.
 
 
 

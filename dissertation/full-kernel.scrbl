@@ -63,17 +63,20 @@ is not analyzed as it @italic{cannot} be reached in this instant.
 
 @subsection{Loops and Blocked}
 
-@loop-blocked-pict
+As adding loops adds a new evaluation context, the blocked
+relation must be extended to handle it, seen in
+@figure-ref["fig:lblock"]. This extension treats
+@es[loop^stop] the same as @es[seq].
+
+@figure["fig:lblock" "Extending Blocked for Loops" loop-blocked-pict]
 
 @subsection[#:tag "sec:calc:loop:cb"]{Loops and Correct Binding}
 
-A natural question about the calculus for someone familiar
-with Esterel might be ``what about schizophrenic
-variables''?
-
-Correct binding prevents schizophrenia, because at their heart schizophrenic variables
-are variables which have two instances, and one captures the
-other! Thus, the loop clause in @es[CB] (@figure-ref["fig:bl"])forbids the bound
+We can now turn to the issue of Schizophrenia in the
+calculus. Correct binding prevents schizophrenia, because at
+their heart schizophrenic variables are variables which have
+two instances, and one captures the other! Thus, the loop
+clause in @es[CB] (@figure-ref["fig:bl"]) forbids the bound
 and free variables of the loop body from overlapping at all.
 This way then the loop expands into @es[loop^stop], the
 constraint given the corresponding clause (which is the same
@@ -84,11 +87,9 @@ preventing any variable capture.
 
 @subsection[#:tag "sec:calc:loop:eval"]{Loops and the evaluator}
 
-
-Loops give us another scenario that the evaluator is
-undefined on, and that is instantaneous loops. Instantaneous
+Loops give us another scenario that the evaluator is: instantaneous loops. Instantaneous
 loops will always reach a state where they contain a program
-fragment that matches @es[(loop^stop nothing q)]. Such a
+fragment which matches @es[(loop^stop nothing q)]. Such a
 program has had the loop body terminate in the current
 instant, and there is no rule which can reduce this term.
 This term is not @es[done], however, because it is not a
@@ -131,11 +132,15 @@ program. This however means in practice that the loops
 that the compiler operates on look different to those that
 the evaluator operates on, in a way that is difficult to formalize.
 
-@section{Host language rules}
+
+The handling of loops is adapted from the COS, which lends
+evidence to its correctness.
+
+@section["sec:full:host"]{Host language rules}
 
 To handle host language forms, @es[θ] and @es[θr] must be extended
 to accept shared and host language variables. Thus @es[θ] will
-also map @es[x]s to their values, and @es[sh]s to a pair
+also map @es[x]s to their values, and @es[s]s to a pair
 of a value and their current status:
 @[centered [with-paper-rewriters [render-language esterel-eval #:nts '(shared-status)]]]
 
@@ -161,12 +166,12 @@ and should only be used if the shared variable is not written to.
 
 The @rule["set-old"] and @rule["set-new"] rules both update the value of a shared variable,
 using the same rules as @rule["shared"] to decide if the host language expression
-can be evaluated. The different is in the actual updating. If the status
+can be evaluated. The difference is in the actual updating. If the status
 is @es[old], then the new value replaces the old value, and the status is
 set to @es[new]. If the status is already @es[new], then the value
 gotten from evaluating @es[e] is combined by the associative and commutative operator
 for that variable. In this model the only operator is @es[+], however in a real
-program the operator is given by the user. Like @rule["emit"], these rules
+program the operator is given by the program itself. Like @rule["emit"], these rules
 may only fire when the control variable is @es[GO], for a similar reason as
 to @rule["emit"].
 
@@ -197,7 +202,7 @@ have side effects. In order to handle this the calculus
 would need additional reasoning, for example having @es[δ]
 return a value and a new environment.
 
-@subsection{Host language and Can}
+@subsection["sec:full:host:can"]{Host language and Can}
 
 
 @[begin
@@ -221,9 +226,9 @@ them into its concurrency mechanism.
 
 @figure["sec:cs" "Can and the Host Language" Can-host-pict]
 
-@subsection{Host language and Blocked} The blocked judgment
+@subsection{Host language and Blocked}
 
-@es[blocked] is extended to forms that refer to the host
+The @es[blocked] relation must be extended to forms that refer to the host
 language in @figure-ref["calc:eval:blocked:host"]. They are
 all base cases, and are either blocked because a write to a
 shared variable may not be performed due to the control
@@ -257,6 +262,9 @@ The second reason is that the host language forms
 reuse many of the mechanisms from the pure language. Therefore the
 proofs about the pure section of the language give some confidence for
 the correctness of the host language part.
+
+The handling of shared variables is adapted from the COS, which lends
+evidence to its correctness.
 
 @section[#:tag "sec:calc:future"]{Future Instants}
 
@@ -312,7 +320,7 @@ function from @citet[esterel02]@note{Section 8.3, page 89 of
  Specifically, it is proven that, up to bisimilarity, a
  program passed through @es[next-instant] under the
  Constructive Semantics remains the same program with respect
- to the state semantics.} by Lionel Rieg in Coq.@note{
+ to the State Semantics.} by Lionel Rieg in Coq.@note{
  Unfortunately, as of the writing of this dissertation this
  work is unpublished.}, but with extensions to handle
 @es[loop^stop] and @es[ρ].

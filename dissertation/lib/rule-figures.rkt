@@ -176,7 +176,8 @@
 
 (define circuit-red-pict
   (with-paper-rewriters
-   (parameterize* ([render-reduction-relation-rules #f]
+   (parameterize* ([current-reduction-arrow 'circuit]
+                   [render-reduction-relation-rules #f]
                    [rule-pict-style (render-rules 'circuit
                                                   ⟶^c
                                                   `(("" eval-wire))

@@ -87,7 +87,7 @@
   (c circuit ::= (circ EQ I O))
   (cs ::= (cstate circuit (w ↦ B⊥) ...))
   (I O ::= (w ...))
-  (EQ ::= ((w = wire-value) ...))
+  (EQ ::= {(w = wire-value) ...})
   (bool ::= tt ff)
   (So Si ::= S)
   (P Path Pnc ::= (w ...))

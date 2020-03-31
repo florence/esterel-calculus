@@ -1,5 +1,6 @@
 #lang racket
 
+(provide with-paper-rewriters/proc render-op)
 (require (except-in esterel-calculus/redex/model/shared quasiquote)
          esterel-calculus/redex/model/instant
          (prefix-in calculus: esterel-calculus/redex/model/calculus)
@@ -66,7 +67,6 @@
    #\⇁ hookdown
    #\⟶ right))
 
-(define current-reduction-arrow (make-parameter 'calculus))
 (define (reduction-arrow)
   (match (current-reduction-arrow)
     ['calculus
@@ -84,8 +84,6 @@
 
 (set-arrow-pict! '--> reduction-arrow)
 
-;; es short for esterel, in the spirit of @racket[]
-(provide with-paper-rewriters/proc render-op)
 
 (define (render-op p [x #f])
   (define s (~a (if x x p)))
@@ -500,8 +498,9 @@
      (lambda (lws)
        (match-define (list open name w c close) lws)
        (list w
-             " ∈ Dom"
-             ((white-square-bracket) #t)
+             " ∈ "
+             (hbl-append (mf-t "dom")
+                         ((white-square-bracket) #t))
              c
              ((white-square-bracket) #f)))]
     ['eval^boolean

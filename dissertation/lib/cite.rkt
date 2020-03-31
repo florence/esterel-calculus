@@ -1,7 +1,8 @@
 #lang racket
 
 (require scriblib/autobib
-         rackunit)
+         rackunit
+         (only-in scribble/base italic))
 
 (provide (except-out (all-defined-out) |Robert de Simone|))
 
@@ -15,7 +16,7 @@
 (define-cite ~cite citet generate-bibliography)
 
 (define (cite/title x)
-  (list (auto-bib-title x)
+  (list (italic (auto-bib-title x))
         (~cite x)))
 
 (define plt-tr1
@@ -45,7 +46,7 @@
 
 (define bigloo
   (make-bib
-   #:title "Bigloo: a portable and optimizing compiler for strict functional languages"
+   #:title "Bigloo: A Portable and Optimizing Compiler for Strict Functional Languages"
    #:author (authors "Manuel Serrano" "Pierre Weis")
    #:date 1995
    #:location (proceedings-location "Static Analysis Symposium")))
@@ -129,7 +130,7 @@
 
 (define felleisen-hieb
   (make-bib
-    #:title "The revised report on the syntactic theories of sequential control and state."
+    #:title "The Revised Report on the Syntactic Theories of Sequential Control and State"
     #:author (authors "Matthias Felleisen" "Robert Hieb")
     #:date 1992
     #:location (journal-location "Theoretical Computer Science"
@@ -139,7 +140,7 @@
 
 (define felleisen-friedman
   (make-bib
-   #:title "Control operators, the SECD-machine, and the λ-calculus"
+   #:title "Control Operators, the SECD-machine, and the λ-calculus"
    #:author (authors "Matthias Felleisen" "Daniel P. Friedman")
    #:date 1986
    #:location (proceedings-location
@@ -158,7 +159,7 @@
 
 (define ISWIM
   (make-bib
-   #:title "The mechanical evaluation of expressions"
+   #:title "The Mechanical Evaluation of Expressions"
    #:author "Peter J. Landin"
    #:location
    (journal-location "Computer Journal"
@@ -233,7 +234,7 @@
 
 (define constructive-boolean-circuits
   (make-bib
-   #:title "Constructive Boolean circuits and the exactness of timed ternary simulation"
+   #:title "Constructive Boolean Circuits and the Exactness of Timed Ternary Simulation"
    #:author (authors "Michael Mendler" "Thomas R. Shiple" "Gérard Berry")
    #:date 2012
    #:location (journal-location "Formal Methods in System Design"
@@ -260,7 +261,7 @@
 
 (define lvars
   (make-bib
-   #:title "LVars: lattice-based data structures for deterministic parallelism"
+   #:title "LVars: Lattice-Based Data Structures for Deterministic Parallelism"
    #:author (authors "Lindsey Kuper" "Ryan R. Newton")
    #:date 2013
    #:location (proceedings-location "Workshop on Functional High-performance Computing (FHPC)")))
@@ -286,7 +287,7 @@ Theorem 47. Given constructive Esterel statements E and E′;
 |#
 (define tini-axiomatic
   (make-bib
-   #:title "An axiomatic semantics for Esterel"
+   #:title "An Axiomatic Semantics for Esterel"
    #:author "Simone Tini"
    #:date 2001
    #:location
@@ -318,7 +319,7 @@ Theorem 47. Given constructive Esterel statements E and E′;
 
 (define optimization-coaching
   (make-bib
-   #:title "Optimization Coaching: Optimizers learn to communicate with Programmers"
+   #:title "Optimization Coaching: Optimizers Learn to Communicate with Programmers"
    #:author (authors "Vincent St-Amour" "Same Tobin-Hochstadt" "Matthias Felleisen")
    #:date 2012
    #:location (proceedings-location "ACM international conference on Object oriented programming systems languages and applications (OOPSLA)")))
@@ -334,7 +335,7 @@ Theorem 47. Given constructive Esterel statements E and E′;
 
 (define malik-circuit
   (make-bib
-   #:title "Analysis of cyclic combinational circuits"
+   #:title "Analysis of Cyclic Combinational Circuits"
    #:author "Sharad Malik"
    #:date 1994
    #:location (journal-location "IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems"
@@ -357,7 +358,7 @@ Theorem 47. Given constructive Esterel statements E and E′;
 
 (define felleisen-expressive
   (make-bib
-   #:title "On the expressive power of programming languages"
+   #:title "On the Expressive Power of Programming Languages"
    #:author "Matthias Felleisen"
    #:date 1991
    #:location (proceedings-location
@@ -365,7 +366,7 @@ Theorem 47. Given constructive Esterel statements E and E′;
 
 (define unit-cite
   (make-bib
-   #:title "Units: cool modules for HOT languages"
+   #:title "Units: Cool Modules for HOT Languages"
    #:author (authors "Matthew Flatt" "Matthias Felleisen")
    #:date 1998
    #:location (proceedings-location

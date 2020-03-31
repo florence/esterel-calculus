@@ -50,15 +50,15 @@ explaining program refactorings, or for optimization
 coaching@~cite[optimization-coaching], which helps explain
 to programmers why some optimization were not applied and
 how to fix it. All of the existing semantics are (and must
-be) sound, in that they all describe the exact same
+be)  consistent and sound, in that they all describe the exact same
 language, as opposed to subtly different variations on that
 language.
 
 Each of Esterel's many semantics do some of these jobs very
 well. However there are no semantics for Esterel which are
-simultaneously, local, syntactic, sound, and adequate enough
+simultaneously, local, syntactic, consistent, sound, and adequate enough
 to give an evaluator for the language. This is the
-contribution of this dissertation is the construction of
+contribution of this dissertation: a
 syntactic, local, consistent, sound, and adequate semantics
 for Esterel.
 
@@ -66,27 +66,25 @@ I have shown that this syntactic, local semantics---this
 calculus---is consistent, sound, and adequate. I show this
 using three pieces of evidence: proofs, testing, and prior
 work. This evidence, this tripod the calculus stands upon,
-is neccesary because not all parts of the calculus stand
-equally upon all three legs. My proofs apply only to loop
+is necessary because not all parts of the calculus stand
+equally upon all three legs. The proofs apply only to loop
 free, pure Esterel programs, and are proven with respect to
 Pure Esterel programs with respect to the circuit semantics
 for Esterel@~cite[esterel02]. The full calculus, on the
 other hand, is tested against several different Esterel
-semantics and implementations. May parts of the calculus are
-also borrowed from these prior semantics, helping increase
+semantics and implementations. Many parts of the calculus are
+also borrowed from the prior semantics, helping increase
 confidence in their correctness.
-
-@;@section[#:tag "intro:syntactic"]{Syntactic}
 
 @bold{Syntactic.} The benefits of a syntactic semantics is primarily human:
 They allow reasoning about a programming language to be
 expressed directly in terms of that language, rather than in
-terms of some external domain, at least in principle.
+terms of some external domain.
 Often developing a semantics which uses @italic{only} the
 syntax of a language is impractical, or even impossible.
 See, for instance, the @es[σ] and @es[ρ] forms of the
 @citet[felleisen-hieb] state calculus which do not appear
-directly in any language, or the evaluation
+directly in any language, or evaluation
 contexts@~cite[felleisen-friedman] often used to describe
 non-local control operators (e.g. exceptions, continuations)
 which while described in terms of existing syntax cannot be
@@ -107,9 +105,7 @@ two new forms to the syntax of Kernel Esterel: a variant of
 @es[loop^stop]. This is discussed in more detail in
 @secref["sec:calculus"].
 
-@;@section[#:tag "intro:local"]{Local}
-
-@bold{Local.} The benefits of a local semantics are useful
+@bold{Local.} A local semantics is useful
 for both human and machine reasoning. Reasoning about full
 programs is difficult, impractical, and in often impossible
 in the case of libraries. Modular reasoning is essential for
@@ -119,8 +115,7 @@ Locality in my calculus is handled by allowing the equations
 of the calculus to be using under any program context. In
 practice this means that most equations apply anywhere in a
 program, while some work as long as entire scope of a signal
-is visible. Detains my be found in @secref["calc:eql"] and
-@secref["just:local"].
+is visible. Detains my be found in @secref["calc:eql"].
 
 @;@section[#:tag "intro:consistent"]{Consistent}
 
@@ -131,10 +126,8 @@ allowing two programs to be proven equal if they evaluate to
 different values.
 
 The Consistency of the calculus given by proof, as a
-corollary of Adequacy. Details may be found in
-@secref["just:consistent"].
-
-@;@section[#:tag "intro:sound"]{Sound}
+corollary of Adequacy, and by testing. Details may be found in
+@secref["just:consistent"] and @secref["just:sound:testing"].
 
 @bold{Sound.} Soundness is necessary for an semantics which describes an
 already established language. A sound semantics is one which
@@ -144,13 +137,12 @@ words, a semantics which is not sound describes a @italic{
 Thus soundness, like consistency is essential for any
 semantics.
 
-The soundness of the calculus is also given by proof.
+The soundness of the calculus is also given by proof and testing.
 Specifically it is proven with respect to the circuit
 semantics@~cite[esterel02], for pure, loop free, programs
 withing a single instant. Evidence for the Soundness for
-multi-instant, loop containing programs is given by informal
-arguments and random testing. This is discussed
-more in @secref["just:sound"].
+multi-instant, loop containing programs is given by random testing. This is discussed
+more in @secref["just:sound"]  and @secref["just:sound:testing"].
 
 @;@section[#:tag "intro:adequate"]{Adequate}
 @[define semantics-note
@@ -162,7 +154,7 @@ more in @secref["just:sound"].
 
 @bold{Adequate.} Adequacy describes the power of a semantics. If we take the
 word @italic{semantics} to mean ``something which allows for
-formal reasoning about a language''@semantics-note, then we can have semantics
+formal reasoning about a language'',@semantics-note then we can have semantics
 which allow for manipulations or transformations of a
 language, but cannot actually run a complete program. Such
 semantics are not @italic{adequate} for describing an
@@ -171,24 +163,21 @@ there is some aspect of the language the semantics does not
 describe. Therefore, to make sure a semantics has broad coverage
 of the aspects of a language, an adequate semantics is desirable.
 
-Adequacy is also given by proof. Like soundness, it is
+Adequacy is also given by proof and testing. Like soundness, it is
 proven for pure, loop free, programs for one instant.
 Evidence for the Adequacy of loop containing programs with
 host language expressions across multiple instants is also
-given by informal argument and random testing. This is discussed
-more in @secref["just:adequacy"].
-
-@;@section{Overview}
+given byrandom testing. This is discussed
+more in @secref["just:adequacy"] and @secref["just:sound:testing"].
 
 @section{Overview}
 
-The dissertation is divided into 6 more Chapters, and three
-Appendices. @Secref["background"] covers summarizes the
+The dissertation is divided into six more Chapters, and four
+Appendices. @Secref["background"] summarizes the
 background a reader will need to understand this document,
 as well as pointers to the background reading I assume the
-reader has. @Secref["sec:free-and-pure"] then describes the
-calculus I have designed on pure, loop free Esterel programs. @Secref["just"] the proofs that
-that my calculus meets the properties above.
+reader has read. @Secref["sec:free-and-pure"] then describes the
+calculus I have designed on pure, loop free Esterel programs.
 Then @secref["sec:proofs"] gives
 the proofs for Consistency, Soundness, and Adequacy on this
 part of the calculus. Next @secref["sec:the-rest"]
@@ -202,3 +191,4 @@ Appendix A lists definitions for all of the notation
 I use here. Appendix B gives the proofs of the my
 theorems. Appendix C gives an overview of the
 implementation of a circuit solver I implemented for my proofs.
+Appendix D gives examples of using the calculus to prove equalities.

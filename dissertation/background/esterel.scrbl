@@ -32,11 +32,7 @@ language. There are other, better primers on that such as
 @cite/title[compiling-esterel]. Instead I will focus on
 Kernel Esterel@~cite[esterel02]. Kernel Esterel is a small
 subset of Esterel in which, for the most part, Full Esterel
-is trivially macro expressible.
-
-
-My semantics will focus on Kernel Esterel, a core language
-in which most of Full Esterel can be expressed. It's grammar
+is trivially macro expressible. It's grammar
 is: @centered[lang/state] The Kernel I am using is adapted
 from the Kernel used in Section 2.2 of
 @cite/title[compiling-esterel]. The translation from Full
@@ -44,7 +40,7 @@ Esterel to this Kernel is given in appendix B of that book.
 
 @section["Pure Esterel"]
 
-The first two lines of the grammar give the subset of
+The first three lines of the grammar give the subset of
 Esterel called Pure Esterel. Pure Esterel defines a
 ``core'' to the language which we can use to introduce
 and examine the important concepts in the language. Pure
@@ -93,7 +89,7 @@ present if and only if it has is emitted in the current
 instant. A signal is absent if and only if it is not
 emitted and @italic{cannot} be emitted in the current
 instant. The exact meaning of cannot is discussed in
-@secref["cannot"].
+@secref[ "back:esterel:cannot"].
 
 @bold{Composition} Esterel terms can either be composed
 concurrently---@es[(par p q)]---or
@@ -156,12 +152,12 @@ Chapter 12 of @cite/title[esterel02] goes into this in
 detail. Here I will only give a cursory overview of this
 issue.
 
-@index{Reincarnation} occurs when loop which contains
+@as-index{Reincarnationj} occurs when loop which contains
 the declaration of a variable or signal completes execution
 and restarts in the same instant. This results in two instances of
 the same variable, and the variable is said to be reincarnated.
 
-@index{Schizophrenia} occurs when a reincarnated variable
+@as-index{Schizophrenia} occurs when a reincarnated variable
 takes on a different value during the two instances of the
 loop body. This can seem at odds with the statement that ``A
 signal may only have one value in a single instant'', and is
@@ -193,7 +189,7 @@ notion of truth. To maintain deterministic concurrency
 these variables must be used in a way where
 concurrent updates are not observable: for example
 by never using them in multiple branches of an @es[par].
-How exactly this is guaranteed depends on the Esterel
+How exactly (and if) this is guaranteed depends on the Esterel
 implementation.
 
 @bold{Shared Variables} Shared variables give concurrent access
@@ -220,7 +216,7 @@ uses the same mechanism as determining absence for a signal.@note{In fact,
  signal paired with a shared variable.}
 
 In the calculus I present here, I will assume a host language
-which always use the combination function @es[e], and that
+which always use the combination function @es[+], and that
 the host language only contains numerical literals, and @es[+]
 and @es[-].
 
@@ -232,8 +228,8 @@ perform when showing that a signal cannot be emitted?
 
 To show that a signal is emitted or that it cannot be
 emitted we must build a chain of cause and effect which
-either shows the program reaching an emit (setting the
-program to present) or shows the program never reaching an
+either shows that  program Must reach an emit (setting the
+program to present) or shows the program Cannot reach an
 emit (setting the signal to absent).
 
 For a first example, consider the program:
@@ -551,7 +547,7 @@ the circuit semantics of Esterel.
 The Must and Cannot corner in the diagram is not reachable,
 as it is a logical contradiction. No consistent and sound
 semantics should be able to put programs in this corner.
-This will motivates of the design decisions of the
+This will motivate some of the design decisions of the
 Calculus.
 
 It should also be noted that this description leads to a

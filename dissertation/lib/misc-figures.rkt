@@ -88,7 +88,7 @@
        (text "O" (non-terminal-style) (default-font-size))
        (text " ::=" (default-style) (default-font-size)))))
    (vl-append
-    (render-language esterel/typeset #:nts '(wire-value c I O EQ))
+    (render-language esterel/typeset #:nts '(wire-value c I O EQ B))
     (htl-append 50
                 (nt-∈-line "w" "wire names" lhs-spacer)))))
   

@@ -46,12 +46,12 @@ no-agda-paper: always
 all: agda long
 
 dissertation: always
-	cd dissertation; $(RACO) make -v dissertation.scrbl lib/redex-rewrite-dynamic.rkt
+	cd dissertation; $(RACO) make -v lib/redex-rewrite-dynamic.rkt dissertation.scrbl
 	cd dissertation; PLTSTDERR="${PLTSTDERR} $(LOGLEVEL) warning@diss" $(RACO) scribble --pdf dissertation.scrbl
 
 
 dissertation-tex: always
-	cd dissertation; $(RACO) make -v dissertation.scrbl lib/redex-rewrite-dynamic.rkt
+	cd dissertation; $(RACO) make -v lib/redex-rewrite-dynamic.rkt dissertation.scrbl
 	cd dissertation; PLTSTDERR="${PLTSTDERR} $(LOGLEVEL) warning@diss" $(RACO) scribble --latex --dest tex dissertation.scrbl
 
 always:

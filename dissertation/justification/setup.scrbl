@@ -25,6 +25,13 @@ proofs. The purpose of this section is to give
 the setup needed to understand the statements of the
 theorems and their proofs.
 
+To start with, the proofs in this section are only
+for the pure loop free portion of Esterel. However
+some other proofs in this document are defined on
+the full kernel. To distinguish these I will use
+the superscript @es[p] to denote pure, loop free
+terms. (e.g @es[p-pure], @es[q-pure]).
+
 
 @section[#:tag "just:sound:compiler"]{The compiler}
 

@@ -13,6 +13,7 @@
          syntax/parse/define
          (for-syntax syntax/parse)
          racket/lazy-require
+         racket/runtime-path
          (rename-in (only-in racket =>)
                     [=> ==>]))
 ;; load this dynamically so that a rewriter change
@@ -21,16 +22,8 @@
  ["redex-rewrite-dynamic.rkt" (with-paper-rewriters/proc render-op)])
 
 (define current-reduction-arrow (make-parameter 'calculus))
-(define (reduction-arrow)
-  (match (current-reduction-arrow)
-    ['calculus
-     (drop-below-ascent (text "⇀" Linux-Liberterine-name (default-font-size)) 2)]
-    ['standard-reduction
-     (drop-below-ascent (text "⇁" Linux-Liberterine-name (default-font-size)) 2)]))
 
-(set-arrow-pict! '--> reduction-arrow)
 
-;; es short for esterel, in the spirit of @racket[]
 (provide es es/unchecked esblock define/esblock
          with-paper-rewriters
          render-op
