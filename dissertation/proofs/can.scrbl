@@ -253,11 +253,11 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
         @#:case[pause]{ Note that
           @es[(= (->K (Can pause θ)) (L1set 1))]. In the only @es[K]
           other wire in @es[(compile pause)] is @es[K0], so we need
-          only concern ourself with that.
+          only concern ourselves with that.
           @es[(= (of (compile pause) K0) (and (of (compile pause) SEL) (of (compile pause) RES)))],
           so as @es[(≃ (of (compile p) SEL) 0)], @es[(≃ (of (compile pause) K0) 0)].}
         @#:case[(signal S p-pure_i)]{
-         @sequenced{
+          @sequenced{
 
            @#:step[=]{By the definition of @es[Can],
             @es[(= (->K (Can (signal S p-pure_i) θ)) (->K (Can p-pure_i θ)))].}
@@ -267,14 +267,77 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
            @#:step[_]{By @= and @sel, this case follows by induction.}
                     
          }}
-        @#:case[(seq p-pure_i q-pure_i)]{}
-        @#:case[(present S p-pure_i q-pure_i)]{}
-        @#:case[(par p-pure_i q-pure_i)]{}
-        @#:case[(suspend p-pure_i S)]{}
-        @#:case[(trap p-pure_i)]{}
-        @#:case[(ρ θr A p_i)]{This case is given  by @proof-ref["Can-rho-K-is-sound"].}
-        @#:case[(loop p_i) #:ignore]{ TODO }
-        @#:case[(loop^stop p_i q_i) #:ignore]{ TODO }]
+        @#:case[(seq p-pure_i q-pure_i)]{
+          @[sequenced
+            @#:step[SEL]{By the definition of @es[compile]
+                       and the premise that @es[(≃ (of (compile p-pure) SEL) 0)],
+                       we can conclude that @es[(≃ (of (compile p-pure_i) SEL) 0)]
+                       and @es[(≃ (of (compile q-pure_i) SEL) 0)].}
+            @#:step[k0]{By the definition of @es[compile],
+                       @es[(≃ (of (compile p-pure) K0) (of (compile q-pure_i) K0))]}
+            @#:step[kn]{By the definition of @es[compile], for all @es[(> κ 0)]
+                       @es[(≃ (of (compile p-pure) Kκ) (or (of (compile p-pure_i) Kκ) (of (compile q-pure_i) Kκ)))]}
+            @[#:step _
+              @[cases
+ #:of/count (L∈ 0 (->K (Can p-pure_i θ))) 2
+ #:language esterel/typeset
+ @#:case[(L¬∈ 0 (->K (Can p-pure_i θ)))
+         @[sequenced
+           @#:step[kin]{By the definition of @es[Can], we know that @es[(= (Can p-pure θ) (Can p-pure_i θ))]}
+           @#:step[in]{By @kin we know that @es[(L∉ n (->K (Can p-pure_i θ)))]}
+           @#:step[qin]{By @in, @SEL, and induction, we know that @es[(≃ (of (compile p-pure_i) K0) 0)]}
+           @#:step[q0]{By @qin and the definition of compile we know that @es[(≃ (of (compile q-pure_i) GO) 0)]}
+           @#:step[qnot]{by @q0 and @SEL, and @proof-ref["activation-condition"], we know that
+                                                          all outputs of @es[q-pure_i] are @es[0].}
+           @#:step[ind]{By @kin and @SEL, and induction, we know that @es[(≃ (of (compile p-pure_i) Kn) 0)]}
+           @#:step[_]{By @qnot, @ind, and both @k0 or @kn, may conclude that
+                                                          @es[(≃ (of (compile p-pure) Kn) 0)].}
+           ]]
+ @#:case[(L∈ 0 (->K (Can p-pure_i θ)))
+         @[sequenced
+           @#:step[eq]{By the definition of @es[Can], we know that
+                                                          @es[(= (->K (Can p-pure θ)) (LU (->K (Can p-pure_i θ)) (->K (Can q-pure_i θ))))]}
+           @#:step[zero]{By @eq and our premise, we know that @es[(L∉ n (->K (Can p-pure_i θ)))]
+                                                          and @es[(L∉ n (->K (Can q-pure_i θ)))]}
+           @#:step[ind]{By @zero and @SEL, we may induct on @es[p-pure_i] and @es[q-pure_i]
+                                                          to conclude that
+                                                          @es[(≃ (of (compile p-pure_i) Kn) 0)]
+                                                          and
+                                                          @es[(≃ (of (compile q-pure_i) Kn) 0)]}
+           @#:step[_]{By @ind and @kn, we may conclude that
+                                                          @es[(≃ (of (compile p-pure) Kn) 0)].}
+           ]]]]]}
+        @#:case[(present S p-pure_i q-pure_i)
+                (sequenced
+                 @#:step[SEL]{By the definition of @es[compile]
+                          and the premise that @es[(≃ (of (compile p-pure) SEL) 0)],
+                          we can conclude that @es[(≃ (of (compile p-pure_i) SEL) 0)]
+                          and @es[(≃ (of (compile q-pure_i) SEL) 0)].}
+                 @#:step[kn]{By the definition of @es[compile], for all @es[κ]
+                          @es[(≃ (of (compile p-pure) Kκ) (or (of (compile p-pure_i) Kκ) (of (compile q-pure_i) Kκ)))]}
+                 @[#:step _
+                   [cases
+ #:of/count (θ-get-S θ S) 3
+ #:language esterel/typeset
+ @#:case[present
+         [sequenced
+          @#:step[in]{By the definition of @es[Can], we know that @es[(L∉ n (->K (Can p-pure_i θ)))].}
+          @#:step[induct]{By @in, @SEL, and induction we can conclude
+                                                                that @es[(≃ (of (compile q-pure_i) Kn) 0)].}
+          @#:step[go0]{by @es[(binds (compile p-pure) θ)], and the definition
+                                                                 of @es[compile],
+                                                                 we can conclude that
+                                                                 @es[(≃ (of (compile q-pure_i) GO) 0)].}
+          @#:step[_]{By @induct, @go0, and @kn we can conclude that @es[(≃ (of (compile p-pure) Kn) 0)].}]]
+ @#:case[absent]{This case is analogous to the previous case.}
+ @#:case[unknown]{This follows directly by induction on both branches.}
+ ]])]
+ @#:case[(par p-pure_i q-pure_i)]{}
+ @#:case[(suspend p-pure_i S)]{}
+ @#:case[(trap p-pure_i)]{}
+ @#:case[(ρ θr A p_i)]{This case is given  by @proof-ref["Can-rho-K-is-sound"].}
+ @#:case[(loop p_i) #:ignore]{ TODO }
+ @#:case[(loop^stop p_i q_i) #:ignore]{ TODO }]
 }
 
 @proof[#:label "Can-rho-S-is-sound"

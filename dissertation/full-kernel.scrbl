@@ -22,9 +22,21 @@
 @title[#:style paper-title-style
        #:tag "sec:the-rest"]{Adding in the rest of Esterel}
 
+The tripod of evidence that the calculus stands on includes
+prior work and testing, along side the proofs. So far I have
+only given one of those legs, the proofs, and only for the
+pure, loop free, single instant, fragment of Esterel. This
+chapter fills in the parts of the calculus which handle
+loops, host language expressions, and multi-instant
+execution. It will also give the other two legs of the
+tripod: testing and prior work. While the parts of the
+calculus given so far stand on all three legs, these new
+parts are only supported by testing and prior work.
+
+
 @section{Loops}
 
-The final administrative rules handle loops. However to handle loops
+The calculus handles loops with two new administrative rules. However to handle loops
 we must add a new form to Kernel Esterel:
 @centered[lang/loop]
 This new form, @es[loop^stop] represents a loop which has been unrolled once.
@@ -43,7 +55,9 @@ aborting the loop if it @es[exit]s.
 
 @subsection{Loops and Can}
 
-The next two clauses handle loops, which just behave as their bodies.
+@figure["fig:cl" "Can and Loops" Can-loop-pict]
+
+To handle loops we must add two clauses to @es[Can](@figure-ref["fig:cl"]). which just behave as their bodies.
 In the case of @es[loop^stop] the right hand side, which is the loops original body,
 is not analyzed as it @italic{cannot} be reached in this instant.
 
@@ -57,60 +71,65 @@ A natural question about the calculus for someone familiar
 with Esterel might be ``what about schizophrenic
 variables''?
 
-This binding structure also prevents schizophrenic
-variables, because at their heart schizophrenic variables
+Correct binding prevents schizophrenia, because at their heart schizophrenic variables
 are variables which have two instances, and one captures the
-other! Thus, the loop clause in @es[CB] forbids the bound
+other! Thus, the loop clause in @es[CB] (@figure-ref["fig:bl"])forbids the bound
 and free variables of the loop body from overlapping at all.
 This way then the loop expands into @es[loop^stop], the
 constraint given the corresponding clause (which is the same
 as the constraint given for @es[seq]) is preserved,
 preventing any variable capture.
 
-@CB-loop-pict
+@figure["fig:bl" "Correct Binding and Loops" CB-loop-pict]
 
 @subsection[#:tag "sec:calc:loop:eval"]{Loops and the evaluator}
 
 
-The other major case is that of instantaneous loops.
-Instantaneous loops will always reach a state where they
-contain a program fragment that matches
-@es[(loop^stop nothing q)]. Such a program has had the loop
-body terminate in the current instant, and there is no rule
-which can reduce this term. This term is not @es[done],
-however, because it is not a complete program state. In
-addition This program is not counted as @es[blocked]. This
-is because if such a program were to be counted as
-non-constructive then the definitions of non-constructive in
-Esterel would not cleanly match the definition of
-non-constructive in circuits, because the Esterel compiler,
-as given in chapter 11 of @citet[esterel02],
-requires that instantaneous loops be eliminated statically
-before compilation, and therefore is not defined on such
-programs. Therefore I have chosen to make @es[eval^esterel]
-also not defined on such programs.
+Loops give us another scenario that the evaluator is
+undefined on, and that is instantaneous loops. Instantaneous
+loops will always reach a state where they contain a program
+fragment that matches @es[(loop^stop nothing q)]. Such a
+program has had the loop body terminate in the current
+instant, and there is no rule which can reduce this term.
+This term is not @es[done], however, because it is not a
+complete program state. In addition This program is not
+counted as @es[blocked]. This is because if such a program
+were to be counted as non-constructive then the definitions
+of non-constructive in Esterel would not cleanly match the
+definition of non-constructive in circuits, because the
+Esterel compiler, as given in chapter 11 of
+@citet[esterel02], requires that instantaneous loops be
+eliminated statically before compilation, and therefore is
+not defined on such programs. Therefore I have chosen to
+make @es[eval^esterel] also not defined on such programs.
+
 
 @subsection{Leaving loops out of the proofs}
 
-My proofs are also only give on the fragment of Pure Esterel
-which does not contain loops. At the core, this is because
-of Schizophrenia (See @secref["back:esterel:schizo"] for a
-refresher) instantaneous loops. The calculus does not suffer
-from schizophrenia because it duplicates the loop body on
-reduction, preventing conflict between different iterations
-of the loop. In addition @es[loop^stop] allows for handling
-instantaneous loops dynamically. Handling schizophrenia in
-the circuit semantics is a more complicated problem. While
-one could just duplicate the loop body@note{This is the
-solution that the random tests for my calculus use.} this is
-not the approach that is usually taken. Much work has gone
-in to handling loop compilation correctly and efficiently
-(such as chapter 12 of @citet[esterel02], and
-@citet[new-method-schizophrenic]). In addition the circuit
-semantics requires that instantaneous loops ruled out
-statically. I postulate the correctness of the
-calculus on loops, and again provide evidence in
-@secref["just:sound:testing"].
+There are two reasons I have left loops out of my proofs, and
+they all relate to difficulties in stating the theorems correctly.
+
+Firstly there is a subtle difference in how the compiler
+and the evaluator handle instantaneous loops. The compiler
+requires that all loops be checked statically to ensure
+that they can never be instantaneous.
+The evaluator, however, is undefined only on programs
+that trigger instantaneous loops dynamically. This means that
+the evaluator is defined on more programs than the compiler.
+
+The next issue is the issue of schizophrenia. The correct binding
+judgment ensures that the calculus never suffers from schizophrenia.
+However the compiler requires that programs be transformed to
+eliminate possibly schizophrenic variables. The simplest
+of these (which is what the random tests do) is to fully
+duplicate every loop body. This is not what is done
+in practice: in general parts of the program
+are selectively duplicated, using methods such as those given by
+@citet[new-method-schizophrenic] or chapter 12 of
+@citet[esterel02] selectively duplicate only parts of the
+program. This however means in practice that the loops
+that the compiler operates on look different to those that
+the evaluator operates on, in a way that is difficult to formalize.
 
 @section{Host language rules}
 
@@ -186,8 +205,8 @@ return a value and a new environment.
  (define K (with-paper-rewriters (text "K" (default-style))))
  (define sh (with-paper-rewriters (text "sh" (default-style))))]
 
-The last few clauses handled state and host language
-expressions. The analysis of the shared from is like that of
+We must add several clauses to @es[Can] to handle shared variables and host language
+expressions(@figure-ref["sec:cs"]). The analysis of the @es[shared] from is like that of
 the @es[signal] form, except that there is no special case
 for when the shared variable cannot be written to. Because
 Esterel does not make control flow decisions based on the
@@ -196,21 +215,25 @@ extra step. Writing to a shared variable behaves akin to
 emitting a signal: the return code is @es[0] and the variable
 is added to the @sh set.
 
-The last three forms handle sequential variables. No special
+The last three clauses handle host language variables. No special
 analysis is done for these forms as Esterel does not link
 them into its concurrency mechanism.
 
-@subsection{Host language and Blocked}
-The handling of forms that refer to the host language, seen
-in @figure-ref["calc:eval:blocked:host"]. They are all base
-cases, and are either blocked because a write to a shared
-variable may not be performed due to the control variable
-(@rule["set-shared-wait"]), or because a host language
-expression is blocked. The blocked judgment for a host
-language expression (@figure-ref["calc:eval:blocked:e"])
-says that the expression may not be evaluated if at least
-one of the shared variables that the expression references
-might still be written to by the full program.
+@figure["sec:cs" "Can and the Host Language" Can-host-pict]
+
+@subsection{Host language and Blocked} The blocked judgment
+
+@es[blocked] is extended to forms that refer to the host
+language in @figure-ref["calc:eval:blocked:host"]. They are
+all base cases, and are either blocked because a write to a
+shared variable may not be performed due to the control
+variable (@rule["set-shared-wait"]), or because a host
+language expression is blocked. The blocked judgment for a
+host language expression
+(@figure-ref["calc:eval:blocked:e"]) says that the
+expression may not be evaluated if at least one of the
+shared variables that the expression references might still
+be written to by the full program.
 
 @figure["calc:eval:blocked:host" "The blocked judgment on terms using the host language" 
          blocked-pict]
@@ -219,21 +242,21 @@ might still be written to by the full program.
 
 @subsection{Host language and Correct Binding}
 
-@CB-host-pict
+The extensions to correct binding for the host language, seen in @figure-ref["fix:bh"], forms are trivial.
+They simply require that all subforms have correct binding.
+
+@[figure "fix:bh" "Correct Binding and the host language" CB-host-pict]
 
 @subsection{Leaving the host language out of the proofs}
 
-There is a caveat to the Soundness, Consistency, and Adequacy theorems:
-They both work on Pure Esterel programs.
-
-Pure Esterel, the subset of Esterel which does not handle
-Host Language Programs,@note{ That is Pure Esterel is the
- part of Esterel which contains only Esterel terms, not a
- ``side-effect free'' fragment of Esterel} defines the
-essence of Esterel. I postulate that the Soundness,
-Consistency, and Adequacy theorems hold for all of Kernel
-Esterel, and give some evidence for this in
-@secref["just:sound:testing"].
+There are two reasons I have left the host language out of the proofs.
+The primary one is that the ground truth semantics I am using
+does not include these forms, thus writing proofs
+about them would involve extending that semantics in a non-trivial way.
+The second reason is that the host language forms
+reuse many of the mechanisms from the pure language. Therefore the
+proofs about the pure section of the language give some confidence for
+the correctness of the host language part.
 
 @section[#:tag "sec:calc:future"]{Future Instants}
 
@@ -276,10 +299,30 @@ nothing and resume executing the loop body.
 
 @subsection{Leaving instants out of the proofs}
 
+I have left instants out of the proofs because of how
+@es[Can] is defined in the calculus. The version of @es[Can]
+I give here assumes that the top of the program is where
+execution will occur, rather than execution starting from
+some @es[pause]. However I postulate that the calculus
+should still be correct for multi-instant execution. In
+addition to the tests, the inter-instant translation
+function @es[next-instant] is nearly identical to the same
+function from @citet[esterel02]@note{Section 8.3, page 89 of
+ the current draft} which as been proven correct@note{
+ Specifically, it is proven that, up to bisimilarity, a
+ program passed through @es[next-instant] under the
+ Constructive Semantics remains the same program with respect
+ to the state semantics.} by Lionel Rieg in Coq.@note{
+ Unfortunately, as of the writing of this dissertation this
+ work is unpublished.}, but with extensions to handle
+@es[loop^stop] and @es[ρ].
+
 @section[#:tag "just:sound:testing"]{Evidence via Testing}
 
 @(require racket/runtime-path racket/system racket/port racket/string racket/format)
-@(define-runtime-path loc "../../final-tests/logs/")
+@(define-runtime-path loc "../final-tests/logs/")
+@(unless (directory-exists? loc)
+   (error "could not find final tests logs directory"))
        
             
    
@@ -325,8 +368,9 @@ nothing and resume executing the loop body.
 
 @(define itemlistheader bold)
    
-I have evidence that the postulates in the previous sections
-hold, and that the theorems I have prove hold in the form of random testing.
+I have evidence the theorems I have proven hold for the pure language,
+and that they should hold for the extensions in this chapter.
+This evidence comes in the form of random tests.
 To do this, I provide the following:
 
 @itemlist[@item{@itemlistheader{Redex COS model} I built a
@@ -362,7 +406,7 @@ To do this, I provide the following:
 
 
 I have run @(~a impure-test-count) tests which on Full
-Esterel programs which test that the Hiphop.js,
+Esterel programs with loops which test that the Hiphop.js,
 @|Esterel\ v5|, the COS, the calculus, and the circuit
 compiler agree on the result of running programs for
 multiple instants.@note{Each test runs for a random number
@@ -373,7 +417,6 @@ important because they accept Esterel terms that use host
 language expressions, which the circuit compiler does not.
 Therefore these tests in particular give evidence that
 adequacy holds in the presence of Full Esterel.
-
 
 In addition I have run @(~a circuit-test-count) random test
 which generate a random pure program (with loops), and apply

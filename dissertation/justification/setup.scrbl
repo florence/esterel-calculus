@@ -422,23 +422,10 @@ equal when @racket[a] is always false, but not equal when
 
 @section[#:tag "just:sound:instants"]{On Instants}
 
-One final caveat: The theorems soundness, consistency, and
-adequacy restrict themselves to a single instant of
-execution. I postulate, however, that they hold between
-instants. The inter-instant translation function
-@es[next-instant] is nearly identical to the same function
-from @citet[esterel02]@note{Section 8.3, page 89 of the
- current draft} which as been proven correct@note{
- Specifically, it is proven that, up to bisimilarity, a
- program passed through @es[next-instant] under the
- Constructive Semantics remains the same program with respect
- to the state semantics.} by Lionel Rieg in Coq.@note{
- Unfortunately, as of the writing of this dissertation this
- work is unpublished.}, but with extensions to handle
-@es[loop^stop] and @es[ρ]. I also provide evidence
-that these theorems hold over multiple instants in
-@secref["just:sound:testing"].
-
+The proofs in this section only look at a single instant of execution.
+This is accoplished by each proof having the assumption that the @es[SEL]
+wire is @es[0], thus forcing evaluation to occur in the first instant only.
+The calculus will be extended to multiple instants in @secref["sec:calc:future"].
 
 @section{Agda Codebase}
 
