@@ -16,7 +16,9 @@
           syntax/parse/define
           esterel-calculus/redex/model/deps
           (for-syntax racket/base)
-          pict)
+          pict
+          racket/match
+          (only-in "lib/circuit-diagrams.rkt" compile-def))
 
 
 @title[#:style paper-title-style
@@ -133,9 +135,26 @@ that the compiler operates on look different to those that
 the evaluator operates on, in a way that is difficult to formalize.
 
 
-The handling of loops is adapted from the COS, which lends
+The handling of in the calculus loops is adapted from the COS, which lends
 evidence to its correctness.
 
+Loops are handled by the compiler by duplicating the loop body, in a manner described
+by @citet[esterel02]. To see how this works, it is easiest to look at the compilation of
+@es[loop^stop], seen in @figure-ref["comp:loop^stop"]. This is essentially the compilation of
+@es[seq], except that the output @es[K0] wire is removed (and is therefore @es[0]),
+and the @es[K0] wire of @es[q-pure] is or'ed with the @es[GO] wire, restarting the
+whole loop when it terminates. From here we can define
+@es[(= (compile (loop p-pure)) (compile (loop^stop p-pure p-pure)))]. Note that this
+loop compilation assumes that the loop is never instantaneous.
+
+@[begin
+   (define (circ-fig n)
+     (match-define (list _ _ pict circ) (assoc n compile-def))
+     (figure (~a "comp:" n)
+             @list{The compilation of @pict}
+             circ))
+ ]
+@circ-fig['loop^stop]
 @section["sec:full:host"]{Host language rules}
 
 To handle host language forms, @es[θ] and @es[θr] must be extended
@@ -424,7 +443,9 @@ real implementations as well. The real implementations are
 important because they accept Esterel terms that use host
 language expressions, which the circuit compiler does not.
 Therefore these tests in particular give evidence that
-adequacy holds in the presence of Full Esterel.
+adequacy holds in the presence of Full Esterel. Whenever the generate
+program contains host language variables or is not guaranteed to
+be loop safe the direct circuit compiler is skipped.
 
 In addition I have run @(~a circuit-test-count) random test
 which generate a random pure program (with loops), and apply

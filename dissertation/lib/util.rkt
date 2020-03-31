@@ -274,6 +274,7 @@
           #:index [idx #f]
           #:read-as [read-as #f]
           #:tag [key #f]
+          #:center? [center? #t]
           . def)
   (define x
     (flatten
@@ -289,7 +290,7 @@
            (flatten read-as)
            (list nopagebreak noindent))
           empty)
-      [centered [italic def]]
+      [(if center? centered values) [italic def]]
       pagebreak0)))
   (when key (hash-set! def-table key x))
   x)

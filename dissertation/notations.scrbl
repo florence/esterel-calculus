@@ -33,8 +33,9 @@
                pict)))]
 @definition[#:notation (hbl-append (es (compile p-pure)) (es ⟶) (es circuit))
             #:index @es[compile]
-            #:tag "compile"]{
-                                                                          
+            #:tag "compile"
+            #:center? #f]{
+
  @add-between[(for/list ([c1 (in-list compile-def)])
                 (match-define (list _ t c p) c1)
                 (index-as (pict+tag c t) (clausef c p)))

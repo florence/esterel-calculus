@@ -584,7 +584,7 @@
     (define p
       (esterel-interface (es (compile p-pure)) #:tag-prefix 'p))
     (define q
-      (esterel-interface (es (compile q)) #:tag-prefix 'q))
+      (esterel-interface (es (compile q-pure)) #:tag-prefix 'q))
     (after
      fab-four
      (move-to-tag 'GO)
@@ -1053,6 +1053,106 @@
      (line-to-tag 'S^o))))
 
 
+
+(define loop-pict
+  (let ()
+    (define p
+      (esterel-interface (es (compile p-pure)) #:tag-prefix 'p))
+    (define q
+      (esterel-interface (es (compile q-pure)) #:tag-prefix 'q))
+    (after
+     fab-four
+     (move-to-tag 'GO)
+     (line-right 12)
+     (move-down 1)
+     (or-gate #:tag-in3 'goandin #:tag-out 'goandout)
+     (move-to-tag 'goandout)
+     (line-right 1)
+     (pin-here p 'pGO)
+     (move-to-tag 'RES)
+     (line-right 6)
+     (split
+      (line-to-tag 'pRES)
+      (after
+       (line-down 17)
+       (line-right 10)
+       (pin-here q 'qRES)))
+     (move-to-tag 'SUSP)
+     (line-right 4)
+     (split (line-to-tag 'pSUSP #:h-first #f)
+            (line-to-tag 'qSUSP #:h-first #f))
+     (move-to-tag 'KILL)
+     (line-right 2)
+     (split (line-to-tag 'pKILL)
+            (line-to-tag 'qKILL #:h-first #f))
+     (move-to-tag 'pK0)
+     (line-down 10)
+     (line-to-tag 'qGO)
+     (move-to-tag 'pE_i)
+     (with-locations-of
+      'GO 'pE_i
+      (lambda (gx gy ex ey)
+        (after
+         (line-to
+          (+ gx 7) ey)
+        (split
+         (after (line-left 7)
+                (label "E_i" 'left))
+         (line-to-tag
+          'qE_i #:h-first #f)))))
+     (move-to-tag 'pSEL)
+     (line-right 8)
+     (move-down 1)
+     (or-gate
+      #:tag-in3 'qselin
+      #:tag-out 'sel)
+     (move-to-tag 'sel)
+     (label "SEL" 'right)
+     (move-to-tag 'qSEL)
+     (line-right 2)
+     (line-to-tag 'qselin #:h-first #f)
+     (move-to-tag 'pK1)
+     (line-right 5)
+     (line-down 8)
+     (line-right 4)
+     (move-down 1)
+     (or-gate
+      #:tag-in3 'qk1in
+      #:tag-out 'k1)
+     (move-to-tag 'k1)
+     (label "K1" 'right)
+     (move-to-tag 'qK1)
+     (line-right 4)
+     (line-to-tag 'qk1in #:h-first #f)
+     (move-to-tag 'pK2)
+     (line-right 6)
+     (line-down 10)
+     (line-right 3)
+     (move-down 1)
+     (or-gate
+      #:tag-out 'k2o
+      #:tag-in3 'k2i)
+     (move-to-tag 'k2o)
+     (label "K2" 'right)
+     (move-to-tag 'qK2)
+     (line-right 6)
+     (line-to-tag 'k2i #:h-first #f)
+     (move-to-tag 'qE_o)
+     (line-right 7)
+     (line-up 15)
+     (line-right 7)
+     (move-up 1)
+     (or-gate
+      #:tag-out 'E_o
+      #:tag-in1 'E_i)
+     (move-to-tag 'E_o)
+     (label "E_o" 'right)
+     (move-to-tag 'E_i)
+     (line-to-tag 'pE_o)
+     (move-to-tag 'qK0)
+     (line-down 10)
+     (line-to-tag 'goandin #:h-first #t))))
+
 (define compile-def
   (list
    (list 'nothing "⟦nothing⟧" (es/unchecked (compile nothing)) nothing)
@@ -1065,6 +1165,8 @@
    (list 'seq "⟦(seq p q)⟧" (es/unchecked (compile (seq p-pure q-pure))) seq-pict)
    (list 'trap "⟦(trap p)⟧" (es/unchecked (compile (trap p-pure))) trap-pict)
    (list 'par "⟦(par p q)⟧" (es/unchecked (compile (par p-pure q-pure))) par-pict)
+   (list 'loop^stop "⟦(loop^stop p q)⟧" (es/unchecked (compile (loop^stop p-pure q-pure))) loop-pict)
+   (list 'loop "⟦(loop p)⟧" (es/unchecked (compile (loop p-pure))) (es (compile (loop^stop p-pure p-pure))))
    (list 'non-empty-rho "⟦(ρ θr<-{S↦status} A p)⟧"
          (es/unchecked (compile (ρ (<- θr (mtθ+S S statusr)) A p-pure)))
          non-empty-rho-pict)
