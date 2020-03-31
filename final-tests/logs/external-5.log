@@ -1,0 +1,512 @@
+running test 100
+has been running for 391 seconds
+running test 200
+has been running for 779 seconds
+running test 300
+has been running for 1152 seconds
+running test 400
+has been running for 1674 seconds
+running test 500
+has been running for 2047 seconds
+running test 600
+has been running for 2470 seconds
+running test 700
+has been running for 2855 seconds
+running test 800
+has been running for 3209 seconds
+running test 900
+has been running for 3584 seconds
+running test 1000
+has been running for 3935 seconds
+running test 1100
+has been running for 4843 seconds
+running test 1200
+has been running for 5231 seconds
+running test 1300
+has been running for 5615 seconds
+running test 1400
+has been running for 6017 seconds
+running test 1500
+has been running for 6413 seconds
+running test 1600
+has been running for 6800 seconds
+running test 1700
+has been running for 7205 seconds
+running test 1800
+has been running for 7610 seconds
+running test 1900
+has been running for 7998 seconds
+running test 2000
+has been running for 8400 seconds
+running test 2100
+has been running for 8812 seconds
+running test 2200
+has been running for 9190 seconds
+running test 2300
+has been running for 9636 seconds
+running test 2400
+has been running for 10051 seconds
+running test 2500
+has been running for 10422 seconds
+running test 2600
+has been running for 10829 seconds
+running test 2700
+has been running for 11215 seconds
+running test 2800
+has been running for 11580 seconds
+running test 2900
+has been running for 11923 seconds
+running test 3000
+has been running for 12315 seconds
+running test 3100
+has been running for 12685 seconds
+running test 3200
+has been running for 13214 seconds
+running test 3300
+has been running for 13620 seconds
+running test 3400
+has been running for 14050 seconds
+running test 3500
+has been running for 14471 seconds
+running test 3600
+has been running for 14842 seconds
+running test 3700
+has been running for 15210 seconds
+running test 3800
+has been running for 15577 seconds
+running test 3900
+has been running for 15945 seconds
+running test 4000
+has been running for 16320 seconds
+running test 4100
+has been running for 16710 seconds
+running test 4200
+has been running for 17066 seconds
+running test 4300
+has been running for 17473 seconds
+running test 4400
+has been running for 17898 seconds
+running test 4500
+has been running for 18307 seconds
+running test 4600
+has been running for 18695 seconds
+running test 4700
+has been running for 19199 seconds
+running test 4800
+has been running for 19600 seconds
+running test 4900
+has been running for 20008 seconds
+running test 5000
+has been running for 20378 seconds
+running test 5100
+has been running for 20745 seconds
+running test 5200
+has been running for 21110 seconds
+running test 5300
+has been running for 21840 seconds
+running test 5400
+has been running for 22252 seconds
+running test 5500
+has been running for 22611 seconds
+running test 5600
+has been running for 22993 seconds
+running test 5700
+has been running for 23405 seconds
+running test 5800
+has been running for 23776 seconds
+running test 5900
+has been running for 24130 seconds
+running test 6000
+has been running for 24507 seconds
+running test 6100
+has been running for 24925 seconds
+running test 6200
+has been running for 25330 seconds
+running test 6300
+has been running for 25742 seconds
+running test 6400
+has been running for 26144 seconds
+running test 6500
+has been running for 26496 seconds
+running test 6600
+has been running for 26883 seconds
+running test 6700
+has been running for 27254 seconds
+running test 6800
+has been running for 27641 seconds
+running test 6900
+has been running for 28041 seconds
+running test 7000
+has been running for 28419 seconds
+test: VERY BAD: inconsistent output states:
+ programs were ((present Sx (trap (loop (par nothing pause))) (shared s421785 := (+) (shared s421786 := (+ 3 s421785 s421785 s421785 6) (suspend (<= s421785 (+)) S⊤)))) ()) -> ()
+(ρ ((sig S` unknown) ((sig Sm unknown) ((sig S⊤ unknown) ((sig Sx unknown) ((sig Snone unknown) ·))))) WAIT (present Sx (trap (loop^stop pause pause)) (shared s421785 := (+) (shared s421786 := (+ 3 s421785 s421785 s421785 6) (suspend (<= s421785 (+)) S⊤))))) -> #f
+exec : ()
+others: ()
+under (() () () ())
+The original call was (relate ((present Sx (trap (loop (par nothing pause))) (shared s421785 := (+) (shared s421786 := (+ 3 s421785 s421785 s421785 6) (suspend (<= s421785 (+)) S⊤)))) ()) (ρ ((sig S` unknown) ((sig Sm unknown) ((sig S⊤ unknown) ((sig Sx unknown) ((sig Snone unknown) ·))))) WAIT (present Sx (trap (loop^stop pause pause)) (shared s421785 := (+) (shared s421786 := (+ 3 s421785 s421785 s421785 6) (suspend (<= s421785 (+)) S⊤))))) (() (Sx) () (Sx)) (S` Sm S⊤ Sx) (Snone) #:oracle (() () () ()))
+calculus equasions applied: ((par-nothing (present Sx (trap (loop pause)) (shared s421785 := (+) (shared s421786 := (+ 3 s421785 s421785 s421785 6) (suspend (<= s421785 (+)) S⊤))))) (loop (present Sx (trap (loop^stop pause pause)) (shared s421785 := (+) (shared s421786 := (+ 3 s421785 s421785 s421785 6) (suspend (<= s421785 (+)) S⊤))))) (#f (present Sx (trap (loop^stop pause pause)) (shared s421785 := (+) (shared s421786 := (+ 3 s421785 s421785 s421785 6) (suspend (<= s421785 (+)) S⊤))))) (#f (present Sx (trap (loop^stop pause pause)) (shared s421785 := (+) (shared s421786 := (+ 3 s421785 s421785 s421785 6) (suspend (<= s421785 (+)) S⊤))))) (#f (present Sx (trap (loop^stop pause pause)) (shared s421785 := (+) (shared s421786 := (+ 3 s421785 s421785 s421785 6) (suspend (<= s421785 (+)) S⊤))))) (#f (present Sx (trap (loop^stop pause pause)) (shared s421785 := (+) (shared s421786 := (+ 3 s421785 s421785 s421785 6) (suspend (<= s421785 (+)) S⊤))))) (#f (present Sx (trap (loop^stop pause pause)) (shared s421785 := (+) (shared s421786 := (+ 3 s421785 s421785 s421785 6) (suspend (<= s421785 (+)) S⊤))))) (#f (present Sx (trap (loop^stop pause pause)) (shared s421785 := (+) (shared s421786 := (+ 3 s421785 s421785 s421785 6) (suspend (<= s421785 (+)) S⊤))))) (#f (present Sx (trap (loop^stop pause pause)) (shared s421785 := (+) (shared s421786 := (+ 3 s421785 s421785 s421785 6) (suspend (<= s421785 (+)) S⊤))))) (#f (present Sx (trap (loop^stop pause pause)) (shared s421785 := (+) (shared s421786 := (+ 3 s421785 s421785 s421785 6) (suspend (<= s421785 (+)) S⊤))))))
+
+  context...:
+   /Users/florence/dissertation-tests/Racket/share/pkgs/sandbox-lib/racket/sandbox.rkt:412:0: call-with-limits
+   /Users/florence/dissertation-tests/esterel-calculus/redex/test/model-test.rkt:189:2: for-loop
+   /Users/florence/dissertation-tests/esterel-calculus/redex/test/model-test.rkt:169:0: relate
+   .../more-scheme.rkt:261:28
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:455:2: loop
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:423:0: check-one
+   "/Users/florence/dissertation-tests/esterel-calculus/redex/test/long-tests/external.rkt": [running body]
+   temp35_0
+   for-loop
+   run-module-instance!
+   perform-require!
+redex-check: <pkgs>/esterel-calculus/redex/test/model-test.rkt:43
+counterexample found after 7083 attempts:
+((present
+  Sx
+  (trap (loop (par nothing pause)))
+  (shared s421785
+    :=
+    (+)
+    (shared s421786
+      :=
+      (+ 3 s421785 s421785 s421785 6)
+      (suspend (<= s421785 (+)) S⊤))))
+ (|S`| Sm S⊤ Sx)
+ (Snone)
+ (() (Sx) () (Sx)))
+running test 7100
+has been running for 28792 seconds
+running test 7200
+has been running for 29147 seconds
+running test 7300
+has been running for 29544 seconds
+running test 7400
+has been running for 29930 seconds
+running test 7500
+has been running for 30304 seconds
+running test 7600
+has been running for 30894 seconds
+running test 7700
+has been running for 31352 seconds
+running test 7800
+has been running for 31950 seconds
+running test 7900
+has been running for 32337 seconds
+running test 8000
+has been running for 32708 seconds
+running test 8100
+has been running for 33359 seconds
+running test 8200
+has been running for 33768 seconds
+running test 8300
+has been running for 34150 seconds
+running test 8400
+has been running for 34520 seconds
+running test 8500
+has been running for 34987 seconds
+running test 8600
+has been running for 35396 seconds
+running test 8700
+has been running for 35857 seconds
+running test 8800
+has been running for 36258 seconds
+running test 8900
+has been running for 36759 seconds
+running test 9000
+has been running for 37457 seconds
+running test 9100
+has been running for 37827 seconds
+running test 9200
+has been running for 38187 seconds
+running test 9300
+has been running for 38579 seconds
+running test 9400
+has been running for 38941 seconds
+running test 9500
+has been running for 39317 seconds
+running test 9600
+has been running for 39721 seconds
+running test 9700
+has been running for 40121 seconds
+running test 9800
+has been running for 42157 seconds
+running test 9900
+has been running for 42680 seconds
+running test 10000
+has been running for 43117 seconds
+running test 10100
+has been running for 43516 seconds
+running test 10200
+has been running for 43921 seconds
+running test 10300
+has been running for 44308 seconds
+running test 10400
+has been running for 44684 seconds
+running test 10500
+has been running for 45140 seconds
+running test 10600
+has been running for 45517 seconds
+running test 10700
+has been running for 45913 seconds
+running test 10800
+has been running for 46345 seconds
+running test 10900
+has been running for 46730 seconds
+running test 11000
+has been running for 47108 seconds
+running test 11100
+has been running for 47727 seconds
+running test 11200
+has been running for 48083 seconds
+running test 11300
+has been running for 48448 seconds
+running test 11400
+has been running for 48908 seconds
+running test 11500
+has been running for 49415 seconds
+running test 11600
+has been running for 49871 seconds
+running test 11700
+has been running for 50436 seconds
+running test 11800
+has been running for 51115 seconds
+running test 11900
+has been running for 51538 seconds
+running test 12000
+has been running for 52011 seconds
+running test 12100
+has been running for 52420 seconds
+running test 12200
+has been running for 52841 seconds
+running test 12300
+has been running for 53270 seconds
+running test 12400
+has been running for 53666 seconds
+running test 12500
+has been running for 54369 seconds
+running test 12600
+has been running for 55051 seconds
+test: VERY BAD: inconsistent output states:
+ programs were ((trap (shared s834207 := (+ 0) (shared s834208 := (+ s834207) (<= s834207 (+))))) ()) -> ()
+(ρ ((sig SY unknown) ((sig SSH unknown) ((sig Sf unknown) ·))) WAIT (trap (shared s834207 := (+ 0) (shared s834208 := (+ s834207) (<= s834207 (+)))))) -> #f
+exec : ()
+others: ()
+under (() () () () () () () () () () ())
+The original call was (relate ((trap (shared s834207 := (+ 0) (shared s834208 := (+ s834207) (<= s834207 (+))))) ()) (ρ ((sig SY unknown) ((sig SSH unknown) ((sig Sf unknown) ·))) WAIT (trap (shared s834207 := (+ 0) (shared s834208 := (+ s834207) (<= s834207 (+)))))) (() () () () () () () () () () ()) (SY SSH) (Sf) #:oracle (() () () () () () () () () () ()))
+calculus equasions applied: ((#f (trap (shared s834207 := (+ 0) (shared s834208 := (+ s834207) (<= s834207 (+)))))) (#f (trap (shared s834207 := (+ 0) (shared s834208 := (+ s834207) (<= s834207 (+)))))) (#f (trap (shared s834207 := (+ 0) (shared s834208 := (+ s834207) (<= s834207 (+)))))) (#f (trap (shared s834207 := (+ 0) (shared s834208 := (+ s834207) (<= s834207 (+)))))) (#f (trap (shared s834207 := (+ 0) (shared s834208 := (+ s834207) (<= s834207 (+)))))) (#f (trap (shared s834207 := (+ 0) (shared s834208 := (+ s834207) (<= s834207 (+)))))) (#f (trap (shared s834207 := (+ 0) (shared s834208 := (+ s834207) (<= s834207 (+)))))) (#f (trap (shared s834207 := (+ 0) (shared s834208 := (+ s834207) (<= s834207 (+)))))) (#f (trap (shared s834207 := (+ 0) (shared s834208 := (+ s834207) (<= s834207 (+)))))) (#f (trap (shared s834207 := (+ 0) (shared s834208 := (+ s834207) (<= s834207 (+)))))))
+
+  context...:
+   /Users/florence/dissertation-tests/Racket/share/pkgs/sandbox-lib/racket/sandbox.rkt:412:0: call-with-limits
+   /Users/florence/dissertation-tests/esterel-calculus/redex/test/model-test.rkt:189:2: for-loop
+   /Users/florence/dissertation-tests/esterel-calculus/redex/test/model-test.rkt:169:0: relate
+   .../more-scheme.rkt:261:28
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:455:2: loop
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:423:0: check-one
+   "/Users/florence/dissertation-tests/esterel-calculus/redex/test/long-tests/external.rkt": [running body]
+   temp35_0
+   for-loop
+   run-module-instance!
+   perform-require!
+redex-check: <pkgs>/esterel-calculus/redex/test/model-test.rkt:43
+counterexample found after 12691 attempts:
+((trap
+  (shared s834207 := (+ 0) (shared s834208 := (+ s834207) (<= s834207 (+)))))
+ (SY SSH)
+ (Sf)
+ (() () () () () () () () () () ()))
+running test 12700
+has been running for 55438 seconds
+running test 12800
+has been running for 55852 seconds
+running test 12900
+has been running for 56242 seconds
+running test 13000
+has been running for 56712 seconds
+running test 13100
+has been running for 57147 seconds
+running test 13200
+has been running for 57555 seconds
+running test 13300
+has been running for 57980 seconds
+running test 13400
+has been running for 58398 seconds
+running test 13500
+has been running for 58977 seconds
+running test 13600
+has been running for 59378 seconds
+running test 13700
+has been running for 59778 seconds
+running test 13800
+has been running for 60194 seconds
+running test 13900
+has been running for 60590 seconds
+running test 14000
+has been running for 60970 seconds
+running test 14100
+has been running for 61396 seconds
+running test 14200
+has been running for 61817 seconds
+running test 14300
+has been running for 62319 seconds
+running test 14400
+has been running for 62776 seconds
+running test 14500
+has been running for 63222 seconds
+running test 14600
+has been running for 63667 seconds
+running test 14700
+has been running for 64083 seconds
+running test 14800
+has been running for 64508 seconds
+running test 14900
+has been running for 65080 seconds
+running test 15000
+has been running for 65469 seconds
+running test 15100
+has been running for 65840 seconds
+running test 15200
+has been running for 66252 seconds
+running test 15300
+has been running for 66824 seconds
+running test 15400
+has been running for 67590 seconds
+running test 15500
+has been running for 68117 seconds
+running test 15600
+has been running for 68540 seconds
+running test 15700
+has been running for 69026 seconds
+running test 15800
+has been running for 69501 seconds
+running test 15900
+has been running for 70002 seconds
+test: VERY BAD: inconsistent output states:
+ programs were ((signal S1113499 (shared s1113500 := (+) (shared s1113501 := (+ s1113500) (par (present Sx (<= s1113500 (+)) pause) (emit STm))))) ()) -> ()
+(ρ ((sig Ss unknown) ((sig SI unknown) ((sig Sx unknown) ((sig Si unknown) ((sig SG unknown) ((sig STm unknown) ·)))))) WAIT (ρ ((sig S1113499 unknown) ((shar s1113500 0 old) ·)) WAIT (shared s1113501 := (+ s1113500) (par (emit STm) (present Sx (<= s1113500 (+)) pause))))) -> #f
+exec : (Sx)
+others: ()
+under ((STm) ())
+The original call was (relate ((signal S1113499 (shared s1113500 := (+) (shared s1113501 := (+ s1113500) (par (present Sx (<= s1113500 (+)) pause) (emit STm))))) ()) (ρ ((sig Ss unknown) ((sig SI unknown) ((sig Sx unknown) ((sig Si unknown) ((sig SG unknown) ((sig STm unknown) ·)))))) WAIT (ρ ((sig S1113499 unknown) ((shar s1113500 0 old) ·)) WAIT (shared s1113501 := (+ s1113500) (par (emit STm) (present Sx (<= s1113500 (+)) pause))))) ((Sx) ()) (Ss SI Sx) (Si SG STm) #:oracle ((STm) ()))
+calculus equasions applied: ((par-swap (signal S1113499 (shared s1113500 := (+) (shared s1113501 := (+ s1113500) (par (emit STm) (present Sx (<= s1113500 (+)) pause)))))) (signal (ρ ((sig S1113499 unknown) ·) WAIT (shared s1113500 := (+) (shared s1113501 := (+ s1113500) (par (emit STm) (present Sx (<= s1113500 (+)) pause)))))) (par-swap (ρ ((sig S1113499 unknown) ·) WAIT (shared s1113500 := (+) (shared s1113501 := (+ s1113500) (par (present Sx (<= s1113500 (+)) pause) (emit STm)))))) (shared (ρ ((sig S1113499 unknown) ·) WAIT (ρ ((shar s1113500 0 old) ·) WAIT (shared s1113501 := (+ s1113500) (par (present Sx (<= s1113500 (+)) pause) (emit STm)))))) (merge (ρ ((sig S1113499 unknown) ((shar s1113500 0 old) ·)) WAIT (shared s1113501 := (+ s1113500) (par (present Sx (<= s1113500 (+)) pause) (emit STm))))) (par-swap (ρ ((sig S1113499 unknown) ((shar s1113500 0 old) ·)) WAIT (shared s1113501 := (+ s1113500) (par (emit STm) (present Sx (<= s1113500 (+)) pause))))) (par-swap (ρ ((sig S1113499 unknown) ((shar s1113500 0 old) ·)) WAIT (shared s1113501 := (+ s1113500) (par (present Sx (<= s1113500 (+)) pause) (emit STm))))) (par-swap (ρ ((sig S1113499 unknown) ((shar s1113500 0 old) ·)) WAIT (shared s1113501 := (+ s1113500) (par (emit STm) (present Sx (<= s1113500 (+)) pause))))) (par-swap (ρ ((sig S1113499 unknown) ((shar s1113500 0 old) ·)) WAIT (shared s1113501 := (+ s1113500) (par (present Sx (<= s1113500 (+)) pause) (emit STm))))) (par-swap (ρ ((sig S1113499 unknown) ((shar s1113500 0 old) ·)) WAIT (shared s1113501 := (+ s1113500) (par (emit STm) (present Sx (<= s1113500 (+)) pause))))))
+
+  context...:
+   /Users/florence/dissertation-tests/Racket/share/pkgs/sandbox-lib/racket/sandbox.rkt:412:0: call-with-limits
+   /Users/florence/dissertation-tests/esterel-calculus/redex/test/model-test.rkt:189:2: for-loop
+   /Users/florence/dissertation-tests/esterel-calculus/redex/test/model-test.rkt:169:0: relate
+   .../more-scheme.rkt:261:28
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:455:2: loop
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:423:0: check-one
+   "/Users/florence/dissertation-tests/esterel-calculus/redex/test/long-tests/external.rkt": [running body]
+   temp35_0
+   for-loop
+   run-module-instance!
+   perform-require!
+redex-check: <pkgs>/esterel-calculus/redex/test/model-test.rkt:43
+counterexample found after 15939 attempts:
+((signal
+  S1113499
+  (shared s1113500
+    :=
+    (+)
+    (shared s1113501
+      :=
+      (+ s1113500)
+      (par (present Sx (<= s1113500 (+)) pause) (emit STm)))))
+ (Ss SI Sx)
+ (Si SG STm)
+ ((Sx) ()))
+running test 16000
+has been running for 70567 seconds
+running test 16100
+has been running for 70949 seconds
+running test 16200
+has been running for 71384 seconds
+running test 16300
+has been running for 71984 seconds
+test: VERY BAD: inconsistent output states:
+ programs were ((shared s1159250 := (+) (signal S1159251 (shared s1159252 := (+ 0 1 s1159250 s1159250 s1159250) (present SRX^ (par pause (<= s1159250 (+))) (var x1159253 := (+) (suspend (signal S1159254 pause) SKg)))))) ()) -> ()
+(ρ ((sig S% unknown) ((sig Sb unknown) ((sig SRX^ unknown) ((sig SKg unknown) ((sig SM unknown) ((sig Sg unknown) ·)))))) WAIT (shared s1159250 := (+) (ρ ((sig S1159251 unknown) ·) WAIT (shared s1159252 := (+ 0 1 s1159250 s1159250 s1159250) (present SRX^ (par pause (<= s1159250 (+))) (var x1159253 := (+) (suspend (ρ ((sig S1159254 unknown) ·) WAIT pause) SKg))))))) -> #f
+exec : (SRX^)
+others: ()
+under (() () () () () () () () () () () () () () () () () () ())
+The original call was (relate ((shared s1159250 := (+) (signal S1159251 (shared s1159252 := (+ 0 1 s1159250 s1159250 s1159250) (present SRX^ (par pause (<= s1159250 (+))) (var x1159253 := (+) (suspend (signal S1159254 pause) SKg)))))) ()) (ρ ((sig S% unknown) ((sig Sb unknown) ((sig SRX^ unknown) ((sig SKg unknown) ((sig SM unknown) ((sig Sg unknown) ·)))))) WAIT (shared s1159250 := (+) (ρ ((sig S1159251 unknown) ·) WAIT (shared s1159252 := (+ 0 1 s1159250 s1159250 s1159250) (present SRX^ (par pause (<= s1159250 (+))) (var x1159253 := (+) (suspend (ρ ((sig S1159254 unknown) ·) WAIT pause) SKg))))))) ((SRX^) (SRX^) () (SKg) (SRX^) (SRX^ SKg) () (SKg) (SKg) () (SRX^) () (SKg) (SRX^) () () () () (SKg)) (S% Sb SRX^ SKg) (SM Sg) #:oracle (() () () () () () () () () () () () () () () () () () ()))
+calculus equasions applied: ((par-swap (shared s1159250 := (+) (signal S1159251 (shared s1159252 := (+ 0 1 s1159250 s1159250 s1159250) (present SRX^ (par (<= s1159250 (+)) pause) (var x1159253 := (+) (suspend (signal S1159254 pause) SKg))))))) (signal (shared s1159250 := (+) (ρ ((sig S1159251 unknown) ·) WAIT (shared s1159252 := (+ 0 1 s1159250 s1159250 s1159250) (present SRX^ (par (<= s1159250 (+)) pause) (var x1159253 := (+) (suspend (signal S1159254 pause) SKg))))))) (par-swap (shared s1159250 := (+) (ρ ((sig S1159251 unknown) ·) WAIT (shared s1159252 := (+ 0 1 s1159250 s1159250 s1159250) (present SRX^ (par pause (<= s1159250 (+))) (var x1159253 := (+) (suspend (signal S1159254 pause) SKg))))))) (par-swap (shared s1159250 := (+) (ρ ((sig S1159251 unknown) ·) WAIT (shared s1159252 := (+ 0 1 s1159250 s1159250 s1159250) (present SRX^ (par (<= s1159250 (+)) pause) (var x1159253 := (+) (suspend (signal S1159254 pause) SKg))))))) (par-swap (shared s1159250 := (+) (ρ ((sig S1159251 unknown) ·) WAIT (shared s1159252 := (+ 0 1 s1159250 s1159250 s1159250) (present SRX^ (par pause (<= s1159250 (+))) (var x1159253 := (+) (suspend (signal S1159254 pause) SKg))))))) (par-swap (shared s1159250 := (+) (ρ ((sig S1159251 unknown) ·) WAIT (shared s1159252 := (+ 0 1 s1159250 s1159250 s1159250) (present SRX^ (par (<= s1159250 (+)) pause) (var x1159253 := (+) (suspend (signal S1159254 pause) SKg))))))) (par-swap (shared s1159250 := (+) (ρ ((sig S1159251 unknown) ·) WAIT (shared s1159252 := (+ 0 1 s1159250 s1159250 s1159250) (present SRX^ (par pause (<= s1159250 (+))) (var x1159253 := (+) (suspend (signal S1159254 pause) SKg))))))) (signal (shared s1159250 := (+) (ρ ((sig S1159251 unknown) ·) WAIT (shared s1159252 := (+ 0 1 s1159250 s1159250 s1159250) (present SRX^ (par pause (<= s1159250 (+))) (var x1159253 := (+) (suspend (ρ ((sig S1159254 unknown) ·) WAIT pause) SKg))))))) (par-swap (shared s1159250 := (+) (ρ ((sig S1159251 unknown) ·) WAIT (shared s1159252 := (+ 0 1 s1159250 s1159250 s1159250) (present SRX^ (par (<= s1159250 (+)) pause) (var x1159253 := (+) (suspend (ρ ((sig S1159254 unknown) ·) WAIT pause) SKg))))))) (par-swap (shared s1159250 := (+) (ρ ((sig S1159251 unknown) ·) WAIT (shared s1159252 := (+ 0 1 s1159250 s1159250 s1159250) (present SRX^ (par pause (<= s1159250 (+))) (var x1159253 := (+) (suspend (ρ ((sig S1159254 unknown) ·) WAIT pause) SKg))))))))
+
+  context...:
+   /Users/florence/dissertation-tests/Racket/share/pkgs/sandbox-lib/racket/sandbox.rkt:412:0: call-with-limits
+   /Users/florence/dissertation-tests/esterel-calculus/redex/test/model-test.rkt:189:2: for-loop
+   /Users/florence/dissertation-tests/esterel-calculus/redex/test/model-test.rkt:169:0: relate
+   .../more-scheme.rkt:261:28
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:455:2: loop
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:423:0: check-one
+   "/Users/florence/dissertation-tests/esterel-calculus/redex/test/long-tests/external.rkt": [running body]
+   temp35_0
+   for-loop
+   run-module-instance!
+   perform-require!
+redex-check: <pkgs>/esterel-calculus/redex/test/model-test.rkt:43
+counterexample found after 16380 attempts:
+((shared s1159250
+   :=
+   (+)
+   (signal
+    S1159251
+    (shared s1159252
+      :=
+      (+ 0 1 s1159250 s1159250 s1159250)
+      (present
+       SRX^
+       (par pause (<= s1159250 (+)))
+       (var x1159253 := (+) (suspend (signal S1159254 pause) SKg))))))
+ (S% Sb SRX^ SKg)
+ (SM Sg)
+ ((SRX^)
+  (SRX^)
+  ()
+  (SKg)
+  (SRX^)
+  (SRX^ SKg)
+  ()
+  (SKg)
+  (SKg)
+  ()
+  (SRX^)
+  ()
+  (SKg)
+  (SRX^)
+  ()
+  ()
+  ()
+  ()
+  (SKg)))
+running test 16400
+has been running for 72550 seconds
+running test 16500
+has been running for 72994 seconds
+running test 16600
+has been running for 73470 seconds
+running test 16700
+has been running for 73867 seconds
+running test 16800
+has been running for 74478 seconds
+running test 16900
+has been running for 74840 seconds
+user break
+  context...:
+   ...form/control.rkt:31:25
+   /Users/florence/dissertation-tests/circuitous/circuitous-lib/circuitous/private/shared.rkt:7:0: deref
+   /Users/florence/dissertation-tests/circuitous/circuitous-lib/circuitous/private/three-valued-unit.rkt:26:4
+   ...form/control.rkt:30:25
+   loop
+   [repeats 335 more times]
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/adt/list.rkt:119:9: @map
+   ...form/control.rkt:31:25
+   [repeats 1 more time]
+   /Users/florence/dissertation-tests/circuitous/circuitous-lib/circuitous/private/interp-unit.rkt:48:2: eval/multi
+   /Users/florence/dissertation-tests/esterel-calculus/circuits/compiler.rkt:162:0: run/circuit
+   /Users/florence/dissertation-tests/esterel-calculus/redex/test/model-test.rkt:72:0: execute-test
+   .../more-scheme.rkt:261:28
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:455:2: loop
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:423:0: check-one
+   "/Users/florence/dissertation-tests/esterel-calculus/redex/test/long-tests/external.rkt": [running body]
+   ...
