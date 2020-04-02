@@ -1,6 +1,6 @@
 #lang racket
 
-(provide with-paper-rewriters/proc render-op)
+(provide with-paper-rewriters/proc render-op text)
 (require (except-in esterel-calculus/redex/model/shared quasiquote)
          esterel-calculus/redex/model/instant
          (prefix-in calculus: esterel-calculus/redex/model/calculus)
@@ -15,13 +15,12 @@
          "redex-rewrite.rkt"
          pict/convert)
 
-
 (define (lift-to-taggable pict tag)
   (if (pict+tag? pict)
       (pict+tag (pict+tag-pict pict) tag)
       (pict+tag pict tag)))
   
-(define (text t f s #:kern? [kern? #t])  
+(define (text t f [s 12] #:kern? [kern? #t])  
   (lift-to-taggable
    (if kern?
        (kern-text t f s)
@@ -68,8 +67,8 @@
    #\⟶ right))
 
 (define (reduction-arrow)
-  (match (current-reduction-arrow)
-    ['calculus
+  (match (continuation-mark-set-first (current-continuation-marks) 'current-reduction-arrow)
+    [(or #f 'calculus)
      (render-op/instructions
       hookup
       `((superscript E)))]
@@ -80,7 +79,15 @@
     ['circuit
      (render-op/instructions
       hookup
-      `((superscript C)))]))
+      `((superscript C)))]
+    ['lambda
+     (render-op/instructions
+      hookup
+      `((superscript λ)))]
+    ['state
+     (render-op/instructions
+      hookup
+      `((superscript σ)))]))
 
 (set-arrow-pict! '--> reduction-arrow)
 
@@ -402,9 +409,9 @@
 (define (eval-h-pict)
   (eval-pict "H"))
 (define (≃-e-pict)
-  (≃-pict "Est"))
+  (≃-pict "E"))
 (define (≃-c-pict)
-  (≃-pict "Circ"))
+  (≃-pict "C"))
 
 (define (sized-↬-pict)
   (define ↬-pict (nt-t "↬"))
@@ -481,6 +488,7 @@
      (curry binop "⇀^E")]
     ['≃
      (curry binop "≃")]
+    ['≃λ (curry binop (≃-pict "λ"))]
     ['¬≃
      (curry binop "≄")]
     ['>
@@ -576,6 +584,11 @@
      (curry binop '⟶^C)]
     ['⇀^r
      (curry binop '⇀^R)]
+    ['⇀λ
+     (curry binop '⇀^λ)]
+    ['⇀λ2
+     (curry binop '⇀^λ)]
+    ['≡λ (curry binop '≡^λ)]
     
     ['→
      (λ (lws)
@@ -632,6 +645,13 @@
              " , "
              θ
              ((white-square-bracket) #f)))]
+    ['δ*
+     (λ (lws)
+       (define e (reverse (rest (reverse (rest (rest lws))))))
+       (append (list (mf-t "δ")
+                     ((white-square-bracket) #t))
+               (add-between e ", ")
+               (list ((white-square-bracket) #f))))]
     ['blocked-or-done
      (λ (lws)
        (define p (list-ref lws 3))
@@ -1051,6 +1071,12 @@
              ", "
              (list-ref lws 3)
              ((white-square-bracket) #f)))]
+    ['evalλ
+     (lambda (lws)
+       (list (eval-pict "λ")
+             ((white-square-bracket) #t)
+             (list-ref lws 2)
+             ((white-square-bracket) #f)))]
     ['≃^circuit
      (lambda (e) (binop (≃-c-pict) e))]
     ['≃^esterel
@@ -1346,6 +1372,9 @@
      ['⟶^c
       (lambda () (render-op '⟶^C))]
      ['⇀^r (lambda () (render-op '⇀^R))]
+     ['⇀λ (lambda () (render-op '⇀^λ))]
+     ['⇀λ2 (lambda () (render-op '⇀^λ))]
+     ['≡λ (lambda () (render-op '≡^λ))]
     
      ['blocked blocked-pict]
      ['blocked-pure blocked-pict]
@@ -1381,32 +1410,35 @@
         (render-op/instructions
          (text "S" (non-terminal-style) (default-font-size))
          `((superscript i))))]
-     ['δ (λ () (eval-h-pict))])
+     ['δ (λ () (eval-h-pict))]
+     ['δ* (λ () (mf-t "δ"))]
+     ['const (λ () (nt-t "c"))]
+     ['≃λ (lambda () (≃-pict "λ"))])
     (define owsb (white-square-bracket))
     (parameterize* ([default-font-size (get-the-font-size)]
-                   [metafunction-font-size (get-the-font-size)]
-                   [label-style Linux-Liberterine-name]
-                   [grammar-style Linux-Liberterine-name]
-                   [paren-style Linux-Liberterine-name]
-                   [literal-style Linux-Liberterine-name]
-                   [metafunction-style (cons 'italic Linux-Liberterine-name)]
-                   [non-terminal-style (cons 'bold Linux-Liberterine-name)]
-                   [non-terminal-subscript-style (replace-font non-terminal-subscript-style)]
-                   [non-terminal-superscript-style (replace-font non-terminal-superscript-style)]
-                   [default-style Linux-Liberterine-name]
-                   [white-square-bracket
-                    (lambda (open?)
-                      (let ([text (current-text)])
-                        (define s (ghost (owsb open?)))
-                        (refocus
-                         (lbl-superimpose
-                          (scale
-                           (text (if open? "⟬" "⟭")
-                                 (default-style)
-                                 (default-font-size))
-                           1.05)
-                          s)
-                         s)))])
+                    [metafunction-font-size (get-the-font-size)]
+                    [label-style Linux-Liberterine-name]
+                    [grammar-style Linux-Liberterine-name]
+                    [paren-style Linux-Liberterine-name]
+                    [literal-style Linux-Liberterine-name]
+                    [metafunction-style (cons 'italic Linux-Liberterine-name)]
+                    [non-terminal-style (cons 'bold Linux-Liberterine-name)]
+                    [non-terminal-subscript-style (replace-font non-terminal-subscript-style)]
+                    [non-terminal-superscript-style (replace-font non-terminal-superscript-style)]
+                    [default-style Linux-Liberterine-name]
+                    [white-square-bracket
+                     (lambda (open?)
+                       (let ([text (current-text)])
+                         (define s (ghost (owsb open?)))
+                         (refocus
+                          (lbl-superimpose
+                           (scale
+                            (text (if open? "⟬" "⟭")
+                                  (default-style)
+                                  (default-font-size))
+                            1.05)
+                           s)
+                          s)))])
       (thunk)))))
 
 (define (words str)

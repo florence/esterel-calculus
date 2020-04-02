@@ -26,7 +26,9 @@
          blocked-pict
          blocked-e-pict
          ≡j-pict
-         eval^boolean-pict)
+         eval^boolean-pict
+
+         with-layout)
          
 
 (define (with-layout layout render-the-judgment-form
@@ -154,7 +156,7 @@
 #;
 (define-values (standard-reduction-aux-pict standard-meta-pict)
   (with-paper-rewriters
-   (parameterize ([current-reduction-arrow 'standard-reduction])
+   (with-continuation-mark 'current-reduction-arrow 'standard-reduction
     
 
      (define good-layout

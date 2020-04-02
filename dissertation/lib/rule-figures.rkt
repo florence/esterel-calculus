@@ -85,7 +85,7 @@
       (for/first ([info (in-list infos)]
                   #:when (equal? (rule-pict-info-label info) rule-name))
         info))
-    (unless ans (error 'select "didn't find rule names ~s" rule-name))
+    (unless ans (error 'select "didn't find rule name ~v in ~v" rule-name (map rule-pict-info-label infos)))
     ans))
 
 (define (select¬ not-rule-names infos)
@@ -176,10 +176,10 @@
 
 (define circuit-red-pict
   (with-paper-rewriters
-   (parameterize* ([current-reduction-arrow 'circuit]
-                   [render-reduction-relation-rules #f]
+   (parameterize* ([render-reduction-relation-rules #f]
                    [rule-pict-style (render-rules 'circuit
                                                   ⟶^c
                                                   `(("" eval-wire))
                                                   calculus-side-condition-beside-rules)])
-     (render-reduction-relation ⟶^c))))
+     (with-continuation-mark 'current-reduction-arrow 'circuit
+       (render-reduction-relation ⟶^c)))))

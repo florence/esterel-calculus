@@ -102,8 +102,8 @@ are familiar with, rather than some external domain.
 In order to make my calculus sound and adequate I have added
 two new forms to the syntax of Kernel Esterel: a variant of
 @citet[felleisen-hieb]'s @es[ρ], and a loop variant
-@es[loop^stop]. This is discussed in more detail in
-@secref["sec:calculus"].
+@es[loop^stop]. They are discussed in more detail in
+@secref["sec:free-and-pure"] and @secref["sec:the-rest"] respectively.
 
 @bold{Local.} A local semantics is useful
 for both human and machine reasoning. Reasoning about full

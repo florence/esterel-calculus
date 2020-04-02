@@ -24,7 +24,8 @@
          e-stuff
          circuit-lang
          environments1
-         environments1)
+         environments1
+         nt-∈-line)
 
 (define (nt-∈-line lhs rhs lhs-spacer)
   (hbl-append (rbl-superimpose

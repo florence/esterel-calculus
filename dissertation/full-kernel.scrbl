@@ -155,7 +155,7 @@ loop compilation assumes that the loop is never instantaneous.
              circ))
  ]
 @circ-fig['loop^stop]
-@section["sec:full:host"]{Host language rules}
+@section[#:tag "sec:full:host"]{Host language rules}
 
 To handle host language forms, @es[θ] and @es[θr] must be extended
 to accept shared and host language variables. Thus @es[θ] will
@@ -221,7 +221,7 @@ have side effects. In order to handle this the calculus
 would need additional reasoning, for example having @es[δ]
 return a value and a new environment.
 
-@subsection["sec:full:host:can"]{Host language and Can}
+@subsection[#:tag "sec:full:host:can"]{Host language and Can}
 
 
 @[begin

@@ -5,7 +5,7 @@
          (prefix-in calculus: esterel-calculus/redex/model/calculus)
          (prefix-in standard: esterel-calculus/redex/model/reduction)
          scribble/base
-         pict
+         (except-in pict text)
          redex/pict
          redex/reduction-semantics
          "util.rkt"
@@ -19,16 +19,15 @@
 ;; load this dynamically so that a rewriter change
 ;; doesn't require recompiling everything.
 (lazy-require
- ["redex-rewrite-dynamic.rkt" (with-paper-rewriters/proc render-op)])
-
-(define current-reduction-arrow (make-parameter 'calculus))
+ ["redex-rewrite-dynamic.rkt" (with-paper-rewriters/proc render-op text)])
 
 
 (provide es es/unchecked esblock define/esblock
          with-paper-rewriters
          render-op
          rule
-         current-reduction-arrow
+         hookup
+         retag
          indent
          words bords ;; bords = bold words
          leading-∀
@@ -40,6 +39,11 @@
      ==>
      (lambda (t) (pict+tag p t))]
     [else p]))
+
+(define hookup
+  (drop-below-ascent
+   (text "⇀" Linux-Liberterine-name (default-font-size) #:kern? #f)
+   2))
   
 
 (define (compute-tag p)
@@ -61,15 +65,20 @@
               [else (or x v)]))
           (loop next (rest l))]))]))
        
-
 (define (rule name)
   (define (t s) (text s Linux-Liberterine-name))
-  (define (b s)
-    (text s
-          (if (is-rule-label? s)
-              (cons 'bold Linux-Liberterine-name)
-              Linux-Liberterine-name)))
-  (hbl-append (t "[") (b (~a name)) (t "]")))
+  (define (b s) (text s (cons 'bold Linux-Liberterine-name)))
+  (define (sub s) (text s (list* 'bold 'subscript Linux-Liberterine-name)))
+  (define-values (head tail)
+    (match (string-split (~a name) "_")
+      [(list head tail)
+       (values head tail)]
+      [_ (values name "")]))
+    
+  (hbl-append (t "[")
+              (b (~a head))
+              (sub tail)
+              (t "]")))
 
 (define is-rule-label?
   (let ([rule-names (apply set
@@ -84,10 +93,11 @@
 (define-syntax es
   (syntax-parser
     [(es e)
-     #`(retag
+     (quasisyntax/loc this-syntax
+       (retag
         (with-paper-rewriters
-        #,(quasisyntax/loc this-syntax
-            (term->pict/checked esterel/typeset e))))]))
+         #,(quasisyntax/loc this-syntax
+             (term->pict/checked esterel/typeset e)))))]))
 (define-syntax-rule
   (es/unchecked e)
   (retag (with-paper-rewriters (term->pict esterel/typeset e))))
