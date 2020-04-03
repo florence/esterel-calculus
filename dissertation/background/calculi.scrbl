@@ -101,6 +101,24 @@ of reduction under transitivity, reflexively, symmetry, and program contexts:
      ("ctx" "trans" "sym"))
    (λ () (render-judgment-form ≡λ))]]
 
+@section{Evaluators}
+
+In the end what programs do is run. Therefore a calculus should be able to define
+a function which defines what it means for a program to run. I don't, by this,
+mean it gives an effective means to compute a program, but rather that it
+gives a mathmatical definition of what the results of such a function should be. For example,
+for @es[λ_v], the evaluator might be:
+
+@definition[#:notation @lam/unchecked[(evalλ e)]]{
+ @[with-paper-rewriters
+    [render-metafunction evalλ #:contract? #t]]
+}
+
+Which says that if a program is equivalent to a constant,
+then that program must evaluate to that constant. If the program is
+equivalent to an anonymous function, then the result is the special symbol
+@lam[procedure].
+
 @section{State}
 
 One more important piece of background is how one can handle state in calculi.
@@ -153,9 +171,6 @@ that variable is the next step than can be taken with respect to that environmen
 Environments can be shifted around via the @rule["lift"] rule, exposing new redexs.
 The final rule is the same @rule['δ] rule as in @lam[λ_v].
 
-@section{Evaluators}
-
-TODO
 
 @section{Contextual equivalence}
 
