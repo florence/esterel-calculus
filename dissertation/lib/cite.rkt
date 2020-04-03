@@ -191,6 +191,22 @@
     "International Conference on Compilers, Architecture, and Synthesis for Embedded Systems (CASES)")
    #:date 2001))
 
+(define quartz
+  (make-bib
+   #:title "Embedding Imperative Synchronous Languages in Interactive Theorem Provers"
+   #:author "Klaus Schneider"
+   #:date 2001
+   #:location
+   (proceedings-location
+               "Second International Conference on Application of Concurrency to System Design (ACSD)")))
+
+(define HOL
+  (make-bib
+   #:title "Introduction to HOL: A Theorem Proving Environment for Higher Order Logic"
+   #:date 1993
+   #:author (authors " Michael J C Gordon" " Tom F Melham")
+   #:location (book-location #:publisher "Cambridge University Press")))
+
 (define synchronous-approach
   (make-bib
    #:title "The Synchronous Approach to Reactive and Real-Time Systems"

@@ -147,6 +147,37 @@ respects: in fact it is complete modulo bisimilarity. Adding
 the axioms of this semantics to the calculus would result in a much more
 powerful reasoning framework.
 
+
+@section["The Color Semantics"]
+
+The color semantics is an as-yet unpublished by Lionel Rieg.
+It is a microstep semantics which replaces both Must and Can
+with colors that propagate throughout the program. This
+propagation is designed to be close to how @es[1] and @es[0]
+propagate through circuits. The control variable of this
+calculus are based off of the Colors of the Color calculus.
+The Color semantics is syntactic and adequate. However it does
+not allow for local transformations.
+
+@section["Quartz"]
+
+Quartz@~cite[quartz] is a variant of Esterel embedded into
+the interactive theorem prover HOL@~cite[HOL]. Quartz is
+defined by a transformation to a set of control flow
+predicates and guarded commands. The full semantics is given
+by the conjunction of the logical formula these define. This
+allows properties of Quartz programs to be verified by both
+model checking and theorem proving using HOL. The generation
+of the guarded commands used for defining dataflow requires
+knowledge of the precondition for that command, which
+requires knowledge about the context. This limits the amount
+of local reasoning in the semantics. It is also not a
+syntactic semantics. It is adequate, and in fact can be used
+for verified code generation.
+
+Quartz also extends Kernel Esterel with forms such as
+delayed emission and non-deterministic choice.
+
 @section{Circuits}
 
 malik & shipple
