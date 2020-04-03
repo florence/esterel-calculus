@@ -54,6 +54,7 @@ that is they give a function that gives the final result of
 several instants of execution. They do not provide
 for local reasoning about equality between program fragments,
 however.
+These semantics, as given in @citet[esterel02], only handle Pure Esterel.
 
 @section["Constructive Operational Semantics"]
 
@@ -75,7 +76,7 @@ This approach in fact inspired how the Calculus handles Esterel.
 
 Like the CBS and CSS, the COS gives defines a syntactic
 evaluator for Esterel and does not afford for local reasoning about
-equality between programs.
+equality between programs. The COS is defined on all of Kernel Esterel.
 
 @section["Circuit Semantics"]
 
@@ -127,7 +128,10 @@ transformations done to a circuit may not result in a new
 circuit that can be transformed back into an Esterel
 program, and even if it could be, the reasoning used to
 explain why the circuit can be transformed in that way might
-not map cleanly back to Esterel.
+not map cleanly back to Esterel. The circuit semantics
+in @citet[esterel02] is defined on only pure Esterel. The circuit semantics in
+@citet[optimizations-for-esterel-programs-thesis] is extended to handle
+a host language.
 
 @section["The Axiomatic Semantics"]
 
@@ -145,7 +149,7 @@ This is because it cannot reason about @es[emit]s, as it lacks the control
 variable my calculus adds. However it is much stronger in other
 respects: in fact it is complete modulo bisimilarity. Adding
 the axioms of this semantics to the calculus would result in a much more
-powerful reasoning framework.
+powerful reasoning framework. This semantics only handles Pure Esterel.
 
 
 @section["The Color Semantics"]
@@ -157,7 +161,7 @@ propagation is designed to be close to how @es[1] and @es[0]
 propagate through circuits. The control variable of this
 calculus are based off of the Colors of the Color calculus.
 The Color semantics is syntactic and adequate. However it does
-not allow for local transformations.
+not allow for local transformations. This semantics only handles Pure Esterel.
 
 @section["Quartz"]
 
@@ -174,8 +178,8 @@ requires knowledge about the context. This limits the amount
 of local reasoning in the semantics. It is also not a
 syntactic semantics. It is adequate, and in fact can be used
 for verified code generation.
-
-Quartz also extends Kernel Esterel with forms such as
+This semantics handles host language data, and
+also extends Kernel Esterel with forms such as
 delayed emission and non-deterministic choice.
 
 @section{Circuits}
