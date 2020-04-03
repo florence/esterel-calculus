@@ -150,7 +150,7 @@ powerful reasoning framework.
 
 @section["The Color Semantics"]
 
-The color semantics is an as-yet unpublished by Lionel Rieg.
+What I am calling the color semantics is an as-yet unpublished by Lionel Rieg.
 It is a microstep semantics which replaces both Must and Can
 with colors that propagate throughout the program. This
 propagation is designed to be close to how @es[1] and @es[0]
