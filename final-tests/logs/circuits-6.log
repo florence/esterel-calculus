@@ -1,0 +1,314 @@
+running test 100
+has been running for 17 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 0)
+       ("is-present" . 0)
+       ("loop" . 0)
+       ("loop^stop-exit" . 0)
+       ("merge" . 4)
+       ("par-1exit" . 0)
+       ("par-2exit" . 0)
+       ("par-nothing" . 12)
+       ("par-swap" . 12)
+       ("seq-done" . 25)
+       ("seq-exit" . 0)
+       ("signal" . 1)
+       ("suspend" . 1)
+       ("trap" . 0))
+running test 200
+has been running for 1458 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 0)
+       ("is-present" . 0)
+       ("loop" . 6)
+       ("loop^stop-exit" . 0)
+       ("merge" . 15)
+       ("par-1exit" . 0)
+       ("par-2exit" . 0)
+       ("par-nothing" . 18)
+       ("par-swap" . 34)
+       ("seq-done" . 36)
+       ("seq-exit" . 17)
+       ("signal" . 6)
+       ("suspend" . 2)
+       ("trap" . 1))
+running test 300
+has been running for 4177 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 0)
+       ("is-present" . 0)
+       ("loop" . 23)
+       ("loop^stop-exit" . 0)
+       ("merge" . 28)
+       ("par-1exit" . 1)
+       ("par-2exit" . 0)
+       ("par-nothing" . 21)
+       ("par-swap" . 70)
+       ("seq-done" . 42)
+       ("seq-exit" . 21)
+       ("signal" . 25)
+       ("suspend" . 11)
+       ("trap" . 4))
+running test 400
+has been running for 5228 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 0)
+       ("is-present" . 0)
+       ("loop" . 30)
+       ("loop^stop-exit" . 0)
+       ("merge" . 47)
+       ("par-1exit" . 1)
+       ("par-2exit" . 1)
+       ("par-nothing" . 25)
+       ("par-swap" . 100)
+       ("seq-done" . 46)
+       ("seq-exit" . 22)
+       ("signal" . 41)
+       ("suspend" . 15)
+       ("trap" . 7))
+running test 500
+has been running for 7420 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 0)
+       ("is-present" . 0)
+       ("loop" . 40)
+       ("loop^stop-exit" . 0)
+       ("merge" . 67)
+       ("par-1exit" . 1)
+       ("par-2exit" . 1)
+       ("par-nothing" . 30)
+       ("par-swap" . 134)
+       ("seq-done" . 48)
+       ("seq-exit" . 23)
+       ("signal" . 54)
+       ("suspend" . 19)
+       ("trap" . 15))
+running test 600
+has been running for 8934 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 0)
+       ("is-present" . 0)
+       ("loop" . 45)
+       ("loop^stop-exit" . 0)
+       ("merge" . 83)
+       ("par-1exit" . 2)
+       ("par-2exit" . 1)
+       ("par-nothing" . 39)
+       ("par-swap" . 168)
+       ("seq-done" . 53)
+       ("seq-exit" . 23)
+       ("signal" . 72)
+       ("suspend" . 22)
+       ("trap" . 20))
+--------------------
+FAILURE
+name:       check-pred
+location:
+  /Users/florence/dissertation-tests/esterel-calculus/circuits/tests/regression.rkt:32:6
+params:
+  '(#<procedure:unsat?>
+    ((model
+   [pos-KILL$4176 #f]
+   [neg-KILL$4177 #f]
+   [pos-RES$4176 #f]
+   [neg-RES$4177 #f])
+     (((KILL ⊥)
+       (RES ⊥)
+       (--SEL #f)
+       (GO2 #t)
+       (K0 #t)
+       (SC #t)
+       (SP #t)
+       (both1 #t)
+       (killout1 ⊥)
+       (lem2 #f)
+       (lem3 #t)
+       (lname1 #t)
+       (psel1 #f)
+       (qsel1 #f)
+       (rem2 #f)
+       (rem3 #t)
+       (rname1 #t)))
+     (((KILL ⊥)
+       (RES ⊥)
+       (--SEL #f)
+       (GO3 #t)
+       (K0 #t)
+       (SC1 #t)
+       (SP #t)
+       (both2 #t)
+       (killout2 ⊥)
+       (lem4 #f)
+       (lem5 #t)
+       (lname2 #t)
+       (psel2 #f)
+       (qsel2 #f)
+       (rem4 #f)
+       (rem5 #t)
+       (rname2 #t)))))
+message:
+  "testing '(ρ · GO (par (ρ ((sig SC unknown) ·) WAIT (emit SP)) (emit SC)))\nagainst '(ρ ((sig SC unknown) ·) GO (par (emit SP) (emit SC)))\nin the constructive case\nreduced via merge"
+--------------------
+--------------------
+FAILURE
+name:       check-pred
+location:
+  /Users/florence/dissertation-tests/esterel-calculus/circuits/tests/regression.rkt:32:6
+params:
+  '(#<procedure:unsat?>
+    ((model
+   [(+_GO)$2191 #f]
+   [(-_GO)$2191 #t]
+   [(+_KILL)$2088 #f]
+   [(-_KILL)$2088 #t]
+   [(+_RES)$2088 #f]
+   [(-_RES)$2088 #t])
+     ((((+ GO) #f)
+       ((- GO) #t)
+       ((+ KILL) #f)
+       ((- KILL) #t)
+       ((+ RES) #f)
+       ((- RES) #t)
+       ((+ --SEL) #f)
+       ((- --SEL) #t)
+       ((+ GO-safe1) #f)
+       ((- GO-safe1) #t)
+       ((+ GO2) #t)
+       ((- GO2) #f)
+       ((+ K0) #t)
+       ((- K0) #f)
+       ((+ SC) #t)
+       ((- SC) #f)
+       ((+ SP) #t)
+       ((- SP) #f)
+       ((+ both1) #t)
+       ((- both1) #f)
+       ((+ killout1) #f)
+       ((- killout1) #t)
+       ((+ lem3) #f)
+       ((- lem3) #t)
+       ((+ lem2) #t)
+       ((- lem2) #f)
+       ((+ lname1) #t)
+       ((- lname1) #f)
+       ((+ psel1) #f)
+       ((- psel1) #t)
+       ((+ qsel1) #f)
+       ((- qsel1) #t)
+       ((+ rem3) #f)
+       ((- rem3) #t)
+       ((+ rem2) #t)
+       ((- rem2) #f)
+       ((+ rname1) #t)
+       ((- rname1) #f)))
+     ((((+ GO) #f)
+       ((- GO) #t)
+       ((+ KILL) #f)
+       ((- KILL) #t)
+       ((+ RES) #f)
+       ((- RES) #t)
+       ((+ --SEL) #f)
+       ((- --SEL) #t)
+       ((+ GO-safe2) #f)
+       ((- GO-safe2) #t)
+       ((+ GO3) #t)
+       ((- GO3) #f)
+       ((+ K0) #t)
+       ((- K0) #f)
+       ((+ SC1) #t)
+       ((- SC1) #f)
+       ((+ SP) #t)
+       ((- SP) #f)
+       ((+ both2) #t)
+       ((- both2) #f)
+       ((+ killout2) #f)
+       ((- killout2) #t)
+       ((+ lem5) #f)
+       ((- lem5) #t)
+       ((+ lem4) #t)
+       ((- lem4) #f)
+       ((+ lname2) #t)
+       ((- lname2) #f)
+       ((+ psel2) #f)
+       ((- psel2) #t)
+       ((+ qsel2) #f)
+       ((- qsel2) #t)
+       ((+ rem5) #f)
+       ((- rem5) #t)
+       ((+ rem4) #t)
+       ((- rem4) #f)
+       ((+ rname2) #t)
+       ((- rname2) #f)))))
+message:
+  "testing '(ρ · GO (par (ρ ((sig SC unknown) ·) WAIT (emit SP)) (emit SC)))\nagainst '(ρ ((sig SC unknown) ·) GO (par (emit SP) (emit SC)))\nin the guarded classical case\nreduced via merge"
+--------------------
+running test 700
+has been running for 193717 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 0)
+       ("is-present" . 0)
+       ("loop" . 54)
+       ("loop^stop-exit" . 0)
+       ("merge" . 103)
+       ("par-1exit" . 2)
+       ("par-2exit" . 1)
+       ("par-nothing" . 44)
+       ("par-swap" . 217)
+       ("seq-done" . 59)
+       ("seq-exit" . 25)
+       ("signal" . 91)
+       ("suspend" . 26)
+       ("trap" . 23))
+running test 800
+has been running for 279925 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 1)
+       ("is-present" . 0)
+       ("loop" . 62)
+       ("loop^stop-exit" . 0)
+       ("merge" . 120)
+       ("par-1exit" . 2)
+       ("par-2exit" . 1)
+       ("par-nothing" . 50)
+       ("par-swap" . 267)
+       ("seq-done" . 66)
+       ("seq-exit" . 27)
+       ("signal" . 126)
+       ("suspend" . 29)
+       ("trap" . 27))
+running test 900
+has been running for 384957 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 1)
+       ("is-present" . 0)
+       ("loop" . 74)
+       ("loop^stop-exit" . 0)
+       ("merge" . 137)
+       ("par-1exit" . 3)
+       ("par-2exit" . 1)
+       ("par-nothing" . 57)
+       ("par-swap" . 317)
+       ("seq-done" . 76)
+       ("seq-exit" . 31)
+       ("signal" . 157)
+       ("suspend" . 32)
+       ("trap" . 33))
+user break
+  context...:
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/core/equality.rkt:53:0: @equal?
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/adt/list.rkt:74:0: list=?
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/core/equality.rkt:53:0: @equal?
+   ...form/control.rkt:31:25
+   /Users/florence/dissertation-tests/circuitous/circuitous-lib/circuitous/private/shared.rkt:7:0: deref
+   .../more-scheme.rkt:261:28
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/form/control.rkt:33:0: branch-and-merge
+   ...form/control.rkt:30:25
+   ...form/control.rkt:31:25
+   .../more-scheme.rkt:261:28
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/form/control.rkt:33:0: branch-and-merge
+   .../more-scheme.rkt:261:28
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/form/control.rkt:33:0: branch-and-merge
+   .../more-scheme.rkt:261:28
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/form/control.rkt:33:0: branch-and-merge
+   .../more-scheme.rkt:261:28
+   ...
