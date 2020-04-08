@@ -35,7 +35,7 @@ suited to different purposes.
 
 Some of these semantics are adequate to give an
 evaluator for programs, giving meaning to full programs by
-running them---Such as the Constructive Operational
+running them---such as the Constructive Operational
 Semantics (COS)@~cite[optimizations-for-esterel-programs-thesis],
 and the State Behavioral Semantics (SBS)@~cite[esterel02]. Others give us local reasoning, allowing for
 modular reasoning about fragments of full programs (i.e.
@@ -68,8 +68,8 @@ using three pieces of evidence: proofs, testing, and prior
 work. This evidence, this tripod the calculus stands upon,
 is necessary because not all parts of the calculus stand
 equally upon all three legs. The proofs apply only to loop
-free, pure Esterel programs, and are proven with respect to
-Pure Esterel programs with respect to the circuit semantics
+free, pure Esterel programs, and are proven with respect
+to the circuit semantics
 for Esterel@~cite[esterel02]. The full calculus, on the
 other hand, is tested against several different Esterel
 semantics and implementations. Many parts of the calculus are
@@ -140,7 +140,7 @@ semantics.
 The soundness of the calculus is also given by proof and testing.
 Specifically it is proven with respect to the circuit
 semantics@~cite[esterel02], for pure, loop free, programs
-withing a single instant. Evidence for the Soundness for
+within a single instant. Evidence for the Soundness for
 multi-instant, loop containing programs is given by random testing. This is discussed
 more in @secref["just:sound"]  and @secref["just:sound:testing"].
 
@@ -167,16 +167,16 @@ Adequacy is also given by proof and testing. Like soundness, it is
 proven for pure, loop free, programs for one instant.
 Evidence for the Adequacy of loop containing programs with
 host language expressions across multiple instants is also
-given byrandom testing. This is discussed
+given by random testing. This is discussed
 more in @secref["just:adequacy"] and @secref["just:sound:testing"].
 
 @section{Overview}
 
-The dissertation is divided into six more Chapters, and four
-Appendices. @Secref["background"] summarizes the
+The dissertation is divided into six more chapters, and four
+appendices. @Secref["background"] summarizes the
 background a reader will need to understand this document,
 as well as pointers to the background reading I assume the
-reader has read. @Secref["sec:free-and-pure"] then describes the
+reader has an understanding of. @Secref["sec:free-and-pure"] then describes the
 calculus I have designed on pure, loop free Esterel programs.
 Then @secref["sec:proofs"] gives
 the proofs for Consistency, Soundness, and Adequacy on this
