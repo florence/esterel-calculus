@@ -1,6 +1,6 @@
 #lang racket
 
-(provide with-paper-rewriters/proc render-op text)
+(provide with-paper-rewriters/proc render-op text mf-t)
 (require (except-in esterel-calculus/redex/model/shared quasiquote)
          esterel-calculus/redex/model/instant
          (prefix-in calculus: esterel-calculus/redex/model/calculus)
@@ -1019,6 +1019,7 @@
     ['ρ1 (λ (lws)
            (list (list-ref lws 0)
                  (just-after (alt-ρ) (list-ref lws 0))
+                 " "
                  (list-ref lws 2)
                  (just-after "." (list-ref lws 2))
                  (list-ref lws 3)
@@ -1347,7 +1348,7 @@
       (lambda ()
         (render-op/instructions
          (text "θ" (non-terminal-style) (default-font-size))
-         `((superscript ɕ))))]
+         `((superscript ,(nt-t "ɕ")))))]
      ['present (λ () (text "1" (default-style) (default-font-size)))]
      ['absent (λ () (text "0" (default-style) (default-font-size)))]
      ['unknown (λ () (text "⊥" (default-style) (default-font-size)))]
@@ -1413,7 +1414,10 @@
      ['δ (λ () (eval-h-pict))]
      ['δ* (λ () (mf-t "δ"))]
      ['const (λ () (nt-t "c"))]
-     ['≃λ (lambda () (≃-pict "λ"))])
+     ['≃λ (lambda () (≃-pict "λ"))]
+     ['evalλ
+     (lambda () (eval-pict "λ"))]
+     ['set! (lambda () (def-t "σ"))])
     (define owsb (white-square-bracket))
     (parameterize* ([default-font-size (get-the-font-size)]
                     [metafunction-font-size (get-the-font-size)]

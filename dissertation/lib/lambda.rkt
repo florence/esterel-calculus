@@ -93,7 +93,7 @@
 (define ⇀s
   (reduction-relation
    λ_σ
-   (--> ((λ x e) v) (ρ (mtθ+x S v) e) β_σ)
+   (--> ((λ x e) v) (ρ (mtθ+x x v) e) β_σ)
    (--> (ρ1 θ (in-hole E (set! x v))) (ρ1 (<- θ (mtθ+x x v)) (in-hole E 42))
         (judgment-holds (L∈dom x θ))
         σ)

@@ -17,12 +17,18 @@ To show why a new semantics for Esterel contributes to the
 existing work on Esterel, this section covers some existing
 semantics, how they related to properties the calculus
 captures, and how they capture the notion of
-constructiveness.@note{Many of the semantics in this
- section are given the epithet ``Constructive''. This is
- because earlier semantics for Esterel captured a slightly
- different language which accepted more programs. Those
- semantics are called ``logical'', but have fallen out of
- favor, and no modern Esterel implementation uses them.}
+constructiveness. Many of the semantics in this section are
+given the epithet ``Constructive''. This is because earlier
+semantics for Esterel captured a slightly different language
+which accepted more programs. Those semantics are called
+``logical''. While some more recent work such as
+@citet[tardieu-deterministic] use a logical semantics, they
+mostly have out of favor, and no modern Esterel
+implementation uses them. As Logical Esterel is a slightly
+different language than Constructive Esterel, I will not
+discuss logical semantics here, but rather focus on
+Constructive Semantics, of which the Constructive Calculus
+is one.
 
 
 @section["Constructive Behavioral and State Behavioral Semantics"]

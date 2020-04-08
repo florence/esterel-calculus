@@ -5,7 +5,7 @@
           "lib/proofs.rkt"
           "lib/cite.rkt")
 
-@title[#:style paper-title-style]{A Calculus for Esterel}
+@title[#:style paper-title-style]{A Constructive Calculus for Esterel}
 
 @table-of-contents[]
 @include-section["intro.scrbl"]

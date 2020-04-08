@@ -15,19 +15,22 @@
 @title[#:style paper-title-style #:tag "background-calculi"]{Language Calculi}
 
 This section will give the background about language
-calculi. Those familiar with the λ-calculus, small step operational
-semantics, evaluation contexts and the state
-calculus@~cite[felleisen-hieb] may with to simply skim this
-section for its notation.
+calculi. It covers the call-by-value
+λ-calculus@~cite[plotkin], small step operational semantics,
+evaluation contexts@~cite[felleisen-friedman] and the state
+calculus@~cite[felleisen-hieb]. The material summarized here
+can be read about in depth in Chapters
+I.1, I.3.1, I.3.2, I.4.2, I.4.5, I.4.7, I.5.1, and I.8 of
+@cite/title[redex-book].
 
-
-A semantics is a function maps programs to
+A semantics is some mapping from (possibly partial) programs to
 their meaning. For example: evaluators are
 functions mapping programs to the result of running them; and denotational semantics
  give meaning by mapping programs to elements of some external
 domain, like the circuit semantics for Esterel. The
 semantics I plan to build will give meaning to terms by
-mapping them to a set of terms to which they are equivalent.
+mapping them to a set of terms to which they are equivalent---an equivalence
+class.
 Specifically I will do this by giving a set of axioms that
 define an equivalence relation, which will implicitly define
 this mapping from terms to sets of terms.
@@ -45,14 +48,14 @@ This section will use as an example the call-by-value
 λ-calculus@~cite[plotkin]. The grammar of
 this language is:
 @[centered
- (vl-append
-  @with-paper-rewriters[@render-language[λ_v #:nts '(e)]]
-  (nt-∈-line "x" "Variable Names" (blank)))]
+  (vl-append
+   @with-paper-rewriters[@render-language[λ_v #:nts '(e)]]
+   @[with-paper-rewriters (nt-∈-line "x" "Variable Names" (blank))])]
 That is, expressions consist of variables, anonymous functions of one
-argument, applications, and built in constants (which may contain primitive functions). Another
+argument, function applications, and built in constants (which may contain primitive functions). Another
 useful grammatical definition is that of a value:
 @centered[@with-paper-rewriters[@render-language[λ_v #:nts '(v)]]]
-which is to say, just functions and constants. They will
+which is to say, just functions and constants. They
 represent fully evaluated terms.
 
 
@@ -77,15 +80,19 @@ The notions of reduction for @lam[λ_v] are:
                                                    calculus-side-condition-beside-rules)])
        (render-reduction-relation ⇀λ)))))
 
-
 Metafunction application (that is, functions that are outside
 of the language rather than functions in the language, e.g. @lam[subst]) is written
 @lam/unchecked[(name-of-function args ...)]. The name of this
 particular rule is bracketed to the left.
 
+Thus, there are two rules here. The first, @rule["β_v"], handles function application
+by substituting a value for a variable in the body of a function. The
+second handles primitive function application by delegating out to a metafunction
+@es[δ1], which the calculus is parameterized over.
+
 @section{Equality relation}
 
-Using the notions of reduction the calculus is built as an equality relation
+Using the notions of reduction, a calculus is built as an equality relation
 that operates under program contexts, @lam[C]. In this case of @lam[λ_v], these
 contexts are:
 @[centered
@@ -100,6 +107,17 @@ of reduction under transitivity, reflexively, symmetry, and program contexts:
    `(("step" "refl")
      ("ctx" "trans" "sym"))
    (λ () (render-judgment-form ≡λ))]]
+
+The @rule["step"] rule says that two terms are equal if they are related by the
+notions of reduction. The @rule["refl"] rule says that all terms are equal to themselves.
+The @rule["trans"] rule says that we can chain reasoning steps together, if @es[a] is equal
+to @es[b], and @es[b] is equal to @es[c], then @es[a] must therefore be equal to @es[c]. The @rule["ctx"]
+rule says that our reasoning applies in any program context. This is gives us locality, as
+we know that we can apply our reasoning anywhere. The final rule, @rule["sym"] says that
+if @es[a] is equal to @es[b] then @es[b] is equal to @es[a]. This rule is actually one
+of the most important in this relation, as it allows us to run the notions of reduction backwards,
+enabling reasoning about many more program transformations (for example, common subexpression elimination
+requires this axiom).
 
 @section{Evaluators}
 
@@ -117,7 +135,9 @@ for @es[λ_v], the evaluator might be:
 Which says that if a program is equivalent to a constant,
 then that program must evaluate to that constant. If the program is
 equivalent to an anonymous function, then the result is the special symbol
-@lam[procedure].
+@lam[procedure]. Note that it is not a given then @es[evalλ] is a function:
+its entirely possible it could map one expression to two different results. This gives us the
+definition of consistency for a calculus: The evaluator it defines is a function.
 
 @section{State}
 
@@ -186,12 +206,14 @@ context. For example, for @lam[λ_v], we could define contextual equivalence as
 
 The definition of contextual equivalence depends on the language in question.
 
-@section{Notation}
+@section{Summary of Notation}
 @(define (def-t str) (text str (default-style) (default-font-size)))
 @[itemlist
-  @item{@lam[eval]: The evaluator for a language.}
+  @item{@[with-paper-rewriters [mf-t "eval"]]: The evaluator for a language.}
   @item{@|hookup|: The notions of reduction for a language.}
   @item{@(with-paper-rewriters (def-t "≡")): The equivalence relation defined by a calculus.}
   @item{@lam[≃]: Contextual Equivalence.}
   @item{@lam[C]: Program Contexts.}
   ]
+
+I will, in general, use superscripts to distinguish evaluators and relations from different languages.

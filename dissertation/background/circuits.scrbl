@@ -18,12 +18,12 @@
 Pure Esterel compiles to circuits. This section gives the background needed
 to understand the circuits Esterel compiles to. Those familiar with
 Constructive Synchronous Circuits---particularly @citet[malik-circuit] and
-@citet[shiple-constructive-circuit]---may wish to skip to the end of skim this section
-for a summary of the exact notation I will be using
+@citet[shiple-constructive-circuit]---may wish to skim the figures in this section
+for a summary of the exact notation I will be using.
 
 @section[#:tag "back:graph"]{Circuits as Graphs}
 
-Circuits can be though of as graphs, where each edge
+Circuits can be thought of as graphs, where each edge
 represents a wire, and each node represents a gate. This
 also gives the usual pictorial representation of circuits.
 As an example, the left of @figure-ref["circ-overview"] is a
@@ -113,7 +113,7 @@ notation I am using, which is fairly standard.
                  (line-down 1)
                  (line-right 1))))
         "Splitting a wire"))
-      (ht-append
+      (ht-append 5
        (lbl
         (after (label "1" 'left) (line-right 1))
         "A wire with a constant 1")
@@ -135,7 +135,7 @@ A side note on diagrams: Sometime circuit diagrams may refer
 to wires in a sub-circuits that are not present. For
 example, see @figure-ref["zero-example"], which shows the
 compilation rules for two of Esterel's forms. If the second
-circuit is substituted in for @es[(compile p)], then the
+circuit is substituted in for @es[(compile p-pure)], then the
 wires @es[SEL], @es[K1] and @es[K2] will be missing. For
 convenience, these missing wires are defined to be @es[0].
 
@@ -235,8 +235,8 @@ for any delay time in the computation of a gate there exists some clock time
 for which the circuit will always stabilize. On the logic side, the
 functions which define the gates are monotonic: once a value transitions
 from @es[⊥] to @es[0] or @es[1] it can never change. This means that
-there is a fixed-point when evaluating that circuit, and it should
-take no more than @es[n] iterations to find that fixed-point (where
+there is always a fixed-point when evaluating that circuit, and it should
+take no more than @es[n] iterations through the whole circuit to find that fixed-point (where
 @es[n] is the number of gates in the circuit).
 
 
@@ -244,7 +244,7 @@ take no more than @es[n] iterations to find that fixed-point (where
 
 @[figure "circuit-grammar" "A Grammar for Circuits"  circuit-lang]
 
-Now, on to the formal definition of a circuit. A circuit @es[c] can be defined as a triple
+Now, on to a formal definition of a circuit. A circuit @es[c] can be defined as a triple
 @es[(circ EQ I O)] were @es[I] is a set of names of input wires, @es[O] is a set of names
 of output wires, and @es[EQ] is a set of equations @es[(w = wire-value)], which
 defines the internal wire named @es[w] by the expression @es[wire-value], which is drawn
@@ -270,7 +270,7 @@ I will write @es[(of c w)] for accessing the expression in the circuit
 the value of @es[w] in @es[cs]. I will write @es/unchecked[(Ldom cs)]
 for the set of all wires defined in @es[cs].
 
-The circuit can then be evaluated by the reduction relation @es[⟶^c],
+The circuit can then be evaluated by the reduction relation @es[⇀^c],
 which is define in @figure-ref["c-step"]. This reduction relation
 has only one rule, which selects one wire in the circuit which currently has
 the value @es[⊥], and attempts to evaluated it using the relation @es[(eval^boolean cs e B)].
@@ -291,12 +291,12 @@ The evaluator for circuits @es[eval^circuit] has the
 signature:
 @centered[@[with-paper-rewriters [render-metafunction eval^circuit #:only-contract? #t]]]
 It takes in a set of wires @es[O] we wish to observe and a
-circuit, and fully evaluates the circuit using @es[⟶^c]. The
-result a pair of @es[θ] and @es[Bool]. The first part is a
+circuit, and fully evaluates the circuit by calling @es[⇀^c] until it reaches the fixed-point. The
+result a pair of @es[θ] and @es[bool]. The first part is a
 map @es[θ] that maps the wires in @es[O] to the values they
-have after evaluating the circuit. The second part is true
-when the circuit has no wires which are @es[⊥]---that is it
-is true when the circuit is constructive.
+have after evaluating the circuit. The second part is a Boolean which is @es[tt]
+if and only if the circuit has no wires which are @es[⊥]---that is it
+is true when the circuit is constructive. Otherwise it is @es[ff].
 
 @subsection{Registers}
 
@@ -320,7 +320,7 @@ context is the state of its input wires.
 
 I am basing this definition on the procedure given by
 @citet[malik-circuit]. This procedure is equivalent to the
-reduction relation given here by @citet[mendler-2012] and
+reduction relation I give here, which is proved by @citet[mendler-2012] and
 @citet[esterel02]. Specifically Lemma 7 of @citet[esterel02]
 gives us that this reduction relation is equivalent to what
 @citet[mendler-2012] call ternary simulation of the
@@ -331,8 +331,9 @@ this is equivalent to the algorithm given by
 ternary simulation is equivalent to their UN-delay model of
 circuits, which is a model of electrical characteristics of
 circuit (See definition 6 in that paper). This UN-delay
-model is compositional, and thus can be when analyzing a
+model is compositional, and thus can be used when analyzing a
 circuit without knowing its context.
+
 
 
 

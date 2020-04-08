@@ -27,16 +27,23 @@
 
 @title[#:style paper-title-style #:tag "background-esterel"]{Esterel}
 
-This dissertation will not focus on the Full Esterel
-language. There are other, better primers on that such as
-@cite/title[compiling-esterel]. Instead I will focus on
-Kernel Esterel@~cite[esterel02]. Kernel Esterel is a small
+This section is meant as a refresher on Kernel Esterel and
+its informal semantics. Specifically it is describes
+Kernel Esterel as given in 
+section 2 of @cite/title[compiling-esterel], and section 2
+of @cite/title[esterel02]. The informal semantics
+I describe is roughly given in terms of the descriptions
+in section 3 and 4 of @cite/title[compiling-esterel]
+and sections 4.2, 5, and 7 of @cite/title[esterel02].
+
+Kernel Esterel is a small
 subset of Esterel in which, for the most part, Full Esterel
 is trivially macro expressible. It's grammar
 is: @centered[lang/state] The Kernel I am using is adapted
-from the Kernel used in Section 2.2 of
+from section 2.2 of
 @cite/title[compiling-esterel]. The translation from Full
 Esterel to this Kernel is given in appendix B of that book.
+
 
 @section["Pure Esterel"]
 
@@ -67,7 +74,7 @@ instant is the only notion time in Esterel. Each instant
 represents one tick forward on a global, discrete
 clock.@note{ It should be noted that each instant may not
  match up to physical time. The outside environment can
- impose arbitrary delays between instants as each instant is
+ impose arbitrary and variable delays between instants as each instant is
  only run on the outside world's request.} In fact, this
 external-only view time is what gives ``instants'' their
 name. We think of every computation in Esterel taking zero
@@ -152,7 +159,7 @@ Chapter 12 of @cite/title[esterel02] goes into this in
 detail. Here I will only give a cursory overview of this
 issue.
 
-@as-index{Reincarnationj} occurs when loop which contains
+@as-index{Reincarnation} occurs when loop which contains
 the declaration of a variable or signal completes execution
 and restarts in the same instant. This results in two instances of
 the same variable, and the variable is said to be reincarnated.
@@ -175,8 +182,8 @@ However Esterel does not have any notion of value: Instead
 it borrows the outside world's notion of value. That is,
 Esterel is meant to be embedded in another programming
 language. That language controls when instants in
-Esterel run, and communicates with Esterel using
-signal presence and is own values. In turn values in Esterel
+Esterel run, and communicates with Esterel using Esterel's
+signals and is own values. In turn, values in Esterel
 are computed using the host language's expressions, which may refer to variables bound by Esterel.
 Values can be stored in either host language or shared variables.
 
@@ -217,19 +224,18 @@ uses the same mechanism as determining absence for a signal.@note{In fact,
 
 In the calculus I present here, I will assume a host language
 which always use the combination function @es[+], and that
-the host language only contains numerical literals, and @es[+]
-and @es[-].
+the host language only contains numerical literals, and the operations
+@es[+] and @es[-].
 
 @section[#:tag "back:esterel:cannot" "Constructive programs"]
 
 What is the mechanism used to determine if a signal can be
 set to absent? Specifically, what kind of reasoning can we
 perform when showing that a signal cannot be emitted?
-
 To show that a signal is emitted or that it cannot be
-emitted we must build a chain of cause and effect which
+emitted we build a chain of cause and effect which
 either shows that  program Must reach an emit (setting the
-program to present) or shows the program Cannot reach an
+signal to present) or shows the program Cannot reach an
 emit (setting the signal to absent).
 
 For a first example, consider the program:
@@ -253,8 +259,8 @@ chain of cause and effect:
                        nothing)
               (emit S1))))]
 
-We can read this graph as "emitting the signal S on the last line
-might cause the conditional to take its true branch". We get
+We can read this graph as ``emitting the signal @es[S1] on the last line
+might cause the conditional to take its true branch.'' We get
 this interpretation by starting at the entry points of the
 causality graph and walking forward. In this case the only
 entry point to the graph is the @es[(emit S1)]. It points to
@@ -267,7 +273,7 @@ cause the conditional to take its then branch. This
 reasoning, where we say "the @es[(emit S1)] must happen,
 therefor the conditional must take this branch" can also be
 interpreted as "the @es[emit] must run before the
-@es[present]", because we are saying that it must cause the
+@es[if]", because we are saying that it must cause the
 present take some action. This prescribing of order to an
 instant, which is supposed to be timeless, may seem odd.
 This is because the order we get out of a causality graph is a
@@ -293,7 +299,7 @@ before, we immediately run into the conditional without
 hitting any @es[(emit S1)]s. In addition if we keep
 walking forward, neither branch
 can emit @es[S1] either. From this we can safely conclude
-that nothing can cause @es[S1] to be emitted be emitted, therefore
+that nothing can cause @es[S1] to be emitted, therefore
 it cannot be emitted, therefore it is absent.
 
 Notice that the asymmetry in the syntax---that we have a form
@@ -340,7 +346,8 @@ reasoning steps is just a guess. Esterel considers programs like this one,
 where some signals cannot be set to either absent or present, to be illegal. Such a programs are either rejected statically or raise a runtime
 error, depending on the Esterel implementation. Programs like this are called non-constructive.@note{
  This comes from the analogous lack of self-justified reasoning
- in a constructive logic.}
+ in a constructive logic---that is we may not use the law of
+ the excluded middle to reason about signals.}
 
 Another way of seeing this is observing that causality graph
 for that program has a cycle in it: in a timeless world the
@@ -377,9 +384,9 @@ we have a causality graph with no cycles that never
 reaches an @es[(emit S1)], so we can set @es[S1] to absent.
 
 Causality graphs also interact with
-@es[pause]. Because @es[pause] ends an instant (and causes
+@es[pause]. The @es[pause] ends an instant (and causes
 the next instant to pick up from the pause), and the single
-value restriction for signals only pertains to a single instant,
+value restriction for signals only pertains to a single instant. Therefore,
 @es[pause]s essentially cut the causality graph, splitting it in two:
 one for the instants before the pause is reached, and one for the ones
 after. For example consider the program and graph in @figure-ref["pause1"].
@@ -438,10 +445,13 @@ constructive, and its graph is acyclic.
 The description of constructivity in terms of program graphs
 and what Must and Cannot happen can actual give a complete
 semantics for Pure Esterel. This is described by the
-Constructive Behavioral Semantics @~cite[esterel02], which
+Constructive Behavioral Semantics@~cite[esterel02], which
 defines Esterel inters of two functions: @es[Can] and
 @es[Must]. We can think of what these functions do in terms
-of the chart in @figure-ref["back:lattice"]. The upper left
+of the chart in @figure-ref["back:lattice"]. This
+chart divides up program behavior based on what Can happen,
+and its complement what Cannot happen, and base on what Must
+happen and its complement, what May Not happen. The upper left
 corner of this diagram, labeled @es[1], corresponds to a
 portion of the program being executed, and to a signal being
 present. The bottom right, labeled @es[0], corresponds to a
@@ -529,7 +539,8 @@ Every edge in the program graph begins in the corner of the
 chart labeled @es[⊥], representing that it could be
 executed, but might not be. As we execute the program, any
 control edge can be moved to the @es[1] corner (It both Must
-and Can happen), if @italic{all} of it's incoming edges are
+and Can happen), if @italic{all} of the incoming edges to the node
+it leads from are
 @es[1]. Conversly, a control edge can be set to @es[0] if
 @italic{any} of it's incoming edges are @es[0]. Note that
 this means that the edges leading from @es[start]
@@ -540,9 +551,11 @@ of it's incoming edges are @es[1], but can only be set to
 This corresponds to control edges being linked by an
 extension of @es[and] with @es[⊥], and data edges being
 linked to by a similar extension of @es[or]. This is
-discussed in more detail in @secref["background-circuits"]
-and @secref["just:sound:compiler"] as this leads directly to
-the circuit semantics of Esterel.
+discussed in more detail in @secref["background-circuits"],
+and in @secref["just:sound:compiler"] as this leads directly to
+the circuit semantics of Esterel. This usage of @es[and]
+and @es[or] are another manifestation of the asymmetry
+between Must and Can.
 
 The Must and Cannot corner in the diagram is not reachable,
 as it is a logical contradiction. No consistent and sound
@@ -564,3 +577,11 @@ requires knowledge about where the top of the program is.
 However if something Cannot happen, then no context can make
 it happen. This asymmetry will show up several times in the design
 of the Calculus.
+
+@section{Summary of Notation}
+
+The syntax for Kernel Esterel I am using is:
+@centered[lang/state]
+
+I will often refer to the presence of a signal as @es[1],
+and the absence of a signal as @es[0].

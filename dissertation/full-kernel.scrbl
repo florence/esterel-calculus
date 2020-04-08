@@ -413,6 +413,16 @@ To do this, I provide the following:
            multi-instant evaluator for Esterel. This evaluator checks at
            every reduction step that the step taken by @es[⇁] is also
            in @es[⇀]. The relation @es[⇁] is given in the appendix A.}
+
+          @item{@itemlistheader{Racket Frontend} The actual
+           execution of this Redex model of the calculus is embedded
+           into Racket, and therefore may use Racket expression as its
+           host language expressions, in addition to the numeric
+           language the calculus comes equipped with. There is also a
+           Racket frontend compiler which compiles Full Esterel into
+           the Kernel used by the Redex model with the extensions to
+           use Racket as its host language.}
+           
           @item{@itemlistheader{Redex/Hiphop.js bridge} 
            HipHop.js is an Esterel implementation embedded into Javascript. We
            built a library that can translate Redex expressions into
