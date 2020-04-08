@@ -9,7 +9,7 @@
 
 @section{Esterel}
 
-The canconical citation for Esterel is @citet[esterel92].
+The canconical citation for Esterel is @citet[esterel84].
 
 @section{Other Esterel semantics}
 
@@ -23,6 +23,7 @@ constructiveness.@note{Many of the semantics in this
  different language which accepted more programs. Those
  semantics are called ``logical'', but have fallen out of
  favor, and no modern Esterel implementation uses them.}
+
 
 @section["Constructive Behavioral and State Behavioral Semantics"]
 

@@ -89,6 +89,13 @@
    #:date 2002
    #:location (book-location #:publisher "MIT Press")))
 
+(define esterel84
+  (make-bib
+    #:title "The ESTEREL Synchronous Programming Language and its Mathematical Semantics"
+    #:author (authors "Gérard Berry" "Laurent Cosserat")
+    #:date 1992
+    #:location (proceedings-location "International Conference on Concurrency")))
+
 (define esterel92
   (make-bib
     #:title "The Esterel Synchronous Programming Language: Design, Semantics, Implementation"
@@ -98,6 +105,14 @@
                                  #:pages (list 87 152)
                                  #:number 2
                                  #:volume 19)))
+
+
+(define esterel-state-machine-semantics2
+  (make-bib
+   #:title "The Semantics of Pure Esterel"
+   #:author "Gérard Berry"
+   #:date 1993
+   #:location (proceedings-location "Program Design Calculi")))
 
 (define esterel02
   (make-bib
