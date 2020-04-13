@@ -1,6 +1,6 @@
 #lang racket
 
-(provide with-paper-rewriters/proc render-op text mf-t)
+(provide with-paper-rewriters/proc render-op text mf-t def-t)
 (require (except-in esterel-calculus/redex/model/shared quasiquote)
          esterel-calculus/redex/model/instant
          (prefix-in calculus: esterel-calculus/redex/model/calculus)
@@ -1259,6 +1259,21 @@
         (render-op/instructions
          (text "r" (non-terminal-style) (default-font-size))
          `((superscript p) (subscript GO))))]
+     ['p-pure+GO-loop
+      (λ ()
+        (render-op/instructions
+         (text "p" (non-terminal-style) (default-font-size))
+         `((superscript p) (subscript GO))))]
+     ['q-pure+GO-loop
+      (λ ()
+        (render-op/instructions
+         (text "q" (non-terminal-style) (default-font-size))
+         `((superscript p) (subscript GO))))]
+     ['r-pure+GO-loop
+      (λ ()
+        (render-op/instructions
+         (text "r" (non-terminal-style) (default-font-size))
+         `((superscript p) (subscript GO))))]
      ['p-pure (λ ()
                 (render-op/instructions
                  (text "p" (non-terminal-style) (default-font-size))
@@ -1271,6 +1286,18 @@
                 (render-op/instructions
                  (text "r" (non-terminal-style) (default-font-size))
                  `((superscript p))))]
+     ['p-pure-loop (λ ()
+                (render-op/instructions
+                 (text "p" (non-terminal-style) (default-font-size))
+                 `((superscript p))))]
+     ['q-pure-loop (λ ()
+                (render-op/instructions
+                 (text "q" (non-terminal-style) (default-font-size))
+                 `((superscript p))))]
+     ['r-pure-loop (λ ()
+                (render-op/instructions
+                 (text "r" (non-terminal-style) (default-font-size))
+                 `((superscript p))))]
      ['C-pure (λ ()
                 (render-op/instructions
                  (text "C" (non-terminal-style) (default-font-size))
@@ -1280,6 +1307,10 @@
                     (text "C" (non-terminal-style) (default-font-size))
                     `((superscript p) (subscript GO))))]
      ['E-pure (λ ()
+                (render-op/instructions
+                 (text "E" (non-terminal-style) (default-font-size))
+                 `((superscript p))))]
+     ['E-pure-loop (λ ()
                 (render-op/instructions
                  (text "E" (non-terminal-style) (default-font-size))
                  `((superscript p))))]

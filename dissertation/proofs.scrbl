@@ -24,7 +24,7 @@
 
 
 The three properties for the calculus which require proof
-are Consistent, Sound, and Adequate. This section justifies
+are consistency, soundness, and adequacy. This section justifies
 that the calculus has each of these properties. This section
 relies heavily on the background given in
 @secref["background-circuits"], as well as the descriptions

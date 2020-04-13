@@ -71,7 +71,18 @@
   ;; go is lionel's `green`. It means control must reach here
   ;; wait is lionel's `gray`. It means control may or may not reach here.
   (A ::= GO WAIT)
-
+  (p-pure+GO-loop q-pure+GO-loop r-pure+GO-loop ::=
+                  nothing
+                  pause
+                  (seq p-pure+GO p-pure+GO)
+                  (par p-pure+GO p-pure+GO)
+                  (trap p-pure+GO)
+                  (exit n)
+                  (signal S p-pure+GO)
+                  (suspend p-pure+GO S)
+                  (present S p-pure+GO p-pure+GO)
+                  (emit S)
+                  (ρ θr A p-pure+GO))
   (p-pure+GO q-pure+GO r-pure+GO ::=
              nothing
              pause
@@ -82,10 +93,22 @@
              (signal S p-pure+GO)
              (suspend p-pure+GO S)
              (present S p-pure+GO p-pure+GO)
-             (emit S)
              (loop p-pure+GO)
              (loop^stop p-pure+GO q-pure+GO)
+             (emit S)
              (ρ θr A p-pure+GO))
+  (p-pure-loop q-pure-loop r-pure-loop ::=
+               nothing
+               pause
+               (seq p-pure p-pure)
+               (par p-pure p-pure)
+               (trap p-pure)
+               (exit n)
+               (signal S p-pure)
+               (suspend p-pure S)
+               (present S p-pure p-pure)
+               (emit S)
+               (ρ θr WAIT p-pure))
   (p-pure q-pure r-pure ::=
           nothing
           pause
@@ -199,6 +222,23 @@
   (E-pure ::=
           (seq E-pure q-pure)
           (loop^stop E-pure q-pure)
+          (par E-pure q-pure)
+          (par p-pure E-pure)
+          (suspend E-pure S)
+          (trap E-pure)
+          hole)
+
+  (E-pure+GO ::=
+          (seq E-pure+GO q-pure+GO)
+          (loop^stop E-pure+GO q-pure+GO)
+          (par E-pure+GO q-pure+GO)
+          (par p-pure+GO E-pure+GO)
+          (suspend E-pure+GO S)
+          (trap E-pure+GO)
+          hole)
+
+  (E-pure-loop  ::=
+          (seq E-pure q-pure)
           (par E-pure q-pure)
           (par p-pure E-pure)
           (suspend E-pure S)

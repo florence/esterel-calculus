@@ -44,7 +44,7 @@ canonical form, they may still step via @rule["par-swap"],
 but may not take any other steps. To prove this @es[⟶] is
 broken up into two parts: @es[⟶^s], which contains only the
 compatible closure of @rule["par-swap"], and @es[⟶^r], which
-is the compatible closure of every rule.@note{The @tt{S} stands for ``swap'', and the @tt{R} stands
+is the compatible closure of every other rule.@note{The @tt{S} stands for ``swap'', and the @tt{R} stands
  for ``remainder''.} With that we can
 state theorem about these canonical forms like so:
 @proof-splice["step-is-v"]

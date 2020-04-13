@@ -33,19 +33,16 @@ single instant, the compilation of those circuits is
 This proof proceeds by induction over the structure of the
 equality relation @es[≡]. Thus, the majority of the work in
 the proof goes into showing that it holds for each rule of
-@es[⇀]. Therefore each of these proofs proceeds by induction
-on the the structure of @es[≡] to reach the base case of
-@es[⇀]. Each rule in @es[⇀] is then proved sound, in
-general, by induction of @es[p-pure] term to eventually find
-a concrete circuit. Then the circuits on the each side of
-the relation are given to the circuit solver which proves
-that they are equal.
+@es[⇀]. Each rule in @es[⇀] is proved sound, in
+general, by induction on @es[p-pure].
+The bases cases have concrete circuits, so in general
+the bases cases are proven by the circuit solver.
 
 @section[#:tag "just:sound:lemma"]{Important lemma's}
 
-This section will discuss the most interesting or
+This section will discuss the proof sketches of the most interesting or
 informative lemma's needed to prove soundness of the various
-rules of @es[⇀]. May of the lemma's are trivial or uninformative, and so will not be discussed here.
+rules of @es[⇀]. Many of the lemma's are trivial or uninformative, and so will not be discussed here.
 The interested reader may seem them in appendices A.2 and A.3.
 
 A first informative proof to look at is the proof that @rule["trap"] is sound:
@@ -78,7 +75,7 @@ proceeds by induction over @es[E-pure]. The base case is
 rather trivial: when @es[(= E-pure hole)] the two circuits
 look identical, as the @es[1] from the @es[GO] wire is
 directly connected to the @es[S] wire. The inductive case is
-more interesting. The proof uses the idea that evaluation
+more interesting: the proof uses the idea that evaluation
 contexts correspond exactly to the set of contexts such that
 in @es[(compile (in-hole E-pure p-pure))], the @es[GO] and
 signal wires from the top of the term are passed, unchanged,
@@ -109,9 +106,7 @@ the State Behavioral Semantics@~cite[esterel02] or the
 Constructive Operation
 Semantics@~cite[optimizations-for-esterel-programs-thesis]
 drop this assumption by reflecting register state back in
-the syntax of the program. However since the calculus
-relies on an inter-instant translation function, this proof is restricted
-this proofs to a single instant.
+the syntax of the program.
 
 This proof is essentially a chaining of several other lemmas. As
 with @proof-ref["emit"], @proof-ref["S-maintains-across-E"] and @proof-ref["GO-maintains-across-E"]
@@ -127,8 +122,7 @@ Formally, it is defined as:
 @extract-definition["binds"]
 
 With this in hand we can interpret
-@proof-ref["Can-S-is-sound"] and
-@proof-ref["Can-rho-S-is-sound"]: If we restrict our view to the
+@proof-ref["Can-S-is-sound"]: If we restrict our view to the
 first instant, and the environment given to @es[Can] is
 valid with respect to the circuit, then @es[Can] accurately
 predicts when signal wires will be set to @es[0] (or rather,

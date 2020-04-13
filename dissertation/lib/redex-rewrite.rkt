@@ -19,12 +19,13 @@
 ;; load this dynamically so that a rewriter change
 ;; doesn't require recompiling everything.
 (lazy-require
- ["redex-rewrite-dynamic.rkt" (with-paper-rewriters/proc render-op text mf-t)])
+ ["redex-rewrite-dynamic.rkt" (with-paper-rewriters/proc render-op text mf-t def-t)])
 
 
 (provide es es/unchecked esblock define/esblock
          with-paper-rewriters
          mf-t
+         def-t
          render-op
          rule
          hookup

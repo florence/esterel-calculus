@@ -16,7 +16,7 @@
 
 This section will give the background about language
 calculi. It covers the call-by-value
-λ-calculus@~cite[plotkin], small step operational semantics,
+@es[λ]-calculus@~cite[plotkin], small step operational semantics,
 evaluation contexts@~cite[felleisen-friedman] and the state
 calculus@~cite[felleisen-hieb]. The material summarized here
 can be read about in depth in Chapters
@@ -40,12 +40,12 @@ like we reasoned about arithmetic in grade school: if we can
 show two terms are equal, then we can safely replace of
 those terms for another in some larger program without
 changing its meaning. I refer to this as a calculus (taking
-the name from Church's λ-calculus). This means that calculi
+the name from Church's @es[λ]-calculus). This means that calculi
 are syntactic and local @italic{by construction}.
 
 
 This section will use as an example the call-by-value
-λ-calculus@~cite[plotkin]. The grammar of
+@es[λ]-calculus@~cite[plotkin]. The grammar of
 this language is:
 @[centered
   (vl-append

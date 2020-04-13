@@ -175,7 +175,7 @@ variables.
 @proof[#:label "S-maintains-across-E"
        #:title "S is maintained across E"
        #:statement
-       @list{For all @es[(= p-pure_i (in-hole E q-pure_i))], and
+       @list{For all @es[(= p-pure_i (in-hole E-pure q-pure_i))], and
         @es[S],
         if @es[(L∈ Si (inputs (compile p-pure_i)))]
         then
@@ -202,7 +202,7 @@ variables.
 @proof[#:label "GO-maintains-across-E"
        #:title "GO is maintained across E"
        #:statement
-       @list{For all @es[(= p-pure (in-hole E q-pure))],
+       @list{For all @es[(= p-pure (in-hole E-pure q-pure))],
        @es[(≃ (of (compile q-pure) GO) (of (compile p-pure) GO))]}]{
  This proof follows the exact same argument as @proof-ref["S-maintains-across-E"].
 }

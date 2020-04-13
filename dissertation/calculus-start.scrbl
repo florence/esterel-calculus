@@ -40,7 +40,7 @@ Esterel without loops. This section relies heavily on the
 background given in @secref["background-esterel"] and
 @secref["background-calculi"].
 
-@section{The Calculus}
+@section{The Constructive Calculus}
 
 This section will walk through the rules of the calculus to explain their function.
 The calculus is built around the relation @es[⇀], which
@@ -79,7 +79,7 @@ future instants. Done terms (@es[done]) are stopped or paused. A @es[done]
 term is analogous to a value in other languages. A @es[stopped] is analogous
 to a primitive value (e.g. a number), in that it is atomic, and contains
 no future behaviors. A @es[paused] term is analogous to a @es[λ] term
-in the λ-calculus in that it is a value which is awaiting input, and once
+in the @es[λ]-calculus in that it is a value which is awaiting input, and once
 that input is received it can continue reducing. The major difference
 between @es[paused] and @es[λ] is that @es[paused] can only receive
 its awaited signals in the next instant.
@@ -101,9 +101,9 @@ in which case it reduces to @es[nothing], allowing execution to continue from th
 
 The next rules handle @es[par]:@(linebreak)
 @[render-specific-rules '(par-swap par-nothing par-1exit par-2exit)]@(linebreak)
-The first rule swaps the two branches of an @es[par]. This rule is useful for exposing redexes
+The first rule swaps the two branches of a @es[par]. This rule is useful for exposing redexes
 to the next three rules.
-The second rule allows an @es[par] to reduce to its second branch when it is @es[done]
+The second rule allows a @es[par] to reduce to its second branch when it is @es[done]
 and the other branch has completed.
 Combined with @rule["par-swap"], it means that the program will progress with the behavior
 of one branch if the other is @es[nothing].
@@ -125,8 +125,8 @@ translation function @es[next-instant], which is discussed in @secref["sec:calc:
 
 @subsection{Signal rules}
 
-The signals rules are where the calculus get's a little
-tricky. They must reasoning about state, which is difficult
+The signals rules are where the calculus get subtle.
+They must reason about state, which is difficult
 to do in a local way. To handle this, we need need to add
 three new pieces: Environments, Evaluation Contexts, and
 the metafunction @es[Can].
@@ -141,9 +141,7 @@ The information contained in these environments is scoped to the program fragmen
 The map @es[θr] maps signals
 that are in scope of the term @es[p] to their status.
 The maps that use for local stores are restricted maps, which only
-map to a subset of signal statuses.@note{These map portion
- of the environment is adapted from the environments in the
- @citet[felleisen-hieb] state calculus.} Other parts of the calculus will use full maps
+map to a subset of signal statuses.f Other parts of the calculus will use full maps
 @es[θ].@note{You
  may notice that these three statuses correspond to wire
  values in Circuits. This is because signals correspond
@@ -164,8 +162,8 @@ map to a subset of signal statuses.@note{These map portion
 The control variable @es[A]
 tracks whether or not control has reached this point in the
 program. This control variable is needed because signal
-emissions represent what must happen in the program. However
-this is inherently a non-local property. This can be seen
+emissions represent what must happen in the program. However,
+as discussed in @secref["back:esterel:cannot"], this is inherently a non-local property. This can be seen
 through the program in @figure-ref["nc-example"]. This
 program has a cycle between the test of @es[S1], the test of @es[S2],
 and the emit of @es[S1]. This cycle cannot be broken, therefore this program is non-constructive:
@@ -207,13 +205,13 @@ makes these colors local, which allows the Red color to be discarded. Green corr
 and Grey corresponds to @es[WAIT].}
 
 The calculus itself will never introduce @es[GO]'s, but rather only propagate them through the program.
-A @es[GO] can only safely be introduce by the evaluator---as it knows the whole program---and, I believe, when
+A @es[GO] can only safely be introduced by the evaluator---as it knows the whole program---and, I believe, when
 the whole program is guaranteed to be acyclic. My semantics assumes that @es[GO] is only at the top of
 the program, and therefore while a programmer may add @es[GO] to acyclic programs doing so is not proven
 to be sound.
 
 To understand why restricted maps @es[θr] are necessary,
-cast your eye back to  @figure-ref["back:lattice"].
+cast your eye back to  @figure-ref["back:lattice"] from @secref["back:esterel:cannot"].
 That @italic{must} and @italic{cannot} corner of that diagram
 is an nonsensical state. If we used unrestricted maps for environments,
 however, the syntax of the language would allow for representing

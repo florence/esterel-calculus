@@ -17,19 +17,19 @@
 @proof[#:title "Non-stepping terms are values"
        #:label "step-is-v"
        #:statement
-       @list{For all @es[(= q-pure (ρ θ A p-pure))],
+       @list{For all @es[(= q-pure (ρ θr A p-pure))],
                      
         If @es[(closed q-pure)], and
-        there does not exists any @es[θ_o] and @es[p-pure_o]
+        there does not exists any @es[θr_o] and @es[p-pure_o]
         such that (either
-        @es[(⟶^r q-pure (ρ θ_o A (in-hole E p-pure_o)))]
+        @es[(⟶^r q-pure (ρ θr_o A (in-hole E-pure p-pure_o)))]
         or
         there exists some @es[r]
-        such that @es[(⟶^s q-pure (⟶^r (ρ θ A (in-hole E r-pure)) (ρ θ_o A (in-hole E p-pure_o))))])
+        such that @es[(⟶^s q-pure (⟶^r (ρ θr A (in-hole E-pure r-pure)) (ρ θ_o A (in-hole E-pure p-pure_o))))])
         then either
-        @es/unchecked[(L∈ p done)]
+        @es/unchecked[(L∈ p-pure done)]
         or
-        @es[(blocked-pure θ A hole p-pure)]}]{
+        @es[(blocked-pure θr A hole p-pure)]}]{
  As @es[blocked-pure] and whether or not a term is @es[done] are decidable properties,
  we may act as if we have the law of the excluded middle here.
 
@@ -48,13 +48,13 @@
         give us our}
        #:statement
        @list{For all @es[(= q-pure (ρ θr A (in-hole E-pure p-pure)))],
-        If @es[(closed q-pure)] and
-        @es/unchecked[(L¬∈ p-pure done)] and
+        If @es[(closed q-pure)],
+        @es/unchecked[(L¬∈ p-pure done)], and
         @es[(not-blocked θr A E-pure p-pure)]
         then there exists
         some @es[θr_o] and @es[p-pure_o]
-        such that
-        @es[(⟶^r q-pure (ρ θ_o A (in-hole E p-pure_o)))]
+        such that either
+        @es[(⟶^r q-pure (ρ θ_o A (in-hole E-pure p-pure_o)))]
         or
         there exists some @es[r-pure]
         such that @es[(⟶^s q-pure (⟶^r (ρ θr A (in-hole E-pure r-pure)) (ρ θr_o A (in-hole E-pure p-pure_o))))]}]{

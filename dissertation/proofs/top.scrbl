@@ -20,7 +20,7 @@ informative theorems are
 @proof-ref["strongly-cannibalizing"],
 @proof-ref["e-v-is-c-v"], and @proof-ref["adequacy-of-can"].
 The theorem for consistency is @proof-ref["consistent"],
-which in this case is essentually a correlary of
+which in this case is essentially a corollary of
 @proof-ref["comp-ad"].
 
 
@@ -33,7 +33,7 @@ which in this case is essentually a correlary of
         @es[(≃ (of (compile p-pure) SEL) 0)], and
         @es[(≃ (of (compile q-pure) SEL) 0)]
         then
-        @es[(≃^circuit (compile p) (compile q))]}
+        @es[(≃^circuit (compile p-pure) (compile q-pure))]}
        #:interpretation @list{This theorem says that, at least for the
         first instant/cycle @es[≡] agrees with @es[≃^circuit]. Therefore
         any change to a program which can be proven correct by @es[≡]
@@ -76,10 +76,10 @@ which in this case is essentually a correlary of
        #:type 'theorem
        #:statement @list{
         For all @es[p-pure], @es[O],
-        if @es[(closed p-pure)] and @es[(≃ (of (compile p-pure) SEL) 0)]
+        if @es[(closed p-pure+GO)] and @es[(≃ (of (compile p-pure+GO) SEL) 0)]
         then
-        @es/unchecked[(= (eval^esterel O p-pure) (tup θ bool))] if and only if
-        @es[(= (eval^circuit O (compile p-pure)) (tup θ bool))]}
+        @es/unchecked[(= (eval^esterel O p-pure+GO) (tup θ bool))] if and only if
+        @es[(= (eval^circuit O (compile p-pure+GO)) (tup θ bool))]}
        #:interpretation @list{This theorem states that the calculus
         can defined an evaluator which is the same an evaluator
         for Esterel which we take as the ground-truth semantics.}]{
@@ -90,7 +90,7 @@ which in this case is essentually a correlary of
    and 
    @proof-ref["step-is-v"]
    we the fact that @es[⟶] is a subrelation
-   of @es[≡], and the fact that @es[p-pure] is closed,
+   of @es[≡], and the fact that @es[p-pure+GO] is closed,
    we can conclude that
    there exists some @es[(= q (ρ θr GO r-pure))],
    where @es[(≡ p q)],
@@ -132,9 +132,9 @@ which in this case is essentually a correlary of
 @proof[#:title "Consistency of Eval"
        #:label "consistent"
        #:type 'theorem
-       #:statement @list{For all @es[p-pure] and  @es[O],
-        if @es/unchecked[(= (eval^esterel O p-pure) (tup θ_1 bool_1))]
-        and @es/unchecked[(= (eval^esterel O p-pure) (tup θ_2 bool_2))],
+       #:statement @list{For all @es[p-pure+GO] and  @es[O],
+        if @es/unchecked[(= (eval^esterel O p-pure+GO) (tup θ_1 bool_1))]
+        and @es/unchecked[(= (eval^esterel O p-pure+GO) (tup θ_2 bool_2))],
         then @es[(= (tup θ_1 bool_1) (tup θ_2 bool_2))].}
        #:interpretation @list{This theorem states that @es[eval^esterel] is
         a function.}]{

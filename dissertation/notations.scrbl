@@ -67,7 +67,8 @@
 }
 
 @definition[#:notation @es[(≃ (of c w) wire-value)]
-            #:index (list @es[≃] @es[≃])]{
+            #:index (list @es[≃] @es[≃])
+            #:tag "context-eq-wire"]{
 
  @es[c] is contextually equivalent to a circuit
  in which the definition of the wire @es[w]

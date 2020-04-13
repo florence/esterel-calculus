@@ -9,6 +9,7 @@
           "../lib/misc-figures.rkt"
           "../lib/rule-figures.rkt"
           "../lib/jf-figures.rkt"
+          "../notations.scrbl"
           scriblib/figure
           redex/pict
           (except-in diagrama nothing) diagrama/circuit pict)
@@ -250,6 +251,7 @@ of output wires, and @es[EQ] is a set of equations @es[(w = wire-value)], which
 defines the internal wire named @es[w] by the expression @es[wire-value], which is drawn
 from the grammar given in @figure-ref["circuit-grammar"]. Wire names are assumed to be unique.
 
+
 Circuit evaluation takes place on a circuit state which is,
 in essence and environment for the circuit. It takes the
 form of a mapping from the wire names of the circuit to the
@@ -334,6 +336,15 @@ circuit (See definition 6 in that paper). This UN-delay
 model is compositional, and thus can be used when analyzing a
 circuit without knowing its context.
 
+@subsection{Other notations and definitions}
 
+I write @es[(inputs c)] to access the input set of the circuit, and @es[(outputs c)] so access
+the output set.
+
+To describe the value of a single wire, I define:
+@extract-definition["context-eq-wire"]
+which will be useful when describing equivalences between parts of two circuits.
+For example @es[(≃ (of c_1 w) (of c_2 w))] says that not matter what, the @es[w] wire
+in both cirucits will always have the same value.
 
 

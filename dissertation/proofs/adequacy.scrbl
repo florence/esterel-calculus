@@ -24,7 +24,7 @@ This section contains the various lemma's needed for proving Adequacy of @es[eva
        #:statement
        @list{For all @es[p-pure+GO], @es[q-pure+GO],
         if @es[(⟶^r p-pure+GO q-pure+GO)],
-        then @es[(> (count p-pure+GO) (count p-pure+GO))].}
+        then @es[(> (count p-pure+GO) (count q-pure+GO))].}
        #:interpretation
        @list{As @es[count] only returns
         natural numbers, by this we can conclude that
@@ -41,7 +41,8 @@ This section contains the various lemma's needed for proving Adequacy of @es[eva
                   
    In this case we have @es[(⟶^r p-pure+GO_i q-pure+GO_i)]. By induction @es[(> (count p-pure+GO_i) (count q-pure+GO_i))].
    Thus by  @proof-ref["cannibalize-compatible-closure"]
-   we can conclude that @es[(> (count (in-hole C p-pure+GO_i)) (count (in-hole C q-pure+GO_i)))].
+   we can conclude that
+   @es[(> (count (in-hole C-pure+GO p-pure+GO_i)) (count (in-hole C-pure+GO q-pure+GO_i)))].
                         
   }
  }
@@ -112,19 +113,19 @@ This section contains the various lemma's needed for proving Adequacy of @es[eva
              signal)]{
    This case follows immediately from the definition of @es[count].}
 
-  @#:case[(⇀ (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p-pure+GO))) (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p-pure+GO))
+  @#:case[(⇀ (ρ θr_1 A_1 (in-hole E-pure+GO (ρ θr_2 A_2 p-pure+GO))) (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E-pure+GO p-pure+GO))
              (side-condition (term (A->= A_1 A_2))) 
              merge)]{
    @sequenced{
     @#:step[inner]{@es[(> (count (ρ θr_2 A_2 p-pure+GO)) (count p-pure+GO))], by the definition of @es[count].}
     @#:step[outer]{for any @es[r].
-     @es[(= (count (ρ θr_1 A_1 (in-hole E r))) (count (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E r-pure+GO))))], by the definition of @es[count].}
+     @es[(= (count (ρ θr_1 A_1 (in-hole E-pure+GO r))) (count (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E-pure+GO r-pure+GO))))], by the definition of @es[count].}
     @#:step[eq]{By @outer on @es[p], @es[(= (count (ρ θr_1 A_1 (in-hole E p-pure+GO))) (count (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p-pure+GO))))].}
     @#:step[_]{By @eq, @inner, and @proof-ref["cannibalize-compatible-closure"],
-     @es[(> (count (ρ θr_1 A_1 (in-hole E (ρ θr_2 A_2 p-pure+GO)))) (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p-pure+GO)))]
+     @es[(> (count (ρ θr_1 A_1 (in-hole E-pure+GO (ρ θr_2 A_2 p-pure+GO)))) (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E-pure+GO p-pure+GO)))]
   }}}
 
-  @#:case[(⇀ (ρ θr GO (in-hole E (emit S))) (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E nothing))
+  @#:case[(⇀ (ρ θr GO (in-hole E-pure+GO (emit S))) (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E-pure+GO nothing))
              (judgment-holds (L∈ S (Ldom θr)))
              emit)]{
    @sequenced{
