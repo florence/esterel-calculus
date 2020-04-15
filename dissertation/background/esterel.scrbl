@@ -139,7 +139,7 @@ In the first instant a suspend is reached, the suspend
 behaves like @es[p]. However in all future instants where
 the instant would resume in @es[p], it only resumes when
 @es[S] is absent. If @es[S] is present, then the whole form
-pauses, continues in the next instant (following the same rules).
+pauses, and continues in the next instant (following the same rules).
 
 @bold{Loops} The final construct in Pure Esterel is
 @es[(loop p)]. It continually repeats @es[p] in an infinite
@@ -175,7 +175,8 @@ ensure that there are, in fact, two distinct variables.
 
 @section["The host language and Esterel"]
 
-The last line of the grammar at the start of @secref["background-esterel"] extends Pure Esterel with forms
+The last line of the grammar
+at the start of @secref["background-esterel"] (@es[shared] through @es[if0]) extends Pure Esterel with forms
 which can track values, in addition to Boolean signals.
 
 However Esterel does not have any notion of value: Instead
@@ -205,7 +206,7 @@ that Esterel guarantees deterministic concurrency. Shared variables are
 declared with @es[(shared s := e p)] and mutated with
 @es[(<= s e)]. To ensure determinism shared variables have
 two restrictions. The first is that they must be paired with
-an associative, commutative, combination function which will
+an associative, commutative combination function which will
 be used to combine multiple writes to the variable in a
 given instant, to ensure the order of writes is not visible. The
 second is that a host language expression referring to a
@@ -246,7 +247,7 @@ For a first example, consider the program:
               (present S1
                        pause
                        nothing)
-              (emit S))))]
+              (emit S1))))]
 
 In this example, we can say that the signal @es[S1] is emitted, because we can establish the following
 chain of cause and effect:
@@ -265,15 +266,15 @@ this interpretation by starting at the entry points of the
 causality graph and walking forward. In this case the only
 entry point to the graph is the @es[(emit S1)]. It points to
 the conditional that branches on @es[S1], which we can
-interpret as "this emit running or not running can cause
-this conditional to take its left or right branch". Because
+interpret as ``this emit running or not running can cause
+this conditional to take its left or right branch''. Because
 the @es[(emit S1)] is at the entry point to the graph we can
 also conclude that the emit must run. Therefore it must
 cause the conditional to take its then branch. This
-reasoning, where we say "the @es[(emit S1)] must happen,
-therefor the conditional must take this branch" can also be
-interpreted as "the @es[emit] must run before the
-@es[if]", because we are saying that it must cause the
+reasoning, where we say ``the @es[(emit S1)] must happen,
+therefor the conditional must take this branch'' can also be
+interpreted as ``the @es[emit] must run before the
+@es[if]'', because we are saying that it must cause the
 present take some action. This prescribing of order to an
 instant, which is supposed to be timeless, may seem odd.
 This is because the order we get out of a causality graph is a
@@ -340,7 +341,7 @@ One might assume that  we could analyze
 the conditional as if @es[S1] were absent  looking at only the else
 branch, as we know it cannot be present. However this would amount justifying @es[S1] being absent
 based on the assumption that it was absent. Such self
-justification doesn't leave a clear chain of causes which
+justification doesn't leave a clear chain of cause and effect which
 result in showing the signal is absent: one of the
 reasoning steps is just a guess. Esterel considers programs like this one,
 where some signals cannot be set to either absent or present, to be illegal. Such a programs are either rejected statically or raise a runtime
@@ -443,15 +444,19 @@ constructive, and its graph is acyclic.
 @subsection["Must/Cannot and Present/Absent"]
 
 The description of constructivity in terms of program graphs
-and what Must and Cannot happen can actual give a complete
+and what Must and Cannot happen gives a complete
 semantics for Pure Esterel. This is described by the
 Constructive Behavioral Semantics@~cite[esterel02], which
-defines Esterel inters of two functions: @es[Can] and
-@es[Must]. We can think of what these functions do in terms
-of the chart in @figure-ref["back:lattice"]. This
-chart divides up program behavior based on what Can happen,
-and its complement what Cannot happen, and base on what Must
-happen and its complement, what May Not happen. The upper left
+defines Esterel in terms of two functions: Can and
+Must. The first function, Can, returns the set of
+signals which a program might emit. It's complement, Cannot, gives
+us the set of signal which it is impossible for a program to emit.
+The second function, Must, gives us the set of signals
+which the program will definitely emit. It's complement, Might Not, is
+the set of signals which the program could potentially not emit.
+
+This divides up program behavior into the chart in @figure-ref["back:lattice"].
+The upper left
 corner of this diagram, labeled @es[1], corresponds to a
 portion of the program being executed, and to a signal being
 present. The bottom right, labeled @es[0], corresponds to a
@@ -522,7 +527,7 @@ state. The lower left is never realized.
           (text "Must"))
          (cc-superimpose
           (blank (/ width 2) 0)
-          (text "May Not")))
+          (text "Might Not")))
         chart)
        chart))))
   (app
@@ -553,9 +558,7 @@ extension of @es[and] with @es[⊥], and data edges being
 linked to by a similar extension of @es[or]. This is
 discussed in more detail in @secref["background-circuits"],
 and in @secref["just:sound:compiler"] as this leads directly to
-the circuit semantics of Esterel. This usage of @es[and]
-and @es[or] are another manifestation of the asymmetry
-between Must and Can.
+the circuit semantics of Esterel.
 
 The Must and Cannot corner in the diagram is not reachable,
 as it is a logical contradiction. No consistent and sound

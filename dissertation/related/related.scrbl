@@ -7,9 +7,7 @@
 
 @title[#:tag "related" #:style paper-title-style]{Related Work}
 
-@section{Esterel}
-
-The canconical citation for Esterel is @citet[esterel84].
+TODO intro
 
 @section{Other Esterel semantics}
 
@@ -21,7 +19,8 @@ constructiveness. Many of the semantics in this section are
 given the epithet ``Constructive''. This is because earlier
 semantics for Esterel captured a slightly different language
 which accepted more programs. Those semantics are called
-``logical''. While some more recent work such as
+``logical'', such as the original semantics, given in
+@citet[esterel84]. While some more recent work such as
 @citet[tardieu-deterministic] use a logical semantics, they
 mostly have out of favor, and no modern Esterel
 implementation uses them. As Logical Esterel is a slightly
@@ -31,7 +30,7 @@ Constructive Semantics, of which the Constructive Calculus
 is one.
 
 
-@section["Constructive Behavioral and State Behavioral Semantics"]
+@subsection["Constructive Behavioral and State Behavioral Semantics"]
 
 This section actually covers two semantics, the Constructive
 Behavioral Semantics (CBS), and the State Behavioral
@@ -63,7 +62,7 @@ for local reasoning about equality between program fragments,
 however.
 These semantics, as given in @citet[esterel02], only handle Pure Esterel.
 
-@section["Constructive Operational Semantics"]
+@subsection["Constructive Operational Semantics"]
 
 The Constructive Operational Semantics, in some sense,
 provides a bridge between the SBS and an actual
@@ -85,7 +84,7 @@ Like the CBS and CSS, the COS gives defines a syntactic
 evaluator for Esterel and does not afford for local reasoning about
 equality between programs. The COS is defined on all of Kernel Esterel.
 
-@section["Circuit Semantics"]
+@subsection["Circuit Semantics"]
 
 The circuit semantics gives meaning to Esterel programs by
 transforming them into circuits. This works by
@@ -140,7 +139,7 @@ in @citet[esterel02] is defined on only pure Esterel. The circuit semantics in
 @citet[optimizations-for-esterel-programs-thesis] is extended to handle
 a host language.
 
-@section["The Axiomatic Semantics"]
+@subsection["The Axiomatic Semantics"]
 
 @citet[tini-axiomatic] gives two semantics. The first
 is a labeled transition system that gives an evaluator for Esterel programs,
@@ -159,7 +158,7 @@ the axioms of this semantics to the calculus would result in a much more
 powerful reasoning framework. This semantics only handles Pure Esterel.
 
 
-@section["The Color Semantics"]
+@subsection["The Color Semantics"]
 
 What I am calling the color semantics is an as-yet unpublished by Lionel Rieg.
 It is a microstep semantics which replaces both Must and Can
@@ -170,7 +169,7 @@ calculus are based off of the Colors of the Color calculus.
 The Color semantics is syntactic and adequate. However it does
 not allow for local transformations. This semantics only handles Pure Esterel.
 
-@section["Quartz"]
+@subsection["Quartz"]
 
 Quartz@~cite[quartz] is a variant of Esterel embedded into
 the interactive theorem prover HOL@~cite[HOL]. Quartz is
@@ -191,5 +190,23 @@ delayed emission and non-deterministic choice.
 
 @section{Circuits}
 
-malik & shipple
-mendler
+The handling of cyclic circuits is derived from the seminal
+work of @citet[malik-circuit]. It uses the extensions for registers
+given by @citet[shiple-constructive-circuit], which have been proven correct by
+@citet[constructive-boolean-circuits]. The notion of constructivity used here
+is what @citet[shiple-constructive-circuit] call strong constructivity, as Malik's
+original definition of constructivity only demanded that interface wires be non-@es[⊥],
+and allowed internal wires to take on any value.
+
+
+@section{Calculi}
+
+The Constructive Calculus for Esterel draws heavily from the State
+Calculus@~cite[felleisen-hieb]---specifically in the usage
+of local maps and evaluation contexts@~cite[felleisen-friedman]
+to track the state of program variables locally.
+
+This calculus is the second draft, the first introduced in @citet[florence-2019].
+That calculus, however, was not constructive, as it allowed for local
+rewrites which could bypass signals who's value was not yet known. The
+local control variables @es[GO] we introduced to solve this issue.

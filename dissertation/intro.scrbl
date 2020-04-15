@@ -97,7 +97,8 @@ require only minor annotations to the surface syntax.
 Therefore, even in the case of minor syntactic extensions, a
 syntactic semantics still allows for explanations of program
 transformations using the notation users of that language
-are familiar with, rather than some external domain.
+are familiar with, rather than some external domain. In the end,
+this means that calculi are syntactic @italic{by construction}.
 
 In order to make my calculus sound and adequate I have added
 two new forms to the syntax of Kernel Esterel: a variant of
@@ -111,7 +112,8 @@ programs is difficult, impractical, and in often impossible
 in the case of libraries. Modular reasoning is essential for
 working with large programs, thus we want a local semantics.
 
-Locality in my calculus is handled by allowing the equations
+Calculi are local @italic{by construction.}
+A calculus allows it's equations
 of the calculus to be using under any program context. In
 practice this means that most equations apply anywhere in a
 program, while some work as long as entire scope of a signal

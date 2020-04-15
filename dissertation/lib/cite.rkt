@@ -373,6 +373,16 @@ Theorem 47. Given constructive Esterel statements E and E′;
                                 #:volume 13
                                 #:number 7)))
 
+(define bryant-MOS
+  (make-bib
+   #:title "Boolean Analysis of MOS Circuits"
+   #:author "Randal E. Bryant"
+   #:date 1987
+   #:location
+   (journal-location "IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems"
+                     #:volume 6
+                     #:number 4)))
+
 (define linking-types
   (make-bib
    #:title "Linking Types for Multi-Language Software: Have Your Cake and Eat It Too"

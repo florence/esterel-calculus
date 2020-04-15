@@ -1,6 +1,6 @@
 #lang racket
 
-(provide with-paper-rewriters/proc render-op text mf-t def-t)
+(provide with-paper-rewriters/proc render-op text mf-t def-t render-op/instructions)
 (require (except-in esterel-calculus/redex/model/shared quasiquote)
          esterel-calculus/redex/model/instant
          (prefix-in calculus: esterel-calculus/redex/model/calculus)
@@ -505,7 +505,8 @@
     ['wire-in
      (lambda (lws)
        (match-define (list open name w c close) lws)
-       (list w
+       (list ""
+             w
              " ∈ "
              (hbl-append (mf-t "dom")
                          ((white-square-bracket) #t))
@@ -584,6 +585,8 @@
      (curry binop '⟶^C)]
     ['⇀^r
      (curry binop '⇀^R)]
+    ['⇀^c
+     (curry binop '⇀^C)]
     ['⇀λ
      (curry binop '⇀^λ)]
     ['⇀λ2
@@ -1404,6 +1407,8 @@
      ['⟶^c
       (lambda () (render-op '⟶^C))]
      ['⇀^r (lambda () (render-op '⇀^R))]
+     
+     ['⇀^c (lambda () (render-op '⇀^C))]
      ['⇀λ (lambda () (render-op '⇀^λ))]
      ['⇀λ2 (lambda () (render-op '⇀^λ))]
      ['≡λ (lambda () (render-op '≡^λ))]
@@ -1461,19 +1466,25 @@
                     [non-terminal-subscript-style (replace-font non-terminal-subscript-style)]
                     [non-terminal-superscript-style (replace-font non-terminal-superscript-style)]
                     [default-style Linux-Liberterine-name]
+                    [where-make-prefix-pict
+                     (lambda ()
+                       (def-t " if "))]
                     [white-square-bracket
                      (lambda (open?)
                        (let ([text (current-text)])
                          (define s (ghost (owsb open?)))
-                         (refocus
-                          (lbl-superimpose
-                           (scale
-                            (text (if open? "⟬" "⟭")
-                                  (default-style)
-                                  (default-font-size))
-                            1.05)
+                         (inset
+                          (refocus
+                           (lbl-superimpose
+                            (scale
+                             (text (if open? "⟬" "⟭")
+                                   (default-style)
+                                   (default-font-size))
+                             1.05)
+                            s)
                            s)
-                          s)))])
+                          (if open? 2 0)
+                          0 0 0)))])
       (thunk)))))
 
 (define (words str)

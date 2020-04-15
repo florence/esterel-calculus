@@ -12,11 +12,9 @@ understand this dissertation. This chapter is meant as a
 refresher on the material, as well as an introduction to the
 notation I am going to be using. As such, each section has
 recommended reading, which the section is designed as a
-refresher for. For readers who are very familiar with the
-background work of each area, each section will conclude
-with a summary of the notation I am using that can be
-referred to without the need for a full read of each
-section.
+refresher for. Readers who are very familiar with the
+background work of each area may wish to skim these sections
+for the notation I use.
 
 @Secref["background-esterel"] describes the language
 Esterel. It is meant as refresher on Chapters 1, 2, 4.1, and

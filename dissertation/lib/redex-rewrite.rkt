@@ -19,7 +19,7 @@
 ;; load this dynamically so that a rewriter change
 ;; doesn't require recompiling everything.
 (lazy-require
- ["redex-rewrite-dynamic.rkt" (with-paper-rewriters/proc render-op text mf-t def-t)])
+ ["redex-rewrite-dynamic.rkt" (with-paper-rewriters/proc render-op text mf-t def-t render-op/instructions)])
 
 
 (provide es es/unchecked esblock define/esblock
@@ -33,7 +33,7 @@
          indent
          words bords ;; bords = bold words
          leading-∀
-         es/unchecked/dynamic)
+         es/unchecked/dynamic render-op/instructions)
 
 (define (retag p)
   (cond 

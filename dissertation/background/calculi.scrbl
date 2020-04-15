@@ -20,8 +20,9 @@ calculi. It covers the call-by-value
 evaluation contexts@~cite[felleisen-friedman] and the state
 calculus@~cite[felleisen-hieb]. The material summarized here
 can be read about in depth in Chapters
-I.1, I.3.1, I.3.2, I.4.2, I.4.5, I.4.7, I.5.1, and I.8 of
-@cite/title[redex-book].
+I.1-5, and I.8-I.9 of @cite/title[redex-book]---excluding the
+subsections that deal only with proofs---and sections
+1 and 4 of @cite/title[felleisen-hieb].
 
 A semantics is some mapping from (possibly partial) programs to
 their meaning. For example: evaluators are
@@ -33,20 +34,21 @@ mapping them to a set of terms to which they are equivalent---an equivalence
 class.
 Specifically I will do this by giving a set of axioms that
 define an equivalence relation, which will implicitly define
-this mapping from terms to sets of terms.
+this mapping from terms to sets of terms. This set of terms
+is defined as the set of terms which the given term can
+be simplified to by the axioms of the calculus.
 
 This equivalence relation will let us reason about programs
 like we reasoned about arithmetic in grade school: if we can
 show two terms are equal, then we can safely replace of
 those terms for another in some larger program without
 changing its meaning. I refer to this as a calculus (taking
-the name from Church's @es[λ]-calculus). This means that calculi
-are syntactic and local @italic{by construction}.
+the name from Church's @es[λ]-calculus).
 
 
-This section will use as an example the call-by-value
-@es[λ]-calculus@~cite[plotkin]. The grammar of
-this language is:
+This section walks through an example of a calculus---the call-by-value
+@es[λ]-calculus@~cite[plotkin], also called @es[λ_v]---and the key definitions needed for a calculus. The grammar of
+this the example language is:
 @[centered
   (vl-append
    @with-paper-rewriters[@render-language[λ_v #:nts '(e)]]
@@ -58,8 +60,6 @@ useful grammatical definition is that of a value:
 which is to say, just functions and constants. They
 represent fully evaluated terms.
 
-
-
 @section{Notions of Reduction}
 
 To build a calculus we first build a small@note{Well, okay, @italic{technically}
@@ -68,7 +68,8 @@ relation called the notions of reduction. This represents
 the core notions of computation in this language. I will write this
 relation as @|hookup|. In general I will add a superscript to all notation
 to show which language they refer to. For example the notions
-of reduction for @lam[λ_v] will be written as @lam[⇀λ].
+of reduction for @lam[λ_v] will be written as @lam[⇀λ] (the superscript
+drops the @es[v] to avoid a subscript in a superscript).
 The notions of reduction for @lam[λ_v] are:
 @(centered
   (with-paper-rewriters
@@ -88,7 +89,7 @@ particular rule is bracketed to the left.
 Thus, there are two rules here. The first, @rule["β_v"], handles function application
 by substituting a value for a variable in the body of a function. The
 second handles primitive function application by delegating out to a metafunction
-@es[δ1], which the calculus is parameterized over.
+@es[δ*], which the calculus is parameterized over.
 
 @section{Equality relation}
 
@@ -121,15 +122,16 @@ requires this axiom).
 
 @section{Evaluators}
 
-In the end what programs do is run. Therefore a calculus should be able to define
-a function which defines what it means for a program to run. I don't, by this,
+For a calculus to be adequate, it must be able to define
+an evaluator for its language. I don't, by this,
 mean it gives an effective means to compute a program, but rather that it
 gives a mathmatical definition of what the results of such a function should be. For example,
 for @es[λ_v], the evaluator might be:
 
 @definition[#:notation @lam/unchecked[(evalλ e)]]{
- @[with-paper-rewriters
-    [render-metafunction evalλ #:contract? #t]]
+ @(parameterize ([metafunction-pict-style 'left-right/beside-side-conditions])
+    @[with-paper-rewriters
+      [render-metafunction evalλ #:contract? #t]])
 }
 
 Which says that if a program is equivalent to a constant,
@@ -144,16 +146,17 @@ definition of consistency for a calculus: The evaluator it defines is a function
 One more important piece of background is how one can handle state in calculi.
 State is tricky because it is inherently non-local. The two key pieces for handling state
 are evaluation contexts@~cite[felleisen-friedman] and local environments@~cite[felleisen-hieb].
-The description I give here is adapted from the state calculus in @citet[felleisen-hieb]. I will
-call this state calculus @es[λ_σ].
+The description I give here is adapted from the state calculus in @citet[felleisen-hieb].
+In this section we extend @es[λ_v] with to support state, and call the extension
+@es[λ_σ].
 To start with, we must be able to control the order of evaluation of terms, as state is order
 sensitive. To do this we need a new kind of context, which only allows holes in specific places
 depending on how far along the program is in evaluating. For @es[λ_σ] they are:
 @[centered
   [with-paper-rewriters
    [render-language λ_v #:nts '(E)]]]
-
-Which states that evaluation can take place at the first non-value term of a function application.
+These contexts limit where holes may be place, so that evaluation can only
+take place at the first non-value term of a function application.
 From here we add local state to the syntax of the language, represented by the form, @lam[(ρ1 θ e)],
 and a form to mutate variables, @es[(set! x e)]:
 @[centered
@@ -195,7 +198,7 @@ The final rule is the same @rule['δ] rule as in @lam[λ_v].
 @section{Contextual equivalence}
 
 The strongest notion of equivalence between programs we can have is called contextual
-equivalence, which I will write as @lam[≃]. Contextual equivalence
+equivalence@~cite[morris], which I will write as @lam[≃]. Contextual equivalence
 is, generally, defined as a relation between programs which cannot be distinguished in any
 context. For example, for @lam[λ_v], we could define contextual equivalence as
 
@@ -205,6 +208,14 @@ context. For example, for @lam[λ_v], we could define contextual equivalence as
 }
 
 The definition of contextual equivalence depends on the language in question.
+
+In general contextual equivalence is a ``stronger''
+equivalence relation than the relation defined by a
+calculus; however for a calculus to be sound it must be that
+@es[≡] is a subrelation of @es[≃]. That is say if
+@es/unchecked[(≡ e_1 e_2)] then it must be that
+@es/unchecked[(≃ e_1 e_2)], but the converse does not need
+to hold.
 
 @section{Summary of Notation}
 @(define (def-t str) (text str (default-style) (default-font-size)))
