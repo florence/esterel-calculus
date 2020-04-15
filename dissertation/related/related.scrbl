@@ -7,7 +7,10 @@
 
 @title[#:tag "related" #:style paper-title-style]{Related Work}
 
-TODO intro
+This section gives existing work related to the Constructive
+Calculus. Most of this work is other Esterel semantics. In
+addition there are some related works on the development of
+calculi in general.
 
 @section{Other Esterel semantics}
 
@@ -197,7 +200,6 @@ given by @citet[shiple-constructive-circuit], which have been proven correct by
 is what @citet[shiple-constructive-circuit] call strong constructivity, as Malik's
 original definition of constructivity only demanded that interface wires be non-@es[⊥],
 and allowed internal wires to take on any value.
-
 
 @section{Calculi}
 
