@@ -1,7 +1,8 @@
 #lang racket
 (provide compile-def esterel-interface
          trap-pict (rename-out [emit emit-pict]) nothing
-         synchronizer)
+         synchronizer
+         guard-pict)
 (require diagrama diagrama/circuit pict racket/syntax
          "proof-extras.rkt"
          "redex-rewrite.rkt"
@@ -1152,6 +1153,36 @@
      (move-to-tag 'qK0)
      (line-down 10)
      (line-to-tag 'goandin #:h-first #t))))
+
+
+(define guard-pict
+  (after
+   fab-four
+   (move-to-tag 'GO)
+   (line-right 3)
+   (move-up 1)
+   (and-gate
+    #:tag-in1 'sel-here
+    #:tag-in3 'whatever
+    #:tag-out 'go-here
+    #:in1 #t)
+   (move-to-tag 'go-here)
+   (pin-here
+    (esterel-interface (es c) #:tag-prefix 'p)
+    'pGO)
+   (move-to-tag 'pSEL)
+   (move-left 1)
+   (split
+    (img (blank))
+    (after
+     (line-up 5)
+     (line-to-tag 'sel-here)))
+   (move-to-tag 'SUSP)
+   (line-to-tag 'pSUSP)
+   (move-to-tag 'KILL)
+   (line-to-tag 'pKILL)
+   (move-to-tag 'RES)
+   (line-to-tag 'pRES)))
 
 (define compile-def
   (list

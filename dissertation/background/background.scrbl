@@ -30,7 +30,7 @@ Chapter 1 and 2, and appendix B of
 
 @Secref["background-calculi"] gives background on language
 semantics and calculi. It is meant as a refresher to chapters
-I.1, I.2, and I.9 of @cite/title[redex-book] and sections
+I.1-5, and I.8-I.9 of @cite/title[redex-book] and sections
 1 and 4 of @cite/title[felleisen-hieb].
 
 

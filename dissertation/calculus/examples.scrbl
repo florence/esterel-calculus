@@ -24,7 +24,7 @@
 
 
 
-@title{Using the calculus, by example}
+@title[#:tag "example"]{Using the calculus, by example}
 
 The calculus is designed to prove equivalences between
 program fragments because any two expressions that are
