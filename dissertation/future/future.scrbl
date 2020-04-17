@@ -51,7 +51,6 @@ soundness.
                           (seq pause
                                (emit S))))]
                    @es[≃^esterel]
-                   (blank 30)
                    @es[(signal S
                          (seq pause (emit S)))])]
 
@@ -66,7 +65,7 @@ preventing the circuit from changing the violation.
 
 @figure["guard"
         "Guarding the top of a circuit to avoid protocol violations"
-       (ht-append
+       (hc-append
         @es[(guard circuit)]
         @es[=]
         guard-pict)]
@@ -92,6 +91,9 @@ the new statement of Adequacy must be extended to involve
 the inter-instant translation function @es[next-instant].
 While I have not developed all of the machinery needed
 for this extension, I believe it would not be difficult to do so.
+
+
+TODO Res Susp Kill guarding (or lack their of)
 
 
 @subsection[#:tag "future:remove"]{Removing θ from ρ}
