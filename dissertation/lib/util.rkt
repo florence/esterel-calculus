@@ -336,12 +336,12 @@
        [(theorem) "theorem"])
      #:followup (and title (string-append "[\\scshape " title "]"))
      (decode-flow
-      `(
-       ,@(if lbl?
-             (list (element (style "label" '(exact-chars)) (list (string-append "p:" label))))
-             (list (index (list (or title label) "discussion") "")))
-       (list nobreak)
-       ,@(decode-flow (list statement))))))
+      `(,nopagebreak
+        ,@(if lbl?
+              (list (element (style "label" '(exact-chars)) (list (string-append "p:" label))))
+              (list (index (list (or title label) "discussion") "")))
+        ,nopagebreak
+        ,(decode-flow (list statement))))))
   (hash-set! proof-name-table label title)
   (hash-set! proof-type-table label type)
   (hash-set! proof-def-table label mk-statement)

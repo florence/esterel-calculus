@@ -46,6 +46,8 @@
  book 3 of the Illiad, and no one wants that. So here are
  some highlights.
 
+ TODO actually write these
+
 }
 
 @table-of-contents[]
