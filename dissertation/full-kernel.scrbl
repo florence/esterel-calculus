@@ -442,7 +442,7 @@ To do this, I provide the following:
            to circuits, which runs on top of the circuit library Circuitous.}]
 
 
-I have run @(~a impure-test-count) tests which on Full
+I have run @(~a impure-test-count) random tests which on Full
 Esterel programs with loops which test that the Hiphop.js,
 @|Esterel\ v5|, the COS, the calculus, and the circuit
 compiler agree on the result of running programs for
@@ -457,7 +457,7 @@ adequacy holds in the presence of Full Esterel. Whenever the generate
 program contains host language variables or is not guaranteed to
 be loop safe the direct circuit compiler is skipped.
 
-In addition I have run @(~a circuit-test-count) random test
+In addition I have run @(~a circuit-test-count) random tests
 which generate a random pure program (with loops), and apply
 all rules from the calculus (specifically from @es[⟶], the
 compatible closure of @es[⇀]), and then check that the

@@ -73,7 +73,7 @@ preventing the circuit from changing the violation.
 
 From here we can modify the statement of soundness to:
 @proof[#:label "soundness2"
-       #:title "Soundness over multiple insants"
+       #:title "Soundness over multiple instants"
        #:type 'theorem
        #:no-proof #t
        #:statement @list{For all @es[p-pure] and @es[q-pure],
@@ -92,6 +92,14 @@ the inter-instant translation function @es[next-instant].
 While I have not developed all of the machinery needed
 for this extension, I believe it would not be difficult to do so.
 
+The @es[RES] and @es[SUSP] wires do not need a similar guard procedure, because of
+@proof-ref["activation-condition"]. While their is a similar protocol for them
+(e.g. @es[GO] and @es[RES] are mutually exclusive), this protocol only matters
+while @es[SEL] is @es[1], as @es[RES] and @es[SUSP] only have an effect
+on program resumption. Therefore the guard procedure above is enough to protect
+against errant uses of these wires by a (non-Esterel) outer context.
+
+TODO @es[KILL] guard.
 
 TODO Res Susp Kill guarding (or lack their of)
 
