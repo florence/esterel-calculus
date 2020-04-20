@@ -38,6 +38,16 @@
 
 }
 
+@para[#:style (style "acknowledgements" '())]{
+
+ These acknowledgements can by no means be complete.
+ Completing a PhD is a challenging prospect, and so to
+ complete them would be to create a list of names akin to
+ book 3 of the Illiad, and no one wants that. So here are
+ some highlights.
+
+}
+
 @table-of-contents[]
 @include-section["intro.scrbl"]
 @include-section["background/background.scrbl"]

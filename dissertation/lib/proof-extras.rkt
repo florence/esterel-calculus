@@ -23,6 +23,7 @@
          ≃^circuit
          ≃^esterel
          ⟶^r
+         closing-contexts
          ⟶^s
          ⇀2
          DR
@@ -83,6 +84,7 @@
           (trap p-unex) (exit n)
           (signal S p-unex) (emit S)
           (suspend p-unex S) (present S p-unex p-unex))
+  (L-C ::=  () (C L-C))
   (wire w ::= variable)
   (c circuit ::= (circ EQ I O))
   (cs ::= (cstate circuit (w ↦ B⊥) ...))
@@ -362,6 +364,9 @@
    ---------
    (⇀j p q string)])
 
+(define-metafunction esterel/typeset
+  closing-contexts : L-S -> L-C
+  [(closing-contexts _) (L1set hole)])
  
 
    

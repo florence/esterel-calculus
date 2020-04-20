@@ -340,6 +340,7 @@
        ,@(if lbl?
              (list (element (style "label" '(exact-chars)) (list (string-append "p:" label))))
              (list (index (list (or title label) "discussion") "")))
+       (list nobreak)
        ,@(decode-flow (list statement))))))
   (hash-set! proof-name-table label title)
   (hash-set! proof-type-table label type)
