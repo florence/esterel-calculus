@@ -16,7 +16,7 @@ Aviation@~cite[esterel-avionics] and the specification of
 part of digital signal processors at Texas
 Instruments@~cite[twelve-years-later].
 
-Its success can partially be attributed to how it is
+Its success can partially be attributed to how its computational model is
 radically different from other languages. It gives the
 programmer the ability to use non-local communication
 mechanisms to coordinate powerful non-local control (like

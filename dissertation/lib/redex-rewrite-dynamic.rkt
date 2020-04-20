@@ -589,9 +589,14 @@
      (curry binop '⇀^C)]
     ['⇀λ
      (curry binop '⇀^λ)]
+    ['⇀s
+     (curry binop '⇀^σ)]
+    ['⇀σ
+     (curry binop '⇀^σ)]
     ['⇀λ2
      (curry binop '⇀^λ)]
     ['≡λ (curry binop '≡^λ)]
+    ['≡^σ (curry binop '≡^σ)]
     
     ['→
      (λ (lws)
@@ -1410,8 +1415,11 @@
      
      ['⇀^c (lambda () (render-op '⇀^C))]
      ['⇀λ (lambda () (render-op '⇀^λ))]
+     ['⇀s (lambda () (render-op '⇀^σ))]
+     ['⇀σ (lambda () (render-op '⇀^σ))]
      ['⇀λ2 (lambda () (render-op '⇀^λ))]
      ['≡λ (lambda () (render-op '≡^λ))]
+     ['≡^σ (lambda () (render-op '≡^σ))]
     
      ['blocked blocked-pict]
      ['blocked-pure blocked-pict]

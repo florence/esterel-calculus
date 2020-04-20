@@ -73,6 +73,25 @@
    ----------- sym
    (≡λ e_1 e_2)])
 
+(define-judgment-form λ_σ
+  #:mode (≡σ I I)
+  [(⇀σ e_i e_o)
+   ----------- step
+   (≡σ e_i e_o)]
+  [----------- refl
+   (≡σ e e)]
+  [(≡σ e_1 e_2)
+   (where/hidden C hole)
+   ----------- ctx
+   (≡σ (in-hole C e_1) (in-hole C e_2))]
+  [(where/hidden e 1)
+   (≡σ e_1 e) (≡σ e e_2) 
+   ----------- trans
+   (≡σ e_1 e_2)]
+  [(≡σ e_2 e_1)
+   ----------- sym
+   (≡σ e_1 e_2)])
+
 (define-judgment-form λ_v
   #:mode (⇀λ2 I O)
   [------------------- β_v
@@ -89,6 +108,14 @@
 (define-metafunction λ_σ
   mtθ+x : x v -> θ
   [(mtθ+x x v) ((x v) ·)])
+
+(define-judgment-form λ_σ
+  #:mode (⇀σ I I)
+  [(where (_ .... e_2 _ ...)
+          ,(apply-reduction-relation ⇀s (term e_1)))
+   ----
+   (⇀σ e_1 e_2)])
+
 
 (define ⇀s
   (reduction-relation

@@ -3,9 +3,40 @@
 @(require "lib/redex-rewrite.rkt"
           "lib/util.rkt"
           "lib/proofs.rkt"
-          "lib/cite.rkt")
+          "lib/cite.rkt"
+          (only-in scribble/core style))
 
 @title[#:style paper-title-style]{A Constructive Calculus for Esterel}
+
+@para[#:style (style "abstract" '())]{
+                                      
+ The language Esterel has found success in many
+ safety-critical applications, from aircraft landing
+ gear to digital signal processors. Its unique
+ combination of powerful control operations,
+ deterministic concurrency, and real time
+ execution bounds are indispensable
+ to programmer in these kinds of safety-critical
+ domains. However these features lead to an interesting
+ facet of the language, called Constructivity.
+
+ Constructivity is a non-local property of Esterel programs
+ which makes defining semantics for the language subtle.
+ Existing semantics tend to sacrifice some desirable facet of
+ a language semantics to handle this. Many sacrifice
+ locality, and only work on whole programs. Some sacrifice
+ adequacy, allowing them to describe transformations to
+ programs at the cost of being able to actually run programs.
+ Still more decide to work in a domain other than Esterel,
+ such as circuits, making Constructivity easier to capture,
+ but forcing users of these semantics to reason in a domain
+ which they are not programming in.
+
+ This dissertation provides the first semantics for Esterel
+ which captures all of the above facets, while still describing
+ Constructivity: A Constructive Calculus for Esterel.
+
+}
 
 @table-of-contents[]
 @include-section["intro.scrbl"]
