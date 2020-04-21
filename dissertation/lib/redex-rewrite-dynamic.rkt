@@ -585,6 +585,8 @@
      (curry binop '⟶^C)]
     ['⇀^r
      (curry binop '⇀^R)]
+    ['⇀^s
+     (curry binop '⇀^S)]
     ['⇀^c
      (curry binop '⇀^C)]
     ['⇀λ

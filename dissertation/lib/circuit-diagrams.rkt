@@ -16,14 +16,15 @@
                            #:extra-input-signals [si empty]
                            #:extra-output-signals [so empty]
                            #:add-k3? [add-k3? #f]
-                           #:wire-length [wire-length 2])
+                           #:wire-length [wire-length 2]
+                           #:extra-spacing [extra-spacing 0])
   (define wire-spacing 3)
   (define tag (or tag* (format-symbol "~a~a" 'INTERFACE (random 10000))))
   (define (tg . t)
     (format-symbol "~a~a" tag (apply ~a t)))
   (define h (- (* wire-spacing (if add-k3? 6 5))
                (* 1/2 wire-spacing)))
-  (define w (* 2 (+ (length (append si so)) 6)))
+  (define w (+  extra-spacing (* 2 (+ (length (append si so)) 6))))
   (define box
     (with-unit
      (lambda (u)
@@ -315,19 +316,16 @@
 (define present-pict
   (let ()
     (define p
-      (esterel-interface (es (compile p-pure)) #:tag-prefix 'p))
+      (esterel-interface
+       (es (compile p-pure))
+       #:tag-prefix 'p
+       #:extra-spacing -2))
     (define q
-      (esterel-interface (es (compile q-pure)) #:tag-prefix 'q))
-    (define tag-setup
-      (after
-       (save
-        (move-up 6)
-        (tag-location 'E)
-        (move-down 1) (tag-location 'S))
-       (tag-location 'GO)
-       (move-down 3) (tag-location 'RES)
-       (move-down 3) (tag-location 'SUSP)
-       (move-down 3) (tag-location 'KILL)))
+      (esterel-interface
+       (es (compile q-pure))
+       #:tag-prefix 'q
+       #:extra-spacing -2))
+
     (define then-and
       (after
        (move-to-tag 'pGO)
@@ -431,7 +429,7 @@
     (define S
       (after
        (move-to-tag 'E_i)
-       (move-down 1)
+       (move-down 2)
        (img (textify "S^i") 'rc)
        (line-to-tag 'S1)
        (split
@@ -467,7 +465,9 @@
 (define suspend-pict
   (let ()
     (define p
-      (esterel-interface (es (compile p-pure)) #:tag-prefix 'p))
+      (esterel-interface (es (compile p-pure))
+                         #:tag-prefix 'p
+                         #:extra-spacing -2))
     (after
      fab-four
      (move-to-tag 'RES)
@@ -513,7 +513,7 @@
        (lambda (gx gy sx sy)
          (after
           (move-to sx gy)
-          (move-right 3)
+          (move-right 1)
           (pin-here p 'pGO)))))
      (save
       (move-to-tag 'doSusp)
@@ -619,7 +619,7 @@
           (+ gx 7) ey)
         (split
          (after (line-left 7)
-                (label "E_i" 'left))
+                (img (textify "E_i") 'rc))
          (line-to-tag
           'qE_i #:h-first #f)))))
      (move-to-tag 'pSEL)
@@ -673,7 +673,7 @@
       #:tag-out 'E_o
       #:tag-in1 'E_i)
      (move-to-tag 'E_o)
-     (label "E_o" 'right)
+     (img (textify "E_o") 'lc)
      (move-to-tag 'E_i)
      (line-to-tag 'pE_o))))
 
@@ -731,152 +731,156 @@
      (label "SEL" 'right)
      (move-to-tag 'pE_o)
      (line-right 12)
-     (label "E_o" 'right)
+     (img (textify "E_o") 'lc)
      (move-to-tag 'pE_i)
      (line-left 11)
-     (label "E_i" 'left))))
+     (img (textify "E_i") 'rc))))
 
 
 (define par-pict
-  (let ()
-    (define p
-      (esterel-interface
-       (es (compile p-pure))
-       #:tag-prefix 'p))
-    (define q
-      (esterel-interface
-       (es (compile q-pure))
-       #:tag-prefix 'q))
-    (define sync (synchronizer-interface #:tag-prefix 'sync:))
-    (after
-     sync
-     (move-to-tag 'sync:LEM)
-     (line-up 3)
-     (line-left 3)
-     (and-gate
-      #:tag-in1 'B-SEL
-      #:tag-in2 'LEM-RES
-      #:tag-in3 'LEM-SEL
-      #:in3 #t)
-     (move-to-tag 'LEM-SEL)
-     (move-left 7)
-     (pin-here p 'pSEL)
-     (move-to-tag 'LEM-RES)
-     (save (move-left 1) (img (textify "RES")))
-     (move-to-tag 'sync:REM)
-     (line-left 3)
-     (and-gate
-      #:tag-in1 'B-SEL2
-      #:tag-in3 'REM-SEL
-      #:in3 #t
-      #:tag-in2 'REM-RES)
-     (move-to-tag 'REM-RES)
-     (save (move-left 1) (img (textify "RES")))
-     (move-to-tag 'REM-SEL)
-     (move-down 3)
-     (move-left 7)
-     (pin-here q 'qSEL)
-     (move-to-tag 'sync:IN-KILL)
-     (with-locations-of
-      'sync:IN-KILL 'pKILL
-      (lambda (_ y x __)
-        (line-to (- x 6) y)))
-     (pin-here fab-four 'KILL)
-     (move-to-tag 'GO)
-     (line-right 1)
-     (split
-      (line-to-tag 'pGO #:h-first #f)
-      (line-to-tag 'qGO #:h-first #f))
-     (move-to-tag 'RES)
-     (line-right 2)
-     (split
-      (line-to-tag 'pRES #:h-first #f)
-      (line-to-tag 'qRES #:h-first #f))
-     (move-to-tag 'SUSP)
-     (line-right 3)
-     (split
-      (line-to-tag 'pSUSP #:h-first #f)
-      (line-to-tag 'qSUSP #:h-first #f))
-     (for*/after ([x (in-range 0 3)]
-                  [t (in-list '((p L) (q R)))])
-       (after
-        (move-to-tag (string->symbol (~a 'sync: (second t) x)))
-        (line-left (add1 (if (eq? (first t) 'p) x (- 3 x))))
-        (line-to-tag (string->symbol (~a (first t) 'K x)) #:h-first #f)))
-     (with-locations-of
-      'sync:K0 'pSEL 'pE_o
-      (lambda (x _ x2 y ___ y2)
-        (after
-         (move-to-tag 'pSEL)
-         (split
-          (line-to-tag #:h-first #f
-                       'LEM-SEL)
-         (after
-           (line-up 6)
-           (line-to (+ x2 4) (- y 6))
-           (move-down 1)
-           (or-gate #:tag-in3 'qSELout
-                    #:tag-out 'SELout1)))
-         (move-to-tag 'SELout1)
-         (line-to x (- y 5))
-         (tag-location 'SELout)
-         (move-to-tag 'pE_o)
-         (line-up 6)
-         (line-to (- x 3) (- y2 6))
-         (move-down 1)
-         (or-gate #:tag-in3 'qEout
-                  #:tag-out 'Eout))))
-     (with-locations-of
-      'GO 'pE_i
-      (lambda (x _ __ y)
-        (after
-         (move-to-tag 'pE_i)
-         (line-up 3)
-         (line-left 7)
-         (split
-          (after (line-to x (- y 3)) (img (textify "E_i") 'rc))
-          (line-to-tag 'qE_i  #:h-first #f)))))
-     (move-to-tag 'sync:KILL)
-     (line-down 6)
-     (line-to-tag 'qKILL)
-     (split
-      (img (blank))
-      (line-to-tag 'pKILL))
-     (move-to-tag 'qE_o)
-     (line-right 4)
-     (line-to-tag 'qEout #:h-first #f)
-     (move-to-tag 'qSEL)
-     (line-right 1)
-     (with-locations-of
-      'REM-SEL 'qSEL
-      (lambda (_ y x __)
-        (after
-         (line-to (+ x 1) y)
-         (split
-          (line-to-tag 'REM-SEL #:h-first #f)
-          (line-to-tag 'qSELout #:h-first #f)))))
-     (move-to-tag 'Eout) (move-right 1)
-     (img (textify "E_o"))
-     (move-to-tag 'SELout1)
-     (split (img (blank)) (line-to-tag 'B-SEL))
-     (move-to-tag 'SELout1)
-     (move-right 7)
-     (split
-      (img (blank))
+  (scale
+   (let ()
+     (define p
+       (esterel-interface
+        (es (compile p-pure))
+        #:tag-prefix 'p
+        #:extra-spacing -2))
+     (define q
+       (esterel-interface
+        (es (compile q-pure))
+        #:tag-prefix 'q
+        #:extra-spacing -2))
+     (define sync (synchronizer-interface #:tag-prefix 'sync:))
+     (after
+      sync
+      (move-to-tag 'sync:LEM)
+      (line-up 3)
+      (line-left 3)
+      (and-gate
+       #:tag-in1 'B-SEL
+       #:tag-in2 'LEM-RES
+       #:tag-in3 'LEM-SEL
+       #:in3 #t)
+      (move-to-tag 'LEM-SEL)
+      (move-left 7)
+      (pin-here p 'pSEL)
+      (move-to-tag 'LEM-RES)
+      (save (move-left 1) (img (textify "RES")))
+      (move-to-tag 'sync:REM)
+      (line-left 3)
+      (and-gate
+       #:tag-in1 'B-SEL2
+       #:tag-in3 'REM-SEL
+       #:in3 #t
+       #:tag-in2 'REM-RES)
+      (move-to-tag 'REM-RES)
+      (save (move-left 1) (img (textify "RES")))
+      (move-to-tag 'REM-SEL)
+      (move-down 3)
+      (move-left 7)
+      (pin-here q 'qSEL)
+      (move-to-tag 'sync:IN-KILL)
       (with-locations-of
-       'SELout1 'B-SEL2
+       'sync:IN-KILL 'pKILL
+       (lambda (_ y x __)
+         (line-to (- x 6) y)))
+      (pin-here fab-four 'KILL)
+      (move-to-tag 'GO)
+      (line-right 1)
+      (split
+       (line-to-tag 'pGO #:h-first #f)
+       (line-to-tag 'qGO #:h-first #f))
+      (move-to-tag 'RES)
+      (line-right 2)
+      (split
+       (line-to-tag 'pRES #:h-first #f)
+       (line-to-tag 'qRES #:h-first #f))
+      (move-to-tag 'SUSP)
+      (line-right 3)
+      (split
+       (line-to-tag 'pSUSP #:h-first #f)
+       (line-to-tag 'qSUSP #:h-first #f))
+      (for*/after ([x (in-range 0 3)]
+                   [t (in-list '((p L) (q R)))])
+        (after
+         (move-to-tag (string->symbol (~a 'sync: (second t) x)))
+         (line-left (add1 (if (eq? (first t) 'p) x (- 3 x))))
+         (line-to-tag (string->symbol (~a (first t) 'K x)) #:h-first #f)))
+      (with-locations-of
+       'sync:K0 'pSEL 'pE_o
+       (lambda (x _ x2 y ___ y2)
+         (after
+          (move-to-tag 'pSEL)
+          (split
+           (line-to-tag #:h-first #f
+                        'LEM-SEL)
+           (after
+            (line-up 6)
+            (line-to (+ x2 4) (- y 6))
+            (move-down 1)
+            (or-gate #:tag-in3 'qSELout
+                     #:tag-out 'SELout1)))
+          (move-to-tag 'SELout1)
+          (line-to x (- y 5))
+          (tag-location 'SELout)
+          (move-to-tag 'pE_o)
+          (line-up 6)
+          (line-to (- x 3) (- y2 6))
+          (move-down 1)
+          (or-gate #:tag-in3 'qEout
+                   #:tag-out 'Eout))))
+      (with-locations-of
+       'GO 'pE_i
        (lambda (x _ __ y)
          (after
-          (line-to (+ x 7) (- y 1))
-          (line-to-tag 'B-SEL2)))))
-     (move-to-tag 'SELout) (move-right 1)
-     (img (textify "SEL"))
-     (move-to-tag 'sync:K0) (move-right 1)
-     (img (textify "K0"))
-     (move-to-tag 'sync:K1) (move-right 1)
-     (img (textify "K1"))
-     (move-to-tag 'sync:K2) (move-right 1)
-     (img (textify "K2")))))
+          (move-to-tag 'pE_i)
+          (line-up 3)
+          (line-left 7)
+          (split
+           (after (line-to x (- y 3)) (img (textify "E_i") 'rc))
+           (line-to-tag 'qE_i  #:h-first #f)))))
+      (move-to-tag 'sync:KILL)
+      (line-down 6)
+      (line-to-tag 'qKILL)
+      (split
+       (img (blank))
+       (line-to-tag 'pKILL))
+      (move-to-tag 'qE_o)
+      (line-right 4)
+      (line-to-tag 'qEout #:h-first #f)
+      (move-to-tag 'qSEL)
+      (line-right 1)
+      (with-locations-of
+       'REM-SEL 'qSEL
+       (lambda (_ y x __)
+         (after
+          (line-to (+ x 1) y)
+          (split
+           (line-to-tag 'REM-SEL #:h-first #f)
+           (line-to-tag 'qSELout #:h-first #f)))))
+      (move-to-tag 'Eout) (move-right 1)
+      (img (textify "E_o"))
+      (move-to-tag 'SELout1)
+      (split (img (blank)) (line-to-tag 'B-SEL))
+      (move-to-tag 'SELout1)
+      (move-right 7)
+      (split
+       (img (blank))
+       (with-locations-of
+        'SELout1 'B-SEL2
+        (lambda (x _ __ y)
+          (after
+           (line-to (+ x 7) (- y 1))
+           (line-to-tag 'B-SEL2)))))
+      (move-to-tag 'SELout) (move-right 1)
+      (img (textify "SEL"))
+      (move-to-tag 'sync:K0) (move-right 1)
+      (img (textify "K0"))
+      (move-to-tag 'sync:K1) (move-right 1)
+      (img (textify "K1"))
+      (move-to-tag 'sync:K2) (move-right 1)
+      (img (textify "K2"))))
+   .9))
 
 (define (sync-layer
          #:lem-like lemlike
@@ -942,83 +946,85 @@
    (move-to-tag 'end)))
 
 (define synchronizer
-  (after
-   (sync-layer
-    #:lem-like "LEM"
-    #:rem-like 'REM
-    #:L0-like "L0"
-    #:R0-like "R0"
-    #:L1-like 'L1
-    #:R1-like 'R1
-    #:K0-like "K0")
-   (save (move-to-tag 'R1) (line-right 3))
-   (line-right 2)
-   (sync-layer
-    #:lem-like ""
-    #:rem-like ""
-    #:L0-like "L1"
-    #:R0-like "R1"
-    #:L1-like 'L2
-    #:R1-like 'R2
-    #:K0-like "K1")
-   (save (move-to-tag 'R2) (line-right 3))
-   (line-right 2)
-   (sync-layer
-    #:lem-like ""
-    #:rem-like ""
-    #:L0-like "L2"
-    #:R0-like "R2"
-    #:L1-like 'L3
-    #:R1-like 'R3
-    #:K0-like 'K2)
-   (save (move-to-tag 'R3) (line-right 3))
-   (line-right 2)
-   (sync-layer
-    #:lem-like ""
-    #:rem-like ""
-    #:L0-like "L3"
-    #:R0-like 'R3
-    #:L1-like 'L4
-    #:R1-like 'R4
-    #:K0-like 'K3)
-   (save (move-to-tag 'K2) (img (textify "K2") 'lc))
-   (save (move-to-tag 'K3) (img (textify "K3...") 'lc))
-   (save (move-to-tag 'R3) (img (textify "R3") 'rc))
-   (save (move-to-tag 'L4) (img (textify "LEM4...") 'lc))
-   (save (move-to-tag 'R4) (img (textify "REM4...") 'lc))
-   (move-to-tag 'REM)
-   (save (img (textify "REM") 'rc))
-   (move-down 4) (tag-location 'IN-KILL)
-   (save (img (textify "IN-KILL") 'rc))
-   (with-locations-of
-    'IN-KILL 'R3
-    (lambda (x y x2 _)
-      (after
-       (move-to x y)
-       (line-to x2 y)
-       (line-right 2)
-       (move-up 1)
-       (or-gate #:line-length 2
-                #:tag-out 'out
-                #:tag-in1 'in1
-                #:tag-in2 'in2))))
-   (move-to-tag 'K2)
-   (move-left .25)
-   (split (img (blank))
-          (line-to-tag 'in2 #:h-first #f))
-   (move-to-tag 'K3)
-   (move-left .25)
-   (split (img (blank))
-          (after
-           (line-down 7)
-           (line-to-tag 'in1)))
-   (with-locations-of
-    'out 'K3
-    (lambda (x y x2 _)
-      (after
-       (move-to x y)
-       (line-to x2 y)
-       (img (textify "KILL") 'lc))))))
+  (scale
+   (after
+    (sync-layer
+     #:lem-like "LEM"
+     #:rem-like 'REM
+     #:L0-like "L0"
+     #:R0-like "R0"
+     #:L1-like 'L1
+     #:R1-like 'R1
+     #:K0-like "K0")
+    (save (move-to-tag 'R1) (line-right 3))
+    (line-right 2)
+    (sync-layer
+     #:lem-like ""
+     #:rem-like ""
+     #:L0-like "L1"
+     #:R0-like "R1"
+     #:L1-like 'L2
+     #:R1-like 'R2
+     #:K0-like "K1")
+    (save (move-to-tag 'R2) (line-right 3))
+    (line-right 2)
+    (sync-layer
+     #:lem-like ""
+     #:rem-like ""
+     #:L0-like "L2"
+     #:R0-like "R2"
+     #:L1-like 'L3
+     #:R1-like 'R3
+     #:K0-like 'K2)
+    (save (move-to-tag 'R3) (line-right 3))
+    (line-right 2)
+    (sync-layer
+     #:lem-like ""
+     #:rem-like ""
+     #:L0-like "L3"
+     #:R0-like 'R3
+     #:L1-like 'L4
+     #:R1-like 'R4
+     #:K0-like 'K3)
+    (save (move-to-tag 'K2) (img (textify "K2") 'lc))
+    (save (move-to-tag 'K3) (img (textify "K3...") 'lc))
+    (save (move-to-tag 'R3) (img (textify "R3") 'rc))
+    (save (move-to-tag 'L4) (img (textify "LEM4...") 'lc))
+    (save (move-to-tag 'R4) (img (textify "REM4...") 'lc))
+    (move-to-tag 'REM)
+    (save (img (textify "REM") 'rc))
+    (move-down 4) (tag-location 'IN-KILL)
+    (save (img (textify "IN-KILL") 'rc))
+    (with-locations-of
+     'IN-KILL 'R3
+     (lambda (x y x2 _)
+       (after
+        (move-to x y)
+        (line-to x2 y)
+        (line-right 2)
+        (move-up 1)
+        (or-gate #:line-length 2
+                 #:tag-out 'out
+                 #:tag-in1 'in1
+                 #:tag-in2 'in2))))
+    (move-to-tag 'K2)
+    (move-left .25)
+    (split (img (blank))
+           (line-to-tag 'in2 #:h-first #f))
+    (move-to-tag 'K3)
+    (move-left .25)
+    (split (img (blank))
+           (after
+            (line-down 7)
+            (line-to-tag 'in1)))
+    (with-locations-of
+     'out 'K3
+     (lambda (x y x2 _)
+       (after
+        (move-to x y)
+        (line-to x2 y)
+        (img (textify "KILL") 'lc)))))
+   .9))
 
 (define empty-rho-pict
   (let ()
@@ -1045,14 +1051,13 @@
       (es (compile (ρ θr A p-pure)))
       #:tag-prefix '||
       #:extra-input-signals '(S^i)
-      #:extra-output-signals '(S^o))
+      #:extra-output-signals '(S^o)
+      #:extra-spacing 3)
      (move-to-tag 'S^i)
      (line-right 1)
      (img (es/unchecked (compile statusr)) 'lc)
-     (move-right 2)
-     (line-right 1)
+     (move-right 4)
      (line-to-tag 'S^o))))
-
 
 
 (define loop-pict

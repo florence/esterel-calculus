@@ -22,7 +22,7 @@ section is meant to give a small starting point for any
 ambitious researcher who wants to tackle these open
 problems.
 
-@section{Extending proofs to multiple instants, and guarding compilation}
+@section[#:tag "future"]{Extending proofs to multiple instants, and guarding compilation}
 
 Future work may wish to extend the proofs for the
 Consistency, Soundness, and Adequacy of the Constructive
@@ -169,7 +169,7 @@ This new rule would require changing the formalization of
 @rule['emit] rule could always execute, using
 @es[(= E hole)]. However this does not seem like it would
 make a similar proof impossible, using a different
-formulation of the @es[⇀^s] and @es[⇀^r] relations. Or
+formulation of the @es[⟶^s] and @es[⟶^r] relations. Or
 perhaps this could be solved by enforcing that the context
 never be empty. Both paths would be worth exploring.
 
