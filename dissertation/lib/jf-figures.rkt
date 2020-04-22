@@ -27,7 +27,8 @@
          blocked-e-pict
          ≡j-pict
          eval^boolean-pict
-
+         leftmost-pict
+         leftmost*-pict
          with-layout)
          
 
@@ -151,6 +152,19 @@
   (with-layout
    all-bot-rec-layout
    (lambda () (render-judgment-form all-bot-rec))))
+
+(define leftmost-pict
+  (with-paper-rewriters
+   (render-judgment-form S:leftmost)))
+
+(define leftmost*-pict
+  (with-layout
+   '(("hole")
+     ("seq" "loop^stop")
+     ("parl" "par-done")
+     ("par-blocked")
+     ("suspend" "trap"))
+   (lambda () (render-judgment-form S:leftmost*))))
 
 
 #;

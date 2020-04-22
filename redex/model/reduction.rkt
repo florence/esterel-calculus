@@ -13,7 +13,8 @@
          blocked
          blocked-pure
          blocked-e
-         leftmost)
+         leftmost
+         leftmost*)
 
 (module+ test (require rackunit))
 

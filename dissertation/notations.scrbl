@@ -9,6 +9,7 @@
           "lib/rule-figures.rkt"
           "lib/circuit-diagrams.rkt"
           "proofs/adequacy/can-props.rkt"
+          esterel-calculus/redex/model/reduction
           (except-in redex/reduction-semantics nothing)
           redex/pict
           (only-in pict hbl-append)
@@ -205,7 +206,7 @@
             #:index @es[sub]]{
 
  When @es[c] is the compilation of @es[p-pure], get the substate of @es[cs]
- corrisponding to the subterm @es[q-pure].
+ corresponding to the subterm @es[q-pure].
  
 }
 
@@ -215,8 +216,16 @@
  @all-bot-rec-pict
 }
 
-@section[#:tag "eval-and-testing" "@es[⇁]"]
+@section[#:tag "eval-and-testing" "Reduction Strategy"]
 
 @definition[#:notation @es[⇁]]{
- TODO
+ @strat-pict
+}
+
+@definition[#:notation @es[(leftmost θr A p E)]]{
+ @leftmost-pict
+}
+
+@definition[#:notation @es[(leftmost* θr A p E_1 E_2)]]{
+ @leftmost*-pict
 }

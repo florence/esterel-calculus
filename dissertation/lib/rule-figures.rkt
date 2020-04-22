@@ -9,6 +9,7 @@
 
 (provide calculus-side-condition-beside-rules
          calculus-rule-groups
+         strat-pict
          reduction-relation-pict
          render-rules
          render-specific-rules
@@ -155,10 +156,28 @@
                                                  calculus-side-condition-beside-rules)])
      (render-reduction-relation R*))))
 
+(define strat-pict
+  (with-paper-rewriters
+   (with-continuation-mark 'current-reduction-arrow  'standard-reduction
+     (parameterize ([rule-pict-style
+                     (render-rules 'standard-reduction
+                                   S:R
+                                   '(("signals" signal emit is-present is-absent)
+                                     ("shared variables" shared set-old set-new)
+                                     ("sequential variables" var set-var if-true if-false)
+                                     ("ϱ" merge)
+                                     ("seq" seq-done seq-exit)
+                                     ("trap" trap)
+                                     ("par" parr parl)
+                                     ("" suspend)
+                                     ("loop" loop loop^stop-exit))
+                                   calculus-side-condition-beside-rules)])
+       (render-reduction-relation S:R)))))
+
 (define (render-specific-rules r)
   (with-paper-rewriters
    (parameterize* ([render-reduction-relation-rules r]
-                   [rule-pict-style (render-rules 'calculus
+                   [rule-pict-style (render-rules 'strat
                                                   R*
                                                   `(("" ,@r))
                                                   calculus-side-condition-beside-rules)])
