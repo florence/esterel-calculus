@@ -274,7 +274,7 @@
          (with-paper-rewriters  (term->pict lang right)))
         ...)
      #:with (unloced ...)
-     #'([name
+     #'([(rule (~a 'name))
          (~? i)
          "In this case we have "
          arrow
@@ -300,7 +300,7 @@
      #`(begin
          #,(syntax/loc this-syntax
              (test-cases-covered #:checks n lang of #:reduction-relation (~? dr ->) (name ...) (left ...)))
-         (render-cases #:simple-cases
+         (render-cases #:simple-cases/no-term
                        #:just-render
                        #,@(if (attribute nc) #'() #'(#:do-check))
                        lang
@@ -362,6 +362,7 @@
     [((~literal judgment-holds) x) #'x]
     [((~literal where) a x)
      (datum->syntax this-syntax (list (datum->syntax #f '= #f) #'a #'x) #f)]
+    [((~literal side-condition) ((~literal term) x)) #'x]
     [((~literal side-condition) x) #'x]))
 
 (define-syntax (test-cases-covered stx)
@@ -479,7 +480,8 @@
                                       (render-case-body (quote-srcloc-string clause-loc) (list body ...)))))
                        ...))))]
     [(_ (~optional (~and #:induction i))
-        (~optional (~and #:simple-cases s))
+        (~or (~optional (~and #:simple-cases s))
+             (~optional (~and #:simple-cases/no-term s2)))
         (~optional (~and #:tuplize t))
         (~optional (~and #:just-render j))
         (~optional (~and #:do-check chk))
@@ -508,13 +510,15 @@
      (if (attribute chk) #'term->pict/checked #'term->pict)
      #:with (item-label ...)
      (cond
+       [(attribute s2)
+        #'((tz pat1 ...) ...)]
        [(or (attribute l) (attribute s))
         #'((tz (with-paper-rewriters (trm-> lang pat1)) ...) ...)]
        [(and (not (attribute j)) (not (attribute t)) (do-mf? #'c))
         (for/list ([_ (in-list (syntax->list #'(pat ...)))])
           #'"")]
        [(and (not (attribute j)) (not (attribute t)) (do-judgment? #'c))
-        #'((with-paper-rewriters (text (~a "[" (~a 'pat) "]") (default-style) (default-font-size))) ...)]
+        #'((rule  (~a 'pat)) ...)]
        [else #'((list (tz (with-paper-rewriters (term->pict lang c1)) ...)
                       (es =)
                       (tz (with-paper-rewriters (trm-> lang pat1)) ...))

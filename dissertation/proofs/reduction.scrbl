@@ -170,9 +170,6 @@ respect to the compilation function.
           we know that the @es[(≃ (of (compile (emit S)) S_o) (of (compile p-pure) GO))]
           by @proof-ref["GO-maintains-across-E"]. Therefore we change the value
           of no wires, so the circuits are the same.
-
-          TODO constructivity of other s' wires?
-          TODO discuss value on wire given by θ
           }]
 }
 
@@ -341,7 +338,6 @@ respect to the compilation function.
         and @es[(CB (in-hole E-pure (ρ θ A p-pure)))], then
         
         @es[(≃^circuit (compile (in-hole E-pure (ρ θ A p-pure))) (compile (ρ θ A (in-hole E-pure p-pure))))]}]{
- TODO more formal (ug).
  This proof proceeds in two parts. First, by
  @proof-ref["GO-maintains-across-E"], we know that lifting
  @es[A] across won't change the value of the @es[GO] wire of

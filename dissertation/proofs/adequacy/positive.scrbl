@@ -124,7 +124,7 @@
                 
             By the definition of @es/unchecked[(compile dot)],
             @es[(= (of (compile paused) SUSP) (or (of c SUSP) (parens (and (of c S) (of c RES) (of c SEL)))))].
-            which by our premises is:            
+            which by our premises is:@(linebreak)         
             @es[(= (of (compile paused) SUSP) (or 0 (parens (and (of c S) 0 (of c SEL)))) 0)].
 
            }
@@ -135,9 +135,7 @@
             let @es[(= c (compile (suspend paused S)))],
                 
             By the definition of @es/unchecked[(compile dot)],
-            @es[(= (of (compile paused) RES) (and (of c RES) (of c SEL) (not (of c S))))].
-
-            
+            @es[(= (of (compile paused) RES) (and (of c RES) (of c SEL) (not (of c S))))].@(linebreak)
             which by our premises is:            
             @es[(= (of (compile paused) RES) (and 0 1 (not (of c S))) 0)].
 
@@ -164,10 +162,9 @@
                 
             By the definition of @es/unchecked[(compile dot)], the outputs
             of @es[c] are the same as the outputs of @es[paused], except
-            for the @es[(= (of c K1) (or (of (compile paused) K1) (parens (and (of c S) (of c RES) (of (compile paused) SEL)))))].
+            for the @(linebreak)@es[(= (of c K1) (or (of (compile paused) K1) (parens (and (of c S) (of c RES) (of (compile paused) SEL)))))].
 
-            By our premises, this is:
-            
+            By our premises, this is:@(linebreak)
             @es[(= (of c K1) (or (of (compile paused) K1) (parens (and (of c S) 0 (of (compile paused) SEL)))) (or (of (compile paused) K1) 0) (of (compile paused) K1))].
                                     
            }
@@ -279,13 +276,12 @@
         let @es[(= c (compile r-pure))].
 
         if
-        @es[(⟶ cs_1 cs_2)],
+        @es[(⇀^c cs_1 cs_2)],
         @es[(≃ (of (compile r-pure) SEL) 0)],
         @es[(binds (compile r-pure) θ)],
         @es[(blocked-pure θr GO E-pure r-pure)], and
-        @es[(all-bot r-pure θ cs_1)]
-        then @es[(all-bot r-pure θ cs_2)]}]{
-  TODO update for new θ.
+        @es[(all-bot r-pure θr cs_1)]
+        then @es[(all-bot r-pure θr cs_2)]}]{
  @cases[#:of (blocked-pure θr GO E-pure r-pure)
         #:language esterel/typeset
         #:induction]{
@@ -334,12 +330,33 @@
   }}
   @#:case[emit-wait]{
   This clause is not possible, as we specified our @es[A] to be @es[GO].}
-  @#:case[suspend]
-  @#:case[trap]
-  @#:case[seq]
-  @#:case[parl]
-  @#:case[parr]
-  @#:case[par-both]
+  @#:case[suspend]{This case follows by a relatively straight forward induction.}
+  @#:case[trap]{This case follows by a relatively straight forward induction.}
+  @#:case[seq]{
+   @[cases
+ #:of/count (L∈ 0 (->K (Can p-pure_i θr))) 2
+ #:language esterel/typeset
+ @#:case[(L¬∈ 0 (->K (Can p-pure_i θr)))]{
+     Let @es[cs_1p] and @es[cs_2p] be the substates
+     that correspond to @es[p-pure] in @es[cs_1] and @es[cs_2] respectively. Let
+     @es[cs_1q] and @es[cs_2q] be defined similarly. 
+     @[sequenced
+       @#:step[can]{By @proof-ref["Can-K-is-sound"],
+             we know that the @es[K0] wire of @es[(compile p-pure_i)]
+             is either currently @es[0] or is @es[⊥] and will eventually
+             step to @es[0].}
+       @#:step[kk]{By @can and @proof-ref["activation-condition"]
+             We know that all wires in the second subcircuit will be @es[⊥] and eventually
+             step to @es[0], or are currently @es[0].}
+       @#:step[ind]{By induction we know that @es[(nc p-pure_i θr cs_p2)].}
+       @#:step[_]{By @kk and @ind we can conclude that @es[(nc p-pure_i θr cs_2)]}]}
+     
+ @#:case[(L∈ 0 (->K (Can p-pure_i θr)))]{
+     This case follows similarly to the previous subcase.}]}
+
+  @#:case[par-both]{This case follows by a relatively straight forward induction.}
+  @#:case[parl]{This case follows by a relatively straight forward induction.}
+  @#:case[parr]{This case follows by a relatively straight forward induction.}
   @#:case[loop^stop #:ignore]
  }
 }

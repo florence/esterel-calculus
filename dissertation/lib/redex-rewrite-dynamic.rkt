@@ -495,6 +495,8 @@
      (curry binop ">")]
     ['<
      (curry binop "<")]
+     ['<== 
+     (curry binop "≤")]
     ['⊆
      (curry binop "⊆")]
     
@@ -1320,6 +1322,10 @@
                 (render-op/instructions
                  (text "E" (non-terminal-style) (default-font-size))
                  `((superscript p))))]
+     ['E-pure+GO (λ ()
+                (render-op/instructions
+                 (text "E" (non-terminal-style) (default-font-size))
+                 `((superscript p) (subscript GO))))]
      ['E-pure-loop (λ ()
                 (render-op/instructions
                  (text "E" (non-terminal-style) (default-font-size))
