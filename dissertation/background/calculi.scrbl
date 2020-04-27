@@ -309,7 +309,7 @@ calculus; however for a calculus to be sound it must be that
 @lam/unchecked[(≃λ e_1 e_2)], but the converse does not need
 to hold.
 
-@section{Summary of Notation}
+@section[#:tag "goawaywarning"]{Summary of Notation}
 @(define (def-t str) (text str (default-style) (default-font-size)))
 @[itemlist
   @item{@lam/unchecked[(name-of-function args ...)]: Metafunction application.}

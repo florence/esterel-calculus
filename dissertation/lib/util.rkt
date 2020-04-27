@@ -276,7 +276,7 @@
           #:tag [key #f]
           #:center? [center? #t]
           . def)
-  (define x
+  (define (x)
     (flatten
      (list
       (list noindent (bold "Definition: "))
@@ -292,8 +292,8 @@
           empty)
       [(if center? centered values) [italic def]]
       pagebreak0)))
-  (when key (hash-set! def-table key x))
-  x)
+  (when key (hash-set! def-table key (x)))
+  (x))
 
 (define (extract-definition str)
   (cond

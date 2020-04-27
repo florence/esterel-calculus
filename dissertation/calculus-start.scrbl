@@ -115,12 +115,16 @@ both branches have completed. This is because @es[par]s acts akin to a fork/join
 of both branches, which gives us determinism in that we cannot observe which branch completes first.
 
 Next up is @es[suspend]:@(linebreak)
-@[render-specific-rules '(suspend)]@(linebreak)
-Which just states that the suspension of a @es[stopped] term is equivalent to just that
-term. Because this @es[⇀] only works within one instant, and @es[suspend]
-has different behaviors on initial versus future instants. This is the only rule
-that touches @es[suspend]. The rest of @es[suspend]'s behavior will be handled by the inter-instant
-translation function @es[next-instant], which is discussed in @secref["sec:calc:future"].
+@[render-specific-rules '(suspend)]@(linebreak) Which just
+states that the suspension of a @es[stopped] term is
+equivalent to just that term. Because this @es[⇀] only works
+within one instant, and @es[suspend] has different behaviors
+on initial versus future instants. This is the only rule
+that touches @es[suspend]. The rest of @es[suspend]'s
+behavior is not handled by these rules, but is rather
+handled by the inter-instant translation function
+@es[next-instant], which is discussed in
+@secref["sec:calc:future"].
 
 
 @subsection{Signal rules}
@@ -159,12 +163,20 @@ map to a subset of signal statuses.f Other parts of the calculus will use full m
                      (present S2 nothing (emit S1))))
               nothing)))]
 
-The control variable @es[A]
-tracks whether or not control has reached this point in the
-program. This control variable is needed because signal
-emissions represent what must happen in the program. However,
-as discussed in @secref["back:esterel:cannot"], this is inherently a non-local property. This can be seen
-through the program in @figure-ref["nc-example"]. This
+The control variable @es[A] tracks whether or not control
+has reached this point in the program. This control variable
+is needed because signal emissions represent what must
+happen in the program. However, as discussed in
+@secref["back:esterel:cannot"], this is inherently a
+non-local property. Therefore we add a new piece to the
+environment, @es[A], which will be @es[GO] if control will
+reach the portion of the program inside the @es[ρ], or @es[WAIT],
+if it might not. In essence this tracks a @es[1] propegating
+through the control edges of the causality graphs discussed
+in @secref["back:esterel:cannot"].
+
+To understand why this is needed in the setting of the calculus specifically, consider the program in
+in @figure-ref["nc-example"]. This
 program has a cycle between the test of @es[S1], the test of @es[S2],
 and the emit of @es[S1]. This cycle cannot be broken, therefore this program is non-constructive:
 evaluation would demand a value for @es[S1] before determining a value for @es[S2], which cannot happen.
@@ -177,7 +189,9 @@ and focus on the fragment
   @es[(signal S2
         (seq (emit S2)
              (present S2 nothing (emit S1))))]]
-it looks like we can @es[emit] the @es[S2], allowing the
+If we live in a world without the control variable @es[A], then we
+must assume that control reaches this part of the program. Therefore
+we can @es[emit] the @es[S2], allowing the
 fragment to reduce to
 @[centered
   @es[(signal S2 nothing)]]
@@ -204,11 +218,14 @@ for Esterel which tracks execution state via three colors: Red (@es[0]/Cannot), 
 makes these colors local, which allows the Red color to be discarded. Green corresponds to @es[GO],
 and Grey corresponds to @es[WAIT].}
 
-The calculus itself will never introduce @es[GO]'s, but rather only propagate them through the program.
-A @es[GO] can only safely be introduced by the evaluator---as it knows the whole program---and, I believe, when
-the whole program is guaranteed to be acyclic. My semantics assumes that @es[GO] is only at the top of
-the program, and therefore while a programmer may add @es[GO] to acyclic programs doing so is not proven
-to be sound.
+The calculus itself will never introduce @es[GO]'s, but
+rather only propagate them through the program. A @es[GO]
+can only safely be introduced by the evaluator---as it knows
+the whole program---and, theoretically, when the whole
+program is guaranteed to be acyclic. However, the calculus
+assumes that @es[GO] is only at the top of the program, and
+therefore while a programmer may choose to add @es[GO] to
+acyclic programs doing, so is not proven to be sound.
 
 To understand why restricted maps @es[θr] are necessary,
 cast your eye back to  @figure-ref["back:lattice"] from @secref["back:esterel:cannot"].

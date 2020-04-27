@@ -37,6 +37,7 @@ that @es[eval^circuit] is a consistent model@note{
  of @citet[constructive-boolean-circuits], assuming that the
  Algabraic semantics they give is equivalent to the reduction
  semantics. This equivalence is given as Theorem 4 from
- @citet[esterel02].} of circuits, therefore if
-@es[eval^esterel] is the same function as @es[eval^circuit]
-composed with the compiler, then it too must be consistent.
+ @citet[esterel02].} of circuits, therefore by
+@proof-ref["comp-ad"], @es[eval^esterel] as the same
+function as @es[eval^circuit] composed with the compiler,
+then it too must be consistent.

@@ -31,6 +31,6 @@ relies heavily on the background given in
 of the properties given in @secref["intro"].
 
 @include-section["justification/setup.scrbl"]
-@include-section["justification/consistent.scrbl"]
 @include-section["justification/soundness.scrbl"]
 @include-section["justification/adequacy.scrbl"]
+@include-section["justification/consistent.scrbl"]

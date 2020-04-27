@@ -19,13 +19,11 @@
 
 @title[#:style paper-title-style  #:tag "just:sound"]{Justifying Soundness}
 
-The formal statement of soundness is:
-
 @proof-splice["soundness"]
 
 The proof is given in the appendix as
 @proof-ref["soundness"]. To pick the statement apart, it
-says that if two terms are @es[≡] then, and those terms have
+says that if two terms are @es[≡], and those terms have
 correct binding, then, when we restrict ourselves to looking at a
 single instant, the compilation of those circuits is
 @es[≃^circuit].

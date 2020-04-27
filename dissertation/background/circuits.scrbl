@@ -32,7 +32,10 @@ circuit for the XOr of two bits. This is implemented
 by taking the Nand of and the Or of the two inputs,
 and Anding the results. The right of
 @figure-ref["circ-overview"] gives an overview of the
-notation I am using, which is fairly standard.
+notation I am using, which is fairly standard. Buffers here do
+not impose a delay, but rather just specify the direction voltage propagates through
+the circuit.
+
 @[begin
  (define (make-xor
           #:input1 [input1 #f]

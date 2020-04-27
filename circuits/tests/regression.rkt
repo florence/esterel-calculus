@@ -7,7 +7,8 @@
          "../compiler.rkt"
          esterel-calculus/redex/test/generator
          esterel-calculus/redex/model/calculus
-         circuitous)
+         circuitous
+         racket/sandbox)
 (define initial-counter-table
   (for/hash ([k (in-list (reduction-relation->rule-names ⟶))]
               #:unless
@@ -18,6 +19,8 @@
         (hash-copy initial-counter-table)))
 (define counter-table
   (hash-copy initial-counter-table))
+
+(define-logger eval-test)
 
 (define (test-term t)
   (for ([x* (in-list (apply-reduction-relation/tag-with-names ⟶ t))])
@@ -44,7 +47,14 @@
         name)))
     (for ([guard? (in-list (list #f #t))]
           [classical? (in-list (list #f #t))])
-      (check t x guard? classical?))))
+      (with-handlers ([(lambda (x) (and (exn:fail:resource? x)
+                                        (memq (exn:fail:resource-resource x)
+                                              '(time memory))))
+                       (lambda (_)
+                         (log-eval-test-warning "timeout")
+                         #t)])
+        (with-limits 120 512
+                     (check t x guard? classical?))))))
 
 (module+ test
   (test-term (term (par nothing pause)))

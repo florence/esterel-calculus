@@ -6,9 +6,13 @@
          esterel-calculus/redex/test/generator
          esterel-calculus/redex/model/calculus
          circuitous
-         esterel-calculus/circuits/tests/regression)
+         esterel-calculus/circuits/tests/regression
+         racket/sandbox)
 
 (define ATTEMPTS 100)
+
+(define-logger eval-test)
+
 
 (define (test-normal iterations)
   (define test-count 0)
