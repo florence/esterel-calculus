@@ -17,8 +17,7 @@
 @proof[#:title "Non-stepping terms are values"
        #:label "step-is-v"
        #:statement
-       @list{For all @es[(= q-pure (ρ θr A p-pure))],
-                     
+       @list{For all @es[(= q-pure (ρ θr A p-pure))],@(linebreak)
         If @es[(closed q-pure)], and
         there does not exists any @es[θr_o] and @es[p-pure_o]
         such that (either

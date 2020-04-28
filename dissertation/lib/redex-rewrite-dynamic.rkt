@@ -534,7 +534,7 @@
      (λ (lws)
        (match lws
          [(list open _ rest ...)
-          (list* open "if0" " " rest)]))]
+          (list* open "if!0" " " rest)]))]
 
     ['Lflatten
      (lambda (lws)

@@ -245,39 +245,9 @@ The two changes to this from the compiler in @citet[esterel02] are the @es[KILL]
 wire including the return codes, and the definition of the @es[LEM] and @es[REM] wires.
 The old compiler broadcasts the @es[KILL] wires directly to the subcircuit.
 In addition it defines @es[(= REM (not (or GO p-SEL)))] (and @es[LEM]
-using @es[q-SEL]). Both of these definitions result in unsoundness under local rewrites
-to the syntax of the program that should hold. Both of these changes were used in the Esterel v7 compiler, however
-they have not yet been published anywhere.
+using @es[q-SEL]). These changes are to handle a violation of soundness, and
+so are discussed in detail  @secref["just:sound:changes"].
 
-The change to the @es[REM] and @es[LEM] wires can be
-explained by noticing that it we expect it to be the case
-that @centered[@es[(≃^esterel (trap (par (exit 0) pause)) nothing)]]
-as this circuit will always abort, and immediately catch the
-@es[exit]. Therefore we want
-@centered[@es[(≃^circuit (compile (trap (par (exit 0) pause))) (compile nothing))]]
-to hold. However in this equivalence did not hold in the
-@citet[esterel02] compiler, specifically in the case where
-@es[(= GO ⊥)]. In that case both @es[LEM] and @es[REM] are
-@es[⊥], causing @es[K2] to be @es[⊥]. However in the circuit
-for @es[nothing], @es[K2] is defined to be @es[0]. The
-Esterel v7 compiler handles this case correctly.
-
-The change to the @es[KILL] wire can be seen by a similar
-example. We expect
-@centered[@es[(≃^esterel (par (exit 2) pause) (exit 2))]] for a similar
-reason as before. As before, this means we want
-@centered[@es[(≃^circuit (compile (par (exit 2) pause)) (compile(exit 2)))]]
-to hold. With the @citet[esterel02] compiler, however, we are free
-to let @es[KILL] be @es[0], even when @es[GO] is @es[1]. This means that in the second
-instant the @es[pause] is selected. However there is no @es[pause] in @es[(exit 2)],
-therefore its @es[SEL] wire must be @es[0]. The new compiler handles this correctly by
-killing the other branch of the @es[par] even if the outer @es[KILL] wire is @es[0].
-
-Note that these two issues both rely on both subcircuits
-being simultaneously active at some point to trigger the change in
-behavior. As @es[par] is the only case where two
-subcircuits can be active simultaneously, this is the only
-case that requires this special care.
 
 The compilation of @es[ρ] follows along similar lines to the
 compilation of @es[signal]: we take one signal at a time out

@@ -184,7 +184,7 @@
 
 
 @proof[#:label "blocked-is-nc"
-       #:title "Block terms are non-constructive"
+       #:title "Blocked terms are non-constructive"
        #:statement @list{
         For all @es[(= r-pure_outer (ρ θr GO r-pure))],
         if @es[(blocked-pure θr GO hole r-pure)], and

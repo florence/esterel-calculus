@@ -80,12 +80,12 @@
     set-var)
    
    ;; if
-   (--> (ρ θr A (in-hole E (if x p q)))
-        (ρ θr A (in-hole E q))
+   (--> (ρ θr GO (in-hole E (if x p q)))
+        (ρ θr GO (in-hole E q))
         (judgment-holds (θ-ref-x-but-also-rvalue-false-is-ok-if-ev-is-zero θr x 0))
         if-false)
-   (--> (ρ θr A (in-hole E (if x p q)))
-        (ρ θr A (in-hole E p))
+   (--> (ρ θr GO (in-hole E (if x p q)))
+        (ρ θr GO (in-hole E p))
         (judgment-holds (L∈ x (Ldom θr)))
         (judgment-holds (¬θ-ref-x-and-also-not-rvalue-false θr x 0))
         if-true)

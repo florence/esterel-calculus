@@ -1171,15 +1171,21 @@
      #:debug? #f #:limits? #f #:external? #t
      #:memory-limits? #f)
 
-    (check-not-exn
-     (lambda ()
-       (relate
-        '((shared s25527978 := (+ 0 0) (shared s25527979 := (+ s25527978 s25527978 s25527978 s25527978 s25527978 23 s25527978 4 s25527978 45 2 s25527978 s25527978 2) (signal S25527980 (var x25527981 := (+ 4) (seq (var x25527982 := (+ 9) (if x25527981 pause (trap nothing))) (suspend (<= s25527978 (+)) SOR)))))) ())
-        '(ρ ((sig S<= unknown) ((sig SOR unknown) ((sig St unknown) ((sig SN3M unknown) ·)))) WAIT (shared s25527978 := (+ 0 0) (shared s25527979 := (+ s25527978 s25527978 s25527978 s25527978 s25527978 23 s25527978 4 s25527978 45 2 s25527978 s25527978 2) (ρ ((sig S25527980 unknown) ((var· x25527981 4) ((var· x25527982 9) ·))) WAIT (seq pause (suspend (<= s25527978 (+)) SOR))))))
-        '(() (SOR) (SOR) () () (SOR) (SOR) () () (SOR) () (SOR) () (SOR) () (SOR) ())
-        '(S<= SOR)
-        '(St SN3M)
-        #:oracle #f)))
+    (execute-test
+     (term (shared s25527978 := (+ 0 0)
+             (shared s25527979 :=
+               (+ s25527978 s25527978 s25527978 s25527978 s25527978 23 s25527978 4 s25527978 45 2 s25527978 s25527978 2)
+               (signal S25527980
+                 (var x25527981 := (+ 4)
+                      (seq
+                       (var x25527982 := (+ 9)
+                            (if x25527981 pause (trap nothing)))
+                       (suspend (<= s25527978 (+)) SOR)))))))
+     '(S<= SOR)
+     '(St SN3M)
+     '(() (SOR) (SOR) () () (SOR) (SOR) () () (SOR) () (SOR) () (SOR) () (SOR) ())
+     #:debug? #f #:limits? #t #:external? #f
+     #:memory-limits? #f)
 
 
     (check-not-exn

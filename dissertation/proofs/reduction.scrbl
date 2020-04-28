@@ -18,7 +18,8 @@ respect to the compilation function.
 @proof[#:label "par-swap"
        #:title "par-swap is sound"
        #:statement
-       @list{As @es[(⇀ (par p-pure q-pure) (par q-pure p-pure))], show that @es[(≃^circuit (compile (par p-pure q-pure)) (compile (par q-pure p-pure)))]}]{
+       @list{For all @es[p-pure] and @es[q-pure],
+        @es[(≃^circuit (compile (par p-pure q-pure)) (compile (par q-pure p-pure)))]}]{
  This can be seen trivally, as the graphs of @es[(compile (par p-pure q-pure))]
  and @es[(compile (par q-pure p-pure))] are symmetric.
 }
@@ -26,7 +27,8 @@ respect to the compilation function.
 @proof[#:label "par-nothing"
        #:title "par-nothing is sound"
        #:statement
-       @list{as @es[(⇀ (par nothing done) done)], show that @es[(≃^circuit (compile (par nothing done)) (compile done))]}]{
+       @list{For all @es[done],
+        @es[(≃^circuit (compile (par nothing done)) (compile done))]}]{
  This proof is given in the notebook [par-done], which actually shows the more general
  
  @es[(≃^circuit (compile (par nothing p-pure)) (compile p-pure))].
@@ -35,7 +37,7 @@ respect to the compilation function.
 @proof[#:label "trap"
        #:title "trap is sound"
        #:statement
-       @list{For all @es[stopped], as @es[(⇀ (trap stopped) (harp stopped))], it must be that
+       @list{For all @es[stopped],
         @es[(≃^circuit (compile (trap stopped)) (compile (harp stopped)))]}]{
  @cases[#:of stopped
         #:language esterel/typeset
@@ -60,7 +62,7 @@ respect to the compilation function.
 @proof[#:label "suspend"
        #:title "suspend is sound"
        #:statement
-       @list{as @es[(⇀ (suspend done S) done)], show that
+       @list{For all @es[done] and @es[S],
         @es[(≃^circuit (compile (suspend done S)) (compile done))]}]{
  This is proved in the [suspend] notebook.
 }
@@ -68,7 +70,7 @@ respect to the compilation function.
 @proof[#:label "seq-done"
        #:title "seq-done is sound"
        #:statement
-       @list{as @es[(⇀ (seq nothing q-pure) q-pure)], show that
+       @list{For all @es[q-pure],
         @es[(≃^circuit (compile (seq nothing q-pure)) (compile q-pure))]}]{
  @es[(compile (seq nothing q-pure))] just connections
  the @es[GO] wire to @es[(of (compile q-pure) GO)],
@@ -79,8 +81,7 @@ respect to the compilation function.
 @proof[#:label "par2-exit"
        #:title "par2-exit is sound"
        #:statement
-       @list{as @es[(⇀ (par (exit n_1) (exit n_2)) (exit (max-mf n_1 n_2)))], show that
-                
+       @list{For all @es[n_1] and @es[n_2],
         @es[(≃^circuit (compile (par (exit n_1) (exit n_2))) (compile (exit (max-mf n_1 n_2))))]}]{
  @cases[#:of/unchecked
  @list{@es[(= n_1 n_2)], @es[(> n_1 n_2)], and @es[(< n_1 n_2)]}
@@ -118,15 +119,15 @@ respect to the compilation function.
 
 @proof[#:label "par1-exit"
        #:title "par1-exit is sound"
-       #:statement @list{as @es[(⇀ (par (exit n) paused) (exit n))], show that
+       #:statement @list{For all @es[n] and @es[paused],
         @es[(≃^circuit (compile (par (exit n) paused)) (compile (exit n)))]}]{
  The proof of this is given in the [par1-exit] notebook.
 }
 
 @proof[#:label "seq-exit"
        #:title "seq-exit is sound"
-       #:statement @list{as @es[(⇀ (seq (exit n) q-pure) (exit n))],
-        if @es[(= (of (compile (seq (exit n) q-pure)) SEL) 0)] then
+       #:statement @list{For all @es[n] and @es[q-pure],
+        if @es[(≃ (of (compile (seq (exit n) q-pure)) SEL) 0)] then
         @es[(≃^circuit (compile (seq (exit n) q-pure)) (compile (exit n)))]}]{
  By @es[(≃ (of (compile (seq (exit n) q-pure)) SEL) 0)], it must be that
  @es[(≃ (of (compile q-pure) SEL) 0)]. Thus by @proof-ref["activation-condition"]
@@ -139,8 +140,7 @@ respect to the compilation function.
 
 @proof[#:label "signal"
        #:title "signal is sound"
-       #:statement @list{as @es[(⇀ (signal S p-pure) (ρ (mtθ+S S unknown) WAIT p-pure))], show that
-                            
+       #:statement @list{For all @es[S] and @es[p-pure],
         @es[(≃^circuit (compile (signal S p-pure)) (compile (ρ (mtθ+S S unknown) WAIT p-pure)))]}]{
  @es[(compile (signal S p-pure))] connects the input and output @es[S] wires to each other,
  and passes @es[GO] along unchanged. @es[(compile (ρ (mtθ+S S unknown) WAIT p-pure))] does the
@@ -149,9 +149,7 @@ respect to the compilation function.
 
 @proof[#:label "emit"
        #:title "Emit is sound"
-       #:statement @list{For all @es[(= r-pure (ρ θr GO (in-hole E-pure (emit S))))], as@(linebreak)
-        @es[(⇀ (ρ θr GO (in-hole E-pure (emit S))) (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E-pure nothing)))]
-        it must be that@(linebreak)
+       #:statement @list{For all @es[(= r-pure (ρ θr GO (in-hole E-pure (emit S))))],@(linebreak)
         @es[(≃^circuit (compile (ρ θr GO (in-hole E-pure (emit S)))) (compile (ρ (parens (<- θr (mtθ+S S present))) GO (in-hole E-pure nothing))))]}]{
  @cases[#:of E-pure
         #:language esterel/typeset
@@ -176,9 +174,9 @@ respect to the compilation function.
 @proof[#:label "is-present"
        #:title "is-present is sound"
        #:statement
-       @list{as @es[(⇀ (ρ θ A (in-hole E-pure (present S p-pure q-pure))) (ρ θ A (in-hole E-pure p-pure)))]
+       @list{For all @es[(= r-pure (ρ θ A (in-hole E-pure (present S p-pure q-pure))))],@(linebreak)
         if @es[(≃ (of (compile (ρ θ A (in-hole E-pure (present S p-pure q-pure)))) SEL) 0)]
-        and @es[(θ-ref-S θ S present)], show that
+        and @es[(θ-ref-S θ S present)] then,@(linebreak)
         @es[(≃^circuit (compile (ρ θ A (in-hole E-pure (present S p-pure q-pure)))) (compile (ρ θ A (in-hole E-pure p-pure))))]}]{
  As @es[(compile θ)] will force the @es[Si] wire to be @es[1],
  by @proof-ref["S-maintains-across-E"] we know that
@@ -194,10 +192,9 @@ respect to the compilation function.
        #:statement
        @list{
         For all @es[(= r-pure (ρ θ A (in-hole E-pure (present S p-pure q-pure))))],@(linebreak)
-        as @es[(⇀ (ρ θ A (in-hole E-pure (present S p-pure q-pure))) (ρ θ A (in-hole E-pure q-pure)))]@(linebreak)
-        when @es[(θ-ref-S θ S unknown)]@(linebreak)
-        and @es[(L¬∈ S (->S (Can-θ (ρ θ A (in-hole E-pure (present S p-pure q-pure))) ·)))],@(linebreak)
-        if @es[(≃ (of (compile (ρ θ A (in-hole E-pure (present S p-pure q-pure)))) SEL) 0)],@(linebreak)
+        if @es[(θ-ref-S θ S unknown)],@(linebreak)
+        @es[(L¬∈ S (->S (Can-θ (ρ θ A (in-hole E-pure (present S p-pure q-pure))) ·)))] and,@(linebreak)
+        @es[(≃ (of (compile (ρ θ A (in-hole E-pure (present S p-pure q-pure)))) SEL) 0)],@(linebreak)
         then@(linebreak)
         @es[(≃^circuit (compile (ρ θ A (in-hole E-pure (present S p-pure q-pure)))) (compile (ρ θ A (in-hole E-pure q-pure))))]}]{
 
@@ -231,10 +228,9 @@ respect to the compilation function.
 @proof[#:label "merge"
        #:title "merge is sound"
        #:statement
-       @list{as @es[(⇀ (ρ θr_1 A_1 (in-hole E-pure (ρ θr_2 A_2 p-pure))) (ρ (<- θr_1 θr_2) A_1 (in-hole E-pure p-pure)))],]
-                when @es[(A->= A_1 A_2)], show that
-        if @es[(CB (ρ θr_1 A_1 (in-hole E-pure (ρ θr_2 A_2 p-pure))))] then
-                
+       @list{For all @es[(= r-pure (ρ θr_1 A_1 (in-hole E-pure (ρ θr_2 A_2 p-pure))))]
+        if @es[(A->= A_1 A_2)] and
+        @es[(CB (ρ θr_1 A_1 (in-hole E-pure (ρ θr_2 A_2 p-pure))))] then@(linebreak)        
         @es[(≃^circuit (compile (ρ θr_1 A_1 (in-hole E-pure (ρ θr_2 A_2 p-pure)))) (compile (ρ (<- θr_1 θr_2) A_1 (in-hole E-pure p-pure))))]}]{
  This is a direct consequence of @proof-ref["can-lift"] and @proof-ref["immediate-merge"].
 }

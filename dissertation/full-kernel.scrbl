@@ -207,9 +207,10 @@ because Esterel doesn't directly provide guarantees about
 concurrency with host language variables, the new value just
 replaces the old one in the environment.
 
-We can condition on host language variables using the common @es[if0] form:@(linebreak)
+We can condition on host language variables using the @es[if!0] form:@(linebreak)
 @[render-specific-rules '(if-true if-false)]@(linebreak)
-Which behaves like one would expect from an @es[if0] rule.
+Which, for this model, behaves like C's @es[if], treating @es[0] as false
+and everything else as true.
 
 Note that these rules assume that host language expressions
 @es[e] cannot have side effects which modify the environment

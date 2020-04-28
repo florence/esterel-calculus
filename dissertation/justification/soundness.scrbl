@@ -33,15 +33,15 @@ equality relation @es[≡]. Thus, the majority of the work in
 the proof goes into showing that it holds for each rule of
 @es[⇀]. Each rule in @es[⇀] is proved sound, in
 general, by induction on @es[p-pure].
-The bases cases have concrete circuits, so in general
-the bases cases are proven by the circuit solver.
+The base cases have concrete circuits, so in general
+the base cases are proven by the circuit solver.
 
-@section[#:tag "just:sound:lemma"]{Important lemma's}
+@section[#:tag "just:sound:lemma"]{Important lemmas}
 
 This section will discuss the proof sketches of the most interesting or
-informative lemma's needed to prove soundness of the various
-rules of @es[⇀]. Many of the lemma's are trivial or uninformative, and so will not be discussed here.
-The interested reader may seem them in appendices A.2 and A.3.
+informative lemmas needed to prove soundness of the various
+rules of @es[⇀]. Many of the lemmas are trivial or uninformative, and so will not be discussed here.
+The interested reader can find them in appendices A.2 and A.3.
 
 A first informative proof to look at is the proof that @rule["trap"] is sound:
 @proof-splice["trap"]
@@ -60,7 +60,7 @@ We can also see that these two are the same if we draw out the circuits on paper
 The last case is @es[(= stopped (exit n))].
 In this case we do cases on @es[harp].
 In the first of these cases we have @es[(= stopped (exit 0))], we have a concrete circuit, and so can use the solver again.
-In the last case we have @es[(= stopped (exit n))], where @es[(< n 0)]. Again if we draw
+In the last case we have @es[(= stopped (exit n))], where @es[(> n 0)]. Again if we draw
 this out we find that we get the exact same graph.
 
 The next proof of interest is the proof that @rule["emit"] is sound.
@@ -74,19 +74,19 @@ rather trivial: when @es[(= E-pure hole)] the two circuits
 look identical, as the @es[1] from the @es[GO] wire is
 directly connected to the @es[S] wire. The inductive case is
 more interesting: the proof uses the idea that evaluation
-contexts correspond exactly to the set of contexts such that
+contexts obey the property that
 in @es[(compile (in-hole E-pure p-pure))], the @es[GO] and
 signal wires from the top of the term are passed, unchanged,
 to the subcircuit for @es[(compile p-pure)]. This is stated formally with these two
-lemma's:
+lemmas:
 @proof-splice["S-maintains-across-E"]
 @proof-splice["GO-maintains-across-E"]
 
-The full proof of which are given, in
+The full proofs of which are given in
 @proof-ref["S-maintains-across-E"] and
-@proof-ref["GO-maintains-across-E"]. Both lemma's follow
+@proof-ref["GO-maintains-across-E"]. Both lemmas follow
 directly by induction on @es[E-pure] and the definition of
-@es[compile]. These two lemma's together give that the
+@es[compile]. These two lemmas together give that the
 inputs of the subcircuit are unchanged by the context. The remainder of the
 inductive case for @proof-ref["emit"] follows from the notion that the @es[So] wires are always
 or'ed with each other, therefore a @es[1] in any subterm
@@ -142,14 +142,64 @@ inductive hypothesis to show that the goal signal is also
 codes. Thus we use an auxiliary lemma to reason about
 those codes:
 @proof-splice["Can-K-is-sound"]
-
-Which is similar to @proof-ref["Can-S-is-sound"], except that it
+This lemma is similar to @proof-ref["Can-S-is-sound"], except that it
 tells us which return code wires must be @es[0]. The proof
 of which is essentially the same as @proof-ref["Can-S-is-sound"].
 
 These two lemmas also have counterparts for @es[Can-θ]:
 @proof-splice["Can-rho-S-is-sound"]
 @proof-splice["Can-rho-K-is-sound"]
-
 However as @es[Can-θ] is essentially just repeated applications of the @es[signal]
 case of @es[Can], these proofs are relatively uninteresting.
+
+@section[#:tag "just:sound:changes" "Change the compiler for Soundness"]
+
+The compiler used here differs from the compiler in @citet[esterel02].
+Specifically the changes are the @es[KILL]
+wire including the return codes, and the definition of the @es[LEM] and @es[REM] wires.
+The old compiler broadcasts the @es[KILL] wires directly to the subcircuit.
+Both of these definitions result in unsoundness under local rewrites
+to the syntax of the program that should hold. Both of these changes were used in the Esterel v7 compiler, however
+they have not yet been published anywhere.@note{The changes and
+ come from personal communication with @|gerard|.}
+
+The change to the @es[REM] and @es[LEM] wires can be
+explained by noticing that we expect
+@centered[@es[(≃^esterel (trap (par (exit 0) pause)) nothing)]]
+as this circuit will always abort, and immediately catch the
+@es[exit]. Therefore we want
+@centered[@es[(≃^circuit (compile (trap (par (exit 0) pause))) (compile nothing))]]
+to hold. However in this equivalence did not hold in the
+@citet[esterel02] compiler, specifically in the case where
+@es[(= GO ⊥)]. In that case both @es[LEM] and @es[REM] are
+@es[⊥], causing @es[K2] to be @es[⊥]. However in the circuit
+for @es[nothing], @es[K2] is defined to be @es[0]. The
+Esterel v7 compiler handles this case correctly.
+
+The change to the @es[KILL] wire can be seen by a similar
+example. We expect
+@centered[@es[(≃^esterel (par (exit 2) pause) (exit 2))]] for a similar
+reason as before. As before, this means we want
+@centered[@es[(≃^circuit (compile (par (exit 2) pause)) (compile (exit 2)))]]
+to hold. With the @citet[esterel02] compiler, however, we are free
+to let @es[KILL] be @es[0], even when @es[GO] is @es[1]. This means that in the second
+instant the @es[pause] is selected. However there is no @es[pause] in @es[(exit 2)],
+therefore its @es[SEL] wire must be @es[0]. The new compiler handles this correctly by
+killing the other branch of the @es[par] even if the outer @es[KILL] wire is @es[0].
+
+Note that these two issues both rely on both subcircuits
+being simultaneously active at some point to trigger the change in
+behavior. As @es[par] is the only case where two
+subcircuits can be active simultaneously, this is the only
+case that requires this special care.
+
+It should be noted that equality violations above do not
+constitute a bug in actual Esterel compiler implementations. In
+actual compilers, if @es[GO] is @es[⊥], then the program
+raise an error and the different in wire states cannot be
+observed. In addition if an exit code is raised, then the
+@es[KILL] wire will be set, as full programs must be closed
+and therefore an external @es[trap] will catch the code and
+set the @es[KILL] wire. Therefore, behaviorally at least,
+the changes used here should not effect an actual Esterel
+implementation.

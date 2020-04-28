@@ -34,7 +34,7 @@
 
  This dissertation provides the first semantics for Esterel
  which captures all of the above facets, while still describing
- Constructivity: A Constructive Calculus for Esterel.
+ Constructivity.
 
 }
 

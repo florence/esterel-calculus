@@ -22,7 +22,9 @@ for the ground-truth semantics:
 The full proof can be found at @proof-ref["comp-ad"]. The first premise of this theorem
 requires that the program be @es[closed], as the evaluator is only really meant to work on full programs.
 However @es[closed] here is slightly different from the usual definition, because it restricts
-programs to those which will also generate closed circuits which will execute their first instant. Which is to say:
+programs to those which will also generate closed circuits which will execute their first instant.
+Formally, a program is @es[closed] if it is a @es[ρ] term with the control variable @es[GO],
+and it has no free variables:
 
 @extract-definition["closed"]
 
@@ -30,8 +32,9 @@ By setting @es[A] to @es[GO] we force the @es[GO] wire in
 the compilation to be @es[1], which causes the circuit to
 execute its first instant. The next premise is the usual
 statement that we are only observing the first instant of
-execution. The final clause states that the output signals and
-constructivity from the two evaluators are the same.
+execution. The conclusion of the proof states that the
+output signals and constructivity from the two evaluators
+are the same.
 
 @;TODO index ⟶^r
 
@@ -49,11 +52,11 @@ is the compatible closure of every other rule.@note{The @tt{S} stands for ``swap
 state theorem about these canonical forms like so:
 @proof-splice["step-is-v"]
 
-The full proof is in @proof-ref["step-is-v"] To unpack this: The proof stays when there are no
-environments or terms such that the given term @es[q-pure]
-either takes a step in @es[⟶^r], or if @es[q-pure] takes a
-step in @es[⟶^s], then that term cannot take a step either,
-then @es[q-pure] must be one of our canonical forms. We only
+The full proof is in @proof-ref["step-is-v"]. To unpack this:
+The proof states that canonical forms are forms which both
+cannot step by @es[⟶^r] and if they step by @es[⟶^s], then
+the resulting form also cannot step by @es[⟶^r].
+We only
 need to check for one step of @es[⟶^s], because if multiple @es[⟶^s] could uncover
 a reduction in @es[⟶^r], then there would exist some term which would be one step @es[⟶^s] away
 from a @es[⟶^r] reduction which would violate the lemma. The negative existential in this
@@ -61,7 +64,7 @@ would make it very tricky to prove. However, we are in luck: everything used in 
 is decidable. Therefore this is proved by proving it's contrapositive:
 @proof-splice["nv-must-step"]
 
-The full proof of this is at @proof-ref["nv-must-step"].
+The full proof can be found at @proof-ref["nv-must-step"].
 This proof states that if a term is not one of our canonical
 forms, then it must be able to either take a step in
 @es[⟶^r], or step by @es[⟶^s] then by @es[⟶^r]. The proof
@@ -81,18 +84,27 @@ term can take. Because it is strictly decreasing and gives
 back a non-negative number, we must eventually reach a case
 where no more @es[⟶^r] steps can be taken. Whats more its
 easy to show that @es[⟶^s] does not change the count,
-therefore the overall relation is strongly canonicalizing.
+therefore there always exists a finite reduction path to
+one of these canonical forms.
+Therefore the overall relation is strongly canonicalizing.@note{This is why I refer to this
+as strongly canonicalizing, rather than strongly normalizing. There exist infinite reduction
+paths for any canonical term which contains a @es[par], therefore no normal form exists, and
+we technically obtain a class of canonical forms which are equal up to @es[par] branch order rather
+than a true normal form.}
 This proof follows by induction on the
 structure of @es[⟶^r]. The grammar term @es[p-pure+GO] is
 like @es[p-pure], but it accepts a @es[GO] at the top of the
 term (as full programs have exactly one @es[GO], at the
 top).
 
-Now that we have show that there exist canonical forms, the
-next step in proving adequacy is to show that these two canonical
-forms give back the same signal set. Fortunately this
-follows fairly directly from soundness, as we know that our
-canonical forms are @es[≡] to the original term.
+Now that we have show that there exist canonical forms, we
+know that every closed pure Esterel term is @es[≡^esterel]
+to one of these forms, and therefore @es[eval^esterel] is
+defined on it. The next step in proving adequacy is to show
+that these two canonical forms give back the same signal
+set. Fortunately this follows fairly directly from
+soundness, as we know that our canonical forms are @es[≡] to
+the original term.
 
 The final step is to show that the two types of canonical
 forms map exactly to constructive and non-constructive
@@ -100,8 +112,8 @@ circuits respectively. The simpler of these is:
 @proof-splice["e-v-is-c-v"]
 
 Which is proved fully in @proof-ref["done-is-constructive"].
-Note that we have the premise that
-@es[(complete-with-respect-to θr done)] for free, by the
+Note that the premise
+@es[(complete-with-respect-to θr done)] always holds, by the
 proof @es[canₛ-done] from the Agda code base which states
 that the result of @es/unchecked[(->S Can)] on any @es[done] is empty.
 The premises about the control wires are given by the
@@ -124,15 +136,20 @@ assuming @es[GO] is @es[⊥], @es[Can] is perfectly adequate
 to describe evaluation:
 @proof-splice["adequacy-of-can"]
 
-The full proof is in @proof-ref["adequacy-of-can"]. To unpack: If we are
-given some term @es[r-pure], and two circuit states @es[cs_1] and @es[cs_2]
-such that both circuit states are states of the compilation of @es[r-pure], and
-@es[cs_1] steps to @es[cs_2], and we know about the signals of @es[(compile r-pure)]
-via @es[θ], and we know that the @es[GO] wire of @es[cs_1] is currently bottom, then
-the invariant @es[all-bot] is preserved. The invariant @es[all-bot] (@figure-ref["nc1"]) is formed of three judgments.
-The first of these, @es[all-bot-S], tracks that for any signal in @es/unchecked[(->S Can)] which is currently @es[⊥] in
-@es[θ], the wires for that signal are also currently @es[⊥] in the circuit state. The second,
-@es[all-bot-κ] says the same, but for @es/unchecked[(->K Can)], return codes, and their wires.
+The full proof is in @proof-ref["adequacy-of-can"]. To
+unpack: If we are given some term @es[r-pure], and two
+circuit states @es[cs_1] and @es[cs_2] such that both
+circuit states are states of the compilation of @es[r-pure],
+and @es[cs_1] steps to @es[cs_2], and we know about the
+signals of @es[(compile r-pure)] via @es[θ], and we know
+that the @es[GO] wire of @es[cs_1] is currently bottom, then
+the invariant @es[all-bot] is preserved. The invariant
+@es[all-bot] (@figure-ref["nc1"]) is formed of three
+judgments. The first of these, @es[all-bot-S],any signal
+wire is currently @es[⊥] if it is both
+@es/unchecked[(->S Can)] and is @es[⊥] in @es[θ]. The
+second, @es[all-bot-κ] says the same, but for
+@es/unchecked[(->K Can)], return codes, and their wires.
 
 @figure["nc1"
         @list{The smaller judgments for @es[all-bot]}

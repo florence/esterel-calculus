@@ -80,27 +80,27 @@ term is analogous to a value in other languages. A @es[stopped] is analogous
 to a primitive value (e.g. a number), in that it is atomic, and contains
 no future behaviors. A @es[paused] term is analogous to a @es[λ] term
 in the @es[λ]-calculus in that it is a value which is awaiting input, and once
-that input is received it can continue reducing. The major difference
-between @es[paused] and @es[λ] is that @es[paused] can only receive
-its awaited signals in the next instant.
+that input is received it can continue reducing. A @es[paused] term, unlike @es[λ],
+cannot be immediately be given inputs by the program---rather its inputs are provided
+by the outer context in the next instant.
 
 
-The first two rules deal with sequencing:@(linebreak)
-@[render-specific-rules '(seq-done seq-exit)]@(linebreak)
+The first two rules deal with sequencing:
+@[centered [render-specific-rules '(seq-done seq-exit)]]
 The first rule reduces to the second part of the sequence when the first
 part has completed and will not preempt the whole sequence. The second rule
 preempts the sequence when the first part reduces to an @es[exit], by discarding
 the second part of the @es[seq] and reducing to the @es[exit].
 
-The next rule handles @es[traps]:@(linebreak)
-@[render-specific-rules '(trap)]@(linebreak)
+The next rule handles @es[traps]:
+@[centered [render-specific-rules '(trap)]]
 This rule reduces when the inner program can reduce no more, via the metafunction:
 @[centered (with-paper-rewriters (render-metafunction harp #:contract? #t))]
 which will decrement a @es[exit] by one, unless the @es[exit] is bound by this trap,
 in which case it reduces to @es[nothing], allowing execution to continue from this point.
 
-The next rules handle @es[par]:@(linebreak)
-@[render-specific-rules '(par-swap par-nothing par-1exit par-2exit)]@(linebreak)
+The next rules handle @es[par]:
+@[centered [render-specific-rules '(par-swap par-nothing par-1exit par-2exit)]]
 The first rule swaps the two branches of a @es[par]. This rule is useful for exposing redexes
 to the next three rules.
 The second rule allows a @es[par] to reduce to its second branch when it is @es[done]
@@ -114,8 +114,9 @@ It should be noted that all of the @es[par] administrative reductions only take 
 both branches have completed. This is because @es[par]s acts akin to a fork/join, synchronizing the results
 of both branches, which gives us determinism in that we cannot observe which branch completes first.
 
-Next up is @es[suspend]:@(linebreak)
-@[render-specific-rules '(suspend)]@(linebreak) Which just
+Next up is @es[suspend]:
+@[centered [render-specific-rules '(suspend)]]
+Which just
 states that the suspension of a @es[stopped] term is
 equivalent to just that term. Because this @es[⇀] only works
 within one instant, and @es[suspend] has different behaviors
@@ -256,8 +257,8 @@ emitted). This is a manifestation of the asymmetry
 between @italic{must} and @italic{can}.
 
 
-A small example of how environments work can be seen in the rule:@(linebreak)
-@[render-specific-rules '(signal)]@(linebreak)
+A small example of how environments work can be seen in the rule:
+@[centered [render-specific-rules '(signal)]]
 which transforms a signal into a local environment. The map in this environment
 contains only the signal, mapped to @es[unknown], representing that we do not
 yet know its value. The control variable is set to @es[WAIT] as we cannot know if this
@@ -273,21 +274,21 @@ in this case the evaluation contexts can decompose non-deterministically because
 @[centered lang/eval]
 
 With these in hand we can now look at the next three rules. Firstly, local environments
-may be merged together if they are within an evaluation context of each other:@(linebreak)
-@[render-specific-rules '(merge)]@(linebreak)
+may be merged together if they are within an evaluation context of each other:
+@[centered [render-specific-rules '(merge)]]
 This merge overwrites bindings in the outer map with the inner one. In addition this merge may
 only happen if it would not expose the outer environment to more control information
 that it had before. That is, @es[(A->= GO WAIT)]. So the merge will happen if the outer environment has
 a @es[GO], or if both environments have a @es[WAIT].
 
 Next we may emit a signal when that signal is in an evaluation context relative to its
-binder, and when we know control will reach this point in the program:@(linebreak)
-@[render-specific-rules '(emit)]@(linebreak)
+binder, and when we know control will reach this point in the program:
+@[centered [render-specific-rules '(emit)]]
 Emission is accomplished by updating the environment to map @es[S] to @es[present], and
 replacing the emit with @es[nothing].
 
-Once there is a @es[present] in the environment we may reduce to the then branch of a conditional:@(linebreak)
-@[render-specific-rules '(is-present)]@(linebreak)
+Once there is a @es[present] in the environment we may reduce to the then branch of a conditional:
+@[centered [render-specific-rules '(is-present)]]
 These @rule["emit"] and @rule["is-present"] rules together describe how the calculus handles
 signals that @italic{must} be emitted. The handling of signals that @italic{cannot} be emitted
 requires a different mechanism altogether.
@@ -336,7 +337,7 @@ contraction. This because it only temporarily records a signal @es[S] as @es[0] 
 if @es[S] cannot be emitted, therefore it cannot enter the contradictory corner
 of @figure-ref["back:lattice"].
 
-While I will explain this version of @es[Can] here, a much
+While I explain this version of @es[Can] here, a much
 more detailed explanation can be found in chapters 4 and 5
 of @cite/title[compiling-esterel], from which this version
 of @es[Can] is adapted.
@@ -410,8 +411,8 @@ that the bound variables are not removed from the resulting
         Canθ-pict]
 
 We can understand why this is by looking at the rule which
-uses @es[Can-θ]:@(linebreak)
-@[render-specific-rules '(is-absent)]@(linebreak) This rule
+uses @es[Can-θ]:
+@[centered [render-specific-rules '(is-absent)]] This rule
 says that we may take the else branch of an @es[if] only when
 the signal is bound in an environment in a relative
 evaluation context to the conditional, an the signal cannot

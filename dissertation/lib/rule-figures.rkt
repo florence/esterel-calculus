@@ -122,10 +122,12 @@
          (rule-pict-info->side-condition-pict info (- full-width side-conditions-inset)))
        (vl-append main-part
                   (hbl-append #;(blank 20 0) sc-pict))]))
-  (ht-append
-   3
-   (ltl-superimpose rule-label (blank max-rule-name-width 0))
-   rule+sc))
+  (inset
+   (ht-append
+    3
+    (ltl-superimpose rule-label (blank max-rule-name-width 0))
+    rule+sc)
+   0 0 0 -5))
 
 (define calculus-side-condition-beside-rules
   (set 'is-present

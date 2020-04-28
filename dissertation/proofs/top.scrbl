@@ -77,7 +77,7 @@ which in this case is essentially a corollary of
        #:statement @list{
         For all @es[p-pure], @es[O],
         if @es[(closed p-pure+GO)] and @es[(≃ (of (compile p-pure+GO) SEL) 0)]
-        then
+        then@(linebreak)
         @es/unchecked[(= (eval^esterel O p-pure+GO) (tup θ bool))] if and only if
         @es[(= (eval^circuit O (compile p-pure+GO)) (tup θ bool))]}
        #:interpretation @list{This theorem states that the calculus
