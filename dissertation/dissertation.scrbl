@@ -4,7 +4,7 @@
           "lib/util.rkt"
           "lib/proofs.rkt"
           "lib/cite.rkt"
-          (only-in scribble/core style))
+          (only-in scribble/core style make-style make-part))
 
 @title[#:style paper-title-style]{A Constructive Calculus for Esterel}
 
@@ -49,6 +49,15 @@
  TODO actually write these
 
 }
+
+@(define (index-section #:title [title "Index"] #:tag [tag #f])
+   (make-part #f
+              `((part ,(or tag "doc-index")))
+              (list title)
+              (make-style #f '(unnumbered))
+              null
+              (list (index-block))
+              null))
 
 @table-of-contents[]
 @include-section["intro.scrbl"]

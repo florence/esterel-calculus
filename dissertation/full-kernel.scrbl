@@ -210,7 +210,9 @@ replaces the old one in the environment.
 We can condition on host language variables using the @es[if!0] form:@(linebreak)
 @[render-specific-rules '(if-true if-false)]@(linebreak)
 Which, for this model, behaves like C's @es[if], treating @es[0] as false
-and everything else as true.
+and everything else as true. These rules requires the control variable to be
+@es[GO] as well, as picking a branch of the @es[if!0] might break existing
+causality cycles, and therefore change the constructivity of the program.
 
 Note that these rules assume that host language expressions
 @es[e] cannot have side effects which modify the environment

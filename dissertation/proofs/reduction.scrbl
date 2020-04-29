@@ -83,9 +83,13 @@ respect to the compilation function.
        #:statement
        @list{For all @es[n_1] and @es[n_2],
         @es[(≃^circuit (compile (par (exit n_1) (exit n_2))) (compile (exit (max-mf n_1 n_2))))]}]{
- @cases[#:of/unchecked
+ @cases[#:of/count
  @list{@es[(= n_1 n_2)], @es[(> n_1 n_2)], and @es[(< n_1 n_2)]}
- @#:case[@es[(= n_1 n_2)]]{
+ 
+ 3
+ #:litteral
+ #:simple-cases
+ @#:case[(= n_1 n_2)]{
    @cases[#:of nat_1
           #:induction
           #:checks 20
@@ -99,7 +103,7 @@ respect to the compilation function.
               that we have a synchronizer of the same shape as
               in the previous subcase. Thus the remainder of this
               proof proceeds in the same way.}]}
- @#:case[@es[(> n_1 n_2)]]{
+ @#:case[(> n_1 n_2)]{
    @cases[#:of nat_2
           #:induction
           #:checks 20
@@ -112,7 +116,7 @@ respect to the compilation function.
               must be zero as there are no corresponding @es[ln] or
               @es[rn] wires. From this point
               we can use analogous reasoning to the previous subcase.}]}
- @#:case[@es[(< n_1 n_2)]]{ This case analogous to the
+ @#:case[(< n_1 n_2)]{ This case analogous to the
    previous case, as the synchronizer (and @es[par]) are
    symmetric.}]
 }

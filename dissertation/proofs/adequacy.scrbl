@@ -121,7 +121,7 @@ This section contains the various lemma's needed for proving Adequacy of @es[eva
     @#:step[outer]{for any @es[r].
      @es[(= (count (ρ θr_1 A_1 (in-hole E-pure+GO r))) (count (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E-pure+GO r-pure+GO))))], by the definition of @es[count].}
     @#:step[eq]{By @outer on @es[p], @es[(= (count (ρ θr_1 A_1 (in-hole E p-pure+GO))) (count (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E p-pure+GO))))].}
-    @#:step[_]{By @eq, @inner, and @proof-ref["cannibalize-compatible-closure"],
+    @#:step[_]{By @eq, @inner, and @proof-ref["cannibalize-compatible-closure"],@(linebreak)
      @es[(> (count (ρ θr_1 A_1 (in-hole E-pure+GO (ρ θr_2 A_2 p-pure+GO)))) (ρ (parens (<- θr_1 θr_2)) A_1 (in-hole E-pure+GO p-pure+GO)))]
   }}}
 
