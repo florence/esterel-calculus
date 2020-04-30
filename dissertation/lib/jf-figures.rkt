@@ -69,33 +69,8 @@
 
 (define CB-pict
   (with-paper-rewriters
-   (rt-superimpose
-    (vr-append
-     5
-     (frame (inset (vl-append
-                    5
-                    (vl-append
-                     (hbl-append
-                      (es BV)
-                      (words " : ")
-                      (es p)
-                      (words " → (Setof «var»)"))
-                     (hbl-append
-                      (es/unchecked FV)
-                      (words " : ")
-                      (es p)
-                      (words " → (Setof «var»)")))
-                    (indent
-                     (vl-append (words "Computes the bound and")
-                                (words "free variables, respectively.")
-                                (words "The variables include signals,")
-                                (words "shared variables and")
-                                (words "sequential variables."))))
-                   6 4 4 6)))
-    (inset 
-     (with-layout CB-layout #:v-append vl-append
-       (λ () (render-judgment-form CB)))
-     0 0 0 0))))
+   (with-layout CB-layout #:v-append vl-append
+                (λ () (render-judgment-form CB)))))
 
 (define CB-loop-pict
   (with-paper-rewriters

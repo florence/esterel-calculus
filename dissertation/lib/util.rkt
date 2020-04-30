@@ -97,8 +97,10 @@
 (define newline (element 'newline '()))
 (define nobreak (element 'no-break '()))
 (define nopagebreak (element "nopagebreak" '()))
+(define (pagebreak n)
+  (element (style #f '(exact-chars)) (format "\\pagebreak[~a]" n)))
 (define pagebreak0
-  (element (style #f '(exact-chars)) "\\pagebreak[0]"))
+  (pagebreak 0))
 
 (define (latex-lit name #:extras [extras empty] . args)
   (element (style name (cons 'exact-chars extras)) args))
@@ -279,6 +281,7 @@
   (define (x)
     (flatten
      (list
+      (pagebreak 3)
       (list noindent (bold "Definition: "))
       (index-as idx (flatten notation))
       (list nopagebreak noindent)
@@ -291,7 +294,7 @@
            (list nopagebreak noindent))
           empty)
       [(if center? centered values) [italic def]]
-      pagebreak0)))
+      (pagebreak 3))))
   (when key (hash-set! def-table key (x)))
   (x))
 
