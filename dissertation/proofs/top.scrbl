@@ -21,7 +21,9 @@ informative theorems are
 @proof-ref["e-v-is-c-v"], and @proof-ref["adequacy-of-can"].
 The theorem for consistency is @proof-ref["consistent"],
 which in this case is essentially a corollary of
-@proof-ref["comp-ad"].
+@proof-ref["comp-ad"]. Some proofs are proved using Circuitous in
+Jypter notebooks using the Racket kernel: https://github.com/rmculpepper/iracket.
+These Notebooks may be found in the repository for this Dissertation.
 
 
 @proof[#:label "soundness"
