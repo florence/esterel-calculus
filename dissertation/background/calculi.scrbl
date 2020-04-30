@@ -83,7 +83,7 @@ The notions of reduction for @lam[λ_v] are:
 
 The left most part of each line is the rule name. Then comes
 a pattern which describes what goes on the left of the
-relation, what we might think of as its ``input'': functiond
+relation, what we might think of as its ``input'': functions
 applied to a value for @rule['β_v], and primitive constants
 applied to many values for @rule['δ]. On the right is a
 pattern which describes what is on the right of the relation, what
@@ -106,6 +106,26 @@ The relation @lam[⇀λ] is called the notions of reduction because
 each clause of @lam[⇀λ] is some atomic step in evaluating the program.
 Since @lam[λ_v] only contains functions, the only rules in @lam[⇀λ]
 handle function application.
+
+
+@section{Alpha Equivalence}
+
+Not all rules may be computationally relevant, but may instead simply describe
+equivalences we wish to hold. For example, a common rule in the @es[λ]-calculus
+in @rule['α]:
+@(centered
+  (with-paper-rewriters
+   (with-continuation-mark 'current-reduction-arrow 'lambda
+     (parameterize ([render-reduction-relation-rules #f]
+                    [rule-pict-style (render-rules 'λ
+                                                   ⇀α
+                                                   `(("" α))
+                                                   calculus-side-condition-beside-rules)])
+       (render-reduction-relation ⇀α)))))
+This rule describes consistent renaming of terms: one term may step to another if
+we replace a bound variable with a new name that is not free in the term. We can think
+of this rule as describing the renaming refactoring found in IDEs. Two terms
+which can step to each other via only the @rule['α] rule are said to be alpha equivalent.
 
 @section{Equality relation}
 
