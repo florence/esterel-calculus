@@ -41,12 +41,22 @@
 @para[#:style (style "acknowledgements" '())]{
 
  These acknowledgements can by no means be complete.
- Completing a PhD is a challenging prospect, and so to
- complete them would be to create a list of names akin to
- book 3 of the Illiad, and no one wants that. So here are
- some highlights.
+ Completing a PhD is a challenging prospect, and so to list
+ every name would be to create a list of names akin to book 3
+ of the Illiad, and no one wants that. So here are some
+ highlights.
 
- TODO actually write these
+ A huge thanks to my advisor, Robby, who stuck with me as
+ through this long process. Thank you, Vincent, for providing
+ advice, a sounding board, and a sympathetic ear during these
+ last five years. Thank you, Dan, for making the lab so much
+ more fun to hang out in. Thank you, Ethan, for all the
+ fascinating conversations.
+
+ Thank you, Wendy, Ryan, Jonathan, Teresa, Pranav, for being
+ such steadfast friends through all of this, and for giving
+ me an escape when it was needed.
+ 
 
 }
 
