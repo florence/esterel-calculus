@@ -145,7 +145,7 @@ which give an equality relation for Esterel programs, which they call
 the Axiomatic Semantics. Of all the semantics presented so
 far, these axioms are the closest to the goal that I have. As a set of
 axioms over programs it is local and syntactic. However it
-is built from fundamentally different techniques,@note{For instance,
+is built from fundamentally different techniques,@note{For instance, their
  notion of equality is based on bisimulation, whereas mine is based on
  contextual equivalence.} and it is not adequate to define an evaluator for Esterel.
 This is because it cannot reason about @es[emit]s, as it lacks the control
@@ -159,12 +159,11 @@ powerful reasoning framework. This semantics only handles Pure Esterel.
 
 What I am calling the color semantics is an as-yet unpublished semantics by Lionel Rieg.
 It is a microstep semantics which replaces both Must and Can
-with colors that propagate throughout the program. This
-propagation is designed to be close to how @es[1] and @es[0]
-propagate through circuits. The control variable of this
-calculus are based off of these Colors.
-The Color semantics is syntactic and adequate. However it does
-not allow for local transformations. This semantics only handles Pure Esterel.
+with colors that propagate throughout the program, mimicking how @es[1] and @es[0]
+propagate through circuits. The control variables of the constructive
+calculus are based off this.
+The Color semantics is syntactic and adequate, but does
+not allow for local transformations. This semantics handles only  Pure Esterel.
 
 @subsection["Quartz"]
 
@@ -200,7 +199,7 @@ and allowed internal wires to take on any value.
 The Constructive Calculus for Esterel draws heavily from the State
 Calculus@~cite[felleisen-hieb]---specifically in the usage
 of local maps and evaluation contexts@~cite[felleisen-friedman]
-to track the state of program variables locally.
+to track the state locally.
 
 This calculus is the second draft, the first introduced in @citet[florence-2019].
 That calculus, however, was not constructive, as it allowed for local

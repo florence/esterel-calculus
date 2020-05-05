@@ -70,7 +70,7 @@
 
 (define CB-pict
   (with-paper-rewriters
-   (with-layout CB-layout #:v-append vl-append
+   (with-layout CB-layout
                 (λ () (render-judgment-form CB)))))
 
 (define CB-loop-pict
@@ -111,11 +111,13 @@
 
 
 (define all-bot-rec-layout
-  '(("nothing" "exit" "emit" "pause" )
+  '(("nothing" "exit")
+    ("emit" "pause")
     ("trap" "suspend")
     ("if-0" "if-1")
     ("if-⊥")
-    ("seq-¬0" "seq-0")
+    ("seq-¬0")
+    ("seq-0")
     ("par")
     ("signal-0" "signal-⊥")
     ("ρ-{}")

@@ -9,7 +9,8 @@
           (only-in "../notations.scrbl")
           (only-in scribble/manual racket)
           scriblib/figure
-          racket/match)
+          racket/match
+          "../lib/jf-figures.rkt")
 
 @title[#:style paper-title-style #:tag "just:adequacy"]{Justifying Adequacy}
 
@@ -170,8 +171,7 @@ corresponding to the given subterm.
 
 @figure["nc2"
         @list{The recursive judgment part of @es[all-bot]}
-        (list
-        @extract-definition["nc-r"])]
+        @all-bot-rec-pict]
 
 At it's core the proof of @proof-ref["adequacy-of-can"]
 holds because all return code and signal wires are and'ed

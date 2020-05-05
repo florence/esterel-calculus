@@ -32,16 +32,15 @@
     (hbl-append term (es =))
     (hc-append (blank 10)
                pict)))]
-@definition[#:notation (hbl-append (es (compile p-pure)) (es ⟶) (es circuit))
+@definition[#:notation (es (compile p-pure))
             #:index @es[compile]
             #:tag "compile"
             #:center? #f]{
-
+ @(linebreak)
  @add-between[(for/list ([c1 (in-list compile-def)])
                 (match-define (list _ t c p) c1)
                 (index-as (pict+tag c t) (clausef c p)))
-              (element 'newline '())]
-
+              (linebreak)]
 }
 
 @definition[#:notation @es[(binds (compile p-pure) θ)]
@@ -87,12 +86,12 @@
 @definition[#:notation @list{@es[p-pure], @es[q-pure]}
             #:index @es[p-pure]
             lang/pure]
-
+@(element "newpage" '())
 @definition[#:notation @es[(⇀ p q)]
             #:index @es[⇀]]{
  @reduction-relation-pict
 }
-
+@(element "newpage" '())
 @definition[#:notation @es[(⟶ p q)]
             #:index @es[⟶]]{
  The compatible closure of @es[⇀].
@@ -104,11 +103,10 @@
 }
 
 @definition[
- #:notation @list{@es/unchecked[(eval^esterel O p)] @es[⟶] @es[(tup θ bool)]}
- #:index @es[eval^esterel]
- #:read-as @list{Evaluate the program @es[p] using the output signals @es[O].}]{
+ #:notation @list{@es/unchecked[(eval^esterel O p)]}
+ #:index @es[eval^esterel]]{
 
- @with-paper-rewriters[@render-metafunction[eval^esterel]]
+ @with-paper-rewriters[@render-metafunction[eval^esterel #:contract? #t]]
 
 }
 
@@ -126,14 +124,12 @@
       [hbl-append [es (θ-get-S (restrict θ O p) S)] @es[=]]
       b2
       x])}
-
+@(element "newpage" '())
 @definition[#:notation @es[(blocked-pure θr A E-pure p-pure)]
-            #:index @es[blocked-pure]
-            #:read-as @list{The term @es[p] cannot reduce (is blocked)
-             in the context @es[(ρ θr A (in-hole E-pure p-pure))]}]{
+            #:index @es[blocked-pure]]{
  @pure-blocked-pict
 }
-
+@(element "newpage" '())
 
 @definition[#:notation @es[(Can p θ)]
             #:index @es[Can]]{
@@ -195,6 +191,7 @@
  @[with-paper-rewriters @[render-judgment-form all-bot-S]]
 }
 
+
 @definition[#:notation @es[(all-bot-n p-pure θ cs)]
             #:index @es[all-bot-n]
             #:tag "nc-κ"]{
@@ -209,7 +206,7 @@
  corresponding to the subterm @es[q-pure].
  
 }
-
+@(element "newpage" '())
 @definition[#:notation @es[(all-bot-rec p-pure θ cs)]
             #:index @es[all-bot-rec]
             #:tag "nc-r"]{
@@ -229,6 +226,6 @@
 @definition[#:notation @es[(leftmost* θr A p E_1 E_2)]]{
  @leftmost*-pict
 }
-
+@(element "newpage" '())
 @definition[#:notation @es[(CB p)]
             CB-pict]

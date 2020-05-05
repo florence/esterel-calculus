@@ -38,8 +38,7 @@ parts are only supported by testing and prior work.
 
 @section{Loops}
 
-The calculus handles loops with two new administrative rules. However to handle loops
-we must add a new form to Kernel Esterel:
+The calculus handles loops with two new administrative rules, which rely on the new form:
 @centered[lang/loop]
 This new form, @es[loop^stop] represents a loop which has been unrolled once.
 To understand its usage, the loop rules are:
@@ -57,20 +56,19 @@ aborting the loop if its body @es[exit]s.
 
 @subsection{Loops and Can}
 
-@figure["fig:cl" "Can and Loops" Can-loop-pict]
-
-To handle loops we must add two clauses to @es[Can](@figure-ref["fig:cl"]). which just behave as their bodies.
+To handle loops we must add two clauses below, which both behave as their bodies do.
 In the case of @es[loop^stop] the right hand side, which is the loops original body,
 is not analyzed as it @italic{cannot} be reached in this instant.
+
+@[centered Can-loop-pict]
 
 @subsection{Loops and Blocked}
 
 As adding loops adds a new evaluation context, the blocked
-relation must be extended to handle it, seen in
-@figure-ref["fig:lblock"]. This extension treats
+relation must be extended to handle it. This extension, listed below, treats
 @es[loop^stop] the same as @es[seq].
 
-@figure["fig:lblock" "Extending Blocked for Loops" loop-blocked-pict]
+@[centered loop-blocked-pict]
 
 @subsection[#:tag "sec:calc:loop:cb"]{Loops and Correct Binding}
 
@@ -110,7 +108,6 @@ make @es[eval^esterel] also not defined on such programs.
 
 There are two reasons I have left loops out of my proofs,
 both of which relate to difficulties in stating the theorems correctly.
-
 Firstly there is a subtle difference in how the compiler
 and the evaluator handle instantaneous loops. The compiler
 requires that all loops be checked statically to ensure
@@ -257,7 +254,7 @@ be written to by the full program.
 
 @subsection{Host language and Correct Binding}
 
-The extensions to correct binding for the host language, seen in @figure-ref["fix:bh"], 
+The extensions to @es[correct-binding] for the host language (@figure-ref["fix:bh"])
 only require that all subforms have correct binding.
 
 @[figure "fix:bh" "Correct Binding and the host language" CB-host-pict]
@@ -293,21 +290,20 @@ The function is defined in @figure-ref["calc:eval:next"].
 
 @figure["calc:eval:next" "The inter-instant transition function" @extract-definition["next-instant"]]
 
-This function walks down the structure of the program
-updating it so that it will unpause, if possible. The first
+This function walks down the program
+updating it so that it will unpause, replacing every
+@es[pause] which is an evaluation context with respect to the given term with
+@es[nothing], allowing the program to resume from those points.
+In addition, the first
 clause uses the metafunction @es[reset-θ], which takes an
 environment and sets the status of every signal to
 @es[unknown], and the status of every shared variable to
-@es[old]. The second clause replaces a @es[pause] with a
-@es[nothing], causing execution to resume from that point.
+@es[old].
 
-All but two of the remaining clauses simply recur down the
-structure of evaluation contexts. The exceptions are
-@es[loop^stop] and @es[suspend]. @es[loop^stop] is replaced
-by the traditional unfolding of a loop, because in the next
-instant the body of the loop that was executing is allowed
-to terminate, restarting the loop.
-
+The metafunction @es[next-instant] also modifies the forms
+@es[loop^stop] and @es[suspend]. A @es[loop^stop] is replaced
+with the traditional unfolding of a loop, because in the next
+instant the loop is allowed to restart.
 The @es[suspend] transformation is more complex. We want a
 term which entered a @es[suspend] to pause in that suspend
 if the given signal is @es[present] in the next instant.
@@ -407,8 +403,8 @@ To do this, I provide the following:
 
           @item{@itemlistheader{Racket Frontend} The actual
            execution of this Redex model of the calculus is embedded
-           into Racket, and therefore may use Racket expression as its
-           host language expressions, in addition to the numeric
+           into Racket, and may use Racket as its
+           host language in addition to the numeric
            language the calculus comes equipped with. There is also a
            Racket frontend compiler which compiles Full Esterel into
            the Kernel used by the Redex model with the extensions to
@@ -423,14 +419,12 @@ To do this, I provide the following:
            compiler form a subset of Hiphop.js to the Redex model of the calculus,
            allowing many of the Hiphop.js tests be run directly against the calculus. This translator does not accept
            all Hiphop.js programs, because Hiphop.js programs embed
-           JavaScript code as the Redex model cannot evaluate the
-           JavaScript.}
+           JavaScript code which the Redex model cannot evaluate.}
           @item{@itemlistheader{Redex/@|Esterel\ v5| bridge}
-           There is also built a translator that produces @|Esterel\ v5| programs
-           from Redex terms.}
+           We also built a translator from Redex terms to @|Esterel\ v5| programs.}
           @item{@itemlistheader{Redex circuit compiler}
            Finally I have built a compiler from pure Esterel (with loops)
-           to circuits, which runs on top of the circuit library Circuitous.}]
+           to circuits, which runs on top of the circuit solver.}]
 
 
 I have run @(~a impure-test-count) random tests which on Full

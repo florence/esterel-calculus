@@ -131,7 +131,8 @@
 
 (define calculus-side-condition-beside-rules
   (set 'is-present
-       'if-true 'if-false))
+       'parr 'parl 'loop
+       'if-false))
 
 (define calculus-rule-groups
   '(("signals" signal emit is-present is-absent)
@@ -145,10 +146,10 @@
     ("loop" loop loop^stop-exit)))
 
 (define standard-side-condition-beside-rules
-  (set 'merge 'seq-done 'seq-exit 'trap
-       'is-present 'is-absent 'suspend
-       'parl 'parr 'if-true 'if-false
-       'signal 'loop 'loop^stop-exit))
+  (set 'seq-done 'seq-exit 'trap 'parr 'parl 'loop
+       'is-present 'suspend
+       'parl 'parr 'if-false 'trap
+       'loop 'loop^stop-exit))
 
 (define reduction-relation-pict
   (with-paper-rewriters
@@ -173,7 +174,7 @@
                                      ("par" parr parl)
                                      ("" suspend)
                                      ("loop" loop loop^stop-exit))
-                                   calculus-side-condition-beside-rules)])
+                                   standard-side-condition-beside-rules)])
        (render-reduction-relation S:R)))))
 
 (define (render-specific-rules r)

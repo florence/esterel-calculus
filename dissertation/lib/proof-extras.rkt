@@ -23,7 +23,7 @@
          ≃^circuit
          ≃^esterel
          ⟶^r
-         closing-contexts
+         input-contexts
          ⟶^s
          ⇀2
          DR
@@ -365,8 +365,8 @@
    (⇀j p q string)])
 
 (define-metafunction esterel/typeset
-  closing-contexts : L-S -> L-C
-  [(closing-contexts _) (L1set hole)])
+  input-contexts : L-S -> L-C
+  [(input-contexts _) (L1set hole)])
  
 
    
