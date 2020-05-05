@@ -63,7 +63,7 @@ it describes the interpreter implementation at commit
 @tt[commit] of https://github.com/florence/circuitous/,
 which is the version used while building this document. Note
 that the explanation of this section assumes more
-familiarity with @citet[malik-circuit], @citet[constructive-boolean-circuits], and
+familiarity with @citet[malik-circuit], @citet[shiple-constructive-circuit], and
 Racket@~cite[plt-tr1], Rosette@~cite[rosette] than the rest of this dissertation.
 
 The purpose of this appendix is help make this work more
@@ -73,7 +73,7 @@ focus on the small (approximately 600 lines) Rosette kernel which directly inter
 and solves circuits and its tests. The library has contains
 more: a Racket front-end which compiles to the Rosette model,
 and helper procedure for manipulating circuits. However
-those will not be described here.
+those are not described here.
 
 @section{Internal representation of circuits}
 
@@ -111,7 +111,7 @@ modules. As such, a unit which implements one of these representations
 follows the following signature in @figure-ref["sem-sig"]. In the
 comments which describe the contracts on what the modules provide,
 @racket[symbolic-boolean] refers to a Rosette symbolic value which
-evaluates to a boolean, @es[state] refers to the library's representation of
+evaluates to a boolean, @racket[state] refers to the library's representation of
 @es[cs], @racket[value] refers to whichever set of values that representation
 chooses, and @racket[circuit] refers to whichever for of association lists the
 representation uses.
@@ -138,12 +138,13 @@ and @racket[initialize-to-true] create a state for a
 @es[0] or @es[1], respectively;
 @racket[get-maximal-statespace] computes the totally number
 of instants that may be needed to explore all possible
-register states given the number of registers in the circuit, a la @citet[constructive-boolean-circuits];
+register states given the number of registers in the circuit, a la @citet[shiple-constructive-circuit];
 @racket[interp-bound] computes the maximum number of
 iterations that may be needed to evaluate a circuit in a
 single instant; @racket[outputs=?] is an equality predicate over
 states; @racket[constructive-constraints] computes an expression
-which will evaluate to true if and only if the circuit is constructive.
+which will evaluate to true if and only if the circuit is constructive
+on the given inputs.
 
 @section{The circuit solver}
 
@@ -161,7 +162,7 @@ the inputs and outputs of registers, and constraints the
 caller wishes to impose, and a list of outputs to observe.
 If the list of outputs is @racket[#f], all wires are
 considered outputs. If the registers are set to @racket[#f],
-no registers are taken an a slightly different code path is
+no registers are taken and a slightly different code path is
 taken that bypasses the multi-instant solver and jumps
 straight to the single instant solver. This is only used for
 testing and debugging, therefore I will not describe that
@@ -223,7 +224,7 @@ The real implementation is in @racket[verify/f], found in
    @note{The
   equality check for @racket[#t] is needed because racket
   treats any non-@racket[#f] value as @racket[#t]. If any of
-  these procedures returns a boolean value, such as
+  these procedures returns a non-Boolean value, such as
   @racket['⊥] in the case of the @tt{three-valued}
   representation, we want to treat that as not true.})
  (define unsat-note @note{
@@ -294,14 +295,14 @@ The top level function of the circuit interpreter is @racket[eval/multi*]
 (@figure-ref["eval/multi*"]), which is responsible for
 constructing the interpreters representation of the circuit.
 It's first argument is the list of inputs for each instant, it's second is the
-circuit equations, and the last are the input/output pairs of wire names for the registers.
-@note{Not that the circuit interpreter works on both concrete and symbolic inputs. This is the joy of
+circuit equations, and the last are the input/output pairs of wire names for the registers.@note{Note
+ that the circuit interpreter works on both concrete and symbolic inputs. This is the joy of
 using Rosette.} The @racket[eval/multi*] function delegates to the @racket[eval/multi] function,
 which operates on the internal circuit representation. It's arguments are
 the starting state for each instant, which is the inputs appended to
 an initial wire state computed by @racket[build-state];
 the internal circuit representation list which maps each wire name to a function of the
-current state to a value) is constructed by @racket[build-formala];
+current state to a value) is constructed by @racket[build-formula];
 the list of wires which are inputs to registers, and a substate that corresponds
 to the initial state of the outputs of the registers, which must be in the
 same order as the inputs. This initial state has all registers set to false.
@@ -455,14 +456,14 @@ does not have that wire we treat it's value as @racket[#f].
 
 @subsection{The pos-neg representation}
 
-The @tt{pos-neg} representation is a little more subtle. As
-there are two formula for each wire, but the two formula are
-mutually exclusive, the @racket[interp-bound]
+The @tt{pos-neg} representation is a little more subtle.
+There are two formula for each wire, but the two formula are
+mutually exclusive, therefore the @racket[interp-bound]
 (@figure-ref["pn:interp-bound"]) is half of the size of
 overall number of formula. The @racket[get-maximal-statespace]
 (@figure-ref["pn:get-maximal-statespace"]) function also
 halves it's inputs to account for the exclusivity of the
-positive an negative representations, giving gives @tt{
+positive an negative representations, giving @tt{
  2}@superscript{@tt{x/2}}.
 
 @[pn-def-fig interp-bound]
@@ -471,8 +472,8 @@ positive an negative representations, giving gives @tt{
 Constructivity
 checking(@figure-ref["pn:constructive?"] and
 @figure-ref["pn:constructive-constraints"]) also changes. When
-the positive variant of each wire is found the an expression
-is added insisting that either the positive or negative
+the positive variant of each wire is found , an expression
+is added to the constraints insisting that either the positive or negative
 variant be true. To avoid adding redundant expressions, the negative
 variant is skipped.
 
