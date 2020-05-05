@@ -226,7 +226,7 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
        #:statement
        @list{For any term and environment @es[p-pure] and @es[θ] and any return code @es[κ],
         if @es[(binds (compile p-pure) θ)],
-        @es[(L¬∈ κ (->K (Can p-pure θ)))], and
+        @es[(L¬∈ κ (->K (Can p-pure θ)))], and@(linebreak)
         @es[(≃ (of (compile p-pure) SEL) 0)],
         then
         @es[(≃ (of (compile p-pure) (K κ)) 0)]}
@@ -400,8 +400,8 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
        #:statement
        @list{For any term and environment @es[p-pure] and @es[θ] and @es[A], and return code @es[κ]
         if
-        @es[(L¬∈ κ (->K (Can-θ (ρ θr A p-pure) ·)))]
-        and @es[(≃ (of (compile (ρ θr A p-pure)) SEL) 0)]
+        @es[(L¬∈ κ (->K (Can-θ (ρ θr A p-pure) ·)))],@(linebreak)
+        and @es[(≃ (of (compile (ρ θr A p-pure)) SEL) 0)], then
         
         @es[(≃ (of (compile (ρ θr A p-pure)) (K κ)) 0)]}
        #:interpretation

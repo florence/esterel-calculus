@@ -229,3 +229,6 @@
 @definition[#:notation @es[(leftmost* θr A p E_1 E_2)]]{
  @leftmost*-pict
 }
+
+@definition[#:notation @es[(CB p)]
+            CB-pict]

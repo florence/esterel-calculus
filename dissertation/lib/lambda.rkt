@@ -7,6 +7,7 @@
          (for-syntax syntax/parse)
          ppict/pict
          "util.rkt"
+         esterel-calculus/redex/model/lset
          esterel-calculus/dissertation/lib/redex-rewrite)
 
 
@@ -104,6 +105,14 @@
    λ_v 
    (--> ((λ x e) v) (subst e x v) β_v)
    (--> (const v ...) (δ* const v ...) δ)))
+
+(define ⇀α
+  (reduction-relation
+   λ_v
+   (--> (λ x e) (λ x_2 (subst e x x_2))
+        (where/hidden x_2 z) 
+        (judgment-holds (L¬∈ x_2 (FV e)))
+        α)))
 
 (define-metafunction λ_σ
   mtθ+x : x v -> θ
