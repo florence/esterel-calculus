@@ -1,121 +1,155 @@
 running test 100
-has been running for 41 seconds
+has been running for 32 seconds
 '#hash(("emit" . 0)
        ("is-absent" . 0)
        ("is-present" . 0)
-       ("loop" . 0)
+       ("loop" . 1)
        ("loop^stop-exit" . 0)
        ("merge" . 0)
        ("par-1exit" . 0)
        ("par-2exit" . 0)
        ("par-nothing" . 13)
-       ("par-swap" . 15)
-       ("seq-done" . 25)
+       ("par-swap" . 16)
+       ("seq-done" . 24)
        ("seq-exit" . 0)
-       ("signal" . 1)
+       ("signal" . 0)
        ("suspend" . 0)
        ("trap" . 0))
 running test 200
-has been running for 1001 seconds
+has been running for 2165 seconds
 '#hash(("emit" . 0)
        ("is-absent" . 0)
-       ("is-present" . 0)
-       ("loop" . 4)
+       ("is-present" . 1)
+       ("loop" . 12)
        ("loop^stop-exit" . 0)
        ("merge" . 11)
-       ("par-1exit" . 0)
-       ("par-2exit" . 0)
-       ("par-nothing" . 21)
-       ("par-swap" . 40)
-       ("seq-done" . 40)
-       ("seq-exit" . 16)
-       ("signal" . 20)
-       ("suspend" . 1)
-       ("trap" . 0))
-running test 300
-has been running for 2128 seconds
-'#hash(("emit" . 0)
-       ("is-absent" . 0)
-       ("is-present" . 0)
-       ("loop" . 15)
-       ("loop^stop-exit" . 0)
-       ("merge" . 22)
        ("par-1exit" . 1)
        ("par-2exit" . 0)
+       ("par-nothing" . 21)
+       ("par-swap" . 57)
+       ("seq-done" . 30)
+       ("seq-exit" . 8)
+       ("signal" . 6)
+       ("suspend" . 4)
+       ("trap" . 1))
+running test 300
+has been running for 3700 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 0)
+       ("is-present" . 1)
+       ("loop" . 16)
+       ("loop^stop-exit" . 0)
+       ("merge" . 24)
+       ("par-1exit" . 1)
+       ("par-2exit" . 1)
        ("par-nothing" . 28)
-       ("par-swap" . 74)
-       ("seq-done" . 47)
-       ("seq-exit" . 18)
-       ("signal" . 36)
-       ("suspend" . 3)
+       ("par-swap" . 98)
+       ("seq-done" . 36)
+       ("seq-exit" . 8)
+       ("signal" . 25)
+       ("suspend" . 11)
        ("trap" . 2))
 running test 400
-has been running for 5775 seconds
+has been running for 5477 seconds
 '#hash(("emit" . 0)
-       ("is-absent" . 0)
-       ("is-present" . 0)
-       ("loop" . 27)
+       ("is-absent" . 1)
+       ("is-present" . 1)
+       ("loop" . 22)
        ("loop^stop-exit" . 0)
-       ("merge" . 41)
-       ("par-1exit" . 2)
-       ("par-2exit" . 0)
-       ("par-nothing" . 32)
-       ("par-swap" . 110)
-       ("seq-done" . 55)
-       ("seq-exit" . 21)
-       ("signal" . 52)
-       ("suspend" . 6)
+       ("merge" . 38)
+       ("par-1exit" . 1)
+       ("par-2exit" . 1)
+       ("par-nothing" . 35)
+       ("par-swap" . 138)
+       ("seq-done" . 41)
+       ("seq-exit" . 9)
+       ("signal" . 38)
+       ("suspend" . 16)
        ("trap" . 4))
 running test 500
-has been running for 7363 seconds
+has been running for 6518 seconds
 '#hash(("emit" . 0)
-       ("is-absent" . 0)
+       ("is-absent" . 1)
        ("is-present" . 1)
-       ("loop" . 30)
+       ("loop" . 28)
        ("loop^stop-exit" . 0)
-       ("merge" . 56)
-       ("par-1exit" . 3)
-       ("par-2exit" . 0)
+       ("merge" . 54)
+       ("par-1exit" . 1)
+       ("par-2exit" . 1)
        ("par-nothing" . 41)
-       ("par-swap" . 152)
-       ("seq-done" . 58)
-       ("seq-exit" . 25)
-       ("signal" . 60)
-       ("suspend" . 8)
-       ("trap" . 8))
+       ("par-swap" . 164)
+       ("seq-done" . 42)
+       ("seq-exit" . 10)
+       ("signal" . 54)
+       ("suspend" . 20)
+       ("trap" . 6))
 running test 600
-has been running for 13272 seconds
+has been running for 9168 seconds
 '#hash(("emit" . 0)
-       ("is-absent" . 0)
+       ("is-absent" . 1)
        ("is-present" . 1)
-       ("loop" . 40)
+       ("loop" . 38)
        ("loop^stop-exit" . 0)
-       ("merge" . 68)
-       ("par-1exit" . 3)
-       ("par-2exit" . 0)
-       ("par-nothing" . 50)
-       ("par-swap" . 192)
-       ("seq-done" . 61)
-       ("seq-exit" . 26)
-       ("signal" . 76)
-       ("suspend" . 14)
+       ("merge" . 65)
+       ("par-1exit" . 1)
+       ("par-2exit" . 1)
+       ("par-nothing" . 47)
+       ("par-swap" . 198)
+       ("seq-done" . 46)
+       ("seq-exit" . 10)
+       ("signal" . 79)
+       ("suspend" . 22)
+       ("trap" . 7))
+running test 700
+has been running for 15436 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 2)
+       ("is-present" . 1)
+       ("loop" . 49)
+       ("loop^stop-exit" . 0)
+       ("merge" . 88)
+       ("par-1exit" . 5)
+       ("par-2exit" . 1)
+       ("par-nothing" . 51)
+       ("par-swap" . 240)
+       ("seq-done" . 50)
+       ("seq-exit" . 11)
+       ("signal" . 98)
+       ("suspend" . 27)
        ("trap" . 13))
+running test 800
+has been running for 48956 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 2)
+       ("is-present" . 2)
+       ("loop" . 56)
+       ("loop^stop-exit" . 0)
+       ("merge" . 110)
+       ("par-1exit" . 6)
+       ("par-2exit" . 1)
+       ("par-nothing" . 55)
+       ("par-swap" . 297)
+       ("seq-done" . 58)
+       ("seq-exit" . 15)
+       ("signal" . 131)
+       ("suspend" . 36)
+       ("trap" . 19))
 user break
   context...:
-   /Users/florence/dissertation-tests/circuitous/circuitous-lib/circuitous/private/shared.rkt:7:0: deref
-   /Users/florence/dissertation-tests/circuitous/circuitous-lib/circuitous/private/interp-unit.rkt:38:5
-   loop
-   [repeats 53 more times]
-   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/adt/list.rkt:119:9: @map
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/core/term.rkt:80:0: make-const
+   /Users/florence/dissertation-tests/circuitous/circuitous-lib/circuitous/private/three-valued-unit.rkt:70:2: symbolic-boolean
+   ...form/control.rkt:30:25
    ...form/control.rkt:31:25
    [repeats 1 more time]
+   ...se/core/bool.rkt:311:25
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/core/bool.rkt:304:0: evaluate-with-asserts
+   /Users/florence/dissertation-tests/circuitous/circuitous-lib/circuitous/private/interp-unit.rkt:117:2: verify-same/multi
+   ...cket/sandbox.rkt:456:30
+   /Users/florence/dissertation-tests/Racket/share/pkgs/sandbox-lib/racket/sandbox.rkt:412:0: call-with-limits
+   /Users/florence/dissertation-tests/esterel-calculus/circuits/tests/regression.rkt:48:4: for-loop
+   /Users/florence/dissertation-tests/esterel-calculus/circuits/tests/regression.rkt:26:2: for-loop
+   /Users/florence/dissertation-tests/esterel-calculus/circuits/tests/regression.rkt:25:0: test-term
    .../more-scheme.rkt:261:28
-   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/form/control.rkt:33:0: branch-and-merge
-   .../more-scheme.rkt:261:28
-   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/form/control.rkt:33:0: branch-and-merge
-   .../more-scheme.rkt:261:28
-   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/form/control.rkt:33:0: branch-and-merge
-   .../more-scheme.rkt:261:28
-   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/form/control.rkt:33:0: branch-and-merge
-   .../more-scheme.rkt:261:28
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:455:2: loop
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/generate-term.rkt:423:0: check-one
    ...
