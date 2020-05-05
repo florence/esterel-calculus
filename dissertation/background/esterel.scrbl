@@ -5,7 +5,7 @@
           "../lib/proofs.rkt"
           "../lib/cite.rkt"
           "../lib/misc-figures.rkt"
-          esterel-calculus/redex/model/deps
+          (submod esterel-calculus/redex/model/deps redex)
           esterel-calculus/dissertation/lib/pict
           scriblib/figure
           pict/code
@@ -55,7 +55,7 @@ here refers just this fragment of Esterel only contain
 Esterel terms, without reference to a host language, not
 to a fragment of Esterel without state.
 
-@bold{Instants} Esterel divides computation in instants.
+@bold{Instants.} Esterel divides computation into instants.
 Each instant begins in response to some external stimuli,
 and each instant is atomic with respect to the outside world: its inputs
 may not change, nor may its outputs or internal state be
@@ -80,7 +80,7 @@ external-only view time is what gives ``instants'' their
 name. We think of every computation in Esterel taking zero
 time, and so the entire instant completes in zero time.
 
-@bold{Signals} Signals, declared with @es[(signal S p)],
+@bold{Signals.} Signals, declared with @es[(signal S p)],
 give local broadcast communication channels which carry one
 bit of information: if the signal is present or absent. A signal
 may only have one value in a single instant. 
@@ -98,7 +98,7 @@ emitted and @italic{cannot} be emitted in the current
 instant. The exact meaning of cannot is discussed in
 @secref[ "back:esterel:cannot"].
 
-@bold{Composition} Esterel terms can either be composed
+@bold{Composition.} Esterel terms can either be composed
 concurrently---@es[(par p q)]---or
 sequentially---@es[(seq p q)]. @es[seq] behaves, more or
 less, like the sequential composition from familiar
@@ -106,7 +106,7 @@ languages. @es[par] is akin to a fork/join construct: it
 determines the state of both of its branches and only
 finishes execution if they both have.
 
-@bold{Pausing} The @es[pause] form tells the program to stop the
+@bold{Pausing.} The @es[pause] form tells the program to stop the
 instant at that point, and resume from that point in the next
 instant. If both branches of a @es[par] pause, the next
 instant resumes at both, concurrently. Another way to see
@@ -114,7 +114,7 @@ this is that @es[pause] is the only expression in Esterel
 which takes time, and it always takes exactly one unit of
 time.
 
-@bold{Non-local control flow} There are two forms of
+@bold{Non-local control flow.} There are two forms of
 non-local control in Esterel. The first is a form of named,
 upward jumps, in the form of @es[(trap p)] and
 @es[(exit n)]. The @es[(exit n)] jumps to the @es[n]th
@@ -141,7 +141,7 @@ the instant would resume in @es[p], it only resumes when
 @es[S] is absent. If @es[S] is present, then the whole form
 pauses, and continues in the next instant (following the same rules).
 
-@bold{Loops} The final construct in Pure Esterel is
+@bold{Loops.} The final construct in Pure Esterel is
 @es[(loop p)]. It continually repeats @es[p] in an infinite
 loop. However, because signals can only take on one value
 per instant in Esterel, any loop which both begins and ends
@@ -156,8 +156,7 @@ Reincarnated and Schizophrenic variables are a problem
 related to improper handling of variables and loops in
 Esterel semantics, particularly when compiling to circuits.
 Chapter 12 of @cite/title[esterel02] goes into this in
-detail. Here I will only give a cursory overview of this
-issue.
+detail. This section gives only a cursory overview.
 
 @as-index{Reincarnation} occurs when loop which contains
 the declaration of a variable or signal completes execution
@@ -176,13 +175,13 @@ ensure that there are, in fact, two distinct variables.
 @section["The host language and Esterel"]
 
 The last line of the grammar
-at the start of @secref["background-esterel"] (@es[shared] through @es[if0]) extends Pure Esterel with forms
+at the start of @secref["background-esterel"] (@es[shared] through @es[if!0]) extends Pure Esterel with forms
 which can track values, in addition to Boolean signals.
 
-However Esterel does not have any notion of value: Instead
+However Esterel does not have any notion of value: instead
 it borrows the outside world's notion of value. That is,
 Esterel is meant to be embedded in another programming
-language. That language controls when instants in
+language. This host language controls when instants in
 Esterel run, and communicates with Esterel using Esterel's
 signals and is own values. In turn, values in Esterel
 are computed using the host language's expressions, which may refer to variables bound by Esterel.
@@ -193,7 +192,8 @@ variables. They are declared and initialized by the
 @es[(var x := e p)] form, and written to with the
 @es[(:= x e)] form. Kernel Esterel also includes another conditional
 form @es[(if x p q)], which conditions on the host languages
-notion of truth. To maintain deterministic concurrency
+notion of truth---which for purposes of this model
+will be akin to C's Booleans, with @es[0] begin false. To maintain deterministic concurrency
 these variables must be used in a way where
 concurrent updates are not observable: for example
 by never using them in multiple branches of an @es[par].
@@ -223,7 +223,7 @@ uses the same mechanism as determining absence for a signal.@note{In fact,
  Kernel Esterel value carrying signals are represented as a
  signal paired with a shared variable.}
 
-In the calculus I present here, I will assume a host language
+For simplicity's sake, the Constructive Calculus assumes a host language
 which always use the combination function @es[+], and that
 the host language only contains numerical literals, and the operations
 @es[+] and @es[-].
@@ -543,7 +543,7 @@ state. The lower left is never realized.
 Every edge in the program graph begins in the corner of the
 chart labeled @es[⊥], representing that it could be
 executed, but might not be. As we execute the program, any
-control edge can be moved to the @es[1] corner (It both Must
+control edge can be moved to the @es[1] corner (it both Must
 and Can happen), if @italic{all} of the incoming edges to the node
 it leads from are
 @es[1]. Conversly, a control edge can be set to @es[0] if
@@ -557,7 +557,7 @@ This corresponds to control edges being linked by an
 extension of @es[and] with @es[⊥], and data edges being
 linked to by a similar extension of @es[or]. This is
 discussed in more detail in @secref["background-circuits"],
-and in @secref["just:sound:compiler"] as this leads directly to
+and @secref["just:sound:compiler"], and this leads to
 the circuit semantics of Esterel.
 
 The Must and Cannot corner in the diagram is not reachable,

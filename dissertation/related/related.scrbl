@@ -28,8 +28,8 @@ which accepted more programs. Those semantics are called
 mostly have out of favor, and no modern Esterel
 implementation uses them. As Logical Esterel is a slightly
 different language than Constructive Esterel, I will not
-discuss logical semantics here, but rather focus on
-Constructive Semantics, of which the Constructive Calculus
+discuss logical semantics futher here, but rather focus on the
+constructive semantics, of which the Constructive Calculus
 is one.
 
 
@@ -81,7 +81,7 @@ further and are not in a fully executed state. In
 general, this is because the reduction cannot make progress without
 executing some conditional, but the value of the signal
 being conditioned on is unknown and cannot be set to absent.
-This approach in fact inspired how the Calculus handles Esterel.
+This approach inspired how the Constructive Calculus handles constructiveness.
 
 Like the CBS and CSS, the COS gives defines a syntactic
 evaluator for Esterel and does not afford for local reasoning about
@@ -109,15 +109,9 @@ is reached is controlled by the state of the registers
 within those terms.
 
 The circuit semantics I prove the calculus
-equivalent to comes form @citet[esterel02]. It transforms
-the single control wire used in
-@citet[optimizations-for-esterel-programs-thesis] into four
-control wires: GO, which carries a 1 when the surface would be
-reached; RES, which carries a 1 when the Depth would be
-reached (e.g. resumed); SUSP which carries a 1 when an outer
-@es[suspend] from would suspend execution of this term
-instead of resuming it; and KILL, which carries a 1 when a control jump (e.g. @es[exit]) would
-cause the term to abort instead of being resumed.
+equivalent to comes from @citet[esterel02], which is
+based on the original circuit compiler from  @citet[esterel-circuit-cannon].
+This compiler is discussed in depth in @secref["just:sound:compiler"].
 
 In both semantics, the constructivity of Esterel
 programs is transformed into the constructivity of
@@ -125,17 +119,17 @@ circuits@~cite[shiple-constructive-circuit]: an Esterel program
 is constructive on some inputs if an only if all wires in its circuit
 always settle to a single value in a bounded amount of
 time. Just as with causality graphs, circuits are
-non-constructive if some cycle in the circuit winds up
-demanding a value be settled on for some wire, who's value
+non-constructive if some cycle in the circuit
+demands a value be settled on for some wire, who's value
 depends on the state of that cycle.
 
 The circuit semantics allow for local reasoning about
-equality between programs, as circuits are well understood.
+equality between programs.
 It also provides an evaluator, through circuit
 simulation. However its reasoning is non-syntactic: the
 transformations done to a circuit may not result in a new
 circuit that can be transformed back into an Esterel
-program, and even if it could be, the reasoning used to
+program, and even when they can be, the reasoning used to
 explain why the circuit can be transformed in that way might
 not map cleanly back to Esterel. The circuit semantics
 in @citet[esterel02] is defined on only pure Esterel. The circuit semantics in
@@ -151,24 +145,24 @@ which give an equality relation for Esterel programs, which they call
 the Axiomatic Semantics. Of all the semantics presented so
 far, these axioms are the closest to the goal that I have. As a set of
 axioms over programs it is local and syntactic. However it
-is built from fundamentally different techniques,@note{Their
+is built from fundamentally different techniques,@note{For instance,
  notion of equality is based on bisimulation, whereas mine is based on
- Contextual Equivalence.} and it is not adequate to define an evaluator for Esterel.
+ contextual equivalence.} and it is not adequate to define an evaluator for Esterel.
 This is because it cannot reason about @es[emit]s, as it lacks the control
 variable my calculus adds. However it is much stronger in other
-respects: in fact it is complete modulo bisimilarity. Adding
+respects: in fact it is complete modulo bisimilarity on constructive programs. Adding
 the axioms of this semantics to the calculus would result in a much more
 powerful reasoning framework. This semantics only handles Pure Esterel.
 
 
 @subsection["The Color Semantics"]
 
-What I am calling the color semantics is an as-yet unpublished by Lionel Rieg.
+What I am calling the color semantics is an as-yet unpublished semantics by Lionel Rieg.
 It is a microstep semantics which replaces both Must and Can
 with colors that propagate throughout the program. This
 propagation is designed to be close to how @es[1] and @es[0]
 propagate through circuits. The control variable of this
-calculus are based off of the Colors of the Color calculus.
+calculus are based off of these Colors.
 The Color semantics is syntactic and adequate. However it does
 not allow for local transformations. This semantics only handles Pure Esterel.
 
@@ -211,4 +205,4 @@ to track the state of program variables locally.
 This calculus is the second draft, the first introduced in @citet[florence-2019].
 That calculus, however, was not constructive, as it allowed for local
 rewrites which could bypass signals who's value was not yet known. The
-local control variables @es[GO] we introduced to solve this issue.
+local control variables @es[A] was introduced to solve this issue.

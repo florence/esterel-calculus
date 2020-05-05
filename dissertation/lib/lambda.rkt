@@ -133,11 +133,10 @@
    (--> (ρ1 θ (in-hole E (set! x v))) (ρ1 (<- θ (mtθ+x x v)) (in-hole E 42))
         (judgment-holds (L∈dom x θ))
         σ)
-   (--> (ρ1 θ (in-hole E x)) (ρ θ (θ-ref θ x))
+   (--> (ρ1 θ (in-hole E x)) (ρ θ (in-hole E (θ-ref θ x)))
         (judgment-holds (L∈dom x θ))
         D)
-   (--> (ρ1 θ_1 (in-hole E (ρ θ_2 e))) (ρ1 (<- θ_1 θ_2) (in-hole E e))
-        (judgment-holds (L∈dom x θ))
+   (--> (ρ1 θ_1 (in-hole E (ρ θ_2 e))) (ρ1 (parens (<- θ_1 θ_2)) (in-hole E e))
         lift)
    (--> (const v ...) (δ* const v ...) δ)))
 

@@ -413,6 +413,15 @@ Theorem 47. Given constructive Esterel statements E and E′;
    #:location (proceedings-location
                "Programming Language Design and Implementation (PLDI)")))
 
+
+(define esterel-circuit-cannon
+  (make-bib
+   #:title "Esterel on Hardware"
+   #:author gerard
+   #:date 1992
+   #:location (journal-location "Philosophical Transactions Royal Society of London"
+                                #:volume 339)))
+
 #|
 bohm alcune proprietà delle forme normali nel calcolo
 |#

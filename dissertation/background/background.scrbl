@@ -17,8 +17,8 @@ background work of each area may wish to skim these sections
 for the notation I use.
 
 @Secref["background-esterel"] describes the language
-Esterel. It is meant as refresher on Chapters 1, 2, 4.1, and
-12 of @cite/title[esterel02], as well as chapters 1 and 2 of
+Esterel. It is meant as refresher on Chapters 1, 2, 4, 5, 7 and
+12 of @cite/title[esterel02], as well as chapters 1 through 4 of
 @cite/title[compiling-esterel]. Specifically an
 understanding of Kernel Esterel and the Constructive
 Behavioral Semantics will be helpful. As my dissertation

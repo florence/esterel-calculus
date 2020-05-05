@@ -63,7 +63,7 @@
         (define rule-picts
           (apply
            vl-append
-           4
+           6
            (for/list ([info (in-list group-infos)])
              (render-a-rule info
                             (- page-width

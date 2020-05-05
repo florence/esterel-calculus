@@ -117,7 +117,7 @@
   (reduction-relation
    esterel/typeset
    #:domain cs
-   (--> cs (update cs w B)
+   (--> cs (parens (update cs w B))
         (judgment-holds (wire-in w cs))
         (where ⊥ (of cs w))
         (judgment-holds (eval^boolean cs (of (circuit-of cs) w) B))
@@ -182,9 +182,9 @@
 (define-judgment-form esterel/typeset
   #:mode     (closed I)
   #:contract (closed p-pure+GO)
-  [(where (ρ θr GO q-pure) p-pure+GO) (side-condition (= (FV p-pure+GO) (L0set)))
+  [(side-condition (= (FV (ρ θr GO q-pure)) (L0set)))
    -----
-   (closed p-pure+GO)])
+   (closed (ρ θr GO q-pure))])
 
 (define-extended-judgment-form esterel/typeset L∈
   #:mode (L∈2 I I))

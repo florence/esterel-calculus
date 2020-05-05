@@ -17,8 +17,8 @@
 
 @title[#:style paper-title-style #:tag "background-circuits"]{Circuits}
 
-Pure Esterel compiles to circuits. This refreshes background needed
-to understand the circuits Esterel compiles to. It summaries
+This section refreshes background needed
+to understand the potentially cyclic circuits that Esterel compiles to. It summaries
 @cite/title[malik-circuit] and
 @cite/title[shiple-constructive-circuit], and Chapter 10 of @cite/title[esterel02].
 
@@ -29,12 +29,15 @@ represents a wire, and each node represents a gate. This
 also gives the usual pictorial representation of circuits.
 As an example, the left of @figure-ref["circ-overview"] is a
 circuit for the XOr of two bits. This is implemented
-by taking the Nand of and the Or of the two inputs,
-and Anding the results. The right of
+by taking the nand'ing and or'ing both of the two inputs,
+and and'ing the outputs of those two gates. The right of
 @figure-ref["circ-overview"] gives an overview of the
 notation I am using, which is fairly standard. Buffers here do
 not impose a delay, but rather just specify the direction voltage propagates through
-the circuit.
+the circuit. Registers save values between cycles in the circuit. The are always initialized
+to @es[0] in the first cycle, and then output their input value from the previous cycle afterwards.
+A small circle on the input or output of a gate represents negating that wire.
+
 
 @[begin
  (define (make-xor
@@ -162,9 +165,6 @@ the circuit.
         "A wire with a constant 0")))))]
 
 
-Registers save values between cycles in the circuit. The are always initialized to @es[0] in
-the first cycle, and then output their input value from the previous cycle afterwards.
-
 
 @[figure
   "zero-example"
@@ -175,8 +175,8 @@ A side note on diagrams: Sometime circuit diagrams may refer
 to wires in a sub-circuits that are not present. For
 example, see @figure-ref["zero-example"], which shows the
 compilation rules for two of Esterel's forms. The first circuit
-has five input wires: @es[E_i], @es[SEL], @es[RES], @es[SUSP],
-and @es[KILL]. It two named output wires, @es[SEL] and @es[E_o],
+has five input wires: @(with-paper-rewriters (render-op "E_i")), @es[SEL], @es[RES], @es[SUSP],
+and @es[KILL]. It has two named output wires, @es[SEL] and @(with-paper-rewriters (render-op "E_o")),
 and some number of output wires labeled @es[K0] through @es[Kn].
 It has a subcircuit, which for now we can think of
 as being named @es[(compile p-pure)]. This subcircuit has the same interface
@@ -229,6 +229,7 @@ to @es[0] or @es[1] its output will never change.
            #:row-properties '(top)
            (list
             (list
+             (blank 200)
              @[tabular
                (list
                 (list @es[a] @es[and] @es[b]  @es[=] @es[o])
@@ -495,10 +496,10 @@ is true when the circuit is constructive. Otherwise it is @es[ff].
 @subsection{Registers}
 
 This model can extend to registers by treating each register
-as a pair of an input and output wire. Initially these input
+as a pair of an input and an output wire. Initially these input
 wires is set to @es[0], and on each subsequent cycle (e.g.
 each subsequent call to @es[eval^circuit]) these input wires
-are given the value of their corresponding output wire.
+are given the value of their corresponding output wire in the previous cycle.
 
 @subsection{Contextual Equivalence}
 I take the following to be the definition of

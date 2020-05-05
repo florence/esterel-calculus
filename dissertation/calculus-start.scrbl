@@ -46,8 +46,8 @@ This section will walk through the rules of the calculus to explain their functi
 The calculus is built around the relation @es[⇀], which
 defines the notions of reduction for the the equality
 relation @es[≡]. These relations work within a single
-instance of execution, which will lead the evaluator
-@es[eval^esterel] to be an evaluator for a single instant.
+instant of execution, which leads to an evaluator
+@es[eval^esterel] which evaluates a single instant.
 Multi-instant evaluation is described in
 @secref["sec:calc:future"].
 
@@ -130,7 +130,7 @@ handled by the inter-instant translation function
 
 @subsection{Signal rules}
 
-The signals rules are where the calculus get subtle.
+The signal rules are more subtle than the administrative rules.
 They must reason about state, which is difficult
 to do in a local way. To handle this, we need need to add
 three new pieces: Environments, Evaluation Contexts, and
@@ -138,8 +138,8 @@ the metafunction @es[Can].
 
 @subsubsection{Environments}
 
-Environments represent state information that is local to a portion of a program.
-In full environments look like:
+Like in the state calculus, environments represent local state information.
+In the constructive calculus environments look like:
 @[centered lang/env]
 Local environments @es[ρ] contain two parts: a map @es[θr], and a control variable @es[A].
 The information contained in these environments is scoped to the program fragment @es[p].

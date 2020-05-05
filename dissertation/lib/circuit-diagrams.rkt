@@ -2,7 +2,11 @@
 (provide compile-def esterel-interface
          trap-pict (rename-out [emit emit-pict]) nothing
          synchronizer
-         guard-pict)
+         guard-pict
+         compile-go-pict
+         compile-wait-pict
+         compile-present-pict
+         compile-bot-pict)
 (require diagrama diagrama/circuit pict racket/syntax
          "proof-extras.rkt"
          "redex-rewrite.rkt"
@@ -1188,6 +1192,44 @@
    (line-to-tag 'pKILL)
    (move-to-tag 'RES)
    (line-to-tag 'pRES)))
+
+
+
+(define compile-wait-pict
+  (after
+   (img (textify "GO_in") 'rc)
+   (line-right 4)
+   (before
+    (buffer)
+    (line-right 4)
+    (img (textify "GO_out") 'lc))))
+(define compile-go-pict
+  (after
+   (img (textify "1") 'rc)
+   (line-right 4)
+   (before
+    (buffer)
+    (line-right 4)
+    (img (textify "GO_out") 'lc))))
+(define compile-bot-pict
+  (after
+   (img (textify "S_i") 'rc)
+   (line-right 4)
+   (before
+    (img (inset (rotate (buffer) pi) 0 0 0 -4))
+    (line-right 4)
+    (img (textify "S_o") 'lc))))
+  
+(define compile-present-pict
+  (after
+   (img (textify "S_i") 'rc)
+   (line-right 4)
+   (before
+    (img (inset (rotate (buffer) pi) 0 0 0 -4))
+    (line-right 4)
+    (img (textify "1") 'lc))))
+   
+         
 
 (define compile-def
   (list

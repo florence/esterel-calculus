@@ -51,7 +51,7 @@
          exact-chars-element
          wrap-latex-begin-end
          override-font-size?
-
+         nopagebreak
          index-as
          proof-splice
          extract-definition
@@ -101,6 +101,10 @@
   (element (style #f '(exact-chars)) (format "\\pagebreak[~a]" n)))
 (define pagebreak0
   (pagebreak 0))
+
+(define (vspace n)
+  (element (style #f '(exact-chars))
+            (list (format "\\vspace{~apt}\n\n" n))))
 
 (define (latex-lit name #:extras [extras empty] . args)
   (element (style name (cons 'exact-chars extras)) args))
@@ -421,7 +425,11 @@
   (cond
     [(hash-ref proof-def-table str #f)
      =>
-     (lambda (x) (nested-flow (style #f empty) (decode-flow (x))))]
+     (lambda (x) (nested-flow (style #f empty)
+                              (decode-flow
+                               (list*
+                                (vspace -19)
+                                (x)))))]
     [else
      (error 'proof-splice "no such proof ~a. Did you remember to load the proofs first?" str)]))
 

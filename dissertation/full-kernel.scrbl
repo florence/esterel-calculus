@@ -42,8 +42,8 @@ The calculus handles loops with two new administrative rules. However to handle 
 we must add a new form to Kernel Esterel:
 @centered[lang/loop]
 This new form, @es[loop^stop] represents a loop which has been unrolled once.
-To understand its usage, the loop rules are:@(linebreak)
-@[render-specific-rules '(loop loop^stop-exit)]@(linebreak)
+To understand its usage, the loop rules are:
+@[centered [render-specific-rules '(loop loop^stop-exit)]]
 The first rule, @rule["loop"] expands a
 @es[loop] into a @es[loop^stop]. This @es[(loop^stop p q)]
 is essentially equivalent to @es[(seq p (loop p))]---that
@@ -53,7 +53,7 @@ to @es[nothing], the loop cannot restart, instead the
 program gets stuck. This handles instantaneous loops,
 which are an error in Esterel. The second loop rule,
 @rule["loop^stop-exit"], is analogous to @rule["seq-exit"],
-aborting the loop if it @es[exit]s.
+aborting the loop if its body @es[exit]s.
 
 @subsection{Loops and Can}
 
@@ -77,7 +77,7 @@ relation must be extended to handle it, seen in
 We can now turn to the issue of Schizophrenia in the
 calculus. Correct binding prevents schizophrenia, because at
 their heart schizophrenic variables are variables which have
-two instances, and one captures the other! Thus, the loop
+two instances, and one captures the other. Thus, the loop
 clause in @es[CB] (@figure-ref["fig:bl"]) forbids the bound
 and free variables of the loop body from overlapping at all.
 This way then the loop expands into @es[loop^stop], the
@@ -89,7 +89,7 @@ preventing any variable capture.
 
 @subsection[#:tag "sec:calc:loop:eval"]{Loops and the evaluator}
 
-Loops give us another scenario that the evaluator is: instantaneous loops. Instantaneous
+Loops give us another scenario where the evaluator is undefined: instantaneous loops. Instantaneous
 loops will always reach a state where they contain a program
 fragment which matches @es[(loop^stop nothing q)]. Such a
 program has had the loop body terminate in the current
@@ -106,11 +106,10 @@ eliminated statically before compilation, and therefore is
 not defined on such programs. Therefore I have chosen to
 make @es[eval^esterel] also not defined on such programs.
 
-
 @subsection{Leaving loops out of the proofs}
 
-There are two reasons I have left loops out of my proofs, and
-they all relate to difficulties in stating the theorems correctly.
+There are two reasons I have left loops out of my proofs,
+both of which relate to difficulties in stating the theorems correctly.
 
 Firstly there is a subtle difference in how the compiler
 and the evaluator handle instantaneous loops. The compiler
@@ -124,8 +123,9 @@ The next issue is the issue of schizophrenia. The correct binding
 judgment ensures that the calculus never suffers from schizophrenia.
 However the compiler requires that programs be transformed to
 eliminate possibly schizophrenic variables. The simplest
-of these (which is what the random tests do) is to fully
-duplicate every loop body. This is not what is done
+of these is to fully
+duplicate every loop body, by transforming every @es[(loop p)]
+into @es[(loop (seq p p))]. This is not what is done
 in practice: in general parts of the program
 are selectively duplicated, using methods such as those given by
 @citet[new-method-schizophrenic] or chapter 12 of
@@ -134,9 +134,8 @@ program. This however means in practice that the loops
 that the compiler operates on look different to those that
 the evaluator operates on, in a way that is difficult to formalize.
 
-
-The handling of in the calculus loops is adapted from the COS, which lends
-evidence to its correctness.
+The handling of in the calculus loops is adapted from the COS, which annotates
+loops with @es[STOP] and @es[GO] to determine if the loop can restart.
 
 Loops are handled by the compiler by duplicating the loop body, in a manner described
 by @citet[esterel02]. To see how this works, it is easiest to look at the compilation of
@@ -162,7 +161,6 @@ to accept shared and host language variables. Thus @es[θ] will
 also map @es[x]s to their values, and @es[s]s to a pair
 of a value and their current status:
 @[centered [with-paper-rewriters [render-language esterel-eval #:nts '(shared-status)]]]
-
 To understand these @es[shared-status]es, observe the rules
 for shared variables:@(linebreak)
 @[render-specific-rules '(shared set-old set-new)]@(linebreak)
@@ -171,7 +169,7 @@ converting a shared variable binder into a local environment
 with the control variable @es[WAIT]. However the rule
 @rule["shared"] must evaluate a host language expression to
 determine the default value for the shared variable. To do
-this it check if every single shared and host language
+this it checks if every single shared and host language
 variable in the host language expression is bound in the
 local environment, and that all of the referenced shared
 variables cannot be written to, according to
@@ -214,16 +212,6 @@ and everything else as true. These rules requires the control variable to be
 @es[GO] as well, as picking a branch of the @es[if!0] might break existing
 causality cycles, and therefore change the constructivity of the program.
 
-Note that these rules assume that host language expressions
-@es[e] cannot have side effects which modify the environment
-@es[θr]. This is not, in general, true however---for example
-in HipHop.js@~cite[hiphop], which is an Esterel
-implementation which uses Javascript at its Host Language,
-these host language expressions can (and in practice do)
-have side effects. In order to handle this the calculus
-would need additional reasoning, for example having @es[δ]
-return a value and a new environment.
-
 @subsection[#:tag "sec:full:host:can"]{Host language and Can}
 
 
@@ -237,7 +225,7 @@ expressions(@figure-ref["sec:cs"]). The analysis of the @es[shared] from is like
 the @es[signal] form, except that there is no special case
 for when the shared variable cannot be written to. Because
 Esterel does not make control flow decisions based on the
-writability of shared variable, there is not need for the
+writability of shared variable, there is no need for the
 extra step. Writing to a shared variable behaves akin to
 emitting a signal: the return code is @es[0] and the variable
 is added to the @sh set.
@@ -269,8 +257,8 @@ be written to by the full program.
 
 @subsection{Host language and Correct Binding}
 
-The extensions to correct binding for the host language, seen in @figure-ref["fix:bh"], forms are trivial.
-They simply require that all subforms have correct binding.
+The extensions to correct binding for the host language, seen in @figure-ref["fix:bh"], 
+only require that all subforms have correct binding.
 
 @[figure "fix:bh" "Correct Binding and the host language" CB-host-pict]
 
@@ -285,8 +273,8 @@ reuse many of the mechanisms from the pure language. Therefore the
 proofs about the pure section of the language give some confidence for
 the correctness of the host language part.
 
-The handling of shared variables is adapted from the COS, which lends
-evidence to its correctness.
+The handling of shared variables is adapted from the COS, which uses the
+same extension to @es[Can].
 
 @section[#:tag "sec:calc:future"]{Future Instants}
 
@@ -318,14 +306,14 @@ structure of evaluation contexts. The exceptions are
 @es[loop^stop] and @es[suspend]. @es[loop^stop] is replaced
 by the traditional unfolding of a loop, because in the next
 instant the body of the loop that was executing is allowed
-to terming, restarting the loop.
+to terminate, restarting the loop.
 
 The @es[suspend] transformation is more complex. We want a
 term which entered a @es[suspend] to pause in that suspend
 if the given signal is @es[present] in the next instant.
 Therefore we transform an @es[suspend] to do exactly that:
 if the signal is @es[present] then @es[pause], otherwise do
-nothing and resume executing the loop body.
+nothing and resume executing the @es[suspend]'s body.
 
 @subsection{Leaving instants out of the proofs}
 
@@ -456,9 +444,9 @@ real implementations as well. The real implementations are
 important because they accept Esterel terms that use host
 language expressions, which the circuit compiler does not.
 Therefore these tests in particular give evidence that
-adequacy holds in the presence of Full Esterel. Whenever the generate
+adequacy holds in the presence of Full Esterel. Whenever the generated
 program contains host language variables or is not guaranteed to
-be loop safe the direct circuit compiler is skipped.
+have no possible instantaneous loops the circuit compiler is skipped.
 
 In addition I have run @(~a circuit-test-count) random tests
 which generate a random pure program (with loops), and apply
@@ -467,3 +455,6 @@ compatible closure of @es[⇀]), and then check that the
 circuits are equal using the Circuitous library. These
 tests provide evidence for soundness, and especially for the
 soundness with loops.
+
+The logs of these test cases and all of the code discussed above
+is stored at https://github.com/florence/esterel-calculus.

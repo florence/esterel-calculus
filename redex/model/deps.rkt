@@ -7,6 +7,25 @@
          racket/hash
          data/queue)
 
+(module* redex racket
+  (provide (all-from-out (submod "..")))
+  (require (submod "..")
+           pict/code
+           redex/pict
+           esterel-calculus/dissertation/lib/redex-rewrite)
+    (with-paper-rewriters
+     (get-current-code-font-size (const (default-font-size)))
+     (current-code-font (default-style))
+     (current-comment-color "black")
+     (current-keyword-color "black")
+     (current-id-color "black")
+     (current-literal-color "black")
+     (current-const-color "black")
+     (current-base-color "black")
+     (current-keyword-list empty)
+     (code-colorize-enabled #f)
+     (code-italic-underscore-enabled #f)
+     (code-scripts-enabled #t)))
 
 ;                                                                                            
 ;                                                                                            

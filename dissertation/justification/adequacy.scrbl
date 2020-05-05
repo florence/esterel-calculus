@@ -15,8 +15,7 @@
 
 Adequacy is the statement that a calculus can define an evaluator for
 it's language. In this case, we want Computational Adequacy, which is the statement
-that an evaluator defined by the calculus is equivalent to the evaluator
-for the ground-truth semantics:
+that the calculus's evaluator is equivalent to the ground truth evaluator:
 @proof-splice["comp-ad"]
 
 The full proof can be found at @proof-ref["comp-ad"]. The first premise of this theorem
@@ -38,15 +37,16 @@ are the same.
 
 @;TODO index ⟶^r
 
-The proof itself follows from a few core ideas. The first is
-that there is a kind of canonical form for terms in the
-calculus, and that these canonical forms are the exact cases
+To complete the proof we use
+a set of canonical forms for terms in the
+calculus. Any closed term is equal to
+such a canonical term, and that these canonical forms are the exact cases
 that @es[eval^esterel] looks at. These canonical forms are
-equal modulo @rule["par-swap"], meaning that, while a
+equivalent modulo @rule["par-swap"], meaning that, while a
 canonical form, they may still step via @rule["par-swap"],
 but may not take any other steps. To prove this @es[⟶] is
-broken up into two parts: @es[⟶^s], which contains only the
-compatible closure of @rule["par-swap"], and @es[⟶^r], which
+broken up into two parts: @[as-index @es[⟶^s]], which contains only the
+compatible closure of @rule["par-swap"], and @[as-index @es[⟶^r]], which
 is the compatible closure of every other rule.@note{The @tt{S} stands for ``swap'', and the @tt{R} stands
  for ``remainder''.} With that we can
 state theorem about these canonical forms like so:
@@ -72,7 +72,7 @@ of this follows by induction of @es[p-pure], with some case analysis
 on @es[blocked-pure] and @es[done] along the way.
 
 Beyond this, it is the case that @es[⟶^r] is a strongly
-normalizing relation. Therefore it must be the case that we
+canonicalizing relation. Therefore it must be the case that we
 can reach a canonical form using a finite number of @es[⟶^r]
 and @es[⟶^s] steps:
 @proof-splice["strongly-cannibalizing"]
@@ -86,25 +86,18 @@ where no more @es[⟶^r] steps can be taken. Whats more its
 easy to show that @es[⟶^s] does not change the count,
 therefore there always exists a finite reduction path to
 one of these canonical forms.
-Therefore the overall relation is strongly canonicalizing.@note{This is why I refer to this
-as strongly canonicalizing, rather than strongly normalizing. There exist infinite reduction
-paths for any canonical term which contains a @es[par], therefore no normal form exists, and
-we technically obtain a class of canonical forms which are equal up to @es[par] branch order rather
-than a true normal form.}
-This proof follows by induction on the
-structure of @es[⟶^r]. The grammar term @es[p-pure+GO] is
-like @es[p-pure], but it accepts a @es[GO] at the top of the
-term (as full programs have exactly one @es[GO], at the
-top).
+Therefore all closed terms are @es[≡^esterel] to some
+canonical term.
 
-Now that we have show that there exist canonical forms, we
-know that every closed pure Esterel term is @es[≡^esterel]
-to one of these forms, and therefore @es[eval^esterel] is
-defined on it. The next step in proving adequacy is to show
+Now that we have show that there exist canonical forms, and that
+that every closed pure Esterel term is @es[≡^esterel]
+to one of these forms, we know that @es[eval^esterel] is
+defined on all closed pure terms. The next step in proving adequacy is to show
 that these two canonical forms give back the same signal
-set. Fortunately this follows fairly directly from
+set as their circuit compilation. Fortunately this follows fairly directly from
 soundness, as we know that our canonical forms are @es[≡] to
-the original term.
+the original term, and that @es[≡] is sound with respect
+to the circuit compilation.
 
 The final step is to show that the two types of canonical
 forms map exactly to constructive and non-constructive
@@ -122,7 +115,7 @@ input wires are set to @es[0] by @es[eval^circuit]. This proof
 follows by induction on the structure of @es[done].
 
 The other side, the statement that @es[blocked-pure] corresponds to non-constructive
-circuits is given by:
+circuits is given by:@nopagebreak
 @proof-splice["blocked-is-nc"]
 
 The proof of which can be found at
@@ -145,7 +138,7 @@ signals of @es[(compile r-pure)] via @es[θ], and we know
 that the @es[GO] wire of @es[cs_1] is currently bottom, then
 the invariant @es[all-bot] is preserved. The invariant
 @es[all-bot] (@figure-ref["nc1"]) is formed of three
-judgments. The first of these, @es[all-bot-S],any signal
+judgments. The first of these, @es[all-bot-S], says that any signal
 wire is currently @es[⊥] if it is both
 @es/unchecked[(->S Can)] and is @es[⊥] in @es[θ]. The
 second, @es[all-bot-κ] says the same, but for

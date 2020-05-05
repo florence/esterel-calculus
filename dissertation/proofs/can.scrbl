@@ -402,7 +402,6 @@ relation to the circuit translation. The core theorem here is @proof-ref["Can-S-
         if
         @es[(L¬∈ κ (->K (Can-θ (ρ θr A p-pure) ·)))],@(linebreak)
         and @es[(≃ (of (compile (ρ θr A p-pure)) SEL) 0)], then
-        
         @es[(≃ (of (compile (ρ θr A p-pure)) (K κ)) 0)]}
        #:interpretation
        @list{This theorem states that @es/unchecked[Can-θ] accurately predicts when control wires

@@ -9,7 +9,11 @@
            emit-pict nothing
            compile-def
            esterel-interface
-           synchronizer)
+           synchronizer
+           compile-go-pict
+           compile-wait-pict
+           compile-present-pict
+           compile-bot-pict)
           racket/format
           "../lib/proof-extras.rkt"
           (only-in "../proofs/proofs.scrbl")
@@ -34,7 +38,7 @@ terms (e.g @es[p-pure], @es[q-pure]). Similarly contexts over pure, loop free pr
 are labeled with the same superscript (e.g. @es[E-pure]). These pure terms also may
 only contain the control variable @es[WAIT]. In some cases I will need to discuss
 terms which may have the control variable set to @es[GO]. I will write these terms
-as @es[p-pure+GO]. Formally, these terms conform to the grammars in  @figure-ref["pure-terms"].
+as @es[p-pure+GO]. @Figure-ref["pure-terms"] gives the grammars for these terms.
 
 @[figure
   "pure-terms"
@@ -51,8 +55,8 @@ as @es[p-pure+GO]. Formally, these terms conform to the grammars in  @figure-ref
 
 The proofs of soundness and adequacy are proved with respect
 the circuit semantics of Esterel. This semantics is, in
-general, both the ground truth for most other semantics and
-guides the actual implementation of Esterel implementation.
+general, the ground truth semantics and
+guides the actual implementation of an Esterel compiler.
 The core of this semantics is the compilation function
 @es[compile]. This function translates Pure Esterel programs
 into circuits of the the shape given in
@@ -69,7 +73,7 @@ the Esterel v7 compiler. I will describe them more later.
 
 The circuit compilation function, in essence, expresses the causality graphs described
 in @secref["back:esterel:cannot"] as a circuits. The circuits
-are more complex, as they handle more of Esterel than the simple diagrams I used before,
+are more complex, as they handle more of Esterel than the causality diagrams do,
 but at their core they have the same execution model.
 The four input wires on the left of the diagram in @figure-ref["circ-shape"] (@es[GO], @es[RES], @es[SUSP], @es[KILL])
 are control wires which guide the execution of the circuit. The @es[GO] wire is true
@@ -121,15 +125,15 @@ change, which is discussed about in @secref["future"].
              circ))
  ]
 
-The simplest clause of the compiler is the compilation of @es[nothing], shown in @figure-ref["comp:nothing"].
+The simplest clause of the compiler is @es[(compile nothing)], shown in @figure-ref["comp:nothing"].
 Its compilation connects the @es[GO] wire directly to @es[K0], as when @es[nothing] is reached
 it immediately terminates. Remember that any wire not draw in the diagram is taken to be @es[0], therefore
 this term can never be selected, and can never have a different exit code.
   
 @circ-fig['nothing]
 
-The next simplest compilation clause is @es[exit], which just connects @es[GO] to the return code wire
-corresponding to the return code for that @es[exit].
+The next simplest compilation clause is @es[exit], which just @es[GO] to corresponding return code wire
+for that @es[exit] code.
 
 @circ-fig['exit]
 
@@ -144,10 +148,10 @@ a signal @es[S] as @es[So], and the input wires @es[Si].
 @circ-fig['emit]
 
 The last term without subterms, @es[pause], is also significantly more complex than the others.
-It's compilation is in @figure-ref["comp:pause"]. Firstly, the @es[GO] wire is connected
+Its compilation is in @figure-ref["comp:pause"]. Firstly, the @es[GO] wire is connected
 to the @es[K1] wire, as a @es[pause] will pause the first time is reached.
 The @es[SEL] wire is similarly straightforward: it is true when the register is true. The @es[K0] wire
-just says that a @es[pause] finishes when it is selected, and resumed. The complex part
+just says that a @es[pause] finishes when it is selected and resumed. The complex part
 goes into determining if the term will be selected in the next instant.
 The register will get a @es[1] if it is not killed, and
 if either it is reached for the first time (@es[GO]) or it was already selected and it is being resumed,
@@ -243,9 +247,7 @@ both subcircuits are killed if the outer @es[KILL] wire is
 
 The two changes to this from the compiler in @citet[esterel02] are the @es[KILL]
 wire including the return codes, and the definition of the @es[LEM] and @es[REM] wires.
-The old compiler broadcasts the @es[KILL] wires directly to the subcircuit.
-In addition it defines @es[(= REM (not (or GO p-SEL)))] (and @es[LEM]
-using @es[q-SEL]). These changes are to handle a violation of soundness, and
+These changes are to handle a violation of soundness, and
 so are discussed in detail  @secref["just:sound:changes"].
 
 
@@ -256,17 +258,42 @@ wire (@figure-ref["comp:non-empty-rho"]), with one exception. The wire connectio
 through @es/unchecked[(compile statusr)] which connects the
 two wires if @es[(= statusr unknown)]. However if
 @es[(= statusr present)] then the connection is cut, and the
-input wire is defined to be @es[1].
-
+input wire is defined to be @es[1]. This is shown in @figure-ref["status"].
+                    
 @circ-fig['non-empty-rho]
+
+@figure["status"
+        "Compiling statuses"
+        (vl-append
+         (hc-append
+          (hbl-append (es/unchecked (compile unknown))
+                      (es =))
+          compile-bot-pict)
+         (hc-append
+          (hbl-append (es/unchecked (compile present))
+                      (es =))
+          compile-present-pict))]
 
 Once all signals have been compiled, the @es[A] part is
 compiled in a similar manner
 (@figure-ref["comp:empty-rho"]). If the @es[A] is @es[WAIT],
 the @es[GO] wire is taken from the environment. If @es[A] is
 @es[GO], then the @es[GO] wire will be defined to be @es[1].
+This is shown in @figure-ref["ctrl"].
 
 @circ-fig['empty-rho]
+
+@figure["ctrl"
+        "Compiling control variables"
+        (vl-append
+         (hc-append
+          (hbl-append (es/unchecked (compile WAIT))
+                      (es =))
+          compile-wait-pict)
+         (hc-append
+          (hbl-append (es/unchecked (compile GO))
+                      (es =))
+          compile-go-pict))]
 
 @section[#:tag "just:sound:solver"]{The Circuit Solver, Circuitous}
 
@@ -288,38 +315,34 @@ but a symbolic expression which represents the value. This
 symbolic value may then be turned into a logic formal that
 can be given to an SMT solver.
 
-In this case I have implement an interpreter for circuits.
-Two circuits can then be run on symbolic inputs, and the
-statement that the outputs are equal for all possible input
-assignments is validated by an SMT solver. The source for
-this solver may be found at
-https://github.com/florence/circuitous/, and the core of the
-solver is listed in appendix C.
-
-The solver is capable of evaluating a given circuit on some
+Circuitous is capable of evaluating a given circuit on some
 inputs, verifying if two circuits are contextually
 equivalent, and verifying if a circuit is constructive for
 set of inputs which do not contain @es[⊥]. This solver is
 combined with a mechanized version of the compiler presented
 in @secref["just:sound:compiler"], which is in the codebase
-for this repository. Using these, the base cases of many of
+for this dissertation. Using these, the base cases of many of
 the proofs in this section simply invoke the circuit solver
 to complete the proof.
+
+The source for this solver may be found at
+https://github.com/florence/circuitous/, and the core of the
+solver is listed in appendix C.
 
 
 @section[#:tag "just:sound:instants"]{On Instants}
 
 The proofs in this section only look at a single instant of execution.
-This is accoplished by each proof having the assumption that the @es[SEL]
+This is accomplished by each proof having the assumption that the @es[SEL]
 wire is @es[0], thus forcing evaluation to occur in the first instant only.
 The calculus will be extended to multiple instants in @secref["sec:calc:future"].
 
 @section{Agda Codebase}
 
 Some proofs I reference are not given in this document. Instead they are given in a separate Agda code base.
-This code base is an old attempt to prove the correctness of a previous version of the calculus@~cite[florence-2019].
+which was attempt to prove the correctness of a previous version of the calculus@~cite[florence-2019].
 While the calculus has since changed, @es[Can] has not. Therefore I re-use some of the proofs from
-that work which relate to @es[Can].
+that work which relate to @es[Can]. This Agda codebase is located in the repository for this dissertation.
 
 
 @section{Notation}

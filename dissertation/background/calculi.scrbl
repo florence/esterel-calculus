@@ -89,7 +89,7 @@ applied to many values for @rule['δ]. On the right is a
 pattern which describes what is on the right of the relation, what
 we might think of at its ``output''. In this case both right
 hand sides consist of Metafunctions, that is functions in
-our metalanguage, rather than functions in the @lam[λ_v].
+our metalanguage, rather than functions in @lam[λ_v].
 Metafunction application is written
 @lam/unchecked[(name-of-function args ...)]. The @rule['β_v] rule,
 which describes anonymous function application, relates the
@@ -98,11 +98,12 @@ every occurrence of the variable @es[subst]ituted with the argument.
 The rule @rule['δ] handles primitive function application, by
 calling out to the metafunction @lam[δ*], which the calculus
 is parameterized over. In a sense this function represents
-the ``runtime`` of the @lam[λ_v]. So, for example, if
-@lam[const] includes @lam[+] and numbers, then @lam[δ] would
-include an specification of addition.
+the ``runtime'' of the @lam[λ_v]. So, for example, if
+@lam[const] includes @lam[+] and numbers, then @lam[δ*] would
+include a specification of addition.
 
-The relation @lam[⇀λ] is called the notions of reduction because
+The relation @lam[⇀λ] can be called the notions of reduction because, at
+least so far,
 each clause of @lam[⇀λ] is some atomic step in evaluating the program.
 Since @lam[λ_v] only contains functions, the only rules in @lam[⇀λ]
 handle function application.
@@ -111,8 +112,8 @@ handle function application.
 @section{Alpha Equivalence}
 
 Not all rules may be computationally relevant, but may instead simply describe
-equivalences we wish to hold. For example, a common rule in the @es[λ]-calculus
-in @rule['α]:
+equivalences we wish to hold. For example, a common rule in @es[λ]-calculi
+is @rule['α]:
 @(centered
   (with-paper-rewriters
    (with-continuation-mark 'current-reduction-arrow 'lambda
@@ -136,7 +137,7 @@ terms, such that the two program are become textually equal, then
 they two programs must be equivalent.
 
 To start with, we must describe what ``some part of the programs'' means. To do this we use the notion
-of a Context, which lets us split programs into an inner and outer piece. For a calculus we use
+of a context, which lets us split programs into an inner and outer piece. For a calculus we use
 program contexts, @lam[C]. In this case of @lam[λ_v], these
 contexts are:
 
@@ -169,9 +170,7 @@ The @rule["step"] rule says that two terms are equal if they
 are related by the notions of reduction. The @rule["ctx"]
 rule says that our reasoning applies in any program context.
 This is gives us locality, as we know that we can apply our
-reasoning anywhere.
-
-From here we need to turn this into a true equality relation: that is is must be transitive, reflexive,
+reasoning anywhere. From here we turn this into an equality relation: that is we make it transitive, reflexive,
 and symmetric:
 @[centered
   [with-layout
@@ -180,11 +179,18 @@ and symmetric:
 The @rule["refl"] rule says that all terms are equal to
 themselves. The @rule["trans"] rule says that we can chain
 reasoning steps together, if @lam[A] is equal to @lam[B],
-and @lam[B] is equal to @lam[C], then @lam[A] must therefore
-be equal to @lam[C]. The final rule, @rule["sym"] says that
+and @lam[B] is equal to @def-t["C"], then @lam[A] must therefore
+be equal to @def-t["C"]. The final rule, @rule["sym"] says that
 if @lam[A] is equal to @lam[B] then @lam[B] is equal to
-@lam[A]. This rule is actually that allows us to ``run''
+@lam[A]. This rule is the one that allows us to ``run''
 programs backwards.
+
+Sometimes it is valuable to be able to describe stepping forward.
+This relation is given as closure of the notion of reduction under program
+contexts---the same as just the @rule['step] and @rule['ctx] rules of
+the equivalence relation. This is noted with @[def-t "⟶"], and
+will be superscripted to show with language it comes from.
+This closure under program contexts is also called the @as-index["compatible closure"].
 
 @section["Reasoning with a calculus"]
 
@@ -305,7 +311,7 @@ and symmetry:
   [with-layout
    `(("step" "ctx")
      ("refl""trans" "sym"))
-   (λ () (render-judgment-form ≡λ))]]
+   (λ () (render-judgment-form ≡σ))]]
 
 @section{Contextual equivalence}
 
@@ -330,14 +336,18 @@ calculus; however for a calculus to be sound it must be that
 to hold.
 
 @section[#:tag "goawaywarning"]{Summary of Notation}
-@(define (def-t str) (text str (default-style) (default-font-size)))
+@(define (def-t str)
+   (with-paper-rewriters (text str (default-style) (default-font-size))))
 @[itemlist
   @item{@lam/unchecked[(name-of-function args ...)]: Metafunction application.}
-  @item{@[with-paper-rewriters [mf-t "eval"]]: The evaluator for a language.}
-  @item{@|hookup|: The notions of reduction for a language.}
-  @item{@(with-paper-rewriters (def-t "≡")): The equivalence relation defined by a calculus.}
-  @item{@lam[≃]: Contextual Equivalence.}
-  @item{@lam[C]: Program Contexts.}
+  @item{@[as-index [with-paper-rewriters [mf-t "eval"]]]: The evaluator for a language.}
+  @item{@[as-index |hookup|]: The notions of reduction for a language.}
+  @item{@[as-index (with-paper-rewriters (def-t "≡"))]: The equivalence relation defined by a calculus.
+  Defined as closure of @[def-t "⇀"] under program contexts, symmetry, reflexivity, and transitivity.}
+  @item{@[as-index (with-paper-rewriters (def-t "⟶"))]: The equivalence relation defined by a calculus.
+  Defined as closure of @[def-t "⇀"] under program contexts.}
+  @item{@[as-index @lam[≃]]: Contextual Equivalence.}
+  @item{@[as-index @lam[C]]: Program Contexts.}
   ]
 
 I will, in general, use superscripts to distinguish evaluators and relations from different languages.

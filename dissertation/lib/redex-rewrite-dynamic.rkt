@@ -484,7 +484,8 @@
      (curry binop "≡^E")]
     ['≡j
      (curry binop "≡^E")]
-     ['⇀j
+    ['≡σ (curry binop "≡^σ")]
+    ['⇀j
      (curry binop "⇀^E")]
     ['≃
      (curry binop "≃")]

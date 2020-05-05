@@ -52,16 +52,14 @@ premise that we are in the first instant, or correct binding. Many of the
 equations do not touch @es[pause] or binding forms, and therefore are not
 sensitive to instants or binding. This proofs proceeds by cases on
 the structure of @es[stopped]. The case where
-are @es[(= stopped nothing)] can just invoke the solver:@note{@racket[harp] is the implementation of @es[harp].}
-@check[(assert-same
-        (compile-esterel (term (trap nothing)))
-        (compile-esterel (term (harp nothing))))]
+are @es[(= stopped nothing)] invokes the solver.
+
 We can also see that these two are the same if we draw out the circuits on paper: they give us the same graph!
 The last case is @es[(= stopped (exit n))].
 In this case we do cases on @es[harp].
 In the first of these cases we have @es[(= stopped (exit 0))], we have a concrete circuit, and so can use the solver again.
 In the last case we have @es[(= stopped (exit n))], where @es[(> n 0)]. Again if we draw
-this out we find that we get the exact same graph.
+this out we get the exact same graph.
 
 The next proof of interest is the proof that @rule["emit"] is sound.
 This proof is more complex because it must deal with both evaluation contexts
@@ -92,13 +90,14 @@ inductive case for @proof-ref["emit"] follows from the notion that the @es[So] w
 or'ed with each other, therefore a @es[1] in any subterm
 leads to the overall signal wire being @es[1].
 
-The last proof I will describe here is the proof for @rule["is-absent"]:
+The last proof described here is the proof for @rule["is-absent"]:
 @proof-splice["is-absent"]
 
 The full proof is given in @proof-ref["is-absent"]. This
 proof is one of key proofs which requires the premise that
 we are in the first instant. This is because this proof
-relies on @es[Can], which assumes that it is in the first
+relies on @es[Can], which assumes that control will not resume
+from within a term---that is, it assumes it is in the first
 instant. Other variations of @es[Can], such as those from
 the State Behavioral Semantics@~cite[esterel02] or the
 Constructive Operation
@@ -129,7 +128,7 @@ the complement of @es[Can] accurately predicts this).
 The proof of @proof-ref["Can-S-is-sound"] proceeds by
 induction over the structure of @es[p-pure], following the
 cases laid out by @es[Can]. The majority of this lemma
-consists of tracing how the definition of can walks the
+consists of tracing how the definition of @es[Can] walks the
 program, and compares that to the structure of the generate
 circuit. In most cases the result follows fairly directly.
 In the end there are two interesting cases: @es[signal] and
@@ -143,8 +142,8 @@ codes. Thus we use an auxiliary lemma to reason about
 those codes:
 @proof-splice["Can-K-is-sound"]
 This lemma is similar to @proof-ref["Can-S-is-sound"], except that it
-tells us which return code wires must be @es[0]. The proof
-of which is essentially the same as @proof-ref["Can-S-is-sound"].
+tells us which return code wires must be @es[0]. It is
+proved in essentially the same way as @proof-ref["Can-S-is-sound"].
 
 These two lemmas also have counterparts for @es[Can-θ]:
 @proof-splice["Can-rho-S-is-sound"]
@@ -152,16 +151,19 @@ These two lemmas also have counterparts for @es[Can-θ]:
 However as @es[Can-θ] is essentially just repeated applications of the @es[signal]
 case of @es[Can], these proofs are relatively uninteresting.
 
-@section[#:tag "just:sound:changes" "Change the compiler for Soundness"]
+@section[#:tag "just:sound:changes" "Changing the compiler for Soundness"]
 
-The compiler used here differs from the compiler in @citet[esterel02].
+The compiler used here differs from the compiler in @citet[esterel02]
+in how it handles the compilation of @es[par].
 Specifically the changes are the @es[KILL]
 wire including the return codes, and the definition of the @es[LEM] and @es[REM] wires.
 The old compiler broadcasts the @es[KILL] wires directly to the subcircuit.
+In addition it defines @es[(= REM (not (or GO p-SEL)))] (and @es[LEM]
+similarly @es[q-SEL]).
 Both of these definitions result in unsoundness under local rewrites
 to the syntax of the program that should hold. Both of these changes were used in the Esterel v7 compiler, however
-they have not yet been published anywhere.@note{The changes and
- come from personal communication with @|gerard|.}
+they have not yet been published anywhere.@note{The information about these changes
+ comes from personal communication with @|gerard|.}
 
 The change to the @es[REM] and @es[LEM] wires can be
 explained by noticing that we expect

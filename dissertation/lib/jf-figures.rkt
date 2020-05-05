@@ -58,7 +58,8 @@
     ("seq" "suspend" "ρ")
     ("par")))
 (define CB-loop-layout
-  '(("loop" "loop^stop")))
+  '(("loop")
+    ("loop^stop")))
 (define CB-host-layout
   '(("shared" "<=")
     ("var" ":=")
