@@ -326,10 +326,8 @@ function from @citet[esterel02]@note{Section 8.3, page 89 of
  Specifically, it is proven that, up to bisimilarity, a
  program passed through @es[next-instant] under the
  Constructive Semantics remains the same program with respect
- to the State Semantics.} by Lionel Rieg in Coq.@note{
- Unfortunately, as of the writing of this dissertation this
- work is unpublished.}, but with extensions to handle
-@es[loop^stop] and @es[ρ].
+ to the State Semantics. See Theorem 5 of @citet[color-semantics].} in Coq@~cite[color-semantics],
+but with extensions to handle @es[loop^stop] and @es[ρ].
 
 @section[#:tag "just:sound:testing"]{Evidence via Testing}
 

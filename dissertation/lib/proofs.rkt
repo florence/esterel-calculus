@@ -100,16 +100,18 @@
                 [i (in-naturals 1)])
        #`(~a 'prefix '#,i))
      #`(match-let ([n (~a "(" c ")")] ...)
-         (wrap-latex-begin-end
-          "enumerate"
-          #:followup "[label*=\\arabic*.]"
-          (append
-           (list
-            (element "item" '())
-            (syntax-parameterize ([in-sequence c])
-              (render-case-body (quote-srcloc-string cloc) (list body ...)))
-            noindent)
-           ...)))]))
+         (list
+          noindent
+          (wrap-latex-begin-end
+           "enumerate"
+           #:followup "[label*=\\arabic*., labelindent=0pt, align=left, itemindent=0pt]"
+           (append
+            (list
+             (element "item" '())
+             (syntax-parameterize ([in-sequence c])
+               (render-case-body (quote-srcloc-string cloc) (list body ...)))
+             noindent)
+            ...))))]))
 
 (define-for-syntax basic-subcases
   (lambda (stx)

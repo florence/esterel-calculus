@@ -157,8 +157,11 @@ powerful reasoning framework. This semantics only handles Pure Esterel.
 
 @subsection["The Color Semantics"]
 
-What I am calling the color semantics is an as-yet unpublished semantics by Lionel Rieg.
-It is a microstep semantics which replaces both Must and Can
+What I am calling the color semantics is an microstep semantics form
+@citet[color-semantics].@note{This is call the ``Microstep semantics'' by
+@citet[color-semantics]. I use a different name here to avoid confusion with
+other microstep semantics like the COS.}
+It replaces both Must and Can
 with colors that propagate throughout the program, mimicking how @es[1] and @es[0]
 propagate through circuits. The control variables of the constructive
 calculus are based off this.

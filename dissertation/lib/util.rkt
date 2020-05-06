@@ -174,15 +174,15 @@
    #"\\usepackage{enumitem}\n"
    #"\\newlist{casesp}{enumerate}{6}\n"
    #"\\setlist[casesp]{align=left, %% alignment of labels
-                 %listparindent=\\parindent, %% same indentation as in normal text
+                 listparindent=0pt, %% same indentation as in normal text
                  %parsep=\\parskip, %% same parskip as in normal text
                  font=\\normalfont\\scshape, %% font used for labels
                  leftmargin=0pt, %% total amount by which text is indented
                  %labelwidth=0pt, %% width of labels (=how much they stick out on the left because align=left)
                  itemindent=0pt,labelsep=0pt, %% space between label and text
-%                 topsep=??, %% vertical space above and below list
+                 topsep=0pt, %% vertical space above and below list
                  %partopsep=0pt, %% extra vertical space above and below if separate paragraph
-%                 itemsep=??, %% vertical space after each item
+                 itemsep=0pt, %% vertical space after each item
                  }\n"
    #"\\setlist[casesp,1]{label=Case~\\arabic*:,ref=\\arabic*}\n"
    #"\\setlist[casesp,2]{label=Case~\\thecasespi.\\roman*:,ref=\\thecasespi.\\roman*}\n"
@@ -191,6 +191,7 @@
    #"\\setlist[casesp,5]{label=Case~\\thecasespiv.\\roman*:,ref=\\thecasespiv.\\roman*}\n"
    #"\\setlist[casesp,6]{label=Case~\\thecasespv.\\alph*:,ref=\\thecasespv.\\alph*}\n"
    #"\\let\\degree\\relax\n"
+   #;#"\\setlength{\\parindent}{0pt}\\n"
    #"\\newenvironment{myproof}[1][\\proofname]{%\n"
    #"\\noindent\\begin{proof}[#1]$ $\\par\\nobreak\\ignorespaces\n"
    #"}{%\n"

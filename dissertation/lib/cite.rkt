@@ -422,6 +422,14 @@ Theorem 47. Given constructive Esterel statements E and E′;
    #:location (journal-location "Philosophical Transactions Royal Society of London"
                                 #:volume 339)))
 
+
+(define color-semantics
+  (make-bib
+   #:title "Towards Coq-verified Esterel Semantics and Compiling"
+   #:author (authors gerard "Lionel Rieg")
+   #:date 2019
+   #:location "https://arxiv.org/abs/1909.12582v1"))
+
 #|
 bohm alcune proprietà delle forme normali nel calcolo
 |#

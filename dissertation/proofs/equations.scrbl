@@ -24,6 +24,10 @@
 
 @title{Proving equalities through the calculus}
 
+The proofs in this section are written in a DSL which
+checks them against the equations of the calculus, then
+generates the prose in that section.
+
 @[begin
        
  (define-simple-macro (equality-proof
@@ -51,8 +55,7 @@
       #:type 'theorem
       #:title title
       #:label tag
-      #:statement @list{For all @[add-between [list @es[x] ...] ", "],
-  @(~? @~@{If @[add-between [list (es assumptions) ...] " and, "], then})
+      #:statement @list{For all @[add-between [list @es[x] ...] ", "], @(~? @~@{If @[add-between [list (es assumptions) ...] " and, "], then@(linebreak)})
   @(statement dee)}
       @list{
   @(with-paper-rewriters (render dee))
@@ -64,9 +67,7 @@
   #:∀ p S_1 S_2
   (de
    trans
-   (signal S_1
-     (signal S_2
-       p))
+   (signal S_1 (signal S_2 p))
    (de step 
        (signal S_1
          (signal S_2
@@ -156,9 +157,7 @@
            (ρ (mtθ+S S_2 unknown) WAIT
               (ρ (mtθ+S S_1 unknown) WAIT
                  p))))
-   (signal S_2
-     (signal S_1
-       p)))]
+   (signal S_2 (signal S_1 p)))]
 
 @[equality-proof
   #:title "Can take the else branch for adjacent signals"
@@ -167,8 +166,7 @@
   #:assume (L¬∈ S (->S (Can p (mtθ+S S unknown)))) (L¬∈ S (->S (Can q (mtθ+S S unknown))))
   (de
    trans
-   (signal S
-     (present S p q))
+   (signal S (present S p q))
    (de step (signal S
               (present S p q))
        (ρ (mtθ+S S unknown) WAIT
@@ -195,8 +193,7 @@
               q)
            "signal"))
        
-   (signal S
-     q))]
+   (signal S q))]
 
 
 @[equality-proof
@@ -204,8 +201,7 @@
   #:label "lift-signals"
   #:∀ S p E A
   (de trans
-      (ρ · A
-         (in-hole E (signal S p)))
+      (ρ · A (in-hole E (signal S p)))
       (de ctx
           (ρ · A
              (in-hole E (signal S p)))
@@ -260,6 +256,5 @@
                   (ρ (mtθ+S S unknown) WAIT
                      (in-hole E p))
                   "signal")))
-      (ρ · A
-         (signal S (in-hole E p))))]
+      (ρ · A (signal S (in-hole E p))))]
 

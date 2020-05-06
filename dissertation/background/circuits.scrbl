@@ -508,12 +508,12 @@ contextual equivalence on circuits:@(linebreak)
  assignments to the inputs, and all output sets @es[O],
  @es[(= (eval^circuit O c_1) (tup θ B))] if and only if
  @es[(= (eval^circuit O c_2) (tup θ B))]. }
-Intuitively, we can understand this definition as saying that the only
-observables of a circuit are the values of its output wires and whether
-or not it it constructive, and the only observation a circuit can make about its
+Intuitively, we can understand this to mean that the only
+observables of a circuit are the values of its output wires and if
+it is constructive, and the only observation a circuit can make about its
 context is the state of its input wires.
 
-I am basing this definition on the procedure given by
+I base this definition on the procedure given by
 @citet[malik-circuit]. This procedure is equivalent to the
 reduction relation I give here, which is proved by @citet[mendler-2012] and
 @citet[esterel02]. Specifically Lemma 7 of @citet[esterel02]
@@ -529,9 +529,9 @@ circuit (See definition 6 in that paper). This UN-delay
 model is compositional, and thus can be used when analyzing a
 circuit without knowing its context.
 
-@subsection{Other notations and definitions}
+@subsection{Other definitions}
 
-I write @es[(inputs c)] to access the input set of the circuit, and @es[(outputs c)] so access
+I write @es[(inputs c)] to access the input set of the circuit, and @es[(outputs c)] for
 the output set.
 
 At times the expression of a single wire will be equivalent in a particular

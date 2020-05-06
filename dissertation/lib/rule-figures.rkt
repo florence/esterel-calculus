@@ -74,9 +74,10 @@
         (if do-rule-groups?
             (hc-append sideways-gap (sideways-text group-name) rule-picts)
             rule-picts)))
-    (apply
-     vl-append
-     (add-between rules (inset (frame (blank page-width 0)) 0 4)))))
+    (panorama
+     (apply
+      vl-append
+      (add-between rules (inset (frame (blank page-width 0)) 0 4))))))
 
 (define (maybe-cons x l) (if x (cons x l) l))
 
