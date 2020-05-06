@@ -8,7 +8,7 @@
 
 @title[#:style paper-title-style]{Proofs}
 
-
+@para[#:style 'pretitle]{@latex-lit["appendix"]}
 @include-section["top.scrbl"]
 @include-section["soundness.scrbl"]
 @include-section["reduction.scrbl"]

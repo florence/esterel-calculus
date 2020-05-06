@@ -22,7 +22,7 @@
 @para[#:style 'pretitle]{@latex-lit["appendices"]}
 
 @title[#:tag "sec:def" #:style paper-title-style]{Definitions}
-
+@para[#:style 'pretitle]{@latex-lit["appendix"]}
 @section[#:tag "sec:defcirc" "Circuits"]
 
 

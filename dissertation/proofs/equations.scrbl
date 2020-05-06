@@ -23,7 +23,7 @@
           (only-in racket/bool implies))
 
 @title{Proving equalities through the calculus}
-
+@para[#:style 'pretitle]{@latex-lit["appendix"]}
 The proofs in this section are written in a DSL which
 checks them against the equations of the calculus, then
 generates the prose in that section.

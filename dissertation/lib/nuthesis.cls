@@ -72,6 +72,9 @@
 }
 
 \def\contentsname{Table of Contents}
+\renewcommand\tableofcontents{%
+  \chapter*{\contentsname}\@starttoc{toc}
+}
 
 \def\chapter{%
   \if@openright\cleardoublepage\else\clearpage\fi
@@ -303,11 +306,7 @@ Author's name required\par
   \let\chaptername\appendixname
   \def\thechapter{\@Alph\c@chapter}}
 
-\def\appendix{\par
-  \c@chapter\z@ \c@section\z@
-  \let\chaptername\appendixname
-  \def\thechapter{{}}
-  \renewcommand\thesection{\@arabic\c@section}}
+\def\appendix{\par}
 
 
 \doublespacing

@@ -22,7 +22,7 @@
 
 
 @title[#:style paper-title-style #:tag "ap:solver"]{The circuit sovler, Circuitous}
-
+@para[#:style 'pretitle]{@latex-lit["appendix"]}
 @[begin
  (define-runtime-module-path circuitous circuitous)
  (define path (resolved-module-path-name circuitous))
