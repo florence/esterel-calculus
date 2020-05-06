@@ -30,7 +30,7 @@ The calculus is designed to prove equivalences between
 program fragments because any two expressions that are
 @es[≡] are contextually equivalent, which is
  proved in @secref["just:sound"]. This section is designed to give some examples of
-what can and cannot cannot be proved
+what can and cannot be proved
 in the calculus, to give some sense of its limits.
 The proofs for the equalities in this section are given in
 appendix D.

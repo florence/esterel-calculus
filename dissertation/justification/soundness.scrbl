@@ -107,7 +107,7 @@ the syntax of the program.
 
 This proof is essentially a chaining of several other lemmas. As
 with @proof-ref["emit"], @proof-ref["S-maintains-across-E"] and @proof-ref["GO-maintains-across-E"]
-are used to shed the evaluation contexts in the rule. From there the proof mostly follows from the following
+are used to shed the evaluation contexts in the rule. From there the proof follows from the following
 lemma:
 @proof-splice["Can-S-is-sound"]
 
@@ -130,7 +130,7 @@ induction over the structure of @es[p-pure], following the
 cases laid out by @es[Can]. The majority of this lemma
 consists of tracing how the definition of @es[Can] walks the
 program, and compares that to the structure of the generate
-circuit. In most cases the result follows fairly directly.
+circuit. In most cases the result follows directly.
 In the end there are two interesting cases: @es[signal] and
 @es[seq]. The @es[signal] case in interesting only when the
 bound signal is not in the result of @es[Can]. In this case

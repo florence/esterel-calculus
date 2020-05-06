@@ -90,7 +90,7 @@ non-local control operators (e.g. exceptions, continuations)
 which while described in terms of existing syntax cannot be
 written directly by a programmer. However, while these
 frameworks require extending the syntax of the language,
-they still map very closely to the syntax of the surface
+they still map closely to the syntax of the surface
 language, and the extensions they use are minor and either
 can be mapped directly to the surface language syntax or
 require only minor annotations to the surface syntax.

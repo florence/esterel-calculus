@@ -50,7 +50,7 @@ variables.
    The output signals of @es[(compile (par p-pure_i q-pure_i))] are the @es[or] of the inner branches, thus they must be
    @es[0].
 
-   The control outputs of the synchronizer requires at at least some of its inputs be @es[1] to give an output. However
+   The control outputs of the synchronizer requires at least some of its inputs be @es[1] to give an output. However
    by our premises and induction they are all @es[0], thus all @es[Kn]s are @es[0].
   }
   @#:case[(seq p-pure_i q-pure_i)]{
@@ -149,7 +149,7 @@ variables.
    
    By induction @es[(compile p-pure_i)] and  @es[(compile q-pure_i)] must be constructive.
    
-   As all inputs the the synchronizer are @es[0], one can trace the execution forward to show that it too
+   As all inputs to the synchronizer are @es[0], one can trace the execution forward to show that it too
    must be constructive.
 
    Thus all wires are not @es[⊥].

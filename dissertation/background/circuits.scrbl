@@ -348,7 +348,7 @@ functions which define the gates are monotonic: once a value transitions
 from @es[⊥] to @es[0] or @es[1] it can never change. This means that
 there is always a fixed-point when evaluating that circuit, and it should
 take no more iterations through the whole circuit to find that fixed-point than
-the the number of gates in the circuit.
+the number of gates in the circuit.
 
 @section[#:tag "back:circ:form"]{Circuits, more formally}
 

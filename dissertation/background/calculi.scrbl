@@ -144,7 +144,7 @@ contexts are:
 @[centered
   [with-paper-rewriters
    [render-language λ_v #:nts '(C)]]]
-This states that we can break a program @lam[e_1] in two two
+This states that we can break a program @lam[e_1] into two
 parts, @lam[C] and @lam[e_2], written
 @lam[(= e_1 (in-hole C e_2))] by tracing down the top of
 @lam[e_1] following the path laid out by the grammar of
@@ -156,7 +156,7 @@ empty context @lam[hole] and itself:
 @lam[(in-hole (+ 3 hole) (+ 1 2))], and
 @lam[(in-hole (+ 3 (+ 1 hole)) 2)], among others.
 
-Note that the program contexts @lam[C] can be generated completely algorithmically for some non-terminal:
+Note that the program contexts @lam[C] can be generated algorithmically for some non-terminal:
 they simply go under every single recursive part of that non-terminal. Therefore
 from here on out I will not write out the definitions of @lam[C].
 

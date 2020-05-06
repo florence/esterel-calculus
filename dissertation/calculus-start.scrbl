@@ -44,7 +44,7 @@ background given in @secref["background-esterel"] and
 
 This section will walk through the rules of the calculus to explain their function.
 The calculus is built around the relation @es[⇀], which
-defines the notions of reduction for the the equality
+defines the notions of reduction for the equality
 relation @es[≡]. These relations work within a single
 instant of execution, which leads to an evaluator
 @es[eval^esterel] which evaluates a single instant.
@@ -132,7 +132,7 @@ handled by the inter-instant translation function
 
 The signal rules are more subtle than the administrative rules.
 They must reason about state, which is difficult
-to do in a local way. To handle this, we need need to add
+to do in a local way. To handle this, we need to add
 three new pieces: Environments, Evaluation Contexts, and
 the metafunction @es[Can].
 
@@ -176,7 +176,7 @@ if it might not. In essence this tracks a @es[1] propagating
 through the control edges of the causality graphs discussed
 in @secref["back:esterel:cannot"].
 
-To understand why this is needed in the setting of the calculus specifically, consider the program in
+To understand why this is needed in the setting of the calculus specifically, consider the program
 in @figure-ref["nc-example"]. This
 program has a cycle between the test of @es[S1], the test of @es[S2],
 and the emit of @es[S1]. This cycle cannot be broken, therefore this program is non-constructive:
@@ -431,7 +431,7 @@ The evaluator defined by the calculus is a partial function which
 evaluates one instant of execution.
 Its signature is similar to that of the circuit evaluator @es[eval^circuit]:
 @centered[(with-paper-rewriters (render-metafunction eval^esterel #:only-contract? #t))]
-It takes a 
+It takes 
 a set of output signals and a program, and gives back a pair
 containing a map with the status of each of those signals
 and a Boolean which tells us if the program is constructive
@@ -464,14 +464,14 @@ may, however, contain @es[⊥] in this case.
 
 @subsection{The blocked judgment}
 
-The @es[(blocked-pure θr A E p)] judgment traverses the the
+The @es[(blocked-pure θr A E p)] judgment traverses the
 program and checks that at the leaf of each evaluation
 context there is either an @es[if] which is blocked on an
 signal or an @es[emit] which is awaiting an @es[GO].
 
 The relation is in @figure-ref["calc:eval:blocked:pure"]. The first
 case, @rule["if"], checks that, for a conditional, the status
-of its signal is @es[unknown], and that that signal is not in the result
+of its signal is @es[unknown], and that the signal is not in the result
 of @es/unchecked[(->S Can-θ)] for the whole program. These conditions mean that
 the @rule["is-absent"] and @rule["is-present"] rules cannot fire. The second rule @rule["emit-wait"]
 says that the program is blocked on an @es[emit] if the control

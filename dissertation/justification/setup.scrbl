@@ -59,7 +59,7 @@ general, the ground truth semantics and
 guides the actual implementation of an Esterel compiler.
 The core of this semantics is the compilation function
 @es[compile]. This function translates Pure Esterel programs
-into circuits of the the shape given in
+into circuits of the shape given in
 @figure-ref["circ-shape"]. The circuit compiler I describe
 here is the same as the one given in @citet[esterel02],
 except for two changes in the compilation of @es[par]. These
@@ -147,7 +147,7 @@ a signal @es[S] as @es[So], and the input wires @es[Si].
 
 @circ-fig['emit]
 
-The last term without subterms, @es[pause], is also significantly more complex than the others.
+The last term without subterms, @es[pause], is also more complex than the others.
 Its compilation is in @figure-ref["comp:pause"]. Firstly, the @es[GO] wire is connected
 to the @es[K1] wire, as a @es[pause] will pause the first time is reached.
 The @es[SEL] wire is similarly straightforward: it is true when the register is true. The @es[K0] wire

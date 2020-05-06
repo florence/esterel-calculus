@@ -61,7 +61,7 @@ We only
 need to check for one step of @es[⟶^s], because if multiple @es[⟶^s] could uncover
 a reduction in @es[⟶^r], then there would exist some term which would be one step @es[⟶^s] away
 from a @es[⟶^r] reduction which would violate the lemma. The negative existential in this
-would make it very tricky to prove. However, we are in luck: everything used in this statement
+would make it tricky to prove. However, we are in luck: everything used in this statement
 is decidable. Therefore this is proved by proving it's contrapositive:
 @proof-splice["nv-must-step"]
 
@@ -90,7 +90,7 @@ one of these canonical forms.
 Therefore all closed terms are @es[≡^esterel] to some
 canonical term.
 
-Now that we have show that there exist canonical forms, and that
+Now that we have show that there exist canonical forms, and
 that every closed pure Esterel term is @es[≡^esterel]
 to one of these forms, we know that @es[eval^esterel] is
 defined on all closed pure terms. The next step in proving adequacy is to show
