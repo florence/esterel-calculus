@@ -1,0 +1,53 @@
+running test 100
+has been running for 18 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 0)
+       ("is-present" . 0)
+       ("loop" . 0)
+       ("loop^stop-exit" . 0)
+       ("merge" . 0)
+       ("par-1exit" . 0)
+       ("par-2exit" . 0)
+       ("par-nothing" . 12)
+       ("par-swap" . 13)
+       ("seq-done" . 25)
+       ("seq-exit" . 0)
+       ("signal" . 0)
+       ("suspend" . 0)
+       ("trap" . 0))
+running test 200
+has been running for 218 seconds
+'#hash(("emit" . 0)
+       ("is-absent" . 0)
+       ("is-present" . 0)
+       ("loop" . 0)
+       ("loop^stop-exit" . 0)
+       ("merge" . 6)
+       ("par-1exit" . 0)
+       ("par-2exit" . 0)
+       ("par-nothing" . 17)
+       ("par-swap" . 25)
+       ("seq-done" . 35)
+       ("seq-exit" . 17)
+       ("signal" . 13)
+       ("suspend" . 0)
+       ("trap" . 13))
+terminate break
+  context...:
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/core/equality.rkt:53:0: @equal?
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/adt/list.rkt:74:0: list=?
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/core/equality.rkt:53:0: @equal?
+   ...form/control.rkt:31:25
+   /Users/florence/dissertation-tests/circuitous/circuitous-lib/circuitous/private/shared.rkt:7:0: deref
+   ...form/control.rkt:30:25
+   loop
+   [repeats 65 more times]
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/adt/list.rkt:119:9: @map
+   ...form/control.rkt:31:25
+   [repeats 1 more time]
+   .../more-scheme.rkt:261:28
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/form/control.rkt:33:0: branch-and-merge
+   .../more-scheme.rkt:261:28
+   /Users/florence/Library/Racket/snapshot/pkgs/rosette/rosette/base/form/control.rkt:33:0: branch-and-merge
+   .../more-scheme.rkt:261:28
+   ...

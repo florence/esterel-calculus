@@ -1,0 +1,101 @@
+running test 100
+has been running for 47 seconds
+running test 200
+has been running for 86 seconds
+running test 300
+has been running for 141 seconds
+running test 400
+has been running for 205 seconds
+running test 500
+has been running for 237 seconds
+running test 600
+has been running for 292 seconds
+running test 700
+has been running for 462 seconds
+running test 800
+has been running for 555 seconds
+running test 900
+has been running for 620 seconds
+running test 1000
+has been running for 651 seconds
+running test 1100
+has been running for 708 seconds
+running test 1200
+has been running for 744 seconds
+running test 1300
+has been running for 805 seconds
+running test 1400
+has been running for 835 seconds
+running test 1500
+has been running for 871 seconds
+running test 1600
+has been running for 912 seconds
+running test 1700
+has been running for 1078 seconds
+running test 1800
+has been running for 1174 seconds
+running test 1900
+has been running for 1238 seconds
+running test 2000
+has been running for 1305 seconds
+running test 2100
+has been running for 1361 seconds
+running test 2200
+has been running for 1387 seconds
+running test 2300
+has been running for 1468 seconds
+running test 2400
+has been running for 1553 seconds
+running test 2500
+has been running for 1580 seconds
+running test 2600
+has been running for 1615 seconds
+running test 2700
+has been running for 1679 seconds
+running test 2800
+has been running for 1764 seconds
+running test 2900
+has been running for 1786 seconds
+running test 3000
+has been running for 1803 seconds
+running test 3100
+has been running for 1913 seconds
+running test 3200
+has been running for 1952 seconds
+running test 3300
+has been running for 1974 seconds
+running test 3400
+has been running for 1995 seconds
+running test 3500
+has been running for 2026 seconds
+running test 3600
+has been running for 2059 seconds
+running test 3700
+has been running for 2140 seconds
+running test 3800
+has been running for 2217 seconds
+running test 3900
+has been running for 2240 seconds
+running test 4000
+has been running for 2280 seconds
+running test 4100
+has been running for 2302 seconds
+terminate break
+  context...:
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/matcher.rkt:1661:6: loop
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/matcher.rkt:597:0: match-pattern
+   /Users/florence/dissertation-tests/Racket/collects/racket/contract/private/arrow-val-first.rkt:486:18
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/reduction-semantics.rkt:1868:24: loop
+   ...private/term.rkt:80:18
+   ...udgment-form.rkt:379:19
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/judgment-form.rkt:391:2: for-loop
+   [repeats 1 more time]
+   /Users/florence/dissertation-tests/Racket/collects/racket/private/map.rkt:35:13: map
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/reduction-semantics.rkt:1868:24: loop
+   ...private/term.rkt:80:18
+   ...udgment-form.rkt:379:19
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/judgment-form.rkt:391:2: for-loop
+   [repeats 2 more times]
+   /Users/florence/dissertation-tests/Racket/collects/racket/private/map.rkt:35:13: map
+   /Users/florence/dissertation-tests/Racket/share/pkgs/redex-lib/redex/private/reduction-semantics.rkt:1868:24: loop
+   ...
