@@ -51,16 +51,13 @@ instant of execution, which leads to an evaluator
 Multi-instant evaluation is described in
 @secref["sec:calc:future"].
 
-The rules of @es[⇀], broadly, be broken up into three
+The rules of @es[⇀], broadly, be broken up into two
 categories: Administrative reductions which shuffle the term
 around to find the next redex; Signal Reductions, which
-manipulate and read signal states; and Host language rules
-which give Esterel's interaction with the Host language. The
-description here is incremental, introducing concepts as it
-goes along, and only the administrative and signal rules are
-described here. The host language rules are given in
-@secref["sec:full:host"]. The complete rules and grammars
-can be found in one place in Appendix A.
+manipulate and read signal states. The description here is
+incremental, introducing concepts as it goes along. The
+complete rules and grammars can be found in one place in
+Appendix A.
 
 
 
