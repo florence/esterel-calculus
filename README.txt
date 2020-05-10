@@ -1,15 +1,26 @@
-This repository contains the software artifact for
-the paper "A Calculus for Esterel"
 
-It has the Redex and Agda implementations of the calculus,
-as well as the testing suites and proofs mentioned in the paper.
+This repository has the Redex implementations of the calculus,
+as well as the testing suites and proofs mentioned in dissertation.
 
 
 External Dependencies:
-
-Agda version 2.5.2, and the Adga standard library version 0.13.
-Racket v7.0.
+Racket v7.6.
 The various dependencies of Bigloo Scheme and Hop.js.
+The fork of the racket pict library https://github.com/florence/pict/tree/diss
+The fork of the racket redex library: https://github.com/florence/redex/tree/holes
+
+iPython/Jupyter:
+  https://ipython.org/  
+  The racket library https://github.com/rmculpepper/iracket
+  which has the racket kernel for ipython.
+
+
+Optional:
+Agda version 2.5.2, and the Adga standard library version 0.13.
+
+
+The racket libraries can be installed in the same way as
+this repo, described below.
 
 This directory must be installed as a Racket package, and must be
 named `esterel-calculus`. Achieve that with the command:
@@ -27,30 +38,20 @@ Makefile: targets are:
             compile Racket files and paper.
       `front-end`:
             test the compiler from Racket to the Redex model
+      `circuits`:
+            test the circuit compiler
       `redex`:
-            test the Redex code (which runs agains the Agda code).
+            test the Redex code, including the circuit compiler.
       `long`:
             run the long running tests.
       `agda`:
             typecheck all Agda code, and ensure that there
             are no `postulate`s or `trustMe`s.
-      `paper`:
-            build the paper and check the statements of the
-            proofs against the Agda codebase.
-      `no-agda-paper`:
-            build the paper but skip checking against Agda.
+      `dissertation`:
+         build the dissertation
       `all`:
             run Agda and the long running tests.
 
-
-agda: The Agda implementation of the Esterel calculus.
-
-      The main theorem in the paper, Theorem 3.2, is
-      given as `eval≡ₑ-consistent` in `agda/eval-props.agda`
-      Theorem 3.3 is given as `≡ₑ-consistent` in
-      `agda/calculus/properties.agda`.
-
-      See `agda/README.txt` for more details.
 
 redex: The Redex implementation of the calculus and its tests.
        Some of these tests will be skipped because because
@@ -64,10 +65,9 @@ redex/model: The Redex model.
       `calculus.rkt`
             contains the calculus proper.
       `reduction.rkt`
-            contains the std reduction.
+            contains the reduction stratagy
       `eval.rkt`
-            contains and eval function used for testing and
-            comparing to Agda.
+            contains and eval function used for testing
       `shared.rkt`
             contains shared language grammar and helper
             metafunctions.
@@ -81,6 +81,11 @@ redex/model: The Redex model.
             used for testing.
       `lset.rkt`
             contains helpers for handling sets in Redex.
+      `count.rkt`
+            contains the S function, for estemating potential reduction
+            sequence lengths
+      `deps.rkt`
+            generator for the causality graphs
 
 redex/test: contains the testing harness and Redex tests
       `binding.rkt`:
@@ -101,6 +106,11 @@ redex/test: contains the testing harness and Redex tests
       `model-test.rkt`:
             The primary testing harness. Runs a fixed
             set of tests and a small set of random tests.
+      `keep-A.rkt`
+            Tests for properties about the reduction semantics
+            and control varialbes
+      `constructivitiy.rkt`
+            Tests focused on constructivity
 
 redex/test/long-test: contains harnesses for long running tests.
       `external.rkt`:
@@ -110,6 +120,9 @@ redex/test/long-test: contains harnesses for long running tests.
       `internal.rkt`:
             Run 100000000000000000 tests between COS and Redex.
             These tests run much faster than the external ones.
+      `circuits.rkt`
+           Run the same number of tests, but for the circuit compiler
+           and soundness of the calculus. These tests are increadibly slow.
       `run-test.rkt`:
             Run 10000 tests between all four implementations.
             These run when `make` and `make redex` are run.
@@ -118,15 +131,20 @@ redex/test/long-test: contains harnesses for long running tests.
             are disabled. This means some random tests will
             effectively never terminate.
 
-
-cross-tests: tests that check that the Agda and Redex models
-             are defining the same calculus. See `cross-tests/
-             README.txt` for more information.
+`circuits`: the circuit semantics implemented in redex on top of circuitous
+            Also has the ipython notebooks for some of the proofs.
+      *.ipynb: the ipython notebooks
+      `compiler.rkt`: The circuit semantics
+      `tests/direct-tests.rkt`: unit tests which
+           check internals of the compiler
+      `tests/eval-tests.rkt`: tests against the circuit evaluator
+      `tests/guard-tests.rkt`: tests of the guard procedure
+      `tests/random-tests.rkt`: implementation of the random tests against the calculus
+      `tests/regression.rkt`: various regression tests
+      `tests/verification.rkt`: tests that verfy that equilities hold on compiled terms
 
 final-tests: test harness and log files for major tests
              mentioned in the paper.
-      logs/agda*.log :
-            logs from the agda/redex cross tests
       logs/internal*.log :
             logs from the tests between COS and Esterel
             Calculus only.
@@ -135,6 +153,9 @@ final-tests: test harness and log files for major tests
             Esterel V5, and Hiphop.js. Are test failures here are
             logged bugs or known differences between the COS
             semantics and Esterel V5 and Hiphop.js.
+      logs/circuits*.log
+        Logs from the tests between the circuit semantics
+        and the calculus.
 
 HipHop: compiler from the Redex implementation of Kernel Esterel
         to HipHop.js, used for running HipHops tests.
@@ -164,8 +185,6 @@ install-prefix: install locations for HipHop.js (and its
                 by initializing the git submodule. See
                 `install-prefix/README.txt` for more information.
 
-paper: Source for the paper.
-
 `cos-model.rkt` : Implementation of the COS semantics in Redex.
 
 `front-end.rkt`, `front-end-tests.rkt`, `front-end-tester.rkt`:
@@ -174,12 +193,17 @@ paper: Source for the paper.
                   of Kernel Esterel. Used for running the Hiphop.js
                   tests.
 
-`agda-all.rkt: build harness for running all of the Agda code.
+`agda-all.rkt`: build harness for running all of the Agda code.
 
-`info.rkt: Racket build file.
+`info.rkt`: Racket build file.
 
+`cross-tests`: tests which check the redex model vs the agda code. now defunct.
 
+`agda/`: The Agda implementation of the old version of the Esterel calculus.
+         Somewhat defunct.
+         See `agda/README.txt` for more details.
 
+`wg28-2020/`: draft of Robby's talk for wg28
 
 
 
@@ -188,130 +212,22 @@ translated to each other, and where those transformations
 are implemented.
 
 
-Surface Esterel. <-------------------------------------------------------------
-   |                                                                          |
-   | `front-end.rkt`                                                          |
-   |                                                                          |
-   |                                                                          | `hiphop/parse.rkt`
-   v                                                                          |
-Redex Model.----------------------------------------                          |
-   |                             |                 |                          |
-   | `redex/model/external.rkt`  | `cross-tests/`  | `hiphop/to-hiphop.rkt`   |
-   |                             |                 |                          |
-   |                             |                 |                          |
-   V                             V                 V                          |
-Esterel v5.                    Agda.            Hiphop.js.---------------------
+Surface Esterel. <-------------------------------------------------------------------------------
+   |                                                                                            |
+   | `front-end.rkt`                                                                            |
+   |                                                                                            |
+   |                                                                                            | `hiphop/parse.rkt`
+   v                                                                                            |
+Redex Model.----------------------------------------------------------                          |
+   |                             |                    |              |                          |
+   | `redex/model/external.rkt`  | `cross-tests/`     | `circuits/`  | `hiphop/to-hiphop.rkt`   |
+   |                             |                    |              |                          |
+   |                             |                    |              |                          |
+   V                             V                    V              V                          |
+Esterel v5.                    Agda.               Circuits        Hiphop.js.---------------------
 
 
 Note that `hiphop/parse.rkt` is not a total transformation
 because of embedded javascript code. In addition `front-end.rkt`
 may embed Racket code into the Redex model. Such programs
 cannot be transformed into the other implementations.
-
-How To Use:
-
-Below follows some example changes you might make to this
-artifact, and some of what you may need to modify to do so.
-
-Add or modify rules in the calculus:
-  Assuming everything is set up and `make` works.
-  1. Change `redex/modex/shared.rkt` to update
-     the language grammar.
-  2. Change `redex/model/calculus.rkt` to
-     update the rules.
-  3. Change `redex/model/standard.rkt` to make
-     corresponding changes to the std reduction.
-  4. Update `front-end.rkt` to be able to compile
-     to the new forms
-  5. Update `redex/test/binding.rkt` to handle
-     correct binding of any new forms
-
-  --- If you want to test against external implementation
-                 (say you are adding Esterel v7 features) ---
-  5. Follow below sets of instructions to update
-     Esterel v5 and Hiphop.js.
-  --- end if
-
-  --- If you want to test against an updated COS model ---
-  6. Change `cos-model.rkt` to add the new grammar
-     and semantics.
-  --- end if
-
-  7. Run `raco test` on  all files in `redex/model` and
-     on all files prefixed with `front-end`. this will
-     run the basic tests.
-  8. Run `raco test` on `redex/test/model-test.rkt`.
-     This will run the tests against the COS, Esterel,
-     and Hiphop.js pass. If you are not testing against
-     Esterel and Hiphop.js, uninstalling either of those
-     will skip that check. If you not testing against
-     the COS, Esterel, and Hiphop.js, skip this step.
-     Any other combination of tests against those three
-     will require modifications to `model-test.rkt`.
-  9. Run `raco test` on `redex/test/binding.rkt` and
-     `redex/test/church-rosser.rkt`. If all of these
-     passed, it appears that the Redex model works,
-     and has a nonzero probability of being correct.
-  10. Update the Agda proofs. See the README there for
-      a sense of which files to modify.
-  11. Run `make agda` to make sure the proofs work.
-  12. Update the files in `cross-test/` to generate
-      the new Agda code.
-  13. Run `raco test` on all files in `cross-tests/`
-      to sanity check Redex model against the Agda model.
-  14. Run `make` to sanity check that everything works.
-  15. Modify `final-tests/run.rkt` to run the whichever
-      tests you want to run (against COS, Agda, Esterel,
-      or HipHop.js).
-  16. Clear out `final-tests/logs/`
-  17. Run `final-tests/run.rkt` in as many processes as
-      you want on your favorite multi-core machine.
-  18. After you desired Long Amount Of Time has passed,
-      check the logs in `final-tests/logs/` for any
-      test failures.
-
-
-To update Agda to a new version:
-  Assuming you already have Agda installed, you will need to
-  1. update Agda.
-  2. update the std library.
-  3. update the proofs in `agda/`
-  4. change `cross-tests/` Redex to Agda translator
-     to generate Agda code consistent with the new
-     version of Agda.
-  5. run `make` to make sure everything compiles,
-     type checks, and passes its tests.
-  6. run `make paper` to check that the statements in
-     the paper still check out w.r.t the Agda proofs.
-
-
-
-Update to a new Esterel version:
-  Assuming Esterel is already in the `install-prefix/` directory.
-  1. Replace the Esterel with a new Esterel version.
-  2. Update `redex/model/concrete.rkt` to compile
-     Redex to the new version
-  3. Update `redex/test/external.rkt` to handle new
-     CLI interface and possible errors.
-  4. Run `make` to check new tests.
-
-
-Update Hiphop.js Version:
-  Assuming Hiphop.js, and it dependencies Bigloo Scheme
-  and Hop.js are already in `install-prefix/`
-  1. Delete `install-prefix/bigloo`
-  2. Update `install-bin/install-bigloo.sh` to install
-     the new version.
-  3. Update `install-bin/install-hop.sh` to install
-     the new version.
-  4. Update the git submodule in `install-prefix/hiphop/`
-     to point to the new version.
-  5. Run `install-bin/install-bigloo.sh` and
-     `install-bin/install-hop.sh` in that order.
-  6. Update `hiphop/parse.rkt` to parse the new Hiphop.js
-     format and test cases.
-  7. Update `hiphop/pretty-print.rkt` for any changes
-     to the Hiphop.js execution harness
-  8. Update `hiphop/to-hiphop.rkt` for any changes
-     to the Hiphop.js syntax.
-  9. Run `make` to test changes

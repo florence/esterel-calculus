@@ -30,19 +30,6 @@ agda: always
 	find . -name "*.agda" -exec grep -H -A 1 postulate {} \;
 	find . -name "*.agda" -exec grep -H -A 1 trustMe {} \;
 
-cross: redex agda
-	$(RACO) test cross-tests/*rkt
-	racket cross-tests/redex-model-implies-agda-model.rkt
-
-
-paper: always
-	(cd paper ; $(RACO) make -v paper.scrbl && SCRIBBLE --pdf paper.scrbl)
-	$(RACO) test paper/*rkt paper/*scrbl
-
-no-agda-paper: always
-	cd paper ; $(RACO) make -v paper.scrbl && env SKIPAGDA=1 SCRIBBLE --pdf paper.scrbl
-	$(RACO) test paper/*rkt paper/*scrbl
-
 all: agda long
 
 dissertation: always
