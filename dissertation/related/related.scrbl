@@ -19,7 +19,7 @@ existing work on Esterel, this section covers some existing
 semantics, how they related to properties the calculus
 captures, and how they capture the notion of
 constructiveness. Many of the semantics in this section are
-given the epithet ``Constructive''. This is because earlier
+given the label ``Constructive''. This is because earlier
 semantics for Esterel captured a slightly different language
 which accepted more programs. Those semantics are called
 ``logical'', such as the original semantics, given in
@@ -67,7 +67,7 @@ These semantics, as given in @citet[esterel02], only handle Pure Esterel.
 
 @subsection["Constructive Operational Semantics"]
 
-The Constructive Operational Semantics, in some sense,
+The Constructive Operational Semantics (COS), in some sense,
 provides a bridge between the SBS and an actual
 implementation of Esterel. It replaces the @es[Must] metafunction
 with a reduction relation (which also doubles as the
@@ -75,7 +75,7 @@ administrative reduction relation from the SBS). The core
 idea here is that the reduction relation represents running
 the program, and if something runs then it must happen.
 
-In this semantics, non-constructive programs are ones which
+In the COS, non-constructive programs are ones which
 get stuck during execution, e.g. programs that cannot reduce
 further and are not in a fully executed state. In
 general, this is because the reduction cannot make progress without
@@ -96,8 +96,8 @@ a dataflow problem where the data is encoded as power
 flowing down a wire. This is then combined with the original
 dataflow (e.g. signals) to give a full circuit. In
 essence, the circuit semantics treats the causality
-graph as a dataflow problem in the domain of circuits.
-@es[pause]s are encoded as registers which pass whether or
+graph as a dataflow problem in the domain of circuits. A
+@es[pause]s is encoded as a register which passes on whether or
 not control reached a given point onto a future instant.
 
 There are multiple circuit semantics.
@@ -116,12 +116,12 @@ This compiler is discussed in depth in @secref["just:sound:compiler"].
 In both semantics, the constructivity of Esterel
 programs is transformed into the constructivity of
 circuits@~cite[shiple-constructive-circuit]: an Esterel program
-is constructive on some inputs if an only if all wires in its circuit
+is constructive on some inputs if and only if all wires in its circuit
 always settle to a single value in a bounded amount of
 time. Just as with causality graphs, circuits are
 non-constructive if some cycle in the circuit
-demands a value be settled on for some wire, who's value
-depends on the state of that cycle.
+demands a value be settled on for some wire, and the value for that wire value
+depends on the state of the cycle.
 
 The circuit semantics allow for local reasoning about
 equality between programs.
@@ -151,14 +151,14 @@ is built from fundamentally different techniques,@note{For instance, their
 This is because it cannot reason about @es[emit]s, as it lacks the control
 variable my calculus adds. However it is much stronger in other
 respects: in fact it is complete modulo bisimilarity on constructive programs. Adding
-the axioms of this semantics to the calculus would result in a much more
-powerful reasoning framework. This semantics only handles Pure Esterel.
+the axioms of the Axiomatic Semantics to the Construtive Calculus would result in a much more
+powerful reasoning framework. The Axiomatic Semantics only handles Pure Esterel.
 
 
 @subsection["The Color Semantics"]
 
-What I am calling the color semantics is an microstep semantics form
-@citet[color-semantics].@note{This is call the ``Microstep semantics'' by
+@citet[color-semantics] gives a a microstep semantics
+which I call here the Color Semantics.@note{This is called the ``Microstep semantics'' by
 @citet[color-semantics]. I use a different name here to avoid confusion with
 other microstep semantics like the COS.}
 It replaces both Must and Can
@@ -166,7 +166,7 @@ with colors that propagate throughout the program, mimicking how @es[1] and @es[
 propagate through circuits. The control variables of the constructive
 calculus are based off this.
 The Color semantics is syntactic and adequate, but does
-not allow for local transformations. This semantics handles only  Pure Esterel.
+not allow for local transformations. The Color Semantics handles only  Pure Esterel.
 
 @subsection["Quartz"]
 
@@ -183,7 +183,7 @@ requires knowledge about the context. This limits the amount
 of local reasoning in the semantics. It is also not a
 syntactic semantics. It is adequate, and in fact can be used
 for verified code generation.
-This semantics handles host language data, and
+Quartz handles host language data, and
 also extends Kernel Esterel with forms such as
 delayed emission and non-deterministic choice.
 

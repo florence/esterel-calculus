@@ -25,7 +25,7 @@
        #:tag "sec:the-rest"]{Adding in the rest of Esterel}
 
 The tripod of evidence that the calculus stands on includes
-prior work and testing, along side the proofs. So far I have
+prior work and testing, alongside the proofs. So far I have
 only given one of those legs, the proofs, and only for the
 pure, loop free, single instant, fragment of Esterel. This
 chapter fills in the parts of the calculus which handle
@@ -33,7 +33,7 @@ loops, host language expressions, and multi-instant
 execution. It will also give the other two legs of the
 tripod: testing and prior work. While the parts of the
 calculus given so far stand on all three legs, these new
-parts are only supported by testing and prior work.
+parts are supported only by testing and prior work.
 
 
 @section{Loops}
@@ -93,13 +93,13 @@ fragment which matches @es[(loop^stop nothing q)]. Such a
 program has had the loop body terminate in the current
 instant, and there is no rule which can reduce this term.
 This term is not @es[done], however, because it is not a
-complete program state. In addition This program is not
+complete program state. In addition, this program is not
 counted as @es[blocked]. This is because if such a program
 were to be counted as non-constructive then the definitions
 of non-constructive in Esterel would not cleanly match the
-definition of non-constructive in circuits, because the
-Esterel compiler, as given in chapter 11 of
-@citet[esterel02], requires that instantaneous loops be
+definition of non-constructive in circuits. The
+Esterel compiler from
+@citet[esterel02] requires that instantaneous loops be
 eliminated statically before compilation, and therefore is
 not defined on such programs. Therefore I have chosen to
 make @es[eval^esterel] also not defined on such programs.
@@ -108,17 +108,17 @@ make @es[eval^esterel] also not defined on such programs.
 
 There are two reasons I have left loops out of my proofs,
 both of which relate to difficulties in stating the theorems correctly.
-Firstly there is a subtle difference in how the compiler
-and the evaluator handle instantaneous loops. The compiler
+Firstly there is a subtle difference in how the circuit semantics
+and the evaluator handle instantaneous loops. The circuit semantics
 requires that all loops be checked statically to ensure
 that they can never be instantaneous.
 The evaluator, however, is undefined only on programs
 that trigger instantaneous loops dynamically. This means that
-the evaluator is defined on more programs than the compiler.
+the evaluator is defined on more programs than the circuit semantics.
 
 The next issue is the issue of schizophrenia. The correct binding
 judgment ensures that the calculus never suffers from schizophrenia.
-However the compiler requires that programs be transformed to
+However the circuit semantics requires that programs be transformed to
 eliminate possibly schizophrenic variables. The simplest
 of these is to fully
 duplicate every loop body, by transforming every @es[(loop p)]
@@ -126,15 +126,16 @@ into @es[(loop (seq p p))]. This is not what is done
 in practice: in general parts of the program
 are selectively duplicated, using methods such as those given by
 @citet[new-method-schizophrenic] or chapter 12 of
-@citet[esterel02] selectively duplicate only parts of the
-program. This however means in practice that the loops
-that the compiler operates on look different to those that
+@citet[esterel02]. This however means in practice that the loops
+that the circuit semantics operates on look different to those that
 the evaluator operates on, in a way that is difficult to formalize.
 
-The handling of in the calculus loops is adapted from the COS, which annotates
-loops with @es[STOP] and @es[GO] to determine if the loop can restart.
+The handling of in the calculus loops is adapted from the
+COS@~cite[optimizations-for-esterel-programs-thesis], which
+annotates loops with @es[STOP] and @es[GO] to determine if
+the loop can restart.
 
-Loops are handled by the compiler by duplicating the loop body, in a manner described
+Loops are handled by the circuit semantics by duplicating the loop body, in a manner described
 by @citet[esterel02]. To see how this works, it is easiest to look at the compilation of
 @es[loop^stop], seen in @figure-ref["comp:loop^stop"]. This is essentially the compilation of
 @es[seq], except that the output @es[K0] wire is removed (and is therefore @es[0]),
@@ -191,8 +192,8 @@ to @rule["emit"].
 
 
 Initializing and updating host language variables is
-simpler:@(linebreak)
-@[render-specific-rules '(var set-var)]@(linebreak)
+simpler:
+@[centered [render-specific-rules '(var set-var)]]
 The initialization of the host language variable via
 @rule["var"] is nearly identical to the initialization of
 shared variables, the only difference being the type of
@@ -202,8 +203,8 @@ because Esterel doesn't directly provide guarantees about
 concurrency with host language variables, the new value just
 replaces the old one in the environment.
 
-We can condition on host language variables using the @es[if!0] form:@(linebreak)
-@[render-specific-rules '(if-true if-false)]@(linebreak)
+We can condition on host language variables using the @es[if!0] form:
+@[centered [render-specific-rules '(if-true if-false)]]
 Which, for this model, behaves like C's @es[if], treating @es[0] as false
 and everything else as true. These rules requires the control variable to be
 @es[GO] as well, as picking a branch of the @es[if!0] might break existing
@@ -380,10 +381,9 @@ but with extensions to handle @es[loop^stop] and @es[ρ].
 
 @(define itemlistheader bold)
    
-I have evidence the theorems I have proven hold for the pure language,
-and that they should hold for the extensions in this chapter.
+I have evidence the theorems I have proven should hold for the extensions in this chapter.
 This evidence comes in the form of random tests.
-To do this, I provide the following:
+To do this, I use the following
 
 @itemlist[@item{@itemlistheader{Redex COS model} I built a
            Redex@~cite[redex-book] model of the COS semantics. The semantics is a
@@ -426,7 +426,7 @@ To do this, I provide the following:
 
 
 I have run @(~a impure-test-count) random tests which on Full
-Esterel programs with loops which test that the Hiphop.js,
+Esterel programs with loops. These tests check that the Hiphop.js,
 @|Esterel\ v5|, the COS, the calculus, and the circuit
 compiler agree on the result of running programs for
 multiple instants.@note{Each test runs for a random number
@@ -448,5 +448,6 @@ circuits are equal using the Circuitous library. These
 tests provide evidence for soundness, and especially for the
 soundness with loops.
 
+Together these tests took approximately six CPU weeks.
 The logs of these test cases and all of the code discussed above
 is stored at https://github.com/florence/esterel-calculus.

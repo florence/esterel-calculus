@@ -53,7 +53,7 @@ Multi-instant evaluation is described in
 
 The rules of @es[⇀], broadly, be broken up into two
 categories: Administrative reductions which shuffle the term
-around to find the next redex; Signal Reductions, which
+around to find the next redex; and Signal Reductions, which
 manipulate and read signal states. The description here is
 incremental, introducing concepts as it goes along. The
 complete rules and grammars can be found in one place in
@@ -512,7 +512,8 @@ this particular program is stuck. Therefore
 
  A natural question about the calculus for
 someone familiar with the lambda calculus might be ``is
-there an @rule["α"] rule?''. Instead of working up to α-equivalence, as is common in the
+there an @rule["α"] rule?''. Instead of using the variable
+convention @~cite[barendregt] and working up to α-equivalence, as is common in the
 lambda calculus world, I take a different tact inspired by
 Esterel, circuits, and schizophrenia and work up
 to what I have called correct binding. The judgment for a program

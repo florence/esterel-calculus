@@ -1188,6 +1188,32 @@
          (es (L∈ n (->K (Can p-pure θ))))
          (def-t ", ")
          (es (= (of cs (K n)) ⊥)))))]
+    ['say
+     (λ (lws)
+       (match-define (list _ _ body ... _) lws)
+       (define x
+         (add-between 
+          (for/list ([b (in-list body)])
+            (match (lw-e b)
+              [(list open es b close) b]
+              [(? symbol? e)
+               (mf-t (~a e))]))
+          " "))
+       (define (coerce x)
+         (cond
+           [(string? x) (def-t x)]
+           [else x]))
+       (let loop ([l x])
+         (match l
+           [(list) (list)]
+           [(list x) (list x)]
+           [(list* a* b* r)
+            (define a (coerce a*))
+            (define b (coerce b*))
+            (if (and (pict-convertible? a) (pict-convertible? b))
+                (loop (cons (hbl-append a b) r))
+                (list* a b (loop r)))])))]
+             
     ['∘ (curry binop "∘")])
         
         
@@ -1215,7 +1241,8 @@
    ;                                                              
 
    (with-atomic-rewriters
-    (;; for postercircuit-red-pict
+    (['Must (lambda () (mf-t "Must"))]
+     ;; for postercircuit-red-pict
      ['C^esterel (lambda () (render-op/instructions (nt-t "C") `((superscript E))))]
      ['C^js (lambda () (render-op/instructions (nt-t "C") `((superscript JS))))]
      ['e^js (lambda () (render-op/instructions (nt-t "e") `((superscript JS))))]

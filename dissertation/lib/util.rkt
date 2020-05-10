@@ -56,7 +56,7 @@
          proof-splice
          extract-definition
          
-         theorem theorem-ref Theorem-ref
+
          lemma lemma-ref Lemma-ref
          render-case-body
          proof
@@ -171,6 +171,7 @@
    #"\\newtheoremstyle{case}{}{}{}{}{}{:}{ }{}\n"
    #"\\theoremstyle{case}\n"
    #"\\newtheorem{case}{Case}\n"
+  #; #"\\newtheorem{conjecture}{Conjecture}"
    #"\\usepackage{enumitem}\n"
    #"\\newlist{casesp}{enumerate}{6}\n"
    #"\\setlist[casesp]{align=left, %% alignment of labels
@@ -323,25 +324,26 @@
                          #:interpretation [interp #f]
                          #:type [type 'lemma]
                          #:title [title #f]
-                         #:no-proof [no-proof #f]
                          loc
                          . the-proof)
   (->*
    (any/c #:label string? #:statement (treeof pre-flow?))
    (#:annotations list?
     #:interpretation (treeof pre-flow?)
-    #:type (or/c 'lemma 'theorem)
-    #:title (or/c #f string?)
-    #:no-proof boolean?)
+    #:type (or/c 'lemma 'theorem 'conjecture)
+    #:title (or/c #f string?))
    #:rest (treeof pre-flow?)
    (treeof pre-flow?))
+  (define no-proof (eq? type 'conjecture))
   (when (hash-has-key? proof-name-table label)
     (error 'proof "attempted to make two proofs with the label ~a" label))
   (define (mk-statement [lbl? #f])
     (wrap-latex-begin-end
      (case type
        [(lemma) "lemma"]
-       [(theorem) "theorem"])
+       [(theorem) "theorem"]
+       [(conjecture) "conjecture"]
+       [else (error 'proof "what is ~a" type)])
      #:followup (and title (string-append "[\\scshape " title "]"))
      (decode-flow
       `(,nopagebreak
@@ -384,16 +386,16 @@
      (element (style #f '(exact-chars)) (format "\\end{~a}" env))))))
 
 (define (proof-ref str)
-  (list (proof-type-ref str "lemma~" "theorem~" "undefined theorem~")
+  (list (proof-type-ref str "lemma~" "theorem~" "conjecture~" "undefined theorem~")
         (element (style "ref" '(exact-chars)) (list (string-append "p:" str)))
         (proof-title-ref str)))
 
 (define (Proof-ref str)
-  (list (proof-type-ref str "Lemma~" "Theorem~" "Undefined theorem~")
+  (list (proof-type-ref str "Lemma~" "Theorem~" "Conjecture~" "Undefined theorem~")
         (element (style "ref" '(exact-chars)) (list (string-append "p:" str)))
         (proof-title-ref str)))
 
-(define (proof-type-ref str l p u)
+(define (proof-type-ref str l p c u)
   (delayed-element
          (lambda _
            (define t (hash-ref proof-type-table str #f))
@@ -401,9 +403,11 @@
              (case t
                [(lemma) l]
                [(theorem) p]
+               [(conjecture) c]
                [(#f)
                 (log-error "undefined theorem: ~a" str)
-                u]))
+                u]
+               [else (error 'proof-ref "what is ~a" t)]))
            (element (style "relax" '(exact-chars)) (list label)))
         (lambda () "")
         (lambda () "")))

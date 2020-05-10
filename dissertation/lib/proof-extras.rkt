@@ -332,7 +332,8 @@
 
    (--> (ρ GO (in-hole E (present S p q)))
         (ρ GO (in-hole E p))
-        (where (in-hole E_1 (emit S)) (in-hole E (present S p q)))
+        (where (in-hole E_′ (emit S)) (in-hole E (present S p q)))
+        (side-condition (term (say for some (es E_′))))
         is-present)
 
    (--> (in-hole E (emit S)) (par (emit S) (in-hole E nothing))

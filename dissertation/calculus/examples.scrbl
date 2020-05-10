@@ -61,8 +61,7 @@ Next, we have another weakness in the calculus. The next theorem holds,
 but cannot be proven in the calculus:
 @proof[#:label "unprovable-lifting"
        #:title "Lift Signal Emission (not provable)"
-       #:no-proof #t
-       #:type 'theorem
+       #:type 'conjecture
        #:statement
        @list{For all @es[E], @es[S],
         @es[(≃^esterel (in-hole E (emit S)) (par (emit S) (in-hole E nothing)))]
@@ -70,8 +69,7 @@ but cannot be proven in the calculus:
 In fact it cannot prove even this weaker statement:
 @proof[#:label "unprovable-lifting2"
        #:title "Lift Signal Emission, with Binder (not provable)"
-       #:type 'theorem
-       #:no-proof #t
+       #:type 'conjecture
        #:statement @list{
         For all @es[E], @es[S],
         @es[(≃^esterel (signal S (in-hole E (emit S))) (signal S (par (emit S) (in-hole E nothing))))]
