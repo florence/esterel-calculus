@@ -66,24 +66,24 @@ data _⟶₁_ : Term → Term → Set where
   [par-2exit] : ∀ n m ->
     (exit n ∥ exit m) ⟶₁ exit (n ⊔ℕ m)
 
-  [is-present] : ∀{θ r p q E A} → ∀ S ->
+  [is-present] : ∀{θ r p q E} → ∀ S ->
     (S∈ : (Env.isSig∈ S θ)) →
     (θ[S]≡present : Env.sig-stats{S} θ S∈ ≡ Signal.present) →
     (de : r ≐ E ⟦ present S ∣⇒ p ∣⇒ q ⟧e) →
-    (ρ⟨ θ , A ⟩· r) ⟶₁ (ρ⟨ θ , A ⟩· E ⟦ p ⟧e)
+    (ρ θ · r) ⟶₁ (ρ θ · E ⟦ p ⟧e)
 
-  [is-absent] : ∀{θ r p q E A} → ∀ S ->
+  [is-absent] : ∀{θ r p q E} → ∀ S ->
     (S∈ : (Env.isSig∈ S θ)) →
     (θ[S]≡absent : Env.sig-stats{S} θ S∈ ≡ Signal.absent) →
     (de : r ≐ E ⟦ present S ∣⇒ p ∣⇒ q ⟧e) →
-    (ρ⟨ θ , A ⟩· r) ⟶₁ (ρ⟨ θ , A ⟩· E ⟦ q ⟧e)
+    (ρ θ · r) ⟶₁ (ρ θ · E ⟦ q ⟧e)
 
   [emit] : ∀{θ r S E} →
     (S∈ : (Env.isSig∈ S θ)) →
     (¬S≡a : ¬ (Env.sig-stats{S} θ S∈) ≡ Signal.absent) →
     (de : r ≐ E ⟦ emit S ⟧e) →
-    (ρ⟨ θ , GO ⟩· r) ⟶₁
-    (ρ⟨ (Env.set-sig{S} θ S∈ Signal.present) , GO ⟩·
+    (ρ θ · r) ⟶₁
+    (ρ (Env.set-sig{S} θ S∈ Signal.present) ·
       E ⟦ nothin ⟧e)
 
   [loop-unroll] : ∀{p} →
@@ -112,23 +112,23 @@ data _⟶₁_ : Term → Term → Set where
   -- lifting signals
   [raise-signal] : ∀{p S} →
     (signl S p) ⟶₁
-    (ρ⟨ (Θ SigMap.[ S ↦ Signal.unknown ] ShrMap.empty VarMap.empty) , WAIT ⟩·
+    (ρ (Θ SigMap.[ S ↦ Signal.unknown ] ShrMap.empty VarMap.empty) ·
       p)
 
   -- shared state
-  [raise-shared] : ∀{θ r s e p E A} →
+  [raise-shared] : ∀{θ r s e p E} →
     (all-readyeθ : all-ready e θ) →
     (de : r ≐ E ⟦ shared s ≔ e in: p ⟧e) →
-    (ρ⟨ θ , A ⟩· r) ⟶₁
-    (ρ⟨ θ , A ⟩· E ⟦ (ρ⟨ [s,δe]-env s (δ all-readyeθ) , WAIT ⟩· p) ⟧e)
+    (ρ θ · r) ⟶₁
+    (ρ θ · E ⟦ (ρ [s,δe]-env s (δ all-readyeθ) · p) ⟧e)
 
   [set-shared-value-old] : ∀{θ r s e E} →
     (e' : all-ready e θ) →
     (s∈ : (Env.isShr∈ s θ)) →
     (θ[s]≡old : Env.shr-stats{s} θ s∈ ≡ SharedVar.old) →
     (de : r ≐ E ⟦ s ⇐ e ⟧e) →
-    (ρ⟨ θ , GO ⟩· r) ⟶₁
-    (ρ⟨ (Env.set-shr{s} θ s∈ (SharedVar.new) (δ e')) , GO ⟩·
+    (ρ θ · r) ⟶₁
+    (ρ (Env.set-shr{s} θ s∈ (SharedVar.new) (δ e')) ·
       E ⟦ nothin ⟧e)
 
   [set-shared-value-new] : ∀{θ r s e E} →
@@ -136,60 +136,60 @@ data _⟶₁_ : Term → Term → Set where
     (s∈ : (Env.isShr∈ s θ)) →
     (θ[s]≡n : Env.shr-stats{s} θ s∈ ≡ SharedVar.new) →
     (de : r ≐ E ⟦ s ⇐ e ⟧e) →
-    (ρ⟨ θ , GO ⟩· r) ⟶₁
-    (ρ⟨ (Env.set-shr{s} θ s∈ (SharedVar.new) (Env.shr-vals{s} θ s∈ + δ e')) , GO ⟩·
+    (ρ θ · r) ⟶₁
+    (ρ (Env.set-shr{s} θ s∈ (SharedVar.new) (Env.shr-vals{s} θ s∈ + δ e')) ·
       E ⟦ nothin ⟧e)
 
   -- unshared state
-  [raise-var] : ∀{θ r x p e E A} →
+  [raise-var] : ∀{θ r x p e E} →
     (all-readyeθ : all-ready e θ) →
     (de : r ≐ E ⟦ var x ≔ e in: p ⟧e) →
-    (ρ⟨ θ , A ⟩· r) ⟶₁
-    (ρ⟨ θ , A ⟩·
-      E ⟦ (ρ⟨ [x,δe]-env x (δ all-readyeθ) , WAIT ⟩· p) ⟧e)
+    (ρ θ · r) ⟶₁
+    (ρ θ ·
+      E ⟦ (ρ [x,δe]-env x (δ all-readyeθ) · p) ⟧e)
 
-  [set-var] : ∀{θ r x e E A} →
+  [set-var] : ∀{θ r x e E} →
     (x∈ : (Env.isVar∈ x θ)) →
     (all-readyeθ : all-ready e θ) →
     (de : r ≐ E ⟦ x ≔ e ⟧e) →
-    (ρ⟨ θ , A ⟩· r) ⟶₁
-    (ρ⟨ (Env.set-var{x} θ x∈ (δ all-readyeθ)) , A ⟩·
+    (ρ θ · r) ⟶₁
+    (ρ (Env.set-var{x} θ x∈ (δ all-readyeθ)) ·
       E ⟦ nothin ⟧e)
 
   -- if
-  [if-false] : ∀{θ r p q x E A} →
+  [if-false] : ∀{θ r p q x E} →
     (x∈ : (Env.isVar∈ x θ)) →
     (θ[x]≡z : Env.var-vals{x} θ x∈ ≡ zero) →
     (de : r ≐ E ⟦ if x ∣⇒ p ∣⇒ q ⟧e) →
-    (ρ⟨ θ , A ⟩· r) ⟶₁ (ρ⟨ θ , A ⟩· E ⟦ q ⟧e)
+    (ρ θ · r) ⟶₁ (ρ θ · E ⟦ q ⟧e)
 
-  [if-true] : ∀{θ r p q x E n A} →
+  [if-true] : ∀{θ r p q x E n} →
     (x∈ : (Env.isVar∈ x θ)) →
     (θ[x]≡s : Env.var-vals{x} θ x∈ ≡ suc n) →
     (de : r ≐ E ⟦ if x ∣⇒ p ∣⇒ q ⟧e) →
-    (ρ⟨ θ , A ⟩· r) ⟶₁ (ρ⟨ θ , A ⟩· E ⟦ p ⟧e)
+    (ρ θ · r) ⟶₁ (ρ θ · E ⟦ p ⟧e)
 
   -- progression
-  [absence] : ∀{θ p A} -> ∀ S →
+  [absence] : ∀{θ p} -> ∀ S →
     (S∈ : (Env.isSig∈ S θ)) →
     (θ[S]≡unknown : Env.sig-stats{S} θ S∈ ≡ Signal.unknown) →
     (S∉Canθₛ : (Signal.unwrap S) ∉ Canθₛ (sig θ) 0 p []env) →
-    (ρ⟨ θ , A ⟩· p) ⟶₁
-    (ρ⟨ (Env.set-sig{S} θ S∈ (Signal.absent)) , A ⟩·
+    (ρ θ · p) ⟶₁
+    (ρ (Env.set-sig{S} θ S∈ (Signal.absent)) ·
       p)
 
-  [readyness] : ∀{θ p A} -> ∀ s →
+  [readyness] : ∀{θ p} -> ∀ s →
     (s∈ : (Env.isShr∈ s θ)) →
     (θ[s]≡old⊎θ[s]≡new : (Env.shr-stats{s} θ s∈ ≡ SharedVar.old) ⊎
                          (Env.shr-stats{s} θ s∈ ≡ SharedVar.new)) →
     (s∉Canθₛₕ : (SharedVar.unwrap s) ∉ Canθₛₕ (sig θ) 0 p []env) →
-    (ρ⟨ θ , A ⟩· p) ⟶₁
-    (ρ⟨ (Env.set-shr{s} θ s∈ (SharedVar.ready) (Env.shr-vals{s} θ s∈)) , A ⟩·
+    (ρ θ · p) ⟶₁
+    (ρ (Env.set-shr{s} θ s∈ (SharedVar.ready) (Env.shr-vals{s} θ s∈)) ·
       p)
 
-  [merge] : ∀{θ₁ θ₂ r p E A₁ A₂} →
-    (de : r ≐ E ⟦ ρ⟨ θ₂ , A₂ ⟩· p ⟧e) →
-    (ρ⟨ θ₁ , A₁ ⟩· r) ⟶₁ (ρ⟨ (θ₁ ← θ₂) , (A-max A₁ A₂) ⟩· E ⟦ p ⟧e)
+  [merge] : ∀{θ₁ θ₂ r p E} →
+    (de : r ≐ E ⟦ ρ θ₂ · p ⟧e) →
+    (ρ θ₁ · r) ⟶₁ (ρ (θ₁ ← θ₂) · E ⟦ p ⟧e)
 
 -- The compatible closure of _⟶₁_.
 data _⟶_ : Term → Term → Set where

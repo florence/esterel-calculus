@@ -134,20 +134,20 @@ irreducibility-of-complete-sn⟶₁ : ∀{p q} → complete p → p sn⟶₁ q �
 irreducibility-of-complete-sn⟶₁ (codone p/done) psn⟶₁q = done-¬sn⟶₁ p/done psn⟶₁q
 irreducibility-of-complete-sn⟶₁ (coenv {θ} (θcomplete x x₁) p/done) ρθpsn⟶₁ρθ'q
   with ρ-stays-ρ-sn⟶₁ ρθpsn⟶₁ρθ'q
-... | θ' , q , A' , refl with get-view ρθpsn⟶₁ρθ'q
+... | θ' , q , refl with get-view ρθpsn⟶₁ρθ'q
 irreducibility-of-complete-sn⟶₁ (coenv {θ} (θcomplete x x₁) p/done) ρθpsn⟶₁ρθ'q
-  | θ' , q , A' , refl | inj₁ (E , pin , qin , p≐E⟦pin⟧ , q≐E⟦qin⟧ , e-view) =
+  | θ' , q , refl | inj₁ (E , pin , qin , p≐E⟦pin⟧ , q≐E⟦qin⟧ , e-view) =
   ⊥-elim
     (done-E-view-term-disjoint
       (done-⟦⟧e p/done p≐E⟦pin⟧)
       (->E-view-inner-term e-view))
 irreducibility-of-complete-sn⟶₁ (coenv {θ} (θcomplete x x₁) p/done) ρθpsn⟶₁ρθ'q
-  | θ' , q , A' ,  refl | inj₂ (refl , refl , vabsence S S∈ x₂ x₃)
+  | θ' , q , refl | inj₂ (refl , vabsence S S∈ x₂ x₃)
    with x S S∈
 ... | inj₁ S≡ = lookup-S-eq θ S S∈ S∈ S≡ x₂ (λ ())
 ... | inj₂ S≡ = lookup-S-eq θ S S∈ S∈ S≡ x₂ (λ ())
 irreducibility-of-complete-sn⟶₁ (coenv {θ} (θcomplete x x₁) p/done) ρθpsn⟶₁ρθ'q
-  | θ' , q , A' , refl | inj₂ (refl , refl , vreadyness s s∈ x₂ x₃)
+  | θ' , q , refl | inj₂ (refl , vreadyness s s∈ x₂ x₃)
    with x₁ s s∈
 ... | s≡ with x₂
 ... | inj₁ s2≡ = lookup-s-eq θ s s∈ s∈ s≡ s2≡ (λ ())
@@ -198,49 +198,49 @@ inescapability-of-paused-sn⟶* pausedp (rstep psn⟶r r⟶q)
 inescapability-of-complete-sn⟶ : ∀{p q} → complete p → p sn⟶ q → complete q
 inescapability-of-complete-sn⟶ c@(codone p-done) psn⟶q = codone (done-sn⟶ p-done psn⟶q)
 inescapability-of-complete-sn⟶ c@(coenv x x₁) (rcontext .[] dchole psn⟶₁p') = ⊥-elim (irreducibility-of-complete-sn⟶₁ c psn⟶₁p')
-inescapability-of-complete-sn⟶ (coenv x (dhalted hnothin)) (rcontext .(cenv _ _ ∷ []) (dcenv dchole) psn⟶₁p')
+inescapability-of-complete-sn⟶ (coenv x (dhalted hnothin)) (rcontext .(cenv _ ∷ []) (dcenv dchole) psn⟶₁p')
    = ⊥-elim (irreducibility-of-complete-sn⟶₁ (codone (dhalted hnothin)) psn⟶₁p')
-inescapability-of-complete-sn⟶ (coenv x (dhalted (hexit n))) (rcontext .(cenv _ _ ∷ []) (dcenv dchole) psn⟶₁p')
+inescapability-of-complete-sn⟶ (coenv x (dhalted (hexit n))) (rcontext .(cenv _ ∷ []) (dcenv dchole) psn⟶₁p')
    = ⊥-elim (irreducibility-of-complete-sn⟶₁ (codone (dhalted (hexit n))) psn⟶₁p')
-inescapability-of-complete-sn⟶ (coenv x (dpaused p/paused)) (rcontext .(cenv _ _ ∷ _) (dcenv dc) psn⟶₁p')
+inescapability-of-complete-sn⟶ (coenv x (dpaused p/paused)) (rcontext .(cenv _ ∷ _) (dcenv dc) psn⟶₁p')
  with (inescapability-of-complete-sn⟶ (codone (dpaused p/paused)) (rcontext _ dc psn⟶₁p'))
-inescapability-of-complete-sn⟶ (coenv x (dpaused ppause)) (rcontext .(cenv _ _ ∷ _) (dcenv dchole) psn⟶₁p') | rec
+inescapability-of-complete-sn⟶ (coenv x (dpaused ppause)) (rcontext .(cenv _ ∷ _) (dcenv dchole) psn⟶₁p') | rec
    =  ⊥-elim (irreducibility-of-complete-sn⟶₁ (codone (dpaused ppause)) psn⟶₁p')
 
-inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (ploopˢ p/paused))) (rcontext .(cenv _ _ ∷ []) (dcenv dchole) psn⟶₁p') | rec
+inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (ploopˢ p/paused))) (rcontext .(cenv _ ∷ []) (dcenv dchole) psn⟶₁p') | rec
    =  ⊥-elim (irreducibility-of-complete-sn⟶₁ (codone (dpaused (ploopˢ p/paused))) psn⟶₁p')
-inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (ploopˢ p/paused))) (rcontext .(cenv _ _ ∷ ceval (eloopˢ _) ∷ _) (dcenv (dcloopˢ₁ dc)) psn⟶₁p') | codone x
+inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (ploopˢ p/paused))) (rcontext .(cenv _ ∷ ceval (eloopˢ _) ∷ _) (dcenv (dcloopˢ₁ dc)) psn⟶₁p') | codone x
   = coenv x₁ x
-inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (ploopˢ p/paused))) (rcontext .(cenv _ _ ∷ cloopˢ₂ _ ∷ _) (dcenv (dcloopˢ₂ dc)) psn⟶₁p') | codone x
+inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (ploopˢ p/paused))) (rcontext .(cenv _ ∷ cloopˢ₂ _ ∷ _) (dcenv (dcloopˢ₂ dc)) psn⟶₁p') | codone x
   = coenv x₁ x
 
-inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (pseq p/paused))) (rcontext .(cenv _ _ ∷ []) (dcenv dchole) psn⟶₁p') | rec
+inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (pseq p/paused))) (rcontext .(cenv _ ∷ []) (dcenv dchole) psn⟶₁p') | rec
    =  ⊥-elim (irreducibility-of-complete-sn⟶₁ (codone (dpaused (pseq p/paused))) psn⟶₁p')
-inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (pseq p/paused))) (rcontext .(cenv _ _ ∷ ceval (eseq _) ∷ _) (dcenv (dcseq₁ dc)) psn⟶₁p') | codone x
+inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (pseq p/paused))) (rcontext .(cenv _ ∷ ceval (eseq _) ∷ _) (dcenv (dcseq₁ dc)) psn⟶₁p') | codone x
   = coenv x₁ x
-inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (pseq p/paused))) (rcontext .(cenv _ _ ∷ cseq₂ _ ∷ _) (dcenv (dcseq₂ dc)) psn⟶₁p') | codone x
+inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (pseq p/paused))) (rcontext .(cenv _ ∷ cseq₂ _ ∷ _) (dcenv (dcseq₂ dc)) psn⟶₁p') | codone x
   = coenv x₁ x
 
-inescapability-of-complete-sn⟶ (coenv x (dpaused (ppar p/paused p/paused₁))) (rcontext .(cenv _ _ ∷ []) (dcenv dchole) psn⟶₁p') | rec
+inescapability-of-complete-sn⟶ (coenv x (dpaused (ppar p/paused p/paused₁))) (rcontext .(cenv _ ∷ []) (dcenv dchole) psn⟶₁p') | rec
    =  ⊥-elim (irreducibility-of-complete-sn⟶₁ (codone (dpaused (ppar p/paused p/paused₁))) psn⟶₁p')
-inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (ppar p/paused p/paused₁))) (rcontext .(cenv _ _ ∷ ceval (epar₁ _) ∷ _) (dcenv (dcpar₁ dc)) psn⟶₁p') | codone x
+inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (ppar p/paused p/paused₁))) (rcontext .(cenv _ ∷ ceval (epar₁ _) ∷ _) (dcenv (dcpar₁ dc)) psn⟶₁p') | codone x
   = coenv x₁ x
-inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (ppar p/paused p/paused₁))) (rcontext .(cenv _ _ ∷ ceval (epar₂ _) ∷ _) (dcenv (dcpar₂ dc)) psn⟶₁p') | codone x = coenv x₁ x
-inescapability-of-complete-sn⟶ (coenv x (dpaused (psuspend p/paused))) (rcontext .(cenv _ _ ∷ []) (dcenv dchole) psn⟶₁p') | rec
+inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (ppar p/paused p/paused₁))) (rcontext .(cenv _ ∷ ceval (epar₂ _) ∷ _) (dcenv (dcpar₂ dc)) psn⟶₁p') | codone x = coenv x₁ x
+inescapability-of-complete-sn⟶ (coenv x (dpaused (psuspend p/paused))) (rcontext .(cenv _ ∷ []) (dcenv dchole) psn⟶₁p') | rec
    =  ⊥-elim (irreducibility-of-complete-sn⟶₁ (codone (dpaused (psuspend p/paused))) psn⟶₁p')
-inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (psuspend p/paused))) (rcontext .(cenv _ _ ∷ ceval (esuspend _) ∷ _) (dcenv (dcsuspend dc)) psn⟶₁p') | codone x = coenv x₁ x
-inescapability-of-complete-sn⟶ (coenv x (dpaused (ptrap p/paused))) (rcontext .(cenv _ _ ∷ []) (dcenv dchole) psn⟶₁p') | rec
+inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (psuspend p/paused))) (rcontext .(cenv _ ∷ ceval (esuspend _) ∷ _) (dcenv (dcsuspend dc)) psn⟶₁p') | codone x = coenv x₁ x
+inescapability-of-complete-sn⟶ (coenv x (dpaused (ptrap p/paused))) (rcontext .(cenv _ ∷ []) (dcenv dchole) psn⟶₁p') | rec
    =  ⊥-elim (irreducibility-of-complete-sn⟶₁ (codone (dpaused (ptrap p/paused))) psn⟶₁p')
-inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (ptrap p/paused))) (rcontext .(cenv _ _ ∷ ceval etrap ∷ _) (dcenv (dctrap dc)) psn⟶₁p') | codone x = coenv x₁ x
+inescapability-of-complete-sn⟶ (coenv x₁ (dpaused (ptrap p/paused))) (rcontext .(cenv _ ∷ ceval etrap ∷ _) (dcenv (dctrap dc)) psn⟶₁p') | codone x = coenv x₁ x
 
 inescapability-of-complete-sn : ∀{p q} → complete p → p sn⟶* q → complete q
 inescapability-of-complete-sn = lift-sn⟶* complete inescapability-of-complete-sn⟶
 
-equality-of-complete-sn⟶* : ∀{θ θ' p q A A'} →
-  complete (ρ⟨ θ , A ⟩·  p) →
-  (ρ⟨ θ , A ⟩· p) sn⟶* (ρ⟨ θ' , A' ⟩· q) →
-  θ ≡ θ' × A ≡ A'
-equality-of-complete-sn⟶* ρθp/complete rrefl = refl , refl
+equality-of-complete-sn⟶* : ∀{θ θ' p q} →
+  complete (ρ θ ·  p) →
+  (ρ θ · p) sn⟶* (ρ θ' · q) →
+  θ ≡ θ'
+equality-of-complete-sn⟶* ρθp/complete rrefl = refl
 equality-of-complete-sn⟶* ρθp/complete (rstep (rcontext _ dchole ρθpsn⟶₁ρθ''r) ρθ''rsn⟶*ρθ'q)
   with irreducibility-of-complete-sn⟶₁ ρθp/complete ρθpsn⟶₁ρθ''r
 ... | ()
@@ -249,10 +249,10 @@ equality-of-complete-sn⟶* ρθp/complete (rstep (rcontext _ (dcenv ρθp≐C�
     (inescapability-of-complete-sn⟶ ρθp/complete (rcontext _ (dcenv ρθp≐C⟦p'⟧) p'sn⟶₁r))
     ρθrsn⟶*ρθ'q
 
-get-view/blocked : ∀{θ θ' p q A A'} →
-  blocked θ A p →
-  (ρθpsn⟶₁ρθ'q  :  ρ⟨ θ , A ⟩· p sn⟶₁ ρ⟨ θ' , A' ⟩· q) →
-  ∃ (λ a → ∃ (->pot-view ρθpsn⟶₁ρθ'q a))
+get-view/blocked : ∀{θ θ' p q} →
+  blocked θ p →
+  (ρθpsn⟶₁ρθ'q  :  ρ θ · p sn⟶₁ ρ θ' · q) →
+  ∃ (->pot-view ρθpsn⟶₁ρθ'q)
 get-view/blocked p/blocked ρθpsn⟶₁ρθ'q with get-view ρθpsn⟶₁ρθ'q
 ... | inj₂ refl-pot-view = refl-pot-view
 ... | inj₁ (E , pin , qin , p≐E⟦pin⟧ , q≐E⟦qin⟧ , e-view)
@@ -299,20 +299,13 @@ get-view/blocked p/blocked (rset-var {x = x} x∈ e' .p≐E⟦pin⟧)
   | inj₁ (E , pin , qin , p≐E⟦pin⟧ , q≐E⟦qin⟧ , vset-var)
   | (inj₁ (bxset e/blocked)) | evt-set-var =
   ⊥-elim (all-ready-blocked-disjoint (e' , e/blocked))
-get-view/blocked {A = .WAIT} p/blocked ρθpsn⟶₁ρθ'q | inj₁ (E , s ⇐ e , qin , p≐E⟦pin⟧ , q≐E⟦qin⟧ , ())
-  | inj₁ bwset | evt-set-shared
-get-view/blocked {A = .WAIT} p/blocked ρθpsn⟶₁ρθ'q | inj₁ (E , emit S , qin , p≐E⟦pin⟧ , q≐E⟦qin⟧ , ())
-  | inj₁ bwemit | evt-emit
 
-
-irreducibility-of-blocked-sn⟶₁ : ∀ {θ p q A} → blocked θ A p → p sn⟶₁ q → ⊥
+irreducibility-of-blocked-sn⟶₁ : ∀ {θ p q} → blocked θ p → p sn⟶₁ q → ⊥
 irreducibility-of-blocked-sn⟶₁ (bsig-exists S S∈ θS≡unknown) ()
 irreducibility-of-blocked-sn⟶₁ (bshared e/blocked)           ()
 irreducibility-of-blocked-sn⟶₁ (bsset e/blocked)             ()
 irreducibility-of-blocked-sn⟶₁ (bvar e/blocked)              ()
 irreducibility-of-blocked-sn⟶₁ (bxset e/blocked)             ()
-irreducibility-of-blocked-sn⟶₁ {p = s ⇐ e} {A = WAIT} bwset () 
-irreducibility-of-blocked-sn⟶₁ {p = emit S} {A = WAIT} bwemit ()
 irreducibility-of-blocked-sn⟶₁ (bpar-both p/blocked q/blocked)
   (rpar-done-right p/halted q/done)   =
   halted-blocked-disjoint p/halted p/blocked
@@ -353,10 +346,10 @@ irreducibility-of-halted-sn⟶ hnothin (rcontext [] dchole ())
 irreducibility-of-halted-sn⟶ (hexit n) (rcontext [] dchole ())
 
 -- not sure if it's worthwhile for now to also prove this for ρ θ · p sn⟶₁ ρ θ' · p
-inescapability-of-blocked-inside-sn⟶ : ∀{θ p q A} →
-  blocked θ A p →
+inescapability-of-blocked-inside-sn⟶ : ∀{θ p q} →
+  blocked θ p →
   p sn⟶ q →
-  blocked θ A q
+  blocked θ q
 inescapability-of-blocked-inside-sn⟶ p/blocked (rcontext _ dchole psn⟶₁p') =
   ⊥-elim (irreducibility-of-blocked-sn⟶₁ p/blocked psn⟶₁p')
 inescapability-of-blocked-inside-sn⟶ (bpar-both p/blocked q/blocked)
@@ -424,10 +417,10 @@ inescapability-of-blocked-inside-sn⟶ (bshared e/blocked)
 inescapability-of-blocked-inside-sn⟶ (bvar e/blocked)
   (rcontext _ (dcvar p≐C⟦pin⟧) pinsn⟶₁pin') =
   bvar e/blocked
-inescapability-of-blocked-inside-sn⟶ {θ} {A = A}(bsig-exists S S∈ θS≡unknown)
+inescapability-of-blocked-inside-sn⟶ {θ} (bsig-exists S S∈ θS≡unknown)
   (rcontext _ S?p:q≐C⟦pin⟧ pinsn⟶₁pin') with S?p:q≐C⟦pin⟧
 -- we still have the dchole case here since Agda can't determine that it cannot happen
-... | dchole = ⊥-elim (irreducibility-of-blocked-sn⟶₁ {A = A} (bsig-exists {θ} S S∈ θS≡unknown) pinsn⟶₁pin')
+... | dchole = ⊥-elim (irreducibility-of-blocked-sn⟶₁ (bsig-exists {θ} S S∈ θS≡unknown) pinsn⟶₁pin')
 ... | dcpresent₁ p≐C⟦pin⟧ = bsig-exists S S∈ θS≡unknown
 ... | dcpresent₂ p≐C⟦pin⟧ = bsig-exists S S∈ θS≡unknown
 

@@ -27,12 +27,10 @@ open import Data.Maybe
 open import Data.List.Any
 open import Data.List.All
 open import Data.OrderedListMap
-open import Function using (_$_) 
 
 import Data.OrderedListMap(Signal)(Signal.unwrap)(Signal.Status) as SigOMap
 import Data.OrderedListMap(SharedVar)(SharedVar.unwrap)(SharedVar.Status × ℕ) as ShrOMap
 
-open ≡-Reasoning using (begin_ ; _≡⟨_⟩_ ; _∎)
 
 open EvaluationContext1
 open _≐_⟦_⟧e
@@ -64,7 +62,7 @@ data complete-θ : Env → Set where
 
 data complete : Term → Set where
   codone : ∀{p} → done p → complete p
-  coenv : ∀{θ A p} → complete-θ θ → done p → complete (ρ⟨ θ , A ⟩· p)
+  coenv : ∀{θ p} → complete-θ θ → done p → complete (ρ θ · p)
 
 -- Halted and paused programs are disjoint
 halted-paused-disjoint : ∀{p} → halted p → paused p → ⊥
@@ -81,11 +79,6 @@ halted-paused-disjoint (hexit _) ()
 ↓-well-behaved .(exit 0) (hexit zero) = hnothin
 ↓-well-behaved .(exit (suc n)) (hexit (suc n)) = hexit n
 
-A-max : Ctrl → Ctrl → Ctrl
-A-max GO   GO   = GO
-A-max GO   WAIT = GO
-A-max WAIT GO   = GO
-A-max WAIT WAIT = WAIT
 
 value-max : ∀{p q} → done p → done q → (halted p ⊎ halted q) →  Term
 value-max {q = q} (dhalted hnothin)   done-q              h⊎h = q
@@ -200,7 +193,7 @@ halted-dec (s ⇐ e) = no (λ ())
 halted-dec (var x ≔ e in: p) = no (λ ())
 halted-dec (x ≔ e) = no (λ ())
 halted-dec (if x ∣⇒ p ∣⇒ q) = no (λ ())
-halted-dec (ρ⟨ θ , A ⟩· p) = no (λ ())
+halted-dec (ρ θ · p) = no (λ ())
 
 paused-dec : ∀ p -> Dec (paused p)
 paused-dec nothin = no (λ ())
@@ -231,7 +224,7 @@ paused-dec (s ⇐ e) = no (λ ())
 paused-dec (var x ≔ e in: p) = no (λ ())
 paused-dec (x ≔ e) = no (λ ())
 paused-dec (if x ∣⇒ p ∣⇒ q) = no (λ ())
-paused-dec (ρ⟨ θ , A ⟩· p) = no (λ ())
+paused-dec (ρ θ · p) = no (λ ())
 
 done-dec : ∀ p → Dec (done p)
 done-dec p with halted-dec p
@@ -303,48 +296,14 @@ complete-dec (s ⇐ e) | no ¬donep =  no (λ { (codone x) → ¬donep x } )
 complete-dec (var x ≔ e in: p) | no ¬donep =  no (λ { (codone x) → ¬donep x } )
 complete-dec (x ≔ e) | no ¬donep =  no (λ { (codone x) → ¬donep x } )
 complete-dec (if x ∣⇒ p ∣⇒ p₁) | no ¬donep =  no (λ { (codone x) → ¬donep x } )
-complete-dec (ρ⟨ θ , A ⟩· p) | _ with done-dec p
-complete-dec (ρ⟨ θ , A ⟩· p) | _ | yes donep with complete-θ-dec θ
-complete-dec (ρ⟨ θ , A ⟩· p) | _ | yes donep | (yes complete-θ) = yes (coenv complete-θ donep)
-complete-dec (ρ⟨ θ , A ⟩· p) | _ | yes donep | (no ¬complete-θ) = no
+complete-dec (ρ θ · p) | _ with done-dec p
+complete-dec (ρ θ · p) | _ | yes donep with complete-θ-dec θ
+complete-dec (ρ θ · p) | _ | yes donep | (yes complete-θ) = yes (coenv complete-θ donep)
+complete-dec (ρ θ · p) | _ | yes donep | (no ¬complete-θ) = no
    (λ { (codone (dhalted ())) ;
         (codone (dpaused ())) ;
         (coenv complete-θ _) → ¬complete-θ complete-θ })
-complete-dec (ρ⟨ θ , A ⟩· p) | _ | no ¬donep = no
+complete-dec (ρ θ · p) | _ | no ¬donep = no
   (λ { (codone (dhalted ())) ;
        (codone (dpaused ())) ;
        (coenv _ donep) → ¬donep donep })
-
-
-A-max-GO-≡-left : ∀ A → A-max GO A ≡ GO
-A-max-GO-≡-left GO =  refl
-A-max-GO-≡-left WAIT = refl
-
-A-max-GO-≡-right : ∀ A → A-max A GO ≡ GO
-A-max-GO-≡-right GO = refl
-A-max-GO-≡-right WAIT = refl
-
-A-max-comm : ∀ A1 A2 → A-max A1 A2 ≡ A-max A2 A1
-A-max-comm GO GO = refl
-A-max-comm GO WAIT = refl
-A-max-comm WAIT GO = refl 
-A-max-comm WAIT WAIT = refl 
-
-A-max-assoc : ∀ A1 A2 A3 → (A-max A1 $ A-max A2 A3) ≡ A-max (A-max A1 A2) A3
-A-max-assoc GO GO GO = refl
-A-max-assoc GO GO WAIT = refl
-A-max-assoc GO WAIT GO = refl
-A-max-assoc GO WAIT WAIT = refl
-A-max-assoc WAIT GO GO = refl
-A-max-assoc WAIT GO WAIT = refl
-A-max-assoc WAIT WAIT GO = refl
-A-max-assoc WAIT WAIT WAIT = refl
-
-A-max-swap : ∀ A1 A2 A3
-             → (A-max (A-max A1 A2) A3) ≡ (A-max (A-max A1 A3) A2)
-A-max-swap A1 A2 A3 = begin
-                        (A-max (A-max A1 A2) A3) ≡⟨ sym (A-max-assoc A1 A2 A3) ⟩
-                        (A-max A1 $ A-max A2 A3) ≡⟨ sym (cong (A-max A1) (A-max-comm A3 A2)) ⟩
-                        (A-max A1 $ A-max A3 A2) ≡⟨ A-max-assoc A1 A3 A2 ⟩
-                        (A-max (A-max A1 A3) A2) ∎
-                       

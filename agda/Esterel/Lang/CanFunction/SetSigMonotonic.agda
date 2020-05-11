@@ -119,6 +119,7 @@ open import Data.OrderedListMap Signal Signal.unwrap Signal.Status as SigM
 open import Data.OrderedListMap SharedVar SharedVar.unwrap (Σ SharedVar.Status (λ _ → ℕ)) as ShrM
 open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
+
 canₖ-set-sig-monotonic : ∀ p S θ S∈ status →
   Env.sig-stats {S} θ S∈ ≡ Signal.unknown →
   ∀ k →
@@ -424,7 +425,7 @@ canₖ-set-sig-monotonic (if x ∣⇒ p ∣⇒ q) S θ S∈ status θS≡unknown
   ++ʳ
    (Canₖ p θ)
    (canₖ-set-sig-monotonic q S θ S∈ status θS≡unknown k k∈can-q-θ')
-canₖ-set-sig-monotonic (ρ⟨ θ' , A ⟩· p) S θ S∈ status θS≡unknown k k∈can-p-θ'
+canₖ-set-sig-monotonic (ρ θ' · p) S θ S∈ status θS≡unknown k k∈can-p-θ'
   with Env.Sig∈ S θ'
 ... | yes S∈Domθ'
   rewrite sym (map-id (proj₁ (Dom θ')))
@@ -560,7 +561,7 @@ canₛ-set-sig-monotonic (if x ∣⇒ p ∣⇒ q) S θ S∈ status θS≡unknown
   ++ʳ
    (Canₛ p θ)
    (canₛ-set-sig-monotonic q S θ S∈ status θS≡unknown S'' S''∈can-q-θ')
-canₛ-set-sig-monotonic (ρ⟨ θ' , A ⟩· p) S θ S∈ status θS≡unknown S'' S''∈can-ρθ'p-θ'
+canₛ-set-sig-monotonic (ρ θ' · p) S θ S∈ status θS≡unknown S'' S''∈can-ρθ'p-θ'
   with Env.Sig∈ S θ'
 ... | yes S∈Domθ'
   rewrite sym (map-id (proj₁ (Dom θ')))
@@ -703,7 +704,7 @@ canₛₕ-set-sig-monotonic (if x ∣⇒ p ∣⇒ q) S θ S∈ status θS≡unkn
   ++ʳ
    (Canₛₕ p θ)
    (canₛₕ-set-sig-monotonic q S θ S∈ status θS≡unknown s s∈can-q-θ')
-canₛₕ-set-sig-monotonic (ρ⟨ θ' , A ⟩· p) S θ S∈ status θS≡unknown s s∈can-ρθ'p-θ'
+canₛₕ-set-sig-monotonic (ρ θ' · p) S θ S∈ status θS≡unknown s s∈can-ρθ'p-θ'
   with Env.Sig∈ S θ'
 ... | yes S∈Domθ'
   rewrite sym (map-id (proj₁ (Dom θ')))
@@ -1348,5 +1349,3 @@ canθₛ-cong-←-add-sig-monotonic sigs S'' p θ θ' S status S' S'∈
           (Env.←-assoc-comm θ [ S ↦ status ] θ'
             (Env.sig-single-notin-distinct S status θ' S∉Domθ')))
         S'∈)
-
-

@@ -21,14 +21,14 @@ open import sn-calculus
 open import context-properties -- get view, E-views
 
 DPG-E-view :
- ∀ {E C r₁ r₂ p q θ θ' pin qin A A'} ->
+ ∀ {E C r₁ r₂ p q θ θ' pin qin} ->
   (peq : p ≐ E ⟦ pin ⟧e) ->
   (qeq : q ≐ E ⟦ qin ⟧e) ->
   p ≐ C ⟦ r₁ ∥ r₂ ⟧c ->
-  (psn⟶₁q : ρ⟨ θ , A ⟩· p sn⟶₁ ρ⟨ θ' , A' ⟩· q) ->
+  (psn⟶₁q : ρ θ · p sn⟶₁ ρ θ' · q) ->
   ->E-view psn⟶₁q peq qeq ->
   Σ[ d ∈ Term ]
-  Σ[ sn⟶₁d ∈ ρ⟨ θ , A ⟩· C ⟦ r₂ ∥ r₁ ⟧c sn⟶₁ ρ⟨ θ' , A' ⟩· d ]
+  Σ[ sn⟶₁d ∈ ρ θ · C ⟦ r₂ ∥ r₁ ⟧c sn⟶₁ ρ θ' · d ]
   Σ[ ∥Rd ∈ q ∥R* d ]
   Σ[ E′ ∈ List EvaluationContext1 ]
   Σ[ pin′ ∈ Term ]
@@ -77,14 +77,14 @@ DPG-E-view dehole dehole (dcshared pC)
            (rraise-shared allready dehole)
            vraise-shared
  = _ , rraise-shared allready dehole ,
-       Context1-∥R* (cenv _ _) (∥Rn (∥Rstep pC) ∥R0) ,
+       Context1-∥R* (cenv _) (∥Rn (∥Rstep pC) ∥R0) ,
    _ , _ , _ , dehole , dehole , vraise-shared
 
 DPG-E-view dehole dehole (dcvar pC)
            (rraise-var allready dehole)
            vraise-var
  = _ , rraise-var allready dehole ,
-       Context1-∥R* (cenv _ _) (∥Rn (∥Rstep pC) ∥R0) ,
+       Context1-∥R* (cenv _) (∥Rn (∥Rstep pC) ∥R0) ,
    _ , _ , _ , dehole , dehole , vraise-var
 
 DPG-E-view dehole dehole (dcif₁ pC)

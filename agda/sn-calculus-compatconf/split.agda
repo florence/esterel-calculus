@@ -75,8 +75,8 @@ Base case where (E, C) = ([], _∷_).
   ρθ. E⟦ qin ⟧   -- sn⟶₁ ->    ρθq. E⟦ qo ⟧
  (ρθ) E⟦C⟦rin⟧⟧   -- sn⟶₁ ->   (ρθ) E⟦C⟦ro⟧⟧
 -}
-1-steplρ-E-view-ecsplit : ∀{E C p qin q qo rin r ro θ θq BV FV A Aq} →
-  {ρθ·psn⟶₁ρθq·q  :  ρ⟨ θ , A ⟩· p sn⟶₁ ρ⟨ θq , Aq ⟩· q} →
+1-steplρ-E-view-ecsplit : ∀{E C p qin q qo rin r ro θ θq BV FV} →
+  {ρθ·psn⟶₁ρθq·q  :  ρ θ · p sn⟶₁ ρ θq · q} →
   CorrectBinding p BV FV →
   two-roads-diverged E C →
 
@@ -96,7 +96,7 @@ Base case where (E, C) = ([], _∷_).
     Σ (EvaluationContext × Term × Term) λ { (E' , ro' , por) →
       Σ[ r≐E'⟦ro'⟧      ∈  r  ≐ E' ⟦ ro' ⟧e ]
       Σ[ po≐E'⟦por⟧     ∈  po ≐ E' ⟦ por ⟧e ]
-      Σ[ ρθ·rsn⟶₁ρθq·po  ∈  ρ⟨ θ , A ⟩· r sn⟶₁ ρ⟨ θq , Aq ⟩· po ]
+      Σ[ ρθ·rsn⟶₁ρθq·po  ∈  ρ θ · r sn⟶₁ ρ θq · po ]
         ->E-view  ρθ·rsn⟶₁ρθq·po  r≐E'⟦ro'⟧  po≐E'⟦por⟧
       }
 

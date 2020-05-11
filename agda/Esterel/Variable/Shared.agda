@@ -11,8 +11,6 @@ open import Relation.Binary
 open import Relation.Binary.PropositionalEquality
   using (_≡_ ; refl ; cong ; trans ; sym)
 
-open import Data.Key
-
 data SharedVar : Set where
   _ₛₕ : ℕ → SharedVar
 
@@ -25,25 +23,9 @@ unwrap-inverse {_ ₛₕ} = refl
 unwrap-injective : ∀ {s t} → unwrap s ≡ unwrap t → s ≡ t
 unwrap-injective s'≡t' = trans (sym unwrap-inverse) (trans (cong _ₛₕ s'≡t') unwrap-inverse)
 
-
-
 -- for backward compatibility
 unwrap-neq : ∀{k1 : SharedVar} → ∀{k2 : SharedVar} → ¬ k1 ≡ k2 → ¬ (unwrap k1) ≡ (unwrap k2)
 unwrap-neq = (_∘ unwrap-injective)
-
-wrap : ℕ → SharedVar
-wrap = _ₛₕ
-
-wrap-injective : ∀ {s t} → wrap s ≡ wrap t → s ≡ t
-wrap-injective refl = refl
-
-
-bijective : ∀{x} → unwrap (wrap x) ≡ x
-bijective = refl
-
-instance
-  Key : BijectiveKey SharedVar
-  Key = bijective-key unwrap wrap unwrap-injective wrap-injective bijective
 
 _≟_ : Decidable {A = SharedVar} _≡_
 (s ₛₕ) ≟ (t ₛₕ) with s ≟ℕ t

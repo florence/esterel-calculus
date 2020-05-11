@@ -52,8 +52,8 @@ and RHS is a merge. This case is delegated to R-confluence.
   ρθ. E⟦E₁⟦qin⟧⟧       -- sn⟶₁ ->    ρθq. E⟦E₁⟦qo⟧⟧
  (ρθ) E⟦E₂⟦ρθ'.rin⟧⟧   -- sn⟶₁ ->   (ρθ)  E⟦ρθ'.E₂⟦rin⟧⟧
 -}
-1-steplρ-E-view-ecin-lift : ∀{E E₁ Ei p qin q qo rin r ro θ θq BV FV A Aq} →
-  {ρθ·psn⟶₁ρθq·q  :  ρ⟨ θ , A ⟩· p sn⟶₁ ρ⟨ θq  , Aq ⟩· q} →
+1-steplρ-E-view-ecin-lift : ∀{E E₁ Ei p qin q qo rin r ro θ θq BV FV} →
+  {ρθ·psn⟶₁ρθq·q  :  ρ θ · p sn⟶₁ ρ θq · q} →
   CorrectBinding p BV FV →
 
   (p≐E⟦qin⟧  :  p ≐ (E ++ (E₁ ∷ Ei)) ⟦ qin ⟧e) →

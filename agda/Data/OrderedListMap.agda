@@ -2,22 +2,20 @@ import Level
 open import Relation.Binary
   using (Decidable ; Rel ; IsStrictTotalOrder ; Tri)
 open import Relation.Binary.PropositionalEquality
-  using (_≡_ ; refl ; trans ; cong ; sym ; module ≡-Reasoning ; inspect ; subst)
+  using (_≡_ ; refl ; cong ; sym ; module ≡-Reasoning ; inspect ; subst)
 open import Data.Nat as Nat
   using (ℕ ; suc ; zero ; _≤′_ ; _≤_ ; _+_ ; s≤s ; z≤n ; ≤′-refl ;
-         ≤′-step ; pred)
+         ≤′-step)
 open import Data.Nat.Properties as NatP
   using (≤⇒≤′ ; ≤′⇒≤ ;  m≤m+n ; s≤′s)
 open import Data.Nat.Properties.Simple as NatPS
   using (+-comm ; +-suc)
-open import Data.Product as Prod using (∃)
+open import Data.Product using (∃)
 
 open import Relation.Nullary using (¬_ ; Dec ; yes ; no)
 import Relation.Unary as U
 
 open import Data.MoreNatProp
-
-
 
 module Data.OrderedListMap
   (Key : Set)
@@ -25,32 +23,28 @@ module Data.OrderedListMap
   (Value : Set)
   where
 
-open import utility renaming (module UniquedSet to US)
-open US using (UniquedList ; UniquedSet)
+open import utility
 
 open import Data.Maybe using (just ; nothing ; Maybe)
 
 open import Function
-  using (_∘_ ; _∋_ ; _$_)
+  using (_∘_ ; _∋_)
 open import Data.Empty
   using (⊥ ; ⊥-elim)
-open import Data.List as List
+open import Data.List
   using (List ; _++_ ; [_] ; [] ; _∷_ ; map)
-open import Data.List.Properties as ListP
-  using (map-compose)
 open import Data.List.All as All
   using (All)
 
-open import Data.Product as Prod
-  using (Σ ; Σ-syntax ; _,_ ; proj₁ ; proj₂ ; _×_ ; _,′_ ; ∃-syntax)
+open import Data.Product
+  using (Σ ; Σ-syntax ; _,_ ; proj₁ ; proj₂ ; _×_ ; _,′_)
 open import Data.Sum
   using (inj₁ ; inj₂ ; _⊎_)
 open import Data.Unit
   using (⊤ ; tt)
 open import Relation.Nullary
   using (yes ; no ; ¬_)
-open import Data.List.Any as lAny
-  using (Any ; here ; there)
+open import Data.List.Any using (here ; there)
 open import Data.List.Any.Properties using (∷↔ ; ⊥↔Any[])
   renaming ( ++⁺ˡ  to ++ˡ ; ++⁺ʳ to ++ʳ ) 
 open import Function using (_∘_)
@@ -70,7 +64,6 @@ m-insert nothing zero (x ∷ l) = x ∷ l
 m-insert (just v) zero (x ∷ l) = (just v) ∷ l
 m-insert v (suc n) [] = nothing ∷ (m-insert v n [])
 m-insert v (suc n) (x ∷ l) = x ∷ (m-insert v n l)
-
 
 insert : Key → Value → LMap → LMap
 insert k v l = m-insert (just v) (inject k) l
@@ -933,65 +926,3 @@ ocount-merge≤′sum-ocount = f where
               (s≤′s R) (≡is≤′ (sym (+-suc (ocount p m1) (ocount p m2)))) 
   f (nothing ∷ m1) (nothing ∷ m2) p with f m1 m2 p
   ... | R = R
-   
-Dom'+∈-help : (x : List ℕ) → (List (∃[ y ] (y ∈ x)))
-Dom'+∈-help [] = []
-Dom'+∈-help (x ∷ x₁) = (x , here refl) ∷ map (Prod.map₂ there) (Dom'+∈-help x₁)
-
-Dom'+∈ : (L : LMap) → List (∃[ n ] (n ∈ (Dom' L)))
-Dom'+∈ L = Dom'+∈-help (Dom' L)
-
-Dom'+∈-help-len : ∀ f → (x : List ℕ) → (List.length (Dom'+∈-help x)) ≡ (List.length (Dom'+∈-help (map f x)))
-Dom'+∈-help-len f [] = refl
-Dom'+∈-help-len f (x ∷ x₁)
- rewrite ListP.length-map (Prod.map₂ $ there{x = x}) (Dom'+∈-help x₁)
-       | ListP.length-map (Prod.map₂ $ there{x = f x}) (Dom'+∈-help (map f x₁))
-       | Dom'+∈-help-len f x₁
- = refl
-
-Dom'+∈-unique : (L : LMap) → UniquedSet (_∈ (Dom' L))
-Dom'+∈-unique [] = US.uniqued-set [] US.e
-Dom'+∈-unique (just x ∷ l) with (Dom'+∈-unique l)
-... | record { lst = rech ; unq = recu }
-                  = US.uniqued-set ((0 , (here refl)) ∷ (map f2 rech))
-                    $ US.c (0 , here refl) (map f2 rech)
-                          (subst (λ x → 0 ∉ x)
-                                 (sym (trans (sym $ map-compose{g = proj₁}{f2} $ rech) $ map-compose{g = suc} rech))
-                                 $ 0∈S{(map proj₁ rech)})
-                          (US.map f2 f3 recu ug)
-    where
-     f1 = proj₁
-     f2 = (Prod.map suc (there ∘ sucin))
-     f3 = proj₁
-     ug : ((x : _) → (l : _) → (f3 (f2 x)) ∈ (List.map f3 (List.map f2 l)) → (f1 x) ∈ (List.map f1 l))
-     ug x [] ()
-     ug x (x₁ ∷ l₁) (here px) = here (cong pred px)
-     ug x (x₁ ∷ l₁) (there x₂) = there $ ug x l₁ x₂
-
-Dom'+∈-unique (nothing ∷ l) with (Dom'+∈-unique l)
-... | record { lst = rech ; unq = recu } = US.uniqued-set (map (Prod.map suc sucin) rech) $ US.map f2 f3 recu ug
-   where
-     f1 = proj₁
-     f2 = (Prod.map suc sucin)
-     f3 = proj₁
-     ug : ((x : _) → (l : _) → (f3 (f2 x)) ∈ (List.map f3 (List.map f2 l)) → (f1 x) ∈ (List.map f1 l))
-     ug x [] ()
-     ug x (x₁ ∷ l₁) (here px) = here (cong pred px)
-     ug x (x₁ ∷ l₁) (there x₂) = there $ ug x l₁ x₂
-
-
-re-set-is-eq : ∀ (l : LMap) → (n : ℕ) → (n∈ : n ∈ (Dom' l))
-               → (v : Value)
-               → deref n l n∈ ≡ v
-               → m-insert (just v) n l ≡ l
-re-set-is-eq [] n () v eq
-re-set-is-eq (just x ∷ l) zero n∈ .x refl = refl
-re-set-is-eq (nothing ∷ l) zero n∈ _ refl = ⊥-elim (0∈S n∈)
-re-set-is-eq (x ∷ l) (suc n) n∈ v eq
-  = cong (x ∷_) $ re-set-is-eq l n (n∈S{x = x} n∈) v eq
-
-U-self-identity : ∀ l → l U l ≡ l 
-U-self-identity [] = refl
-U-self-identity (just x ∷ l) = cong (just x ∷_) (U-self-identity l) 
-U-self-identity (nothing ∷ l) = cong (nothing ∷_) (U-self-identity l) 
-

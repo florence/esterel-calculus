@@ -1,6 +1,5 @@
-module Esterel.Variable.Signal where 
+module Esterel.Variable.Signal where
 
-open import Data.Key
 open import Data.Nat
   using (ℕ) renaming (_≟_ to _≟ℕ_)
 open import Function
@@ -24,20 +23,6 @@ unwrap-inverse {_ ₛ} = refl
 unwrap-injective : ∀ {s t} → unwrap s ≡ unwrap t → s ≡ t
 unwrap-injective s'≡t' = trans (sym unwrap-inverse) (trans (cong _ₛ s'≡t') unwrap-inverse)
 
-wrap : ℕ → Signal
-wrap = _ₛ
-
-wrap-injective : ∀ {s t} → wrap s ≡ wrap t → s ≡ t
-wrap-injective refl = refl
-
-bijective : ∀{x} → unwrap (wrap x) ≡ x
-bijective = refl
-
-instance
-  Key : BijectiveKey Signal
-  Key = bijective-key unwrap wrap unwrap-injective wrap-injective bijective
-
-
 -- for backward compatibility
 unwrap-neq : ∀{k1 : Signal} → ∀{k2 : Signal} → ¬ k1 ≡ k2 → ¬ (unwrap k1) ≡ (unwrap k2)
 unwrap-neq = (_∘ unwrap-injective)
@@ -46,7 +31,6 @@ _≟_ : Decidable {A = Signal} _≡_
 (s ₛ) ≟ (t ₛ) with s ≟ℕ t
 ... | yes p = yes (cong _ₛ p)
 ... | no ¬p = no (¬p ∘ cong unwrap)
-
 
 data Status : Set where
   present : Status

@@ -61,7 +61,7 @@ open import sn-calculus-props
   ∥∥par-sym p q (cvar _ _ ∷ C)           | R rewrite R = refl
   ∥∥par-sym p q (cif₁ _ _ ∷ C)           | R rewrite R = refl
   ∥∥par-sym p q (cif₂ _ _ ∷ C)           | R rewrite R = refl
-  ∥∥par-sym p q (cenv _ _ ∷ C)             | R rewrite R = refl
+  ∥∥par-sym p q (cenv _ ∷ C)             | R rewrite R = refl
 
 ∥R*-preserves-∥∥s : ∀ {p q} -> p ∥R* q -> ∥ q ∥s ≡ ∥ p ∥s
 ∥R*-preserves-∥∥s ∥R0 = refl

@@ -173,7 +173,7 @@ open import Data.Product
 open import Data.Sum
   using (_⊎_ ; inj₁ ; inj₂)
 open import Function
-  using (_∘_ ; id ; _∋_ ; _$_)
+  using (_∘_ ; id ; _∋_)
 open import Relation.Nullary
   using (¬_ ; Dec ; yes ; no)
 open import Relation.Nullary.Decidable
@@ -388,7 +388,7 @@ can-shr-var-irr (if x ∣⇒ p ∣⇒ q) θ θ' θₛ≡θ'ₛ
   rewrite can-shr-var-irr p θ θ' θₛ≡θ'ₛ
         | can-shr-var-irr q θ θ' θₛ≡θ'ₛ
   = refl
-can-shr-var-irr (ρ⟨ θ'' , A ⟩· p) θ θ' θₛ≡θ'ₛ
+can-shr-var-irr (ρ θ'' · p) θ θ' θₛ≡θ'ₛ
   rewrite canθ-shr-var-irr (Env.sig θ'') 0 p θ θ' θₛ≡θ'ₛ
   = refl
 
@@ -550,7 +550,7 @@ canₛ-⊆-FV-lemma {if _ ∣⇒ p ∣⇒ q} θ (CBif {FVp = FVp} cbp cbq) S S�
   with ++⁻ (Canₛ p θ) S∈can-if-p-q
 ... | inj₁ S∈can-p = ++ˡ (canₛ-⊆-FV-lemma θ cbp S S∈can-p)
 ... | inj₂ S∈can-q = ++ʳ (proj₁ FVp) (canₛ-⊆-FV-lemma θ cbq S S∈can-q)
-canₛ-⊆-FV-lemma {ρ⟨ θ' , A ⟩· p} θ (CBρ cb) S S∈can-ρθp
+canₛ-⊆-FV-lemma {ρ θ' · p} θ (CBρ cb) S S∈can-ρθp
   with set-subtract-merge {proj₁ (Canθ (Env.sig θ') 0 p θ)} {proj₁ (Dom θ')} S∈can-ρθp
 ... | S∈can-p-θ←θ' , S∉Domθ'
   with set-subtract-split (canθₛ-⊆-FV-lemma (Env.sig θ') 0 θ cb S S∈can-p-θ←θ')
@@ -649,7 +649,7 @@ canₛₕ-⊆-FV-lemma {if _ ∣⇒ p ∣⇒ q} θ (CBif {FVp = FVp} cbp cbq) s 
   with ++⁻ (Canₛₕ p θ) s∈can-if-p-q
 ... | inj₁ s∈can-p = ++ˡ (canₛₕ-⊆-FV-lemma θ cbp s s∈can-p)
 ... | inj₂ s∈can-q = ++ʳ (proj₁ (proj₂ FVp)) (canₛₕ-⊆-FV-lemma θ cbq s s∈can-q)
-canₛₕ-⊆-FV-lemma {ρ⟨ θ' , A ⟩· p} θ (CBρ cb) s s∈can-ρθp
+canₛₕ-⊆-FV-lemma {ρ θ' · p} θ (CBρ cb) s s∈can-ρθp
   with set-subtract-merge
          {proj₂ (proj₂ (Canθ (Env.sig θ') 0 p θ))}
          {proj₁ (proj₂ (Dom θ'))}

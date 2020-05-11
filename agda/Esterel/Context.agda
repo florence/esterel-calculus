@@ -61,7 +61,7 @@ data Context1 : Set where
   cvar      : (x : SeqVar) → (e : Expr) → Context1
   cif₁      : (x : SeqVar) → (q : Term) → Context1
   cif₂      : (x : SeqVar) → (p : Term) → Context1
-  cenv      : (θ : Env) →  (A : Ctrl) → Context1
+  cenv      : (θ : Env) → Context1
 
 Context : Set
 Context = List Context1
@@ -84,7 +84,7 @@ _⟦_⟧c : Context → Term → Term
 (cvar x e ∷ C)           ⟦ p ⟧c = var x ≔ e in: (C ⟦ p ⟧c)
 (cif₁ x q ∷ C)           ⟦ p ⟧c = if x ∣⇒ (C ⟦ p ⟧c) ∣⇒ q
 (cif₂ x p ∷ C)           ⟦ q ⟧c = if x ∣⇒ p          ∣⇒ (C ⟦ q ⟧c)
-(cenv θ A ∷ C)           ⟦ p ⟧c = ρ⟨ θ , A ⟩· (C ⟦ p ⟧c)
+(cenv θ ∷ C)             ⟦ p ⟧c = ρ θ · (C ⟦ p ⟧c)
 
 data _≐_⟦_⟧c : Term → Context → Term → Set where
   dchole     : ∀{p}                            → (p                    ≐  []                       ⟦ p ⟧c)
@@ -104,4 +104,4 @@ data _≐_⟦_⟧c : Term → Context → Term → Set where
   dcvar      : ∀{p C r x e}   → (p ≐ C ⟦ r ⟧c) → (var x ≔ e in: p      ≐  (cvar x e ∷ C)           ⟦ r ⟧c)
   dcif₁      : ∀{p r q x C}   → (p ≐ C ⟦ r ⟧c) → (if x ∣⇒ p ∣⇒ q        ≐  (cif₁ x q ∷ C)           ⟦ r ⟧c)
   dcif₂      : ∀{p r q x C}   → (q ≐ C ⟦ r ⟧c) → (if x ∣⇒ p ∣⇒ q        ≐  (cif₂ x p ∷ C)           ⟦ r ⟧c)
-  dcenv      : ∀{p C r θ A}     → (p ≐ C ⟦ r ⟧c) → (ρ⟨ θ , A ⟩· p       ≐  (cenv θ A ∷ C)             ⟦ r ⟧c)
+  dcenv      : ∀{p C r θ}     → (p ≐ C ⟦ r ⟧c) → (ρ θ · p              ≐  (cenv θ ∷ C)             ⟦ r ⟧c)

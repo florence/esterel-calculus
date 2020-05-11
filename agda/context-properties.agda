@@ -99,12 +99,12 @@ data R : Term → Set where
 ~:: (trp ~) = ~
 
 
-CB-rho-rho-imp-dist : ∀{p q θ θ' BV FV A A'} → CorrectBinding ((ρ⟨ θ , A ⟩· p) ∥ (ρ⟨ θ' , A' ⟩· q)) BV FV → distinct (Dom θ) (Dom θ')
+CB-rho-rho-imp-dist : ∀{p q θ θ' BV FV} → CorrectBinding ((ρ θ · p) ∥ (ρ θ' · q)) BV FV → distinct (Dom θ) (Dom θ')
 CB-rho-rho-imp-dist (CBpar{BVp = BVp}{BVq = BVq} (CBρ cb) (CBρ cb₁) x x₁ x₂ x₃) = dist++b x
 
-ddb-r-rec : ∀{E' q BV FV θ θ' r s A A'} → CorrectBinding ((ρ⟨ θ , A ⟩· r) ∥ q) BV FV → q ≐ E' ⟦ (ρ⟨ θ' , A' ⟩· s) ⟧e → (distinct (Dom θ) (Dom θ'))
+ddb-r-rec : ∀{E' q BV FV θ θ' r s} → CorrectBinding ((ρ θ · r) ∥ q) BV FV → q ≐ E' ⟦ (ρ θ' · s) ⟧e → (distinct (Dom θ) (Dom θ'))
 
-ddb-r-rec {[]} {ρ⟨ θ' , A' ⟩· p} (CBpar cb cb₁ x x₁ x₂ x₃) dehole = CB-rho-rho-imp-dist (CBpar cb cb₁ x x₁ x₂ x₃)
+ddb-r-rec {[]} {ρ θ' · p} (CBpar cb cb₁ x x₁ x₂ x₃) dehole = CB-rho-rho-imp-dist (CBpar cb cb₁ x x₁ x₂ x₃)
 ddb-r-rec {.(epar₁ _) ∷ E'} (CBpar cb (CBpar cb₁ cb₂ x x₁ x₂ x₃) x₄ x₅ x₆ x₇) (depar₁ eq2)
   = ddb-r-rec {E'} (CBpar cb cb₁ (dist++ˡ x₄) (dist++ˡ x₅) (dist++ˡ x₆) (dist'++ˡ x₇)) eq2
 ddb-r-rec {.(epar₂ _) ∷ E'} (CBpar cb (CBpar{BVp = BVp}{FVp = FVp@(S , s , xs)} cb₁ cb₂ x x₁ x₂ x₃) x₄ x₅ x₆ x₇) (depar₂ eq2)
@@ -130,7 +130,7 @@ dist'++r2{VL2 = VL2} d = (distinct'-sym (dist'++ʳ{V2 = VL2} (distinct'-sym d)))
 dist::2 :  ∀{VL1 VL2 S} → (distinct (+S S VL1) VL2) → (distinct VL1 VL2)
 dist::2{S = S} d = (distinct-sym ( dist::{S = S} (distinct-sym d) ))
 
-decomp-distinct-binding : ∀{E E' p q BV FV θ θ' r s A A'} → CorrectBinding (p ∥ q) BV FV → p ≐ E ⟦ (ρ⟨ θ , A ⟩· r) ⟧e → q ≐ E' ⟦ (ρ⟨ θ' , A' ⟩· s) ⟧e → (distinct (Dom θ) (Dom θ'))
+decomp-distinct-binding : ∀{E E' p q BV FV θ θ' r s} → CorrectBinding (p ∥ q) BV FV → p ≐ E ⟦ (ρ θ · r) ⟧e → q ≐ E' ⟦ (ρ θ' · s) ⟧e → (distinct (Dom θ) (Dom θ'))
 decomp-distinct-binding {[]} {E} (CBpar cb cb₁ x₁ x₂ x₃ x₄) dehole eq2 = ddb-r-rec (CBpar cb cb₁ x₁ x₂ x₃ x₄) eq2
 decomp-distinct-binding {x ∷ E} {[]} (CBpar cb cb₁ x₁ x₂ x₃ x₄) eq1 dehole = distinct-sym (ddb-r-rec {x ∷ E} (CBpar cb₁ cb (distinct-sym x₁) (distinct-sym x₃) (distinct-sym x₂) (distinct'-sym x₄)) eq1)
 decomp-distinct-binding {.(epar₁ _) ∷ E} {x₁ ∷ E'} (CBpar{BVq = BVq} (CBpar cb cb₁ x x₂ x₃ x₄) cb₂ x₅ x₆ x₇ x₈) (depar₁ eq1) eq2
@@ -167,13 +167,13 @@ a~-sym (trp ~) = trp (a~-sym ~)
 a~-sym par = par2
 a~-sym par2 = par
 
-decomp-maint-bind : ∀{E E' p r s θ θ' BV FV A A'} → CorrectBinding p BV FV
-                      → p ≐ E ⟦ (ρ⟨ θ , A ⟩· r ) ⟧e
-                      → p ≐ E' ⟦ (ρ⟨ θ' , A' ⟩· s ) ⟧e
-                      → (E ≡ E' × r ≡ s × θ ≡ θ' × A ≡ A') ⊎ ((distinct (Dom θ) (Dom θ')) × E a~ E')
+decomp-maint-bind : ∀{E E' p r s θ θ' BV FV} → CorrectBinding p BV FV
+                      → p ≐ E ⟦ (ρ θ · r ) ⟧e
+                      → p ≐ E' ⟦ (ρ θ' · s ) ⟧e
+                      → (E ≡ E' × r ≡ s × θ ≡ θ') ⊎ ((distinct (Dom θ) (Dom θ')) × E a~ E')
 
-decomp-maint-bind {[]} {[]} {.(ρ⟨ _ , _ ⟩· _)} bv dehole dehole = inj₁ (refl , refl , refl , refl)
-decomp-maint-bind {[]} {x ∷ E'} {.(ρ⟨ _ , _ ⟩· _)} bv dehole ()
+decomp-maint-bind {[]} {[]} {.(ρ _ · _)} bv dehole dehole = inj₁ (refl , refl , refl)
+decomp-maint-bind {[]} {x ∷ E'} {.(ρ _ · _)} bv dehole ()
 decomp-maint-bind {.(epar₁ _) ∷ E} {[]} {.(_ ∥ _)} bv (depar₁ d1) ()
 
 decomp-maint-bind {.(epar₂ _) ∷ E} {[]} {.(_ ∥ _)} bv (depar₂ d1) ()
@@ -185,62 +185,61 @@ decomp-maint-bind {(epar₁ q) ∷ E} {(epar₂ p) ∷ E'} {.(_ ∥ _)} bv (depa
 decomp-maint-bind {.(epar₂ _) ∷ E} {.(epar₁ _) ∷ E'} {.(_ ∥ _)} bv (depar₂ d1) (depar₁ d2) with (decomp-distinct-binding bv d2 d1)
 ... | c = inj₂ ((distinct-sym c) , par)
 decomp-maint-bind {.(epar₁ _) ∷ E} {.(epar₁ _) ∷ E'} {.(_ ∥ _)} (CBpar bv bv₁ x x₁ x₂ x₃) (depar₁ d1) (depar₁ d2) with decomp-maint-bind bv d1 d2
-... | inj₁ (eq1 , eq2 , eq3 , eq4) rewrite eq1 | eq2 | eq3 | eq4 = inj₁ (refl , refl , refl , refl)
+... | inj₁ (eq1 , eq2 , eq3) rewrite eq1 | eq2 | eq3 = inj₁ (refl , refl , refl)
 ... | inj₂ (y , neg) = inj₂ (y , parr neg)
 decomp-maint-bind {.(epar₂ _) ∷ E} {.(epar₂ _) ∷ E'} {.(_ ∥ _)} (CBpar bv bv₁ x x₁ x₂ x₃) (depar₂ d1) (depar₂ d2) with decomp-maint-bind bv₁ d1 d2
-... | inj₁ (eq1 , eq2 , eq3 , eq4) rewrite eq1 | eq2 | eq3 | eq4 = inj₁ (refl , refl , refl , refl)
+... | inj₁ (eq1 , eq2 , eq3) rewrite eq1 | eq2 | eq3 = inj₁ (refl , refl , refl)
 ... | inj₂ (y , neg) = inj₂ (y , parl neg)
 decomp-maint-bind {.(eseq _) ∷ E} {.(eseq _) ∷ E'} {.(_ >> _)} (CBseq bv bv₁ x) (deseq d1) (deseq d2) with decomp-maint-bind bv d1 d2
-... | inj₁ (eq1 , eq2 , eq3 , eq4) rewrite eq1 | eq2 | eq3 | eq4 = inj₁ (refl , refl , refl , refl)
+... | inj₁ (eq1 , eq2 , eq3) rewrite eq1 | eq2 | eq3 = inj₁ (refl , refl , refl)
 ... | inj₂ (y , neg) = inj₂ (y , seq neg)
 decomp-maint-bind {.(eloopˢ _) ∷ E} {.(eloopˢ _) ∷ E'} {.(loopˢ _ _)} (CBloopˢ bv bv₁ x _) (deloopˢ d1) (deloopˢ d2) with decomp-maint-bind bv d1 d2
-... | inj₁ (eq1 , eq2 , eq3 , eq4) rewrite eq1 | eq2 | eq3 | eq4 = inj₁ (refl , refl , refl , refl)
+... | inj₁ (eq1 , eq2 , eq3) rewrite eq1 | eq2 | eq3 = inj₁ (refl , refl , refl)
 ... | inj₂ (y , neg) = inj₂ (y , loopˢ neg)
 decomp-maint-bind {.(esuspend _) ∷ E} {.(esuspend _) ∷ E'} {.(suspend _ _)} (CBsusp bv x) (desuspend d1) (desuspend d2) with decomp-maint-bind bv d1 d2
-... | inj₁ (eq1 , eq2 , eq3 , eq4) rewrite eq1 | eq2 | eq3 | eq4 = inj₁ (refl , refl , refl , refl)
+... | inj₁ (eq1 , eq2 , eq3) rewrite eq1 | eq2 | eq3 = inj₁ (refl , refl , refl)
 ... | inj₂ (y , neg) = inj₂ (y , susp neg)
 decomp-maint-bind {.etrap ∷ E} {.etrap ∷ E'} {.(trap _)} (CBtrap bv) (detrap d1) (detrap d2) with decomp-maint-bind bv d1 d2
-... | inj₁ (eq1 , eq2 , eq3 , eq4) rewrite eq1 | eq2 | eq3 | eq4 = inj₁ (refl , refl , refl , refl)
+... | inj₁ (eq1 , eq2 , eq3) rewrite eq1 | eq2 | eq3 = inj₁ (refl , refl , refl)
 ... | inj₂ (y , neg) = inj₂ (y , trp neg)
 
-data ->E-view : ∀{p q pin qin E θ θ' A A'} → (ρ⟨ θ , A ⟩· p) sn⟶₁ (ρ⟨ θ' , A' ⟩· q) → p ≐ E ⟦ pin ⟧e →  q ≐ E ⟦ qin ⟧e → Set where
-  vmerge :  ∀{θ₁ θ₂ r p E A A'' dec} → ∀{dec2 : E ⟦ p ⟧e ≐ E ⟦ p ⟧e} → (->E-view{A = A} (rmerge{θ₁}{θ₂}{r}{p}{E}{A}{A''} dec) dec dec2)
-  vis-present : ∀{θ S r p q E S∈ ineq dec A} → ∀{dec2 : E ⟦ p ⟧e ≐ E ⟦ p ⟧e} → (->E-view{A = A} (ris-present{θ}{S}{r}{p}{q}{E} S∈ ineq dec) dec dec2)
-  vis-absent : ∀{θ S r p q E S∈ ineq dec A} → ∀{dec2 : E ⟦ q ⟧e ≐ E ⟦ q ⟧e} → (->E-view{A = A} (ris-absent{θ}{S}{r}{p}{q}{E} S∈ ineq dec) dec dec2)
+data ->E-view : ∀{p q pin qin E θ θ'} → (ρ θ · p) sn⟶₁ (ρ θ' · q) → p ≐ E ⟦ pin ⟧e →  q ≐ E ⟦ qin ⟧e → Set where
+  vmerge :  ∀{θ₁ θ₂ r p E dec} → ∀{dec2 : E ⟦ p ⟧e ≐ E ⟦ p ⟧e} → (->E-view (rmerge{θ₁}{θ₂}{r}{p}{E} dec) dec dec2)
+  vis-present : ∀{θ S r p q E S∈ ineq dec} → ∀{dec2 : E ⟦ p ⟧e ≐ E ⟦ p ⟧e} → (->E-view (ris-present{θ}{S}{r}{p}{q}{E} S∈ ineq dec) dec dec2)
+  vis-absent : ∀{θ S r p q E S∈ ineq dec} → ∀{dec2 : E ⟦ q ⟧e ≐ E ⟦ q ⟧e} → (->E-view (ris-absent{θ}{S}{r}{p}{q}{E} S∈ ineq dec) dec dec2)
   vemit : ∀{θ r S E S∈ ¬S≡a dec} → ∀{dec2 : E ⟦ nothin ⟧e ≐ E ⟦ nothin ⟧e} → (->E-view (remit{θ}{r}{S}{E} S∈ ¬S≡a dec) dec dec2)
-  vraise-shared : ∀{θ r s e p E e' dec A} → ∀{dec2 : E ⟦ (ρ⟨ (Θ SigMap.empty ShrMap.[ s ↦ (SharedVar.old ,′ (δ e'))] VarMap.empty) , WAIT ⟩· p) ⟧e ≐ E ⟦ (ρ⟨ (Θ SigMap.empty ShrMap.[ s ↦ (SharedVar.old ,′ (δ e'))] VarMap.empty) , WAIT ⟩· p) ⟧e}
-                  → (->E-view{A = A} (rraise-shared{θ}{r}{s}{e}{p}{E} e' dec) dec dec2)
+  vraise-shared : ∀{θ r s e p E e' dec} → ∀{dec2 : E ⟦ (ρ (Θ SigMap.empty ShrMap.[ s ↦ (SharedVar.old ,′ (δ e'))] VarMap.empty) · p) ⟧e ≐ E ⟦ (ρ (Θ SigMap.empty ShrMap.[ s ↦ (SharedVar.old ,′ (δ e'))] VarMap.empty) · p) ⟧e}
+                  → (->E-view (rraise-shared{θ}{r}{s}{e}{p}{E} e' dec) dec dec2)
   vset-shared-value-old :  ∀{θ r s e E e' s∈ ineq dec} → ∀{dec2 : E ⟦ nothin ⟧e ≐ E ⟦ nothin ⟧e} → (->E-view (rset-shared-value-old{θ}{r}{s}{e}{E} e' s∈ ineq dec) dec dec2)
   vset-shared-value-new :  ∀{θ r s e E e' s∈ ineq dec} → ∀{dec2 : E ⟦ nothin ⟧e ≐ E ⟦ nothin ⟧e} → (->E-view (rset-shared-value-new{θ}{r}{s}{e}{E} e' s∈ ineq dec) dec dec2)
-  vraise-var : ∀{θ r x p e E e' dec A} → ∀{dec2 : E ⟦ (ρ⟨ (Θ SigMap.empty ShrMap.empty VarMap.[ x ↦ δ e' ]) , WAIT ⟩· p) ⟧e ≐ E ⟦ (ρ⟨ (Θ SigMap.empty ShrMap.empty VarMap.[ x ↦ δ e' ]) , WAIT ⟩· p) ⟧e}
-               → (->E-view{A = A} (rraise-var{θ}{r}{x}{p}{e}{E} e' dec) dec dec2)
+  vraise-var : ∀{θ r x p e E e' dec} → ∀{dec2 : E ⟦ (ρ (Θ SigMap.empty ShrMap.empty VarMap.[ x ↦ δ e' ]) · p) ⟧e ≐ E ⟦ (ρ (Θ SigMap.empty ShrMap.empty VarMap.[ x ↦ δ e' ]) · p) ⟧e}
+               → (->E-view (rraise-var{θ}{r}{x}{p}{e}{E} e' dec) dec dec2)
 
-  vset-var : ∀{θ r x e E x∈ e' dec A} → ∀{dec2 : E ⟦ nothin ⟧e ≐ E ⟦ nothin ⟧e}→  (->E-view{A = A} (rset-var{θ}{r}{x}{e}{E} x∈ e' dec) dec dec2)
-  vif-false : ∀{θ r p q x E x∈ ineq dec A} → ∀{dec2 : E ⟦ q ⟧e ≐ E ⟦ q ⟧e} → (->E-view{A = A} (rif-false{θ}{r}{p}{q}{x}{E} x∈ ineq dec) dec dec2)
-  vif-true : ∀{θ r p q x E n x∈ ineq dec A} → ∀{dec2 : E ⟦ p ⟧e ≐ E ⟦ p ⟧e} → (->E-view{A = A} (rif-true{θ}{r}{p}{q}{x}{E}{n} x∈ ineq dec) dec dec2)
+  vset-var : ∀{θ r x e E x∈ e' dec} → ∀{dec2 : E ⟦ nothin ⟧e ≐ E ⟦ nothin ⟧e}→  (->E-view (rset-var{θ}{r}{x}{e}{E} x∈ e' dec) dec dec2)
+  vif-false : ∀{θ r p q x E x∈ ineq dec} → ∀{dec2 : E ⟦ q ⟧e ≐ E ⟦ q ⟧e} → (->E-view (rif-false{θ}{r}{p}{q}{x}{E} x∈ ineq dec) dec dec2)
+  vif-true : ∀{θ r p q x E n x∈ ineq dec} → ∀{dec2 : E ⟦ p ⟧e ≐ E ⟦ p ⟧e} → (->E-view (rif-true{θ}{r}{p}{q}{x}{E}{n} x∈ ineq dec) dec dec2)
 
-data ->pot-view : ∀{p θ q θ' A A'} → (ρ⟨ θ , A ⟩· p) sn⟶₁ (ρ⟨ θ' , A' ⟩· q) → p ≡ q → A ≡ A' → Set where
-  vabsence : ∀{θ p A} S S∈ θS≡unknown S∉can-p-θ → (->pot-view{A = A} (rabsence{θ}{p}{S} S∈ θS≡unknown S∉can-p-θ) refl refl)
-  vreadyness : ∀{θ p A} s s∈ θs≡old⊎θs≡new s∉can-p-θ → (->pot-view{A = A} (rreadyness{θ}{p}{s} s∈ θs≡old⊎θs≡new s∉can-p-θ) refl refl)
+data ->pot-view : ∀{p θ q θ'} → (ρ θ · p) sn⟶₁ (ρ θ' · q) → p ≡ q → Set where
+  vabsence : ∀{θ p} S S∈ θS≡unknown S∉can-p-θ → (->pot-view (rabsence{θ}{p}{S} S∈ θS≡unknown S∉can-p-θ) refl)
+  vreadyness : ∀{θ p} s s∈ θs≡old⊎θs≡new s∉can-p-θ → (->pot-view (rreadyness{θ}{p}{s} s∈ θs≡old⊎θs≡new s∉can-p-θ) refl)
 
-data ->θview :  ∀{p θ q θ' A A'} → (ρ⟨ θ , A ⟩· p) sn⟶₁ (ρ⟨ θ' , A' ⟩· q) → Set where
-  ->θE-view   :  ∀{p q pin qin E θ θ' A A'}
-               → ∀{red : (ρ⟨ θ , A ⟩· p) sn⟶₁ (ρ⟨ θ' , A' ⟩· q)}
+data ->θview :  ∀{p θ q θ'} → (ρ θ · p) sn⟶₁ (ρ θ' · q) → Set where
+  ->θE-view   :  ∀{p q pin qin E θ θ'}
+               → ∀{red : (ρ θ · p) sn⟶₁ (ρ θ' · q)}
                → ∀{pin : p ≐ E ⟦ pin ⟧e}
                → ∀{qin : q ≐ E ⟦ qin ⟧e}
                → ->E-view red pin qin
                → ->θview red
 
-  ->θpot-view : ∀{p θ q θ' A A'}
-                → ∀{red : (ρ⟨ θ , A ⟩· p) sn⟶₁ (ρ⟨ θ' , A' ⟩· q)}
+  ->θpot-view : ∀{p θ q θ'}
+                → ∀{red : (ρ θ · p) sn⟶₁ (ρ θ' · q)}
                 → ∀{eq : p ≡ q}
-                → ∀{eq2 : A ≡ A'}
-                → ->pot-view red eq eq2
+                → ->pot-view red eq
                 → ->θview red
 
 -- views for the term inside an ->E-view reduction
 data ->E-view-term : Term → Set where
-  evt-merge        : ∀ {θ p A}   → ->E-view-term (ρ⟨ θ , A ⟩· p)
+  evt-merge        : ∀ {θ p}   → ->E-view-term (ρ θ · p)
   evt-present      : ∀ {S p q} → ->E-view-term (present S ∣⇒ p ∣⇒ q)
   evt-emit         : ∀ {S}     → ->E-view-term (emit S)
   evt-raise-shared : ∀ {s e p} → ->E-view-term (shared s ≔ e in: p)
@@ -250,10 +249,10 @@ data ->E-view-term : Term → Set where
   evt-if           : ∀ {x p q} → ->E-view-term (if x ∣⇒ p ∣⇒ q)
 
 
-->E-view-inner-term : ∀ {E pin poin p po θ θo A Ao} →
+->E-view-inner-term : ∀ {E pin poin p po θ θo} →
   { p≐E⟦pin⟧       :  p  ≐ E ⟦ pin  ⟧e } →
   { po≐E⟦poin⟧     :  po ≐ E ⟦ poin ⟧e } →
-  { ρθ·psn⟶₁ρθo·po  :  ρ⟨ θ , A ⟩· p sn⟶₁ ρ⟨ θo , Ao ⟩· po } →
+  { ρθ·psn⟶₁ρθo·po  :  ρ θ · p sn⟶₁ ρ θo · po } →
   ->E-view  ρθ·psn⟶₁ρθo·po  p≐E⟦pin⟧  po≐E⟦poin⟧ →
   ->E-view-term pin
 ->E-view-inner-term vmerge                = evt-merge
@@ -281,16 +280,16 @@ done-E-view-term-disjoint (dpaused (psuspend p/paused)) ()
 done-E-view-term-disjoint (dpaused (ptrap p/paused)) ()
 
 
-unwrap-rho : ∀{E₁ E p θ θ' pin q qin po qo A A'}
-             → (red : (ρ⟨ θ , A ⟩· p) sn⟶₁ (ρ⟨ θ' , A' ⟩· q))
+unwrap-rho : ∀{E₁ E p θ θ' pin q qin po qo}
+             → (red : (ρ θ · p) sn⟶₁ (ρ θ' · q))
              → (peq : p ≐ (E₁ ∷ E) ⟦ pin ⟧e)
              → (qeq : q ≐ (E₁ ∷ E) ⟦ qin ⟧e)
              → (poeq : po ≐ E ⟦ pin ⟧e)
              → (qoeq : qo ≐ E ⟦ qin ⟧e)
              → (->E-view red peq qeq)
-             → Σ[ redo ∈ (ρ⟨ θ , A ⟩· po) sn⟶₁ (ρ⟨ θ' , A' ⟩· qo) ] (->E-view redo poeq qoeq)
+             → Σ[ redo ∈ (ρ θ · po) sn⟶₁ (ρ θ' · qo) ] (->E-view redo poeq qoeq)
 unwrap-rho{E = E}{θ = θ}{θ' = θ'}{qin = qin}{po = po} red@(rmerge{θ₁}{θ₂} .peq) peq qeq poeq qoeq (vmerge) with sym (unplug qoeq)
-... | refl = rmerge poeq , vmerge{θ}{_}{po}{qin}{E}{_}{_}{poeq}
+... | refl = rmerge poeq , vmerge{θ}{_}{po}{qin}{E}{poeq}
 unwrap-rho (ris-present S∈ ineq .peq) peq qeq poeq qoeq vis-present with sym (unplug qoeq)
 ... | refl = (ris-present S∈ ineq poeq) , vis-present
 unwrap-rho (ris-absent S∈ ineq .peq) peq qeq poeq qoeq vis-absent with sym (unplug qoeq)
@@ -312,15 +311,15 @@ unwrap-rho (rif-false a b .peq) peq qeq poeq qoeq vif-false with sym (unplug qoe
 unwrap-rho (rif-true a b .peq) peq qeq poeq qoeq vif-true with sym (unplug qoeq)
 ... | refl = rif-true a b poeq , vif-true
 
-wrap-rho : ∀{θ θ' pout qout pin qin E po qo A A'}
-           → (red : (ρ⟨ θ , A ⟩· pout) sn⟶₁ (ρ⟨ θ' , A' ⟩· qout))
+wrap-rho : ∀{θ θ' pout qout pin qin E po qo}
+           → (red : (ρ θ · pout) sn⟶₁ (ρ θ' · qout))
            → (peq : pout ≐ E ⟦ pin ⟧e)
            → (qeq : qout ≐ E ⟦ qin ⟧e)
            → ->E-view red peq qeq
            → (E₁ : EvaluationContext1)
            → (poeq : po ≐ (E₁ ∷ E) ⟦ pin ⟧e)
            → (qoeq : qo ≐ (E₁ ∷ E) ⟦ qin ⟧e)
-           → Σ[ redo ∈ (ρ⟨ θ , A ⟩· po) sn⟶₁ (ρ⟨ θ' , A' ⟩· qo) ] ->E-view redo poeq qoeq
+           → Σ[ redo ∈ (ρ θ · po) sn⟶₁ (ρ θ' · qo) ] ->E-view redo poeq qoeq
 wrap-rho .(rmerge peq) peq qeq vmerge Eo poeq qoeq with sym (unplug qoeq)
 ... | refl = rmerge poeq , vmerge
 wrap-rho (ris-present S∈ ineq .peq) peq qeq vis-present Eo poeq qoeq with sym (unplug qoeq)
@@ -345,19 +344,19 @@ wrap-rho (rif-true a b .peq) peq qeq vif-true Eo poeq qoeq with sym (unplug qoeq
 ... | refl = rif-true a b poeq , vif-true
 
 
-wrap-rho-pot : ∀ {E₁ pin θ θ' pin≡pin E₁⟦nothin⟧ BV FV A A≡A} →
+wrap-rho-pot : ∀ {E₁ pin θ θ' pin≡pin E₁⟦nothin⟧ BV FV} →
   -- distinct (Dom θ) (FV (E₁ ⟦ nothin ⟧))
   E₁⟦nothin⟧ ≐ (E₁ ∷ []) ⟦ nothin ⟧e →
   CorrectBinding E₁⟦nothin⟧ BV FV →
   distinct (Dom θ) FV →
 
-  (ρθpinsn⟶₁ρθ'qin  :  ρ⟨ θ , A ⟩· pin sn⟶₁ ρ⟨ θ' , A ⟩· pin) →
-  ->pot-view  ρθpinsn⟶₁ρθ'qin  pin≡pin A≡A →
+  (ρθpinsn⟶₁ρθ'qin  :  ρ θ · pin sn⟶₁ ρ θ' · pin) →
+  ->pot-view  ρθpinsn⟶₁ρθ'qin  pin≡pin →
 
   ∃ λ po →
     Σ[ po≐E₁⟦pin⟧             ∈  po ≐ (E₁ ∷ []) ⟦ pin ⟧e ]
-    Σ[ ρθE₁⟦pin⟧sn⟶₁ρθ'E₁⟦pin⟧  ∈  ρ⟨ θ , A ⟩· po sn⟶₁ ρ⟨ θ' , A ⟩· po ]
-      ->pot-view  ρθE₁⟦pin⟧sn⟶₁ρθ'E₁⟦pin⟧ refl refl
+    Σ[ ρθE₁⟦pin⟧sn⟶₁ρθ'E₁⟦pin⟧  ∈  ρ θ · po sn⟶₁ ρ θ' · po ]
+      ->pot-view  ρθE₁⟦pin⟧sn⟶₁ρθ'E₁⟦pin⟧ refl
 wrap-rho-pot {epar₁ q} {pin} {θ} {FV = FV} (depar₁ dehole) cb Domθ≠FV
   .(rabsence {S = S} S∈ θS≡unknown S∉canθ-θ-p)
   (vabsence S S∈ θS≡unknown S∉canθ-θ-p)
@@ -530,17 +529,17 @@ wrap-rho-pot {etrap} {pin} {θ} {FV = FV} (detrap dehole) cb Domθ≠FV
 
 -- p and p' are not important at all; we use them to extract the
 -- distinctness condition of FV E₁ and Dom θ
-wrap-rho-pot' : ∀ {θ θ' E₁ E pin p p' BV FV A} →
-  p ≐ (E₁ ∷ E) ⟦ ρ⟨ θ , A ⟩· p' ⟧e →
+wrap-rho-pot' : ∀ {θ θ' E₁ E pin p p' BV FV} →
+  p ≐ (E₁ ∷ E) ⟦ ρ θ · p' ⟧e →
   CorrectBinding p BV FV →
 
-  (ρθpinsn⟶₁ρθ'pin  :  ρ⟨ θ , A ⟩· pin sn⟶₁ ρ⟨ θ' , A ⟩· pin) →
-  ->pot-view  ρθpinsn⟶₁ρθ'pin  refl refl →
+  (ρθpinsn⟶₁ρθ'pin  :  ρ θ · pin sn⟶₁ ρ θ' · pin) →
+  ->pot-view  ρθpinsn⟶₁ρθ'pin  refl →
 
   ∃ λ po →
     Σ[ po≐E₁⟦pin⟧             ∈  po ≐ (E₁ ∷ []) ⟦ pin ⟧e ]
-    Σ[ ρθE₁⟦pin⟧sn⟶₁ρθ'E₁⟦pin⟧  ∈  ρ⟨ θ , A ⟩· po sn⟶₁ ρ⟨ θ' , A ⟩· po ]
-      ->pot-view  ρθE₁⟦pin⟧sn⟶₁ρθ'E₁⟦pin⟧ refl refl
+    Σ[ ρθE₁⟦pin⟧sn⟶₁ρθ'E₁⟦pin⟧  ∈  ρ θ · po sn⟶₁ ρ θ' · po ]
+      ->pot-view  ρθE₁⟦pin⟧sn⟶₁ρθ'E₁⟦pin⟧ refl
 wrap-rho-pot' {θ} (depar₁ p≐E⟦ρθp'⟧) (CBpar cbp cbq _ _ BVp≠FVq _) ρθpinsn⟶₁ρθ'pin pot
   with binding-extract cbp p≐E⟦ρθp'⟧
 ... | (BVρθ , _) , (BVρθ⊆BVp , _) , CBρ _ =
@@ -578,16 +577,16 @@ wrap-rho-pot' {θ} (detrap p≐E⟦ρθp'⟧) cb@(CBtrap cb') ρθpinsn⟶₁ρ�
 
 
 
-E-view-main-bind : ∀{El Er p il ir iol ior ql qr θ θl θr A Al Ar}
-                    → ∀{redl : (ρ⟨ θ , A ⟩· p) sn⟶₁ (ρ⟨ θl , Al ⟩· ql) }
-                    → ∀{redr : (ρ⟨ θ , A ⟩· p) sn⟶₁ (ρ⟨ θr , Ar ⟩· qr) }
+E-view-main-bind : ∀{El Er p il ir iol ior ql qr θ θl θr }
+                    → ∀{redl : (ρ θ · p) sn⟶₁ (ρ θl · ql) }
+                    → ∀{redr : (ρ θ · p) sn⟶₁ (ρ θr · qr) }
                     → ∀{dec1l : p  ≐ El ⟦ il ⟧e}
                     → ∀{dec2l : ql ≐ El ⟦ iol ⟧e}
                     → ∀{dec1r : p  ≐ Er ⟦ ir ⟧e}
                     → ∀{dec2r : qr ≐ Er ⟦ ior ⟧e}
                     → ->E-view redl dec1l dec2l
                     → ->E-view redr dec1r dec2r
-                    → (El ≡ Er × ql ≡ qr × θl ≡ θr × Al ≡ Ar) ⊎ (El a~ Er)
+                    → (El ≡ Er × ql ≡ qr × θl ≡ θr) ⊎ (El a~ Er)
 
 E-view-main-bind {epar₁ q ∷ El} {epar₂ p ∷ Er} v1 v2 = inj₂ par2
 E-view-main-bind {epar₂ p ∷ El} {epar₁ q ∷ Er} v1 v2 = inj₂ par
@@ -611,22 +610,22 @@ E-view-main-bind {[]} {[]} {(s ⇐ _)}{θ = θ} {redl = (rset-shared-value-old _
 ... | k with trans (sym (trans k eq2)) eq1
 ... | ()
 
-E-view-main-bind {[]} {[]} {.(ρ⟨ _ , _ ⟩· _)} {redl = .(rmerge dehole)} {.(rmerge dehole)} {dehole} {dehole} {dehole} {dehole} vmerge vmerge = inj₁ (refl , refl , refl , refl)
-E-view-main-bind {[]} {[]} {.(present _ ∣⇒ _ ∣⇒ _)} {redl = .(ris-present _ _ dehole)} {.(ris-present _ _ dehole)} {dehole} {dehole} {dehole} {dehole} vis-present vis-present = inj₁ (refl , refl , refl , refl)
-E-view-main-bind {[]} {[]} {.(present _ ∣⇒ _ ∣⇒ _)} {redl = .(ris-absent _ _ dehole)} {.(ris-absent _ _ dehole)} {dehole} {dehole} {dehole} {dehole} vis-absent vis-absent = inj₁ (refl , refl , refl , refl)
-E-view-main-bind {[]} {[]} {.(emit _)} {redl = .(remit _ _ dehole)} {.(remit _ _ dehole)} {dehole} {dehole} {dehole} {dehole} vemit vemit = inj₁ (refl , refl , refl , refl)
+E-view-main-bind {[]} {[]} {.(ρ _ · _)} {redl = .(rmerge dehole)} {.(rmerge dehole)} {dehole} {dehole} {dehole} {dehole} vmerge vmerge = inj₁ (refl , refl , refl)
+E-view-main-bind {[]} {[]} {.(present _ ∣⇒ _ ∣⇒ _)} {redl = .(ris-present _ _ dehole)} {.(ris-present _ _ dehole)} {dehole} {dehole} {dehole} {dehole} vis-present vis-present = inj₁ (refl , refl , refl)
+E-view-main-bind {[]} {[]} {.(present _ ∣⇒ _ ∣⇒ _)} {redl = .(ris-absent _ _ dehole)} {.(ris-absent _ _ dehole)} {dehole} {dehole} {dehole} {dehole} vis-absent vis-absent = inj₁ (refl , refl , refl)
+E-view-main-bind {[]} {[]} {.(emit _)} {redl = .(remit _ _ dehole)} {.(remit _ _ dehole)} {dehole} {dehole} {dehole} {dehole} vemit vemit = inj₁ (refl , refl , refl)
 E-view-main-bind {[]} {[]} {.(shared _ ≔ _ in: _)} {redl = (rraise-shared e' dehole)} {(rraise-shared e'' dehole)} {dehole} {dehole} {dehole} {dehole} vraise-shared vraise-shared
-  rewrite δ-e-irr e' e'' = inj₁ (refl , refl , refl , refl)
+  rewrite δ-e-irr e' e'' = inj₁ (refl , refl , refl)
 E-view-main-bind {[]} {[]} {.(_ ⇐ _)} {redl = (rset-shared-value-old e' _ _ dehole)} {(rset-shared-value-old e'' _ _ dehole)} {dehole} {dehole} {dehole} {dehole} vset-shared-value-old vset-shared-value-old
-   rewrite δ-e-irr e' e'' = inj₁ (refl , refl , refl , refl)
+   rewrite δ-e-irr e' e'' = inj₁ (refl , refl , refl)
 E-view-main-bind {[]} {[]} {(s ⇐ _)}{θ = θ} {redl = (rset-shared-value-new e' s∈' _ dehole)} {(rset-shared-value-new e'' s∈'' _ dehole)} {dehole} {dehole} {dehole} {dehole} vset-shared-value-new vset-shared-value-new
-   rewrite δ-e-irr e' e'' | (shr-vals-∈-irr{s}{θ} s∈' s∈'') = inj₁ (refl , refl , refl , refl)
+   rewrite δ-e-irr e' e'' | (shr-vals-∈-irr{s}{θ} s∈' s∈'') = inj₁ (refl , refl , refl)
 E-view-main-bind {[]} {[]} {.(var _ ≔ _ in: _)} {redl = (rraise-var e' dehole)} {(rraise-var e'' dehole)} {dehole} {dehole} {dehole} {dehole} vraise-var vraise-var
-   rewrite δ-e-irr e' e'' = inj₁ (refl , refl , refl , refl)
+   rewrite δ-e-irr e' e'' = inj₁ (refl , refl , refl)
 E-view-main-bind {[]} {[]} {(x ≔ e)} {redl = (rset-var{e = .e} _ e' dehole)} {(rset-var{e = .e} _ e'' dehole)} {dehole} {dehole} {dehole} {dehole} vset-var vset-var
-   rewrite δ-e-irr e' e'' = inj₁ (refl , refl , refl , refl)
-E-view-main-bind {[]} {[]} {.(if _ ∣⇒ _ ∣⇒ _)} {redl = .(rif-false _ _ dehole)} {.(rif-false _ _ dehole)} {dehole} {dehole} {dehole} {dehole} vif-false vif-false = inj₁ (refl , refl , refl , refl)
-E-view-main-bind {[]} {[]} {.(if _ ∣⇒ _ ∣⇒ _)} {redl = .(rif-true _ _ dehole)} {.(rif-true _ _ dehole)} {dehole} {dehole} {dehole} {dehole} vif-true vif-true = inj₁ (refl , refl , refl , refl)
+   rewrite δ-e-irr e' e'' = inj₁ (refl , refl , refl)
+E-view-main-bind {[]} {[]} {.(if _ ∣⇒ _ ∣⇒ _)} {redl = .(rif-false _ _ dehole)} {.(rif-false _ _ dehole)} {dehole} {dehole} {dehole} {dehole} vif-false vif-false = inj₁ (refl , refl , refl)
+E-view-main-bind {[]} {[]} {.(if _ ∣⇒ _ ∣⇒ _)} {redl = .(rif-true _ _ dehole)} {.(rif-true _ _ dehole)} {dehole} {dehole} {dehole} {dehole} vif-true vif-true = inj₁ (refl , refl , refl)
 E-view-main-bind {[]} {.(epar₁ _) ∷ Er} {.(_ ∥ _)} {redl = redl} {redr} {dehole} {dec2l} {depar₁ dec1r} {dec2r} () v2
 E-view-main-bind {[]} {.(epar₂ _) ∷ Er} {.(_ ∥ _)} {redl = redl} {redr} {dehole} {dec2l} {depar₂ dec1r} {dec2r} () v2
 E-view-main-bind {[]} {.(eseq _) ∷ Er} {.(_ >> _)} {redl = redl} {redr} {dehole} {dec2l} {deseq dec1r} {dec2r} () v2
@@ -641,39 +640,39 @@ E-view-main-bind {.(esuspend _) ∷ El} {[]} {.(suspend _ _)} {redl = redl} {red
 E-view-main-bind {.etrap ∷ El} {[]} {.(trap _)} {redl = redl} {redr} {detrap dec1l} {dec2l} {dehole} {dec2r} v1 ()
 E-view-main-bind {epar₁ q ∷ El} {epar₁ .q ∷ Er} {dec1l = depar₁ dec1l} {depar₁ dec2l} {depar₁ dec1r} {depar₁ dec2r} v1 v2 with unwrap-rho _ _ _ dec1l dec2l v1 | unwrap-rho _ _ _ dec1r dec2r v2
 ... | (redil , viewil) | (redir , viewir) with E-view-main-bind viewil viewir
-... | (inj₁ (refl , refl , refl , refl)) = inj₁ (refl , refl , refl , refl)
+... | (inj₁ (refl , refl , refl)) = inj₁ (refl , refl , refl)
 ... | (inj₂ y) = inj₂ (parr y)
 E-view-main-bind {.(epar₂ _) ∷ El} {.(epar₂ _) ∷ Er} {.(_ ∥ _)} {dec1l = depar₂ dec1l} {depar₂ dec2l} {depar₂ dec1r} {depar₂ dec2r} v1 v2 with unwrap-rho _ _ _ dec1l dec2l v1 | unwrap-rho _ _ _ dec1r dec2r v2
 ... | (redil , viewil) | (redir , viewir) with E-view-main-bind viewil viewir
-... | (inj₁ (refl , refl , refl , refl)) = inj₁ (refl , refl , refl , refl)
+... | (inj₁ (refl , refl , refl)) = inj₁ (refl , refl , refl)
 ... | (inj₂ y) = inj₂ (parl y)
 E-view-main-bind {.(eseq _) ∷ El} {.(eseq _) ∷ Er} {.(_ >> _)} {dec1l = deseq dec1l} {deseq dec2l} {deseq dec1r} {deseq dec2r} v1 v2  with unwrap-rho _ _ _ dec1l dec2l v1 | unwrap-rho _ _ _ dec1r dec2r v2
 ... | (redil , viewil) | (redir , viewir) with E-view-main-bind viewil viewir
-... | (inj₁ (refl , refl , refl , refl)) = inj₁ (refl , refl , refl , refl)
+... | (inj₁ (refl , refl , refl)) = inj₁ (refl , refl , refl)
 ... | (inj₂ y) = inj₂ (seq y)
 E-view-main-bind {.(eloopˢ _) ∷ El} {.(eloopˢ _) ∷ Er} {.(loopˢ _ _)} {dec1l = deloopˢ dec1l} {deloopˢ dec2l} {deloopˢ dec1r} {deloopˢ dec2r} v1 v2  with unwrap-rho _ _ _ dec1l dec2l v1 | unwrap-rho _ _ _ dec1r dec2r v2
 ... | (redil , viewil) | (redir , viewir) with E-view-main-bind viewil viewir
-... | (inj₁ (refl , refl , refl , refl)) = inj₁ (refl , refl , refl , refl)
+... | (inj₁ (refl , refl , refl)) = inj₁ (refl , refl , refl)
 ... | (inj₂ y) = inj₂ (loopˢ y)
 E-view-main-bind {.(esuspend _) ∷ El} {.(esuspend _) ∷ Er} {.(suspend _ _)} {dec1l = desuspend dec1l} {desuspend dec2l} {desuspend dec1r} {desuspend dec2r} v1 v2  with unwrap-rho _ _ _ dec1l dec2l v1 | unwrap-rho _ _ _ dec1r dec2r v2
 ... | (redil , viewil) | (redir , viewir) with E-view-main-bind viewil viewir
-... | (inj₁ (refl , refl , refl , refl)) = inj₁ (refl , refl , refl , refl)
+... | (inj₁ (refl , refl , refl)) = inj₁ (refl , refl , refl)
 ... | (inj₂ y) = inj₂ (susp y)
 E-view-main-bind {.etrap ∷ El} {.etrap ∷ Er} {.(trap _)} {dec1l = detrap dec1l} {detrap dec2l} {detrap dec1r} {detrap dec2r} v1 v2  with unwrap-rho _ _ _ dec1l dec2l v1 | unwrap-rho _ _ _ dec1r dec2r v2
 ... | (redil , viewil) | (redir , viewir) with E-view-main-bind viewil viewir
-... | (inj₁ (refl , refl , refl , refl)) = inj₁ (refl , refl , refl , refl)
+... | (inj₁ (refl , refl , refl)) = inj₁ (refl , refl , refl)
 ... | (inj₂ y) = inj₂ (trp y)
 
 
-get-view : ∀{θ θ' p q A A'}
-           → (red : (ρ⟨ θ , A ⟩· p) sn⟶₁ (ρ⟨ θ' , A' ⟩· q))
+get-view : ∀{θ θ' p q}
+           → (red : (ρ θ · p) sn⟶₁ (ρ θ' · q))
            → (Σ[ E ∈ EvaluationContext ]
              Σ[ pin ∈ Term ]
              Σ[ qin ∈ Term ]
              Σ[ peq ∈ (p ≐ E ⟦ pin ⟧e) ]
              Σ[ qeq ∈ (q ≐ E ⟦ qin ⟧e) ]
-             (->E-view{p}{q}{pin}{qin}{E}{θ}{θ'}{A}{A'} red peq qeq ))
-             ⊎ Σ[ eq ∈  (p ≡ q) ] Σ[ eq2 ∈  (A ≡ A') ] (->pot-view red eq eq2)
+             (->E-view{p}{q}{pin}{qin}{E}{θ}{θ'} red peq qeq ))
+             ⊎ Σ[ eq ∈  (p ≡ q) ] (->pot-view red eq)
 
 get-view (ris-present S∈ x x₁) = inj₁ (_ , _ , _ , x₁ , Erefl , vis-present)
 get-view (ris-absent S∈ x x₁) = inj₁ (_ , _ , _ , x₁ , Erefl , vis-absent)
@@ -686,5 +685,5 @@ get-view (rset-var x∈ e' x₁) = inj₁ (_ , _ , _ , x₁ , Erefl , vset-var)
 get-view (rif-false x∈ x₁ x₂) = inj₁ (_ , _ , _ , x₂ , Erefl , vif-false)
 get-view (rif-true x∈ x₁ x₂) = inj₁ (_ , _ , _ , x₂ , Erefl , vif-true)
 get-view (rmerge x) = inj₁ (_ , _ , _ , x , Erefl , vmerge)
-get-view (rabsence {S = S} S∈ x x₁) = inj₂ (refl , refl , vabsence S S∈ x x₁)
-get-view (rreadyness {s = s} s∈ x x₁) = inj₂ (refl , refl , vreadyness s s∈ x x₁)
+get-view (rabsence {S = S} S∈ x x₁) = inj₂ (refl , vabsence S S∈ x x₁)
+get-view (rreadyness {s = s} s∈ x x₁) = inj₂ (refl , vreadyness s s∈ x x₁)

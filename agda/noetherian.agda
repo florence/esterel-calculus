@@ -85,7 +85,7 @@ numstepsθ (Θ sig₁ shr₁ var₁) = (numstepsSig sig₁) + (numstepsShr shr�
 ∥ (var x ≔ e in: p) ∥s = suc (suc (∥ p ∥s))
 ∥ (x ≔ e) ∥s = 1
 ∥ (if x ∣⇒ p ∣⇒ q) ∥s = suc (∥ p ∥s + ∥ q ∥s)
-∥ (ρ⟨ θ , A ⟩· p) ∥s = suc (numstepsθ θ + ∥ p ∥s)
+∥ (ρ θ · p) ∥s = suc (numstepsθ θ + ∥ p ∥s)
 
 arith1 : ∀ a b c -> suc b ≤′ c -> suc (suc (a + b)) ≤′ suc (a + c)
 arith1 a b c sucb≤′c rewrite sym (+-suc a b) = s≤′s (≤′+r {z = a} sucb≤′c)
@@ -244,9 +244,9 @@ noetherian₁ (rraise-signal{p}{S}) = ans where
 noetherian₁ (rraise-shared{θ}{_}{s}{e}{p}{E} e' x) with unplug x
 ... | refl =
   arith1 (numstepsθ θ)
-         ∥ E ⟦ ρ⟨ [s,δe]-env  s (δ e') , WAIT ⟩· p ⟧e ∥s
+         ∥ E ⟦ ρ [s,δe]-env  s  (δ e') · p ⟧e ∥s
          ∥ E ⟦ shared s ≔ e in: p ⟧e ∥s
-         (eplug< (ρ⟨ [s,δe]-env s (δ e') , WAIT ⟩· p)
+         (eplug< (ρ [s,δe]-env s (δ e') · p)
                  (shared s ≔ e in: p) E newθ≡1) where
 
    silly : ∀ s -> numstepsθ ([s,δe]-env s (δ e')) ≡ 1
@@ -271,9 +271,9 @@ noetherian₁ (rset-shared-value-old{θ}{_}{s}{e}{E} e' s∈ θ[s]≡old x) with
        (shr θ) is-notreadyp s s∈
        (SharedVar.new , δ e') snotready = refl
 
-  ans : suc ∥ (ρ⟨ (set-shr{s} θ s∈ (SharedVar.new) (δ e')) , GO ⟩·
+  ans : suc ∥ (ρ (set-shr{s} θ s∈ (SharedVar.new) (δ e')) ·
                  E ⟦ nothin ⟧e) ∥s ≤′
-        ∥ ρ⟨ θ , GO ⟩· E ⟦ s ⇐ e ⟧e ∥s
+        ∥ ρ θ · E ⟦ s ⇐ e ⟧e ∥s
   ans rewrite θsame =
     arith1 (numstepsθ θ)
             ∥ E ⟦ nothin ⟧e ∥s
@@ -294,9 +294,9 @@ noetherian₁ (rset-shared-value-new{θ}{_}{s}{e}{E} e' s∈ θ[s]≡new x) with
        (shr θ) is-notreadyp s s∈
        (SharedVar.new , shr-vals{s} θ s∈ + δ e') snotready = refl
 
-  ans : suc ∥ (ρ⟨ (set-shr{s} θ s∈ (SharedVar.new) (shr-vals{s} θ s∈ + δ e')) , GO ⟩·
+  ans : suc ∥ (ρ (set-shr{s} θ s∈ (SharedVar.new) (shr-vals{s} θ s∈ + δ e')) ·
                  E ⟦ nothin ⟧e) ∥s ≤′
-        ∥ ρ⟨ θ , GO ⟩· E ⟦ s ⇐ e ⟧e ∥s
+        ∥ ρ θ · E ⟦ s ⇐ e ⟧e ∥s
   ans rewrite θsame =
      arith1 (numstepsθ θ)
             ∥ E ⟦ nothin ⟧e ∥s
@@ -306,9 +306,9 @@ noetherian₁ (rset-shared-value-new{θ}{_}{s}{e}{E} e' s∈ θ[s]≡new x) with
 noetherian₁ (rraise-var{θ}{r}{x}{p}{e}{E} e' x₁) with unplug x₁
 ... | refl =
   arith1 (numstepsθ θ)
-         ∥ E ⟦ ρ⟨ [x,δe]-env x (δ e') , WAIT ⟩· p ⟧e ∥s
+         ∥ E ⟦ ρ [x,δe]-env x (δ e') · p ⟧e ∥s
          ∥ E ⟦ var x ≔ e in: p ⟧e ∥s
-         (eplug< (ρ⟨ [x,δe]-env x (δ e') , WAIT ⟩· p)
+         (eplug< (ρ [x,δe]-env x (δ e') · p)
                  (var x ≔ e in: p)
                  E
                  ≤′-refl)
@@ -378,8 +378,8 @@ noetherian₁ (rreadyness {θ}{p}{s} s∈ (inj₂ θs=new) s∉Canθ)
            (∥ p ∥s) 
 
 
-noetherian₁ (rmerge{θ₁}{θ₂}{_}{p}{E}{A₁}{A₂} x) with unplug x
-... | refl rewrite decompose∥∥s E (ρ⟨ θ₂ , A₂ ⟩· p)
+noetherian₁ (rmerge{θ₁}{θ₂}{_}{p}{E} x) with unplug x
+... | refl rewrite decompose∥∥s E (ρ θ₂ · p)
                  | decompose∥∥s E p
   = s≤′s
     (rearrange-things

@@ -32,22 +32,21 @@ open import Esterel.Variable.Shared as SharedVar
   using (SharedVar)
 open import Esterel.Variable.Sequential as SeqVar
 
-set-dist' : ∀{key value inject surject} → ∀{inject-injective : ∀{k1 : key} → ∀{k2 : key} → (inject k1) ≡ (inject k2) → k1 ≡ k2}
-            → ∀{surject-inject : ∀{k} → inject (surject k) ≡ k}
-            → ∀{A : Map {key} inject surject inject-injective surject-inject value} → ∀{B : Map {key} inject surject inject-injective surject-inject value}
-            → distinct' (keys {key} inject surject inject-injective surject-inject {value} A) (keys {key} inject surject inject-injective surject-inject {value}  B)
-            → (union {key} inject surject inject-injective surject-inject {value} A B) ≡ (union  {key} inject surject inject-injective surject-inject {value} B A)
-set-dist'{key}{value}{inject}{surject}{inject-injective}{surject-inject}{A}{B} d = OMap.U-comm key inject value {A} {B} d
+set-dist' : ∀{key value inject} → ∀{inject-injective : ∀{k1 : key} → ∀{k2 : key} → (inject k1) ≡ (inject k2) → k1 ≡ k2}
+            → ∀{A : Map {key} inject inject-injective value} → ∀{B : Map {key} inject inject-injective value}
+            → distinct' (keys {key} inject inject-injective {value} A) (keys {key} inject inject-injective {value}  B)
+            → (union {key} inject inject-injective {value} A B) ≡ (union  {key} inject inject-injective {value} B A)
+set-dist'{key}{value}{inject}{inject-injective}{A}{B} d = OMap.U-comm key inject value {A} {B} d
 
 
 set-dist : ∀{θ θ'} → distinct (Dom θ) (Dom θ') → (θ ← θ') ≡ (θ' ← θ)
 set-dist {Θ sig₁ shr₁ var₁} {Θ sig₂ shr₂ var₂} (a , b , c)
-    rewrite  set-dist'{inject = _}{Signal.wrap}{inject-injective = Signal.unwrap-injective}{Signal.bijective}{sig₁}{sig₂} a
-           | set-dist'{inject = _}{SharedVar.wrap}{inject-injective = SharedVar.unwrap-injective}{SharedVar.bijective}{shr₁}{shr₂} b
-           | set-dist'{inject = _}{SeqVar.wrap}{inject-injective = SeqVar.unwrap-injective}{SeqVar.bijective}{var₁}{var₂} c = refl
+    rewrite  set-dist'{inject-injective = Signal.unwrap-injective}{sig₁}{sig₂} a
+           | set-dist'{inject-injective = SharedVar.unwrap-injective}{shr₁}{shr₂} b
+           | set-dist'{inject-injective = SeqVar.unwrap-injective}{var₁}{var₂} c = refl
 
 
-done≠rho : ∀{p E θ q A} → done p → (p ≐ E ⟦ (ρ⟨ θ , A ⟩· q) ⟧e) → ⊥
+done≠rho : ∀{p E θ q} → done p → (p ≐ E ⟦ (ρ θ · q) ⟧e) → ⊥
 done≠rho (dhalted hnothin) ()
 done≠rho (dhalted (hexit n)) ()
 done≠rho (dpaused p/paused) p≐E⟦ρθq⟧ with paused-⟦⟧e p/paused p≐E⟦ρθq⟧
@@ -56,12 +55,12 @@ done≠rho (dpaused p/paused) p≐E⟦ρθq⟧ with paused-⟦⟧e p/paused p≐
 plug≡ : ∀{r q E w} → r ≐ E ⟦ w ⟧e → q ≐ E ⟦ w ⟧e  → r ≡ q
 plug≡ r≐E⟦w⟧ q≐E⟦w⟧ = trans (sym (unplug r≐E⟦w⟧)) (unplug q≐E⟦w⟧)
 
-RE-split : ∀{p θ p' E E' q A}
-           → p ≐ E ⟦ ρ⟨ θ , A ⟩· p' ⟧e
+RE-split : ∀{p θ p' E E' q}
+           → p ≐ E ⟦ ρ θ · p' ⟧e
            → p ≐ E' ⟦ q ⟧e
            → E a~ E'
            → ∃ (λ d → ∃ (λ Eout → d ≐ E ⟦ p' ⟧e × d ≐ Eout ⟦ q ⟧e × E' ~ Eout × Eout a~ E ))
-RE-split {.(ρ⟨ _ , _ ⟩· _)} dehole dehole ()
+RE-split {.(ρ _ · _)} dehole dehole ()
 RE-split {.(_ ∥ _)} (depar₁ eq1) dehole ()
 RE-split {.(_ >> _)} (deseq eq1) dehole ()
 RE-split {.(trap _)} (detrap eq1) dehole ()

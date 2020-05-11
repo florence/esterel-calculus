@@ -1,6 +1,6 @@
 module Esterel.Environment where
 
-open import utility renaming (module UniquedSet to UL)
+open import utility
 
 open import Data.Empty
 open import Esterel.Variable.Signal as Signal
@@ -32,12 +32,10 @@ open import Data.List.Any
 
 open ≡-Reasoning using (_≡⟨_⟩_ ; _≡⟨⟩_ ; _∎ ; begin_)
 
-open UL using (UniquedSet)
 
-
-module SigMap = Data.FiniteMap Signal
-module ShrMap = Data.FiniteMap SharedVar
-module VarMap = Data.FiniteMap SeqVar
+module SigMap = Data.FiniteMap Signal.unwrap    Signal.unwrap-injective
+module ShrMap = Data.FiniteMap SharedVar.unwrap SharedVar.unwrap-injective
+module VarMap = Data.FiniteMap SeqVar.unwrap    SeqVar.unwrap-injective
 
 record Env : Set where
   constructor Θ
@@ -86,17 +84,7 @@ isShr∈ s e = ShrMap.∈Dom s (shr e)
 isVar∈ : SeqVar → Env → Set
 isVar∈ x e = VarMap.∈Dom x (var e)
 
-SigDomMap : ∀{a}{L : Set a} →  (θ : Env) → (f : (S : Signal) → isSig∈ S θ → L) → List L
-SigDomMap = SigMap.key-map ∘ sig
 
-ShrDomMap : ∀{a}{L : Set a} →  (θ : Env) → (f : (S : SharedVar) → isShr∈ S θ → L) → List L
-ShrDomMap = ShrMap.key-map ∘ shr
-
-SigDomMap+Uniqued : ∀{L : Signal → Set} → (θ : Env) → (f : (S : Signal) → isSig∈ S θ → (L S)) → UniquedSet L 
-SigDomMap+Uniqued {L} θ f = SigMap.key-unique-map (sig θ) L f
-
-ShrDomMap+Uniqued : ∀{L : SharedVar → Set} → (θ : Env) → (f : (s : SharedVar) → isShr∈ s θ → (L s)) → UniquedSet L 
-ShrDomMap+Uniqued {L} θ f = ShrMap.key-unique-map (shr θ) L f
 
 SigDom : Env → List ℕ
 SigDom (Θ sig shr var) = (SigMap.keys sig)
@@ -1048,6 +1036,7 @@ sig-put-1map-overwrite' S status status' S∈
   rewrite SigMap.putput-overwrite SigMap.empty S status status'
   = refl
 
+-- ←-comm : ∀ θ θ' → distinct (Dom θ) (Dom θ') → (θ ← θ') ≡ (θ' ← θ)
 sig-set-inner-clobber : ∀ θ θ' θ'' S stat → isSig∈ S θ''
                         → ((θ ← (Θ SigMap.[ S ↦ stat ] [] [])) ← θ') ← θ''
                           ≡
@@ -1126,17 +1115,3 @@ sig-set-clobber-single-as-← S status status' θ S∈
    where
      θs1 = (Θ SigMap.[ S ↦ status' ] [] [])
      θs2 = (Θ SigMap.[ S ↦ status ] [] [])
-
-sig-re-set-is-eq : ∀ θ S status → (S∈ : isSig∈ S θ)
-                   → sig-stats {S} θ S∈ ≡ status
-                   → set-sig {S} θ S∈ status ≡ θ
-sig-re-set-is-eq θ S status S∈ eq
-  rewrite SigMap.re-update-is-eq (sig θ) S S∈ status eq
-  = refl
-
-←-self-identity : ∀ θ → θ ← θ ≡ θ
-←-self-identity θ
-  rewrite SigMap.union-self-idenity (sig θ)
-        | VarMap.union-self-idenity (var θ)
-        | ShrMap.union-self-idenity (shr θ)
-   = refl

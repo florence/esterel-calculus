@@ -223,7 +223,7 @@ can-new-irr θ₁ θ₂ θo (if x ∣⇒ p ∣⇒ q) (CBif {FVp = FVp} cbp cbq) 
   rewrite can-new-irr θ₁ θ₂ θo p cbp (λ S' S'∈FVp → S-prop S' (++ˡ S'∈FVp))
         | can-new-irr θ₁ θ₂ θo q cbq (λ S' S'∈FVq → S-prop S' (++ʳ (proj₁ FVp) S'∈FVq))
   = refl
-can-new-irr θ₁ θ₂ θo (ρ⟨ θ , A ⟩· q) (CBρ {FV = FV} cbq) S-prop
+can-new-irr θ₁ θ₂ θo (ρ θ · q) (CBρ {FV = FV} cbq) S-prop
   rewrite canθ-new-irr (Env.sig θ) 0 θ₁ θ₂ θo q cbq
             (λ S' S'∈FV →
               Data.Sum.map

@@ -83,16 +83,16 @@ open ListSet Data.Nat._≟_
   _ , rrefl ,′ sn⟶*-inclusion (sn⟶-inclusion rsn⟶₁q)
 
 
-1-steplρ : ∀{p q r θ θq BV FV A Aq} →
-  CorrectBinding (ρ⟨ θ , A ⟩· p) BV FV →
-  ρ⟨ θ , A ⟩· p sn⟶₁ ρ⟨ θq , Aq ⟩· q →
+1-steplρ : ∀{p q r θ θq BV FV} →
+  CorrectBinding (ρ θ · p) BV FV →
+  ρ θ · p sn⟶₁ ρ θq · q →
   p sn⟶ r →
-  Σ[ p' ∈ Term ] ((ρ⟨ θq , Aq ⟩· q) sn⟶* p'   ×    (ρ⟨ θ , A ⟩· r) sn⟶* p')
+  Σ[ p' ∈ Term ] ((ρ θq · q) sn⟶* p'   ×    (ρ θ · r) sn⟶* p')
 1-steplρ {p} {q} {r} cb
   ρθ·psn⟶₁ρθq·q psn⟶r@(rcontext {.p} {rin} {ro} C p≐C⟦rin⟧ rinsn⟶₁ro)
   with get-view ρθ·psn⟶₁ρθq·q
-... | inj₂ (refl , refl , pot) =
-  _ ,   1-steplρ-pot cb pot psn⟶r 
+... | inj₂ (refl , pot) =
+  _ ,  1-steplρ-pot cb pot psn⟶r
 ... | inj₁ (E , qin , qo , p≐E⟦qin⟧ , q≐E⟦qo⟧ , e-view) =
   _ ,  proj₂ (1-steplρ-E-view cb p≐E⟦qin⟧ q≐E⟦qo⟧ e-view p≐C⟦rin⟧ rinsn⟶₁ro)
 
@@ -190,11 +190,11 @@ open ListSet Data.Nat._≟_
   _ ,
   rrefl  ,′
   sn⟶*-inclusion (rcontext _ dchole rloopˢ-exit)
-1-stepl {ρ⟨ .θ , .A ⟩· p} cb
+1-stepl {ρ .θ · p} cb
         ρθpsn⟶₁q
-        ρθpsn⟶r@(rcontext {p = p₂} {p' = r} (cenv θ A ∷ crs) (dcenv p≐crs⟦p₂⟧) p₂sn⟶₁r)
+        ρθpsn⟶r@(rcontext {p = p₂} {p' = r} (cenv θ ∷ crs) (dcenv p≐crs⟦p₂⟧) p₂sn⟶₁r)
   with ρ-stays-ρ-sn⟶₁ ρθpsn⟶₁q
-... | θ' , A' , qin , refl =
+... | θ' , qin , refl =
   1-steplρ cb ρθpsn⟶₁q (rcontext crs p≐crs⟦p₂⟧ p₂sn⟶₁r)
 
 1-step : ∀{p q r BV FV} →

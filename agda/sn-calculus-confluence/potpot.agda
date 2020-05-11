@@ -57,19 +57,19 @@ open import Data.OrderedListMap Signal Signal.unwrap Signal.Status as SigM
 open import Data.OrderedListMap SharedVar SharedVar.unwrap (Σ SharedVar.Status (λ _ → ℕ)) as ShrM
 open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 
-pot-pot-conf-rec : ∀{p θ ql θl qr θr eql eqr A Al Ar Aql Arl}
-                 → {ρθ·psn⟶₁ρθl·ql  :  (ρ⟨ θ , A ⟩· p) sn⟶₁ (ρ⟨ θl , Al ⟩· ql)}
-                 → {ρθ·psn⟶₁ρθr·qr  :  (ρ⟨ θ , A ⟩· p) sn⟶₁ (ρ⟨ θr , Ar ⟩· qr)}
-                 → ->pot-view  ρθ·psn⟶₁ρθl·ql  eql Aql
-                 → ->pot-view  ρθ·psn⟶₁ρθr·qr  eqr Arl
-                 → (ρ⟨ θl , Al ⟩· ql ≡ ρ⟨ θr , Ar ⟩· qr)
+pot-pot-conf-rec : ∀{p θ ql θl qr θr eql eqr}
+                 → {ρθ·psn⟶₁ρθl·ql  :  (ρ θ · p) sn⟶₁ (ρ θl · ql)}
+                 → {ρθ·psn⟶₁ρθr·qr  :  (ρ θ · p) sn⟶₁ (ρ θr · qr)}
+                 → ->pot-view  ρθ·psn⟶₁ρθl·ql  eql
+                 → ->pot-view  ρθ·psn⟶₁ρθr·qr  eqr
+                 → (ρ θl · ql ≡ ρ θr · qr)
                    ⊎
                    Σ[ θo ∈ Env ]
-                   (ρ⟨ θl , Al ⟩· ql) sn⟶₁ (ρ⟨ θo , A ⟩· p) ×
-                   (ρ⟨ θr , Ar ⟩· qr) sn⟶₁ (ρ⟨ θo , A ⟩· p)
+                   (ρ θl · ql) sn⟶₁ (ρ θo · p) ×
+                   (ρ θr · qr) sn⟶₁ (ρ θo · p)
 
 
-pot-pot-conf-rec {p} {θ} {.p} {θl} {.p} {θr} {_} {_} {A} {.A} {.A} {refl} {refl}
+pot-pot-conf-rec {p} {θ} {.p} {θl} {.p} {θr} {_} {_}
                  {.(rabsence {θ} {p} {S} S∈ θS≡unknown S∉can-p-θ)}
                  {.(rabsence {θ} {p} {S'} S'∈ θS'≡unknown S'∉can-p-θ)}
                  (vabsence S S∈ θS≡unknown S∉can-p-θ)
@@ -79,7 +79,7 @@ pot-pot-conf-rec {p} {θ} {.p} {θl} {.p} {θr} {_} {_} {A} {.A} {.A} {refl} {re
 ... | no S≢S' =
   inj₂
   (_ ,
-   subst (λ sig* → ρ⟨ θl , A ⟩· p sn⟶₁ ρ⟨ (Θ sig* (Env.shr θl) (Env.var θl))  , A ⟩· p)
+   subst (λ sig* → ρ θl · p sn⟶₁ ρ (Θ sig* (Env.shr θl) (Env.var θl)) · p)
      (SigMap.put-comm {_} {Env.sig θ} {S} {S'} {Signal.absent} {Signal.absent} S≢S')
      (rabsence {θl} {p} {S'} S'∈Domθl θlS'≡unknown
        (λ S'∈can-p-θl →
@@ -100,7 +100,7 @@ pot-pot-conf-rec {p} {θ} {.p} {θl} {.p} {θr} {_} {_} {A} {.A} {.A} {refl} {re
                      (S≢S' ∘ sym) S'∈ S'∈Domθl θS'≡unknown
 
 
-pot-pot-conf-rec {p} {θ} {.p} {θl} {.p} {θr} {_} {_} {A} {.A} {.A} {refl} {refl}
+pot-pot-conf-rec {p} {θ} {.p} {θl} {.p} {θr} {_} {_}
                  {.(rabsence {θ} {p} {S} S∈ θS≡unknown S∉can-p-θ)}
                  {.(rreadyness {θ} {p} {s} s∈ θs≡old⊎θs≡new s∉can-p-θ)}
                  (vabsence S S∈ θS≡unknown S∉can-p-θ)
@@ -120,7 +120,7 @@ pot-pot-conf-rec {p} {θ} {.p} {θl} {.p} {θr} {_} {_} {A} {.A} {.A} {refl} {re
            S∈can-p-θr)))
 
 
-pot-pot-conf-rec {p} {θ} {.p} {θl} {.p} {θr} {_} {_} {A} {.A} {.A} {refl} {refl}
+pot-pot-conf-rec {p} {θ} {.p} {θl} {.p} {θr} {_} {_}
                  {.(rreadyness {θ} {p} {s} s∈ θs≡old⊎θs≡new s∉can-p-θ)}
                  {.(rabsence {θ} {p} {S} S∈ θS≡unknown S∉can-p-θ)}
                  (vreadyness s s∈ θs≡old⊎θs≡new s∉can-p-θ)
@@ -140,7 +140,7 @@ pot-pot-conf-rec {p} {θ} {.p} {θl} {.p} {θr} {_} {_} {A} {.A} {.A} {refl} {re
            S∈ θS≡unknown (SharedVar.unwrap s) s∈can-p-θr)))
 
 
-pot-pot-conf-rec {p} {θ} {.p} {θl} {.p} {θr} {_} {_} {A} {.A} {.A} {refl} {refl}
+pot-pot-conf-rec {p} {θ} {.p} {θl} {.p} {θr} {_} {_}
                  {.(rreadyness {θ} {p} {s} s∈ θs≡old⊎θs≡new s∉can-p-θ)}
                  {.(rreadyness {θ} {p} {s'} s'∈ θs'≡old⊎θs'≡new s'∉can-p-θ)}
                  (vreadyness s s∈ θs≡old⊎θs≡new s∉can-p-θ)
@@ -150,7 +150,7 @@ pot-pot-conf-rec {p} {θ} {.p} {θl} {.p} {θr} {_} {_} {A} {.A} {.A} {refl} {re
 ... | no s≢s' =
   inj₂
   (_ ,
-   subst (λ shr* → ρ⟨ θl  , A ⟩· p sn⟶₁ ρ⟨ (Θ (Env.sig θl) shr* (Env.var θl))  , A ⟩· p)
+   subst (λ shr* → ρ θl · p sn⟶₁ ρ (Θ (Env.sig θl) shr* (Env.var θl)) · p)
      (cong Env.shr
        (begin
            Env.set-shr {s'} θl s'∈Domθl SharedVar.ready

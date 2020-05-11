@@ -218,7 +218,7 @@ can-is-unknown-lemma (if x ∣⇒ p ∣⇒ q) θ S S∉Domθ
   rewrite can-is-unknown-lemma p θ S S∉Domθ
         | can-is-unknown-lemma q θ S S∉Domθ
   = refl
-can-is-unknown-lemma (ρ⟨ θ' , A ⟩· q) θ S S∉Domθ
+can-is-unknown-lemma (ρ θ' · q) θ S S∉Domθ
   with Env.Sig∈ S θ'
 ... | yes S∈Domθ'
   rewrite canθ-shadowing-irr (Env.sig θ') 0 q S Signal.unknown θ
@@ -1249,10 +1249,10 @@ canθₛₕ-emit {S} {r} {E} θ S∈ θ' r≐E⟦emitS⟧ θS≢absent S∈canθ
       (SharedVar.unwrap s) s∈canθ'-E⟦nothin⟧)
 
 
-canₖ-raise-lemma : ∀ {any/shr any/var r p A} θ E →
+canₖ-raise-lemma : ∀ {any/shr any/var r p} θ E →
   term-raise any/shr any/var r p →
     Canₖ (E ⟦ r ⟧e) θ ≡
-    Canₖ (E ⟦ ρ⟨ (Θ SigMap.empty any/shr any/var) , A ⟩· p ⟧e) θ
+    Canₖ (E ⟦ ρ (Θ SigMap.empty any/shr any/var) · p ⟧e) θ
 canₖ-raise-lemma {any/shr} {any/var} {r} {p} θ [] (tshared n s e .p)
   rewrite can-shr-var-irr p θ (θ ← Θ SigMap.empty any/shr any/var)
             (SigMap.union-comm {_} SigMap.empty (Env.sig θ) (λ _ ()))
@@ -1270,16 +1270,16 @@ canₖ-raise-lemma θ (epar₂ p ∷ E) tr
   rewrite canₖ-raise-lemma θ E tr
   = refl
 canₖ-raise-lemma {any/shr} {any/var} {r} {p} θ (eloopˢ q ∷ E) tr = canₖ-raise-lemma θ E tr
-canₖ-raise-lemma {any/shr} {any/var} {r} {p} {A} θ (eseq q ∷ E) tr
+canₖ-raise-lemma {any/shr} {any/var} {r} {p} θ (eseq q ∷ E) tr
   with any (Code._≟_ Code.nothin) (Canₖ (E ⟦ r ⟧e) θ)
-     | any (Code._≟_ Code.nothin) (Canₖ (E ⟦ ρ⟨ (Θ SigMap.empty any/shr any/var) , A ⟩· p ⟧e) θ)
+     | any (Code._≟_ Code.nothin) (Canₖ (E ⟦ ρ (Θ SigMap.empty any/shr any/var) · p ⟧e) θ)
 ... | no  nothin∉can-E⟦r⟧ | no  nothin∉can-E⟦ρΘp⟧ =
   canₖ-raise-lemma θ E tr
 ... | yes nothin∈can-E⟦r⟧ | no  nothin∉can-E⟦ρΘp⟧
-  rewrite canₖ-raise-lemma {any/shr} {any/var} {A = A} θ E tr
+  rewrite canₖ-raise-lemma {any/shr} {any/var} θ E tr
   = ⊥-elim (nothin∉can-E⟦ρΘp⟧ nothin∈can-E⟦r⟧)
 ... | no  nothin∉can-E⟦r⟧ | yes nothin∈can-E⟦ρΘp⟧
-  rewrite canₖ-raise-lemma {any/shr} {any/var} {A = A} θ E tr
+  rewrite canₖ-raise-lemma {any/shr} {any/var} θ E tr
   = ⊥-elim (nothin∉can-E⟦r⟧ nothin∈can-E⟦ρΘp⟧)
 ... | yes nothin∈can-E⟦r⟧ | yes nothin∈can-E⟦ρΘp⟧
   rewrite canₖ-raise-lemma θ E tr
@@ -1290,92 +1290,92 @@ canₖ-raise-lemma θ (etrap ∷ E) tr
   rewrite canₖ-raise-lemma θ E tr
   = refl
 
-canₛ-raise-lemma : ∀ {any/shr any/var r p A} θ E →
+canₛ-raise-lemma : ∀ {any/shr any/var r p} θ E →
   term-raise any/shr any/var r p →
-    Canₛ (E ⟦ ρ⟨ (Θ SigMap.empty any/shr any/var) , A ⟩· p ⟧e) θ ≡
+    Canₛ (E ⟦ ρ (Θ SigMap.empty any/shr any/var) · p ⟧e) θ ≡
     Canₛ (E ⟦ r ⟧e) θ
 canₛ-raise-lemma {any/shr} {any/var} {r} {p} θ [] (tshared n s e .p)
   rewrite set-subtract-[] (Canₛ p θ) = refl
 canₛ-raise-lemma {any/shr} {any/var} {r} {p} θ [] (tvar n x e .p)
   rewrite set-subtract-[] (Canₛ p θ) = refl
-canₛ-raise-lemma {any/shr} {any/var} {r} {p} {A = A} θ (epar₁ q ∷ E) tr
-  rewrite canₛ-raise-lemma {any/shr} {any/var} {r} {p} {A = A} θ E tr = refl
-canₛ-raise-lemma {A = A} θ (epar₂ p ∷ E) tr
-  rewrite canₛ-raise-lemma {A = A} θ E tr = refl
+canₛ-raise-lemma {any/shr} {any/var} {r} {p} θ (epar₁ q ∷ E) tr
+  rewrite canₛ-raise-lemma {any/shr} {any/var} {r} {p} θ E tr = refl
+canₛ-raise-lemma θ (epar₂ p ∷ E) tr
+  rewrite canₛ-raise-lemma θ E tr = refl
 canₛ-raise-lemma {any/shr} {any/var} {r} {p} θ (eloopˢ q ∷ E) tr = canₛ-raise-lemma θ E tr
-canₛ-raise-lemma {any/shr} {any/var} {r} {p} {A} θ (eseq q ∷ E) tr
+canₛ-raise-lemma {any/shr} {any/var} {r} {p} θ (eseq q ∷ E) tr
   with any (Code._≟_ Code.nothin) (Canₖ (E ⟦ r ⟧e) θ)
-     | any (Code._≟_ Code.nothin) (Canₖ (E ⟦ ρ⟨ (Θ SigMap.empty any/shr any/var) , A ⟩· p ⟧e) θ)
+     | any (Code._≟_ Code.nothin) (Canₖ (E ⟦ ρ (Θ SigMap.empty any/shr any/var) · p ⟧e) θ)
 ... | no  nothin∉can-E⟦r⟧ | no  nothin∉can-E⟦ρΘp⟧ = canₛ-raise-lemma θ E tr
 ... | yes nothin∈can-E⟦r⟧ | no  nothin∉can-E⟦ρΘp⟧
-  rewrite canₖ-raise-lemma {any/shr} {any/var} {A = A} θ E tr
+  rewrite canₖ-raise-lemma {any/shr} {any/var} θ E tr
   = ⊥-elim (nothin∉can-E⟦ρΘp⟧ nothin∈can-E⟦r⟧)
 ... | no  nothin∉can-E⟦r⟧ | yes nothin∈can-E⟦ρΘp⟧
-  rewrite canₖ-raise-lemma {any/shr} {any/var} {A = A} θ E tr
+  rewrite canₖ-raise-lemma {any/shr} {any/var} θ E tr
   = ⊥-elim (nothin∉can-E⟦r⟧ nothin∈can-E⟦ρΘp⟧)
 ... | yes nothin∈can-E⟦r⟧ | yes nothin∈can-E⟦ρΘp⟧
-  rewrite canₛ-raise-lemma {A = A} θ E tr = refl
+  rewrite canₛ-raise-lemma θ E tr = refl
 canₛ-raise-lemma θ (esuspend S' ∷ E) tr = canₛ-raise-lemma θ E tr
 canₛ-raise-lemma θ (etrap ∷ E) tr = canₛ-raise-lemma θ E tr
 
 
-canθₛ-raise-lemma : ∀ {any/shr any/var r p A} sigs S' θ E →
+canθₛ-raise-lemma : ∀ {any/shr any/var r p} sigs S' θ E →
   term-raise any/shr any/var r p →
     Canθₛ sigs S' (E ⟦ r ⟧e) θ ≡
-    Canθₛ sigs S' (E ⟦ ρ⟨ (Θ SigMap.empty any/shr any/var) , A ⟩· p ⟧e) θ
+    Canθₛ sigs S' (E ⟦ ρ (Θ SigMap.empty any/shr any/var) · p ⟧e) θ
 canθₛ-raise-lemma [] S' θ E tr =  sym (canₛ-raise-lemma θ E tr) 
 canθₛ-raise-lemma (nothing ∷ sigs) S' = canθₛ-raise-lemma sigs (suc S')
 canθₛ-raise-lemma (just Signal.present ∷ sigs) S' θ = canθₛ-raise-lemma sigs (suc S') (θ ← _)
 canθₛ-raise-lemma (just Signal.absent ∷ sigs) S' θ = canθₛ-raise-lemma sigs (suc S') (θ ← _)
-canθₛ-raise-lemma {any/shr} {any/var} {r} {p} {A} (just Signal.unknown ∷ sigs) S' θ E tr
+canθₛ-raise-lemma {any/shr} {any/var} {r} {p} (just Signal.unknown ∷ sigs) S' θ E tr
   with any (_≟_ S') (Canθₛ sigs (suc S') (E ⟦ r ⟧e) (θ ← ([S]-env (S' ₛ))))
-     | any (_≟_ S') (Canθₛ sigs (suc S') (E ⟦ ρ⟨ (Θ SigMap.empty any/shr any/var) , A ⟩· p ⟧e) (θ ← ([S]-env (S' ₛ))))
+     | any (_≟_ S') (Canθₛ sigs (suc S') (E ⟦ ρ (Θ SigMap.empty any/shr any/var) · p ⟧e) (θ ← ([S]-env (S' ₛ))))
 ... | yes S'∈CanE⟦r⟧ | yes S'∈CanE⟦ρ⟧ = canθₛ-raise-lemma sigs (suc S') (θ ← _) E tr
 ... | no S'∉CanE⟦r⟧  | no  S'∉CanE⟦ρ⟧ = canθₛ-raise-lemma sigs (suc S') (θ ← _) E tr
 ... | yes S'∈CanE⟦r⟧ | no  S'∉CanE⟦ρ⟧
-  rewrite (canθₛ-raise-lemma {A = A} sigs (suc S') (θ ← ([S]-env (S' ₛ))) E tr)
+  rewrite (canθₛ-raise-lemma sigs (suc S') (θ ← ([S]-env (S' ₛ))) E tr)
   = ⊥-elim (S'∉CanE⟦ρ⟧ S'∈CanE⟦r⟧)
-canθₛ-raise-lemma {any/shr} {any/var} {r} {p} {A = A} (just Signal.unknown ∷ sigs) S' θ E tr | no S'∉CanE⟦r⟧  | yes S'∈CanE⟦ρ⟧
-  rewrite (canθₛ-raise-lemma {A = A} sigs (suc S') (θ ← ([S]-env (S' ₛ))) E tr)
+canθₛ-raise-lemma {any/shr} {any/var} {r} {p} (just Signal.unknown ∷ sigs) S' θ E tr | no S'∉CanE⟦r⟧  | yes S'∈CanE⟦ρ⟧
+  rewrite (canθₛ-raise-lemma sigs (suc S') (θ ← ([S]-env (S' ₛ))) E tr)
   = ⊥-elim (S'∉CanE⟦r⟧ S'∈CanE⟦ρ⟧)
 
-canθₖ-raise-lemma : ∀ {any/shr any/var r p A} sigs S' θ E →
+canθₖ-raise-lemma : ∀ {any/shr any/var r p} sigs S' θ E →
   term-raise any/shr any/var r p →
     Canθₖ sigs S' (E ⟦ r ⟧e) θ ≡
-    Canθₖ sigs S' (E ⟦ ρ⟨ (Θ SigMap.empty any/shr any/var) , A ⟩· p ⟧e) θ
+    Canθₖ sigs S' (E ⟦ ρ (Θ SigMap.empty any/shr any/var) · p ⟧e) θ
 canθₖ-raise-lemma [] S' = canₖ-raise-lemma
 canθₖ-raise-lemma (nothing ∷ sigs) S' = canθₖ-raise-lemma sigs (suc S')
 canθₖ-raise-lemma (just Signal.present ∷ sigs) S' θ = canθₖ-raise-lemma sigs (suc S') (θ ← _)
 canθₖ-raise-lemma (just Signal.absent ∷ sigs) S' θ = canθₖ-raise-lemma sigs (suc S') (θ ← _)
-canθₖ-raise-lemma {any/shr} {any/var} {r} {p} {A} (just Signal.unknown ∷ sigs) S' θ E tr
+canθₖ-raise-lemma {any/shr} {any/var} {r} {p} (just Signal.unknown ∷ sigs) S' θ E tr
   with any (_≟_ S') (Canθₛ sigs (suc S') (E ⟦ r ⟧e) (θ ← ([S]-env (S' ₛ))))
-     | any (_≟_ S') (Canθₛ sigs (suc S') (E ⟦ ρ⟨ (Θ SigMap.empty any/shr any/var) , A ⟩· p ⟧e) (θ ← ([S]-env (S' ₛ))))
+     | any (_≟_ S') (Canθₛ sigs (suc S') (E ⟦ ρ (Θ SigMap.empty any/shr any/var) · p ⟧e) (θ ← ([S]-env (S' ₛ))))
 ... | yes S'∈CanE⟦r⟧ | yes S'∈CanE⟦ρ⟧ = canθₖ-raise-lemma sigs (suc S') (θ ← _) E tr
 ... | no S'∉CanE⟦r⟧  | no  S'∉CanE⟦ρ⟧ = canθₖ-raise-lemma sigs (suc S') (θ ← _) E tr
 ... | yes S'∈CanE⟦r⟧ | no  S'∉CanE⟦ρ⟧
-  rewrite (canθₛ-raise-lemma {A = A} sigs (suc S') (θ ← ([S]-env (S' ₛ))) E tr)
+  rewrite (canθₛ-raise-lemma sigs (suc S') (θ ← ([S]-env (S' ₛ))) E tr)
   = ⊥-elim (S'∉CanE⟦ρ⟧ S'∈CanE⟦r⟧)
-canθₖ-raise-lemma {any/shr} {any/var} {r} {p} {A = A} (just Signal.unknown ∷ sigs) S' θ E tr | no S'∉CanE⟦r⟧  | yes S'∈CanE⟦ρ⟧
-  rewrite (canθₛ-raise-lemma {A = A} sigs (suc S') (θ ← ([S]-env (S' ₛ))) E tr)
+canθₖ-raise-lemma {any/shr} {any/var} {r} {p} (just Signal.unknown ∷ sigs) S' θ E tr | no S'∉CanE⟦r⟧  | yes S'∈CanE⟦ρ⟧
+  rewrite (canθₛ-raise-lemma sigs (suc S') (θ ← ([S]-env (S' ₛ))) E tr)
   = ⊥-elim (S'∉CanE⟦r⟧ S'∈CanE⟦ρ⟧)
 
 
-canₛ-raise : ∀ {E any/shr any/var r r' p A} θ →
+canₛ-raise : ∀ {E any/shr any/var r r' p} θ →
   term-raise any/shr any/var r' p →
   r ≐ E ⟦ r' ⟧e →
   ∀ S →
-    Signal.unwrap S ∈ Canₛ (E ⟦ ρ⟨ (Θ SigMap.empty any/shr any/var) , A ⟩· p ⟧e) θ →
+    Signal.unwrap S ∈ Canₛ (E ⟦ ρ (Θ SigMap.empty any/shr any/var) · p ⟧e) θ →
     Signal.unwrap S ∈ Canₛ r θ
-canₛ-raise {E} {A = A} θ tr r≐E⟦shared⟧ S S∈
+canₛ-raise {E} θ tr r≐E⟦shared⟧ S S∈
   rewrite sym (unplug r≐E⟦shared⟧)
-        | canₛ-raise-lemma {A = A} θ E tr 
+        | canₛ-raise-lemma θ E tr 
   = S∈
 
 
-canₛₕ-raise-lemma : ∀ {any/shr any/var r p A} θ E →
+canₛₕ-raise-lemma : ∀ {any/shr any/var r p} θ E →
   term-raise any/shr any/var r p →
   ∀ s'' →
-    s'' ∈ Canₛₕ (E ⟦ ρ⟨ (Θ SigMap.empty any/shr any/var) , A ⟩· p ⟧e) θ →
+    s'' ∈ Canₛₕ (E ⟦ ρ (Θ SigMap.empty any/shr any/var) · p ⟧e) θ →
     s'' ∈ Canₛₕ (E ⟦ r ⟧e) θ
 canₛₕ-raise-lemma {any/shr} {any/var} {r} {p} θ [] (tshared n s e .p) s'' s''∈can-ρΘp-θ
   rewrite ShrMap.keys-1map s (SharedVar.old ,′ n)
@@ -1384,8 +1384,8 @@ canₛₕ-raise-lemma {any/shr} {any/var} {r} {p} θ [] (tshared n s e .p) s'' s
 canₛₕ-raise-lemma {any/shr} {any/var} {r} {p} θ [] (tvar n x e .p) s'' s''∈can-ρΘp-θ
   rewrite set-subtract-[] (Canₛₕ p θ)
   = s''∈can-ρΘp-θ
-canₛₕ-raise-lemma {any/shr} {any/var} {r} {p} {A} θ (epar₁ q ∷ E) tr s'' s''∈can-E⟦ρΘp⟧∥q-θ
-  with ++⁻ (Canₛₕ (E ⟦ ρ⟨ (Θ SigMap.empty any/shr any/var) , A ⟩· p  ⟧e) θ) s''∈can-E⟦ρΘp⟧∥q-θ
+canₛₕ-raise-lemma {any/shr} {any/var} {r} {p} θ (epar₁ q ∷ E) tr s'' s''∈can-E⟦ρΘp⟧∥q-θ
+  with ++⁻ (Canₛₕ (E ⟦ ρ (Θ SigMap.empty any/shr any/var) · p  ⟧e) θ) s''∈can-E⟦ρΘp⟧∥q-θ
 ... | inj₁ s''∈can-E⟦ρΘp⟧-θ = ++ˡ (canₛₕ-raise-lemma θ E tr s'' s''∈can-E⟦ρΘp⟧-θ)
 ... | inj₂ s''∈can-q-θ = ++ʳ (Canₛₕ (E ⟦ r ⟧e) θ) s''∈can-q-θ
 canₛₕ-raise-lemma θ (epar₂ p ∷ E) tr s'' s''∈can-p∥E⟦ρΘp⟧-θ
@@ -1393,19 +1393,19 @@ canₛₕ-raise-lemma θ (epar₂ p ∷ E) tr s'' s''∈can-p∥E⟦ρΘp⟧-θ
 ... | inj₁ s''∈can-p-θ = ++ˡ s''∈can-p-θ
 ... | inj₂ s''∈can-E⟦ρΘp⟧-θ = ++ʳ (Canₛₕ p θ) (canₛₕ-raise-lemma θ E tr s'' s''∈can-E⟦ρΘp⟧-θ)
 canₛₕ-raise-lemma {any/shr} {any/var} {r} {p} θ (eloopˢ q ∷ E) tr s'' s''∈can-E⟦ρΘp⟧>>q-θ = canₛₕ-raise-lemma θ E tr s'' s''∈can-E⟦ρΘp⟧>>q-θ
-canₛₕ-raise-lemma {any/shr} {any/var} {r} {p} {A} θ (eseq q ∷ E) tr s'' s''∈can-E⟦ρΘp⟧>>q-θ
+canₛₕ-raise-lemma {any/shr} {any/var} {r} {p} θ (eseq q ∷ E) tr s'' s''∈can-E⟦ρΘp⟧>>q-θ
   with any (Code._≟_ Code.nothin) (Canₖ (E ⟦ r ⟧e) θ)
-     | any (Code._≟_ Code.nothin) (Canₖ (E ⟦ ρ⟨ (Θ SigMap.empty any/shr any/var) , A ⟩· p ⟧e) θ)
+     | any (Code._≟_ Code.nothin) (Canₖ (E ⟦ ρ (Θ SigMap.empty any/shr any/var) · p ⟧e) θ)
 ... | no  nothin∉can-E⟦r⟧ | no  nothin∉can-E⟦ρΘp⟧ =
   canₛₕ-raise-lemma θ E tr s'' s''∈can-E⟦ρΘp⟧>>q-θ
 ... | yes nothin∈can-E⟦r⟧ | no  nothin∉can-E⟦ρΘp⟧
-  rewrite canₖ-raise-lemma {any/shr} {any/var} {A = A} θ E tr
+  rewrite canₖ-raise-lemma {any/shr} {any/var} θ E tr
   = ⊥-elim (nothin∉can-E⟦ρΘp⟧ nothin∈can-E⟦r⟧)
 ... | no  nothin∉can-E⟦r⟧ | yes nothin∈can-E⟦ρΘp⟧
-  rewrite canₖ-raise-lemma {any/shr} {any/var} {A = A} θ E tr
+  rewrite canₖ-raise-lemma {any/shr} {any/var} θ E tr
   = ⊥-elim (nothin∉can-E⟦r⟧ nothin∈can-E⟦ρΘp⟧)
 ... | yes nothin∈can-E⟦r⟧ | yes nothin∈can-E⟦ρΘp⟧
-  with ++⁻ (Canₛₕ (E ⟦ ρ⟨ (Θ SigMap.empty any/shr any/var) , A ⟩· p ⟧e) θ) s''∈can-E⟦ρΘp⟧>>q-θ
+  with ++⁻ (Canₛₕ (E ⟦ ρ (Θ SigMap.empty any/shr any/var) · p ⟧e) θ) s''∈can-E⟦ρΘp⟧>>q-θ
 ... | inj₁ s''∈can-E⟦ρΘp⟧ = ++ˡ (canₛₕ-raise-lemma θ E tr s'' s''∈can-E⟦ρΘp⟧)
 ... | inj₂ s''∈can-q = ++ʳ (Canₛₕ (E ⟦ r ⟧e) θ) s''∈can-q
 canₛₕ-raise-lemma θ (esuspend S' ∷ E) tr s'' s''∈can-E⟦ρΘp⟧-θ =
@@ -1414,11 +1414,11 @@ canₛₕ-raise-lemma θ (etrap ∷ E) tr s'' s''∈can-E⟦ρΘp⟧-θ =
   canₛₕ-raise-lemma θ E tr s'' s''∈can-E⟦ρΘp⟧-θ
 
 
-canₛₕ-raise : ∀ {E any/shr any/var r r' p A} θ →
+canₛₕ-raise : ∀ {E any/shr any/var r r' p} θ →
   term-raise any/shr any/var r' p →
   r ≐ E ⟦ r' ⟧e →
   ∀ s'' →
-    SharedVar.unwrap s'' ∈ Canₛₕ (E ⟦ ρ⟨ (Θ SigMap.empty any/shr any/var) , A ⟩· p ⟧e) θ →
+    SharedVar.unwrap s'' ∈ Canₛₕ (E ⟦ ρ (Θ SigMap.empty any/shr any/var) · p ⟧e) θ →
     SharedVar.unwrap s'' ∈ Canₛₕ r θ
 canₛₕ-raise {E} θ tr r≐E⟦shared⟧ s'' s''∈
   rewrite sym (unplug r≐E⟦shared⟧)

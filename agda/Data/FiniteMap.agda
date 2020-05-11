@@ -4,15 +4,9 @@ open import Relation.Binary.PropositionalEquality
   using (_≡_ ; _≢_ ; refl ; subst ; subst₂)
 open import Data.Nat as Nat
   using (ℕ ; _≤′_ ; _+_)
-open import Relation.Binary.PropositionalEquality using (sym ; cong ; module ≡-Reasoning )
-open import Data.Unit
-open import Level using (_⊔_)
-open import Data.Nat
-
-open ≡-Reasoning
+open import Relation.Binary.PropositionalEquality using (sym)
 
 import Relation.Unary as U
-open import Data.Key
 
 open import Function
   using (_∘_)
@@ -20,14 +14,12 @@ open import Function
 open import Relation.Nullary
 
 module Data.FiniteMap
-  (Key : Set)
-  {{b : BijectiveKey Key}}
+  {Key : Set}
+  (inject : Key → ℕ)
+  (inject-injective : ∀ {k1 k2} → inject k1 ≡ inject k2 → k1 ≡ k2)
   where
 
-open BijectiveKey b
-
 open import utility
-open UniquedSet using (UniquedList ; UniquedSet ; uniqued-set)
 
 open import Data.Maybe using (just)
 open import Data.Empty
@@ -41,15 +33,13 @@ open import Data.Nat
 open import Data.Sum
   using (inj₁ ; inj₂ ; _⊎_)
 open import Data.Product
-  using (Σ ; Σ-syntax ; ∃ ; proj₁ ; proj₂ ; _×_ ; _,_ ; ∃-syntax ; uncurry ; map)
+  using (Σ ; Σ-syntax ; ∃ ; proj₁ ; proj₂ ; _×_ ; _,_)
 open import Function
-  using (id ; _$_)
+  using (id)
 open import Relation.Nullary
   using (yes ; no)
 open import Data.OrderedListMap(Key)(inject) as OMap hiding (insert-mono ; U-mono)
 open import Data.Bool using (Bool ; true ; false)
-open import Data.List.Properties using (map-compose)
-open import Data.Sublist using (sublist ; visit ; visit-rec ; Sublist ; Rec)
 
 private
   nbiject : ∀ {k1 k2} → k1 ≢ k2 → inject k1 ≢ inject k2
@@ -61,57 +51,11 @@ Map = LMap
 keys : ∀{Value} → Map Value → List ℕ
 keys{Value} l = (Dom' Value l)
 
-keys+∈ : ∀{Value} → (l : Map Value) → List (∃[ n ] (n ∈ (Dom' Value l)))
-keys+∈{Value} l = (Dom'+∈ Value l)
-
 inj= : Key → ℕ → Set
 inj= = _≡_ ∘ inject
 
 ∈Dom : ∀{Value} → Key → Map Value → Set
 ∈Dom{Value} k m = (inject k) ∈ (Dom' Value m)
-
-in-inject : ∀ {Value}{x : ℕ} → (l : Map Value) → x ∈ Dom' Value l → ∈Dom (surject x) l
-in-inject{x = x} l ∈ rewrite surject-inject{x} = ∈
-
-key-visit : ∀{Value}{s a}{S : Set s}{A : Set a}
-            → (l : Map Value)
-            → (f : (k : Key) → (k∈ : (∈Dom k l)) → (acc : A) → (rec : (A → S)) → S)
-            → ((acc : A) → S)
-            → A → S
-key-visit l f g s
-  = visit ((uncurry f) ∘ (map surject (in-inject l)))
-          g
-          s
-          (sublist (keys+∈ l))
-
-key-visit-rec : ∀{Value}{a}
-                → (l : Map Value)
-                → {A : ∀{n} → Sublist (keys l) n → Set a}
-                → (f : ∀{n} → (sl : Sublist (keys l) n)
-                       → (Rec (keys l) n A)
-                       → A sl)
-                → A (sublist (keys l))
-key-visit-rec l f
-  = visit-rec f (sublist (keys l))
-
-key-map : ∀{Value}{a}{L : Set a} → (l : Map Value) → (f : (k : Key) → (k : (∈Dom k l)) → L) → List L
-key-map{L = L} l f
-  = Data.List.map ((uncurry f) ∘ (map surject (in-inject l)))
-                  (keys+∈ l)
-
-key-unique-map : ∀{Value} → (l : Map Value) → (A : Key → Set) → (f : (k : Key) → (k∈ : (∈Dom k l)) → (A k)) → UniquedSet A
-key-unique-map{Value} l A f
-  = uniqued-set (Data.List.map f2 lst)
-    $ UniquedSet.map f2 proj₁ unq ug 
-  where uld = (Dom'+∈-unique Value l)
-        open UniquedSet.UniquedSet uld
-        f2 = (λ { (k , ∈) → (surject k) , f (surject k) (in-inject l ∈)})
-        ug : (x : ∃ (_∈ (Dom' Value l))) → (l₁ : List (∃ (_∈ (Dom' Value l))))
-             → proj₁ (f2 x) ∈ (Data.List.map proj₁ (Data.List.map f2 l₁))
-             → proj₁ x ∈ (Data.List.map proj₁ l₁)
-        ug x [] ()
-        ug x (x₁ ∷ l₁) (here px) rewrite surject-injective px = here refl
-        ug x (x₁ ∷ l₁) (there x₂) = there (ug x l₁ x₂)
 
 ∈Check : ∀{Value}
          → (k : Key)
@@ -124,10 +68,6 @@ lookup{Value}{k = k} m k∈ = deref Value (inject k) m k∈
 
 update : ∀{Value} → (l : Map Value) → Key → Value → Map Value
 update{Value} l k v = m-insert Value (just v) (inject k) l
-
-values : ∀{Value} → (l : Map Value) → List Value
-values l = key-map l (λ _ → lookup l)
-
 
 -- Union map. For repeated keys, the values from the second map is preferred.
 union : ∀{Value} → Map Value → Map Value → Map Value
@@ -319,12 +259,3 @@ count-merge≤′sum-count :
     count p (union m1 m2) ≤′ count p m1 + count p m2
 count-merge≤′sum-count {V} m1 m2 p =
   ocount-merge≤′sum-ocount V m1 m2 p
-
-re-update-is-eq : ∀ {Value} → (m : Map Value) → (k : Key) → (k∈ : (∈Dom k m))
-                  → (v : Value)
-                  → lookup{k = k} m k∈ ≡ v
-                  → update m k v ≡ m
-re-update-is-eq m k k∈ v eq = re-set-is-eq _ m (inject k) k∈ v eq 
-
-union-self-idenity : ∀{Value} → (l : Map Value) → union l l ≡ l
-union-self-idenity = U-self-identity _

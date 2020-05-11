@@ -63,7 +63,7 @@ plugc {cshared s e ∷ C}        refl = dcshared   (plugc {C} refl)
 plugc {cvar x e ∷ C}           refl = dcvar      (plugc {C} refl)
 plugc {cif₁ x q ∷ C}           refl = dcif₁      (plugc {C} refl)
 plugc {cif₂ x p ∷ C}           refl = dcif₂      (plugc {C} refl)
-plugc {cenv θ A ∷ C}           refl = dcenv      (plugc {C} refl)
+plugc {cenv θ ∷ C}             refl = dcenv      (plugc {C} refl)
 
 unplugc : ∀{p C q} → p ≐ C ⟦ q ⟧c → C ⟦ q ⟧c ≡ p
 unplugc dchole                             = refl
@@ -167,4 +167,4 @@ C++ (dcenv p1C) p2C = dcenv (C++ p1C p2C)
 ++-is-nesting (cvar x e ∷ C′) C q = dcvar (++-is-nesting C′ C q)
 ++-is-nesting (cif₁ x q ∷ C′) C q₁ = dcif₁ (++-is-nesting C′ C q₁)
 ++-is-nesting (cif₂ x p ∷ C′) C q = dcif₂ (++-is-nesting C′ C q)
-++-is-nesting (cenv θ A ∷ C′) C q = dcenv (++-is-nesting C′ C q)
+++-is-nesting (cenv θ ∷ C′) C q = dcenv (++-is-nesting C′ C q)

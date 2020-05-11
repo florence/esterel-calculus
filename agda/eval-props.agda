@@ -60,20 +60,20 @@ open import par-swap.union-properties
 open import calculus
 open import calculus.properties
 
-evalsn≡ₑ-consistent : ∀{output output'} θ p → CB (ρ⟨ θ , GO ⟩· p) → evalsn≡ₑ p θ output → evalsn≡ₑ p θ output' → output ≡ output'
+evalsn≡ₑ-consistent : ∀{output output'} θ p → CB (ρ θ · p) → evalsn≡ₑ p θ output → evalsn≡ₑ p θ output' → output ≡ output'
 evalsn≡ₑ-consistent θ p ⊢cb-p (evalsn-complete ρθ·p≡q complete-q) (evalsn-complete ρθ·p≡r complete-r)
   with sn≡ₑ-consistent (proj₂ (sn≡ₑ-preserve-cb ⊢cb-p ρθ·p≡q)) (rtrn (rsym ρθ·p≡q  ⊢cb-p) ρθ·p≡r)
 ... | (s , qsn⟶*s , rsn⟶*s)
   with inescapability-of-complete-sn complete-q qsn⟶*s
 ... | complete-s
    with ρ-stays-ρ-sn⟶* qsn⟶*s | ρ-stays-ρ-sn⟶* rsn⟶*s
-... | θq , _ , _ , refl | θr , _ , _ , refl
+... | θq , _ , refl | θr , _ , refl
    with equality-of-complete-sn⟶* complete-q qsn⟶*s
       | equality-of-complete-sn⟶* complete-r rsn⟶*s
-... | refl , refl | refl , refl = refl
+... | refl | refl = refl
 
 eval∥R∪sn≡ₑ-consistent : ∀ {output output'} θ p →
-  CB (ρ⟨ θ , GO ⟩· p) →
+  CB (ρ θ · p) →
   eval∥R∪sn≡ₑ p θ output →
   eval∥R∪sn≡ₑ p θ output' →
   output ≡ output'
@@ -83,10 +83,10 @@ eval∥R∪sn≡ₑ-consistent θ p ⊢cb-p (eval∥R∪sn-complete ρθ·p≡q 
   with inescapability-of-complete-∪ complete-q qsn⟶*s
 ... | complete-s
    with ρ-stays-ρ-∪ qsn⟶*s | ρ-stays-ρ-∪ rsn⟶*s
-... | θq , _ , _ , refl | θr , _ , _ , refl
+... | θq , _ , refl | θr , _ , refl
    with equality-of-complete-∪ complete-q qsn⟶*s
       | equality-of-complete-∪ complete-r rsn⟶*s
-... | refl , refl | refl , refl = refl
+... | refl | refl = refl
 
 eval≡ₑ->eval∥R∪sn≡ : ∀ {p θ output} ->
   eval≡ₑ p θ output →
@@ -95,7 +95,7 @@ eval≡ₑ->eval∥R∪sn≡ (eval-complete ρθ·p≡q complete-q) =
   eval∥R∪sn-complete (≡ₑ-to-∥R∪sn≡ₑ ρθ·p≡q) complete-q
 
 eval≡ₑ-consistent : ∀ {output output'} θ p →
-  CB (ρ⟨ θ , GO ⟩· p) →
+  CB (ρ θ · p) →
   eval≡ₑ p θ output →
   eval≡ₑ p θ output' →
   output ≡ output'
@@ -104,21 +104,21 @@ eval≡ₑ-consistent θ p CBρp eval≡₁ eval≡₂
       (eval≡ₑ->eval∥R∪sn≡ eval≡₁)
       (eval≡ₑ->eval∥R∪sn≡ eval≡₂)
 
-sn≡ₑ=>eval : ∀ p θp outputp q θq outputq → CB (ρ⟨ θp , GO ⟩· p) → (ρ⟨ θp , GO ⟩· p) sn≡ₑ (ρ⟨ θq , GO ⟩· q) → evalsn≡ₑ p θp outputp → evalsn≡ₑ q θq outputq → outputp ≡ outputq
+sn≡ₑ=>eval : ∀ p θp outputp q θq outputq → CB (ρ θp · p) → (ρ θp · p) sn≡ₑ (ρ θq · q) → evalsn≡ₑ p θp outputp → evalsn≡ₑ q θq outputq → outputp ≡ outputq
 sn≡ₑ=>eval _ _ _ _ _ _ CB eq (evalsn-complete ρθ·p≡q complete-q) (evalsn-complete ρθ·p≡q₁ complete-q₁)
   with sn≡ₑ-consistent (proj₂ (sn≡ₑ-preserve-cb CB ρθ·p≡q)) (rtrn (rsym ρθ·p≡q  CB) (rtrn eq ρθ·p≡q₁))
 ... | (s , qsn⟶*s , rsn⟶*s)
   with inescapability-of-complete-sn complete-q qsn⟶*s
 ... | complete-s
    with ρ-stays-ρ-sn⟶* qsn⟶*s | ρ-stays-ρ-sn⟶* rsn⟶*s
-... | θq , _ , _ , refl | θr , _ , _ , refl
+... | θq , _ , refl | θr , _ , refl
    with equality-of-complete-sn⟶* complete-q qsn⟶*s
       | equality-of-complete-sn⟶* complete-q₁ rsn⟶*s
-... | refl , refl | refl , refl = refl
+... | refl | refl = refl
 
 ∥R∪sn≡ₑ=>eval : ∀ p θp outputp q θq outputq →
-  CB (ρ⟨ θp , GO ⟩· p) →
-  (ρ⟨ θp , GO ⟩· p) ∥R∪sn≡ₑ (ρ⟨ θq , GO ⟩· q) →
+  CB (ρ θp · p) →
+  (ρ θp · p) ∥R∪sn≡ₑ (ρ θq · q) →
   eval∥R∪sn≡ₑ p θp outputp →
   eval∥R∪sn≡ₑ q θq outputq →
   outputp ≡ outputq
@@ -128,14 +128,14 @@ sn≡ₑ=>eval _ _ _ _ _ _ CB eq (evalsn-complete ρθ·p≡q complete-q) (evals
   with inescapability-of-complete-∪ complete-q qsn⟶*s
 ... | complete-s
    with ρ-stays-ρ-∪ qsn⟶*s | ρ-stays-ρ-∪ rsn⟶*s
-... | θq , _ , _ , refl | θr , _ , _ , refl
+... | θq , _ , refl | θr , _ , refl
    with equality-of-complete-∪ complete-q qsn⟶*s
       | equality-of-complete-∪ complete-q₁ rsn⟶*s
-... | refl , refl | refl , refl = refl
+... | refl | refl = refl
 
 ≡ₑ=>eval : ∀ p θp outputp q θq outputq →
-  CB (ρ⟨ θp , GO ⟩· p) →
-  (ρ⟨ θp , GO ⟩· p) ≡ₑ (ρ⟨ θq , GO ⟩· q) # [] →
+  CB (ρ θp · p) →
+  (ρ θp · p) ≡ₑ (ρ θq · q) # [] →
   eval≡ₑ p θp outputp →
   eval≡ₑ q θq outputq →
   outputp ≡ outputq

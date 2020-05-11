@@ -78,9 +78,9 @@ open ListSet Data.Nat._≟_
   ρθ. E⟦qin⟧   -- sn⟶₁ ->    ρθq. E⟦qo⟧
  (ρθ) C⟦rin⟧   -- sn⟶  ->   (ρθ)  C⟦ro⟧
 -}
-1-steplρ-E-view : ∀{E C p qin q qo rin ro θ θq BV FV A Aq} →
-  {ρθ·psn⟶₁ρθq·q  :  ρ⟨ θ , A ⟩· p sn⟶₁ ρ⟨ θq , Aq ⟩· q} →
-  CorrectBinding (ρ⟨ θ , A ⟩· p) BV FV →
+1-steplρ-E-view : ∀{E C p qin q qo rin ro θ θq BV FV} →
+  {ρθ·psn⟶₁ρθq·q  :  ρ θ · p sn⟶₁ ρ θq · q} →
+  CorrectBinding (ρ θ · p) BV FV →
 
   (p≐E⟦qin⟧  :  p ≐ E ⟦ qin ⟧e) →
   (q≐E⟦qo⟧   :  q ≐ E ⟦ qo ⟧e) →
@@ -89,9 +89,9 @@ open ListSet Data.Nat._≟_
   (p≐E⟦rin⟧  :  p ≐ C ⟦ rin ⟧c) →
   (rinsn⟶₁ro  :  rin sn⟶₁ ro) →
 
-  ∃ λ { (θo , Ao , po) →
-    (ρ⟨ θq , Aq ⟩· q        sn⟶* ρ⟨ θo , Ao ⟩· po) ×
-    (ρ⟨ θ , A ⟩· C ⟦ ro ⟧c sn⟶* ρ⟨ θo , Ao ⟩· po) }
+  ∃ λ { (θo , po) →
+    (ρ θq · q        sn⟶* ρ θo · po) ×
+    (ρ θ · C ⟦ ro ⟧c sn⟶* ρ θo · po) }
 
 1-steplρ-E-view (CBρ cb) p≐E⟦qin⟧ q≐E⟦qo⟧ e-view p≐C⟦rin⟧ rinsn⟶₁ro
   with get-context-prefix p≐E⟦qin⟧ p≐C⟦rin⟧
@@ -109,4 +109,4 @@ open ListSet Data.Nat._≟_
 ... | po , inj₁ refl  , _ , _ , _ , ρθ·rsn⟶₁ρθq·po , e-view' =
   _ , rrefl ,′ sn⟶*-inclusion (sn⟶-inclusion ρθ·rsn⟶₁ρθq·po)
 ... | po , inj₂ qsn⟶po , _ , _ , _ , ρθ·rsn⟶₁ρθq·po , e-view' =
-   _ , sn⟶*-inclusion (Context1-sn⟶ (cenv _ _) qsn⟶po) ,′ sn⟶*-inclusion (sn⟶-inclusion ρθ·rsn⟶₁ρθq·po) 
+  _ , sn⟶*-inclusion (Context1-sn⟶ (cenv _) qsn⟶po) ,′ sn⟶*-inclusion (sn⟶-inclusion ρθ·rsn⟶₁ρθq·po)

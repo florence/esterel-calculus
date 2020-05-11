@@ -24,7 +24,7 @@ Context1-∥R (cshared s e) (∥Rstep dc) = ∥Rstep (dcshared dc)
 Context1-∥R (cvar x e) (∥Rstep dc) = ∥Rstep (dcvar dc)
 Context1-∥R (cif₁ x q₁) (∥Rstep dc) = ∥Rstep (dcif₁ dc)
 Context1-∥R (cif₂ x p₂) (∥Rstep dc) = ∥Rstep (dcif₂ dc)
-Context1-∥R (cenv θ A) (∥Rstep dc) = ∥Rstep (dcenv dc)
+Context1-∥R (cenv θ) (∥Rstep dc) = ∥Rstep (dcenv dc)
 
 Context1-∥R* : ∀ {p q} -> (C1 : Context1) -> p ∥R* q -> ((C1 ∷ []) ⟦ p ⟧c) ∥R* ((C1 ∷ []) ⟦ q ⟧c)
 Context1-∥R* C1 ∥R0 = ∥R0
