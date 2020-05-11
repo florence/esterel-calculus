@@ -6,13 +6,8 @@
          "../redex/test/generator.rkt"
          (only-in "../redex/model/shared.rkt" #;quasiquote) ;; don't import quasiquote!
          "send-lib.rkt"
-         "send-steps.rkt"
-         "send-std.rkt"
          "send-can.rkt"
          "send-cb.rkt"
-         "send-complete.rkt"
-         "send-blocked.rkt"
-         "send-basics.rkt"
          (only-in "../redex/test/binding.rkt" esterel-L CB FV BV)
          "../redex/model/lset.rkt"
          racket/os
@@ -63,7 +58,7 @@
             (when (zero? (random 2))
               (set! clean-p
                     (clean-up-p
-                     (term (fix (ρ ((shar sintroduced1 0 ready)
+                     (term (fix (ρ ((shar sintroduced1 0 old)
                                     ((shar sintroduced2 1 old)
                                      ((shar sintroduced3 9876543210 new)
                                       ((var· xintroduced1 0)
@@ -72,7 +67,6 @@
                                    ,clean-p)
                                 (SINPUT) (SOUTPUT) () () () 0)))))
             (test-p/no-context clean-p #:can-θ (random-θ clean-p)))))
-       (report-log)
        (build-scratch-all random-examples uniq)
        (run-agda (format "~ascratch-all.agda" uniq)))]
     [else (do-basic-tests)]))
@@ -83,8 +77,6 @@
   (test-p (term (loop^stop (exit 3) (loop pause))))
   (test-p (term (loop^stop pause (loop pause))))
   (test-p (term (loop^stop (seq nothing pause) (loop (seq nothing pause)))))
-  (test-p (term (ρ ((sig S absent) ·) GO (present S pause nothing))))
-  (test-p (term (ρ ((sig S absent) ·) WAIT (present S pause nothing))))
   (test-p (term (seq (seq (seq (exit 0) nothing) nothing) nothing)))
   (test-p (term (par nothing pause)))
   (test-p (term (par pause nothing)))
@@ -115,14 +107,14 @@
   (test-p (term (loop pause)))
   (test-p (term (ρ ((shar s1 1 new) ((shar s2 2 old) ·)) GO pause)))
   (test-p (term (ρ ((shar s1 1 new) ((shar s2 2 old) ·)) WAIT pause)))
-  (test-p (term (ρ ((shar s1 2 ready) ((shar s2 2 ready) ·)) GO (shared s1 := (+ 1 s2) pause))))
-  (test-p (term (ρ ((shar s1 2 old) ((shar s2 2 ready) ·)) GO (shared s1 := (+ 1 s2) pause))))
-  (test-p (term (ρ ((shar s1 2 ready) ((shar s2 2 ready) ·)) WAIT (shared s1 := (+ 1 s2) pause))))
-  (test-p (term (ρ ((shar s1 2 old) ((shar s2 2 ready) ·)) WAIT (shared s1 := (+ 1 s2) pause))))
-  (test-p (term (ρ ((shar s1 2 old) ((shar s2 3 ready) ·)) GO (<= s1 (+ 4 s2)))))
-  (test-p (term (ρ ((shar s1 2 new) ((shar s2 3 ready) ·)) GO (<= s1 (+ 4 s2)))))
-  (test-p (term (ρ ((shar s1 2 old) ((shar s2 3 ready) ·)) WAIT (<= s1 (+ 4 s2)))))
-  (test-p (term (ρ ((shar s1 2 new) ((shar s2 3 ready) ·)) WAIT (<= s1 (+ 4 s2)))))
+  (test-p (term (ρ ((shar s1 2 old) ((shar s2 2 old) ·)) GO (shared s1 := (+ 1 s2) pause))))
+  (test-p (term (ρ ((shar s1 2 old) ((shar s2 2 old) ·)) GO (shared s1 := (+ 1 s2) pause))))
+  (test-p (term (ρ ((shar s1 2 old) ((shar s2 2 old) ·)) WAIT (shared s1 := (+ 1 s2) pause))))
+  (test-p (term (ρ ((shar s1 2 old) ((shar s2 2 old) ·)) WAIT (shared s1 := (+ 1 s2) pause))))
+  (test-p (term (ρ ((shar s1 2 old) ((shar s2 3 old) ·)) GO (<= s1 (+ 4 s2)))))
+  (test-p (term (ρ ((shar s1 2 new) ((shar s2 3 old) ·)) GO (<= s1 (+ 4 s2)))))
+  (test-p (term (ρ ((shar s1 2 old) ((shar s2 3 old) ·)) WAIT (<= s1 (+ 4 s2)))))
+  (test-p (term (ρ ((shar s1 2 new) ((shar s2 3 old) ·)) WAIT (<= s1 (+ 4 s2)))))
   (test-p (term (ρ ((var· x 123) ·) GO (seq (var x := (+ 414 x) pause) nothing))))
   (test-p (term (ρ ((var· x 123) ·) WAIT (seq (var x := (+ 414 x) pause) nothing))))
   (test-p (term (ρ ((var· x 123) ·) GO (seq (:= x (+ 132)) nothing))))
@@ -131,10 +123,10 @@
   (test-p (term (ρ ((var· x 0) ·) WAIT (if x pause nothing))))
   (test-p (term (ρ ((var· x 123) ·) GO (if x pause nothing))))
   (test-p (term (ρ ((var· x 123) ·) WAIT (if x pause nothing))))
-  (test-p (term (ρ ((shar s1 2 ready) ((shar s2 2 ready) ·)) GO (ρ ((shar s1 3 new) ·) GO pause))))
-  (test-p (term (ρ ((shar s1 2 ready) ((shar s2 2 ready) ·)) GO (ρ ((shar s1 3 new) ·) WAIT pause))))
-  (test-p (term (ρ ((shar s1 2 ready) ((shar s2 2 ready) ·)) WAIT (ρ ((shar s1 3 new) ·) GO pause))))
-  (test-p (term (ρ ((shar s1 2 ready) ((shar s2 2 ready) ·)) WAIT (ρ ((shar s1 3 new) ·) WAIT pause))))
+  (test-p (term (ρ ((shar s1 2 old) ((shar s2 2 old) ·)) GO (ρ ((shar s1 3 new) ·) GO pause))))
+  (test-p (term (ρ ((shar s1 2 old) ((shar s2 2 old) ·)) GO (ρ ((shar s1 3 new) ·) WAIT pause))))
+  (test-p (term (ρ ((shar s1 2 old) ((shar s2 2 old) ·)) WAIT (ρ ((shar s1 3 new) ·) GO pause))))
+  (test-p (term (ρ ((shar s1 2 old) ((shar s2 2 old) ·)) WAIT (ρ ((shar s1 3 new) ·) WAIT pause))))
   
 
   ;; tests inspired by looking at the definition of CorrectBinding
@@ -151,20 +143,6 @@
   (test-p `(par (signal S1 pause) (emit S2)))
   (test-p `(par (emit S2) (signal S1 pause)))
   (test-p `(par (signal S2 pause) (signal S1 pause)))
-  (test-p `(par (var x := (+) (:= x (+ x1)))
-                (var x := (+) (:= x (+ x2)))))
-  (test-p `(par (var x := (+) (:= x (+ x1)))
-                (var x := (+) (:= x (+ x1)))))
-  (test-p `(par (var x := (+) (:= x (+ x1)))
-                (var x := (+) (:= x1 (+ x2)))))
-  (test-p `(par (var x1 := (+) (:= x1 (+ x1)))
-                (var x2 := (+) (:= x2 (+ x2)))))
-  (test-p `(par (var x1 := (+) (:= x1 (+ x3)))
-                (var x2 := (+) (:= x2 (+ x2)))))
-  (test-p `(par (var x2 := (+) (:= x2 (+ x2)))
-                (var x1 := (+) (:= x1 (+ x3)))))
-  (test-p `(par (var x2 := (+) (:= x2 (+ x3)))
-                (var x1 := (+) (:= x1 (+ x3)))))
   (test-p `(loop (signal SS (emit SQ))))
   (test-p `(loop (signal SC (emit SQ))))
   (test-p `(loop (signal SI (emit SQ))))
@@ -186,19 +164,19 @@
   (test-p `(var x := (+ x1) (:= x2 (+ x))))
   (test-p `(var x := (+ 11) (if x (signal S1 (emit S2)) (signal S3 (emit S4)))))
   (test-p `(if x (signal S1 (emit S2)) (signal S3 (emit S4))))
-  (test-p `(ρ ((sig S present) ((var· x 123) ((shar s2 2 ready) ·))) GO nothing))
-  (test-p `(ρ ((sig S present) ((var· x 123) ((shar s2 2 ready) ·))) WAIT nothing))
-  (test-p `(ρ ((sig S present) ((var· x 123) ((shar s2 2 ready) ·))) GO
+  (test-p `(ρ ((sig S present) ((var· x 123) ((shar s2 2 old) ·))) GO nothing))
+  (test-p `(ρ ((sig S present) ((var· x 123) ((shar s2 2 old) ·))) WAIT nothing))
+  (test-p `(ρ ((sig S present) ((var· x 123) ((shar s2 2 old) ·))) GO
               (seq (emit S)
                    (seq (:= x (+))
                         (<= s (+))))))
-  (test-p `(ρ ((sig S present) ((var· x 123) ((shar s2 2 ready) ·))) WAIT
+  (test-p `(ρ ((sig S present) ((var· x 123) ((shar s2 2 old) ·))) WAIT
               (seq (emit S)
                    (seq (:= x (+))
                         (<= s (+))))))
-  (test-p `(ρ ((sig S present) ((var· x 123) ((shar s2 2 ready) ·))) GO
+  (test-p `(ρ ((sig S present) ((var· x 123) ((shar s2 2 old) ·))) GO
               (signal S pause)))
-  (test-p `(ρ ((sig S present) ((var· x 123) ((shar s2 2 ready) ·))) WAIT
+  (test-p `(ρ ((sig S present) ((var· x 123) ((shar s2 2 old) ·))) WAIT
               (signal S pause)))
 
   ;; Can-inspired tests
@@ -315,66 +293,11 @@
                       (<= sz (+))))))
   (test-p (term (suspend (ρ · GO (exit 0)) S)))
   (test-p (term (suspend (ρ · WAIT (exit 0)) S)))
-  (test-p (term
-           (ρ ((shar sW 4 ready) ((sig Sm unknown) ·)) GO
-              (seq (suspend
-                    (trap
-                     (par
-                      (par (present Sm (exit 0) (ρ · GO nothing))
-                           (emit SOUTPUT))
-                      (ρ ((var· x5537 1) ·) GO pause)))
-                    SINPUT)
-                   (emit SOUTPUT)))))
-  (test-p (term
-           (ρ ((shar sW 4 ready) ((sig Sm unknown) ·)) WAIT
-              (seq (suspend
-                    (trap
-                     (par
-                      (par (present Sm (exit 0) (ρ · GO nothing))
-                           (emit SOUTPUT))
-                      (ρ ((var· x5537 1) ·) GO pause)))
-                    SINPUT)
-                   (emit SOUTPUT)))))
-  (test-p (term
-           (ρ ((shar sW 4 ready) ((sig Sm unknown) ·)) GO
-              (seq (suspend
-                    (trap
-                     (par
-                      (par (present Sm (exit 0) (ρ · GO nothing))
-                           (emit SOUTPUT))
-                      (ρ ((var· x5537 1) ·) WAIT pause)))
-                    SINPUT)
-                   (emit SOUTPUT)))))
-  (test-p (term
-           (ρ ((shar sW 4 ready) ((sig Sm unknown) ·)) GO
-              (seq (suspend
-                    (trap
-                     (par
-                      (par (present Sm (exit 0) (ρ · WAIT nothing))
-                           (emit SOUTPUT))
-                      (ρ ((var· x5537 1) ·) GO pause)))
-                    SINPUT)
-                   (emit SOUTPUT)))))
-  (test-p (term
-           (ρ ((shar sW 4 ready) ((sig Sm unknown) ·)) WAIT
-              (seq (suspend
-                    (trap
-                     (par
-                      (par (present Sm (exit 0) (ρ · WAIT nothing))
-                           (emit SOUTPUT))
-                      (ρ ((var· x5537 1) ·) WAIT pause)))
-                    SINPUT)
-                   (emit SOUTPUT)))))
-  (test-p (term
-           (ρ ((shar sW 4 ready) ((sig Sm unknown) ·)) GO
-              (seq (suspend
-                    (trap
-                     (par
-                      (par (present Sm (exit 0) (ρ · WAIT nothing))
-                           (emit SOUTPUT))
-                      (ρ ((var· x5537 1) ·) WAIT pause)))
-                    SINPUT)
-                   (emit SOUTPUT)))))
+  
+  
+  
+  
+  
   (test-p
    (term
     (loop^stop (par (seq (suspend (suspend pause SA) SNIpx)
@@ -382,34 +305,10 @@
                     (loop^stop (seq (par pause pause) (par nothing nothing))
                                (loop (loop^stop pause nothing))))
                (emit Sq))))
-  (test-p
-   (term
-    (loop (par (ρ ((shar sB 0 ready) ((var· xL 0) ·)) GO
-                  (suspend (signal Sm (exit 0)) SY))
-               (if xl (var xL := (+ 0) (shared sZ := (+ 2 5) (<= sZ (+ 1)))) (signal Si (trap (emit Sp))))))))
-  (test-p
-   (term
-    (loop (par (ρ ((shar sB 0 ready) ((var· xL 0) ·)) WAIT
-                  (suspend (signal Sm (exit 0)) SY))
-               (if xl (var xL := (+ 0) (shared sZ := (+ 2 5) (<= sZ (+ 1)))) (signal Si (trap (emit Sp))))))))
-  (test-p
-   (term
-    (loop
-     (par
-      (ρ ((shar sB 0 ready) ((var· xL 0) ·)) GO
-         (suspend (signal Sm (exit 0)) SY))
-      (if xl
-          (var xL := (+ 0) (shared sZ := (+ 2 5) (<= sZ (+ 1))))
-          (signal Si (trap (emit Sp))))))))
-  (test-p
-   (term
-    (loop
-     (par
-      (ρ ((shar sB 0 ready) ((var· xL 0) ·)) WAIT
-         (suspend (signal Sm (exit 0)) SY))
-      (if xl
-          (var xL := (+ 0) (shared sZ := (+ 2 5) (<= sZ (+ 1))))
-          (signal Si (trap (emit Sp))))))))
+  
+  
+  
+  
   (test-p
    (term
     (shared s1
@@ -419,7 +318,6 @@
        (<= s1 (+))
        (var x1 := (+ s1) (if x1 (emit SO) nothing))))))
 
-  (report-log)
   (build-scratch-all filename-counter)
   (run-agda "scratch-all.agda"))
 
@@ -443,12 +341,8 @@
 
 (define (test-p/no-context _p #:can-θ can-θ)
   (define p (clean-up-p _p))
-  (send-steps p)
   (send-can p can-θ)
-  (send-CB p)
-  ;(send-complete p)
-  (send-blocked can-θ p)
-  (send-std p))
+  (send-CB p))
 
 (define/contract (random-θ p)
   (-> p? θ?)

@@ -3,7 +3,7 @@ RACO_PATH =
 RACO = $(RACO_PATH)raco
 
 
-beforecommit: circuits redex dissertation-tex front-end
+beforecommit: circuits redex dissertation front-end agda cross
 
 racket-build: always
 	$(RACO) setup --check-pkg-deps esterel-calculus
@@ -11,6 +11,10 @@ racket-build: always
 
 front-end: redex
 	$(RACO) test front-end*rkt
+
+cross: redex agda
+	$(RACO) test cross-tests/*rkt
+	racket cross-tests/redex-model-implies-agda-model.rkt
 
 circuits: always racket-build
 	$(RACO) test circuits

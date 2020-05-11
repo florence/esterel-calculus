@@ -266,15 +266,15 @@ canₖ-monotonic θ (p ∥ q) _ cb
   (rpar-done-left (dpaused p/paused) (hexit m)) k k∈can-r'-θ
   rewrite canₖ-paused θ p/paused =
   k∈can-r'-θ
-canₖ-monotonic θ (ρ θ' · r) r' cb
+canₖ-monotonic θ (ρ⟨ θ' , A ⟩· r) r' cb
   (ris-present {S = S} {p = p} {E = E} S∈ θ'S≡present r≐E⟦present⟧) k k∈can-r'-θ
   rewrite canθ-is-present (Env.sig θ') S∈ θ r≐E⟦present⟧  θ'S≡present 
   =   k∈can-r'-θ
-canₖ-monotonic θ (ρ θ' · r) r' cb
+canₖ-monotonic θ (ρ⟨ θ' , A ⟩· r) r' cb
   (ris-absent {S = S} S∈ θ'S≡absent r≐E⟦present⟧) k k∈can-r'-θ
   rewrite canθ-is-absent (Env.sig θ') S∈ θ r≐E⟦present⟧ θ'S≡absent
   =  k∈can-r'-θ 
-canₖ-monotonic θ (ρ θ' · r) r' cb
+canₖ-monotonic θ (ρ⟨ θ' , A ⟩· r) r' cb
   (remit {S = S} {E = E} S∈ θ'S≢absent r≐E⟦emit⟧) k k∈can-r'-θ
   = canθₖ-emit θ' S∈ θ r≐E⟦emit⟧ θ'S≢absent ((canθₛ-membership (Env.sig θ') 0 r θ S
                                                 (λ θ* → canₛ-capture-emit-signal θ* r≐E⟦emit⟧)))
@@ -296,12 +296,12 @@ canₖ-monotonic θ (trap r) .(exit n) cb
   (rtrap-done (hexit (suc n))) k k∈can-r'-θ = k∈can-r'-θ
 canₖ-monotonic θ (signl S r) r' cb
   rraise-signal k k∈can-r'-θ = k∈can-r'-θ
-canₖ-monotonic θ (ρ θ' · r) r' cb
+canₖ-monotonic θ (ρ⟨ θ' , A ⟩· r) r' cb
   (rraise-shared {s = s} {e = e} {p = p} {E = E} e' r≐E⟦shared⟧) k k∈can-r'-θ
   rewrite sym (unplug r≐E⟦shared⟧)
-        | sym (canθₖ-raise-lemma (Env.sig θ') 0 θ E (tshared (δ e') s e p))
+        | sym (canθₖ-raise-lemma{A = WAIT} (Env.sig θ') 0 θ E (tshared (δ e') s e p))
   =   k∈can-r'-θ  
-canₖ-monotonic θ (ρ θ' · r) r' cb
+canₖ-monotonic θ (ρ⟨ θ' , A ⟩· r) r' cb
   (rset-shared-value-old {s = s} {e = e} {E = E} e' s∈ θ's≡old r≐E⟦s⇐e⟧) k k∈can-r'-θ
   rewrite canθ-shr-var-irr (Env.sig (Env.set-shr {s} θ' s∈ SharedVar.new (δ e'))) 0 r θ θ refl
         | sym (unplug r≐E⟦s⇐e⟧)
@@ -310,7 +310,7 @@ canₖ-monotonic θ (ρ θ' · r) r' cb
       0
       θ
       E (tset-shr s e) k k∈can-r'-θ 
-canₖ-monotonic θ (ρ θ' · r) r' cb
+canₖ-monotonic θ (ρ⟨ θ' , A ⟩· r) r' cb
   (rset-shared-value-new {s = s} {e = e} {E = E} e' s∈ θ's≡new r≐E⟦s⇐e⟧) k k∈can-r'-θ
   rewrite canθ-shr-var-irr (Env.sig (Env.set-shr {s} θ' s∈ SharedVar.new (Env.shr-vals {s} θ' s∈ + δ e')))
                            0 r θ θ refl
@@ -320,12 +320,12 @@ canₖ-monotonic θ (ρ θ' · r) r' cb
       0
       θ
       E (tset-shr s e) k k∈can-r'-θ 
-canₖ-monotonic θ (ρ θ' · r) r' cb
+canₖ-monotonic θ (ρ⟨ θ' , A ⟩· r) r' cb
   (rraise-var {x = x} {p = p} {e = e} {E = E} e' r≐E⟦var⟧) k k∈can-r'-θ
   rewrite sym (unplug r≐E⟦var⟧)
         | (canθₖ-raise-lemma (Env.sig θ') 0 θ E (tvar (δ e') x e p))
   =  k∈can-r'-θ 
-canₖ-monotonic θ (ρ θ' · r) r' cb
+canₖ-monotonic θ (ρ⟨ θ' , A ⟩· r) r' cb
   (rset-var {x = x} {e = e} {E = E} x∈ e' r≐E⟦x≔e⟧) k k∈can-r'-θ
   rewrite canθ-shr-var-irr (Env.sig (Env.set-var {x} θ' x∈ (δ e'))) 0 r θ θ refl
         | sym (unplug r≐E⟦x≔e⟧)
@@ -334,15 +334,15 @@ canₖ-monotonic θ (ρ θ' · r) r' cb
       0
       θ
       E (tset-var x e) k k∈can-r'-θ 
-canₖ-monotonic θ (ρ θ' · r) r' cb
+canₖ-monotonic θ (ρ⟨ θ' , A ⟩· r) r' cb
   (rif-false {p = p} {q = q} {x = x} {E = E} x∈ θ'x≡zero r≐E⟦if⟧) k k∈can-r'-θ
   rewrite sym (unplug r≐E⟦if⟧)
   =  canθₖ-if-false-lemma (Env.sig θ' ) 0 x p q θ E k k∈can-r'-θ 
-canₖ-monotonic θ (ρ θ' · r) r' cb
+canₖ-monotonic θ (ρ⟨ θ' , A ⟩· r) r' cb
   (rif-true {p = p} {q = q} {x = x} {E = E} x∈ θ'x≡suc r≐E⟦if⟧) k k∈can-r'-θ
   rewrite sym (unplug r≐E⟦if⟧)
   =  canθₖ-if-true-lemma (Env.sig θ') 0 x p q θ E k k∈can-r'-θ 
-canₖ-monotonic θ (ρ θ' · r) r' cb
+canₖ-monotonic θ (ρ⟨ θ' , A ⟩· r) r' cb
   (rabsence {S = S} S∈ θ'S≡unknown S∉can-r-θ') k k∈can-r'-θ
   rewrite Env.sig-switch-right S Signal.absent θ θ' S∈ (Env.sig-←-monoʳ S θ' θ S∈)
   = canθₖ-set-sig-monotonic-absence-lemma (Env.sig θ') 0 r S θ  S∈
@@ -351,12 +351,12 @@ canₖ-monotonic θ (ρ θ' · r) r' cb
     θ←θ'        = θ ← θ'
     S∈Domθ←θ'   = Env.sig-←-monoʳ S θ' θ S∈
     ⟨θ←θ'⟩S≡θ'S = Env.sig-stats-←-right-irr' S θ θ' S∈ S∈Domθ←θ'
-canₖ-monotonic θ (ρ θ' · r) r' cb
+canₖ-monotonic θ (ρ⟨ θ' , A ⟩· r) r' cb
   (rreadyness {s = s} s∈ θ's≡old⊎θ's≡new s∉can-r-θ') k k∈can-r'-θ
   rewrite can-shr-var-irr r (θ ← θ')
             (θ ← Env.set-shr {s} θ' s∈ SharedVar.ready (Env.shr-vals {s} θ' s∈)) refl
   = k∈can-r'-θ
-canₖ-monotonic θ (ρ θ' · r) r' cb@(CBρ cb')
+canₖ-monotonic θ (ρ⟨ θ' , A ⟩· r) r' cb@(CBρ cb')
   (rmerge {θ₁ = .θ'} {θ₂ = θ''} {p = rin} {E = E} r≐E⟦ρθ''·rin⟧) k k∈can-r'-θ
   = canθₖ-mergeˡ (Env.sig θ') θ cb' r≐E⟦ρθ''·rin⟧ k k∈can-r'-θ
 
@@ -371,15 +371,15 @@ canₛ-monotonic θ (p ∥ q) _ cb
   rewrite canₛ-done θ (value-max-done p/done (dhalted q/halted) (inj₂ q/halted))
   with S'∈can-r'-θ
 ... | ()
-canₛ-monotonic θ (ρ θ' · r) r' cb
+canₛ-monotonic θ (ρ⟨ θ' , A ⟩· r) r' cb
   (ris-present {S = S} S∈ θ'S≡present r≐E⟦present⟧) S' S'∈can-r'-θ
     rewrite canθ-is-present (Env.sig θ') S∈ θ r≐E⟦present⟧  θ'S≡present 
   =  S'∈can-r'-θ 
-canₛ-monotonic θ (ρ θ' · r) r' cb
+canₛ-monotonic θ (ρ⟨ θ' , A ⟩· r) r' cb
   (ris-absent {S = S} S∈ θ'S≡absent r≐E⟦absent⟧) S' S'∈can-r'-θ
     rewrite canθ-is-absent (Env.sig θ') S∈ θ r≐E⟦absent⟧  θ'S≡absent
   =  S'∈can-r'-θ 
-canₛ-monotonic θ (ρ θ' · r) (ρ θ'' · r') cb
+canₛ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ θ'' , A'' ⟩· r') cb
   (remit {S = S} {E = E} S∈ θ'S≢absent r≐E⟦emit⟧) S' S'∈can-ρθ''·r'-θ
   with set-subtract-merge
          {xs = Canθₛ (Env.sig (Env.set-sig {S} θ' S∈ Signal.present)) 0 r' θ}
@@ -414,13 +414,13 @@ canₛ-monotonic θ (signl S r) r' cb
   rewrite SigMap.keys-1map S Signal.unknown
         | set-subtract-[a]≡set-remove (Canθₛ (Env.sig ([S]-env S)) 0 r θ) (Signal.unwrap S)
   =  S'∈can-r'-θ 
-canₛ-monotonic θ (ρ θ' · r) (ρ .θ' · r') cb
+canₛ-monotonic θ (ρ⟨ θ' , A ⟩· r) (ρ⟨ .θ' , .A ⟩· r') cb
   (rraise-shared {s = s} {e = e} {p = p} {E = E} e' r≐E⟦shared⟧) S' S'∈can-ρθ'·r'-θ
     rewrite sym (unplug r≐E⟦shared⟧)
-          | sym (canθₛ-raise-lemma (Env.sig θ') 0 θ E (tshared (δ e') s e p))
+          | sym (canθₛ-raise-lemma{A = WAIT} (Env.sig θ') 0 θ E (tshared (δ e') s e p))
     =  S'∈can-ρθ'·r'-θ 
 
-canₛ-monotonic θ (ρ θ' · r) (ρ θ'' · r') cb
+canₛ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ θ'' , A'' ⟩· r') cb
   (rset-shared-value-old{s = s}{e = e}{E = E} e' s∈ θ's≡old r≐E⟦s⇐e⟧) S' S'∈can-ρθ''·r'-θ
   with set-subtract-merge{xs = Canθₛ (Env.sig θ'') 0 r' θ}{ys = proj₁ (Dom θ'')} S'∈can-ρθ''·r'-θ
 ... | S'∈can-r'-θ←θ'' , S'∉Domθ''
@@ -432,7 +432,7 @@ canₛ-monotonic θ (ρ θ' · r) (ρ θ'' · r') cb
                               (Signal.unwrap S')  S'∈can-r'-θ←θ'' )  )
 ... | inj₁ S'∈can-r-θ←θ'-θ' = S'∈can-r-θ←θ'-θ' -- θ' and θ'' differ only by shared var Dom
 ... | inj₂ S'∈Domθ' = ⊥-elim (S'∉Domθ'' S'∈Domθ')
-canₛ-monotonic θ (ρ θ' · r) (ρ θ'' · r') cb
+canₛ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ θ'' , A'' ⟩· r') cb
   (rset-shared-value-new{s = s}{e = e}{E = E} e' s∈ θ's≡new r≐E⟦s⇐e⟧) S' S'∈can-ρθ''·r'-θ
   with set-subtract-merge{xs = Canθₛ (Env.sig θ'') 0 r' θ}{ys = proj₁ (Dom θ'')} S'∈can-ρθ''·r'-θ
 ... | S'∈can-r'-θ←θ'' , S'∉Domθ''
@@ -444,10 +444,10 @@ canₛ-monotonic θ (ρ θ' · r) (ρ θ'' · r') cb
                               (Signal.unwrap S')  S'∈can-r'-θ←θ'' )) 
 ... | inj₁ S'∈can-r-θ←θ'-θ' = S'∈can-r-θ←θ'-θ'
 ... | inj₂ S'∈Domθ' = ⊥-elim (S'∉Domθ'' S'∈Domθ')
-canₛ-monotonic θ (ρ θ' · r) (ρ .θ' · r') cb
+canₛ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ .θ' , .A' ⟩· r') cb
   (rraise-var {x = x} {p = p} {e = e} {E = E} e' r≐E⟦var⟧) S' S'∈can-ρθ'·r'-θ
-  rewrite sym (canθₛ-raise-lemma (Env.sig θ') 0 θ E (tvar (δ e') x e p)) | (unplug r≐E⟦var⟧) = S'∈can-ρθ'·r'-θ
-canₛ-monotonic θ (ρ θ' · r) (ρ θ'' · r') cb
+  rewrite sym (canθₛ-raise-lemma{A = WAIT} (Env.sig θ') 0 θ E (tvar (δ e') x e p)) | (unplug r≐E⟦var⟧) = S'∈can-ρθ'·r'-θ
+canₛ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ θ'' , A'' ⟩· r') cb
   (rset-var {x = x} {e = e} {E = E}  x∈ e' r≐E⟦x≔e⟧) S' S'∈can-ρθ''·r'-θ
   with set-subtract-merge {xs = Canθₛ (Env.sig θ'') 0 r' θ}{ys = proj₁ (Dom θ'')} S'∈can-ρθ''·r'-θ
 ... | S'∈can-r'-θ←θ'' , S'∉Domθ''
@@ -459,17 +459,17 @@ canₛ-monotonic θ (ρ θ' · r) (ρ θ'' · r') cb
                               (Signal.unwrap S')  S'∈can-r'-θ←θ'' )) )
 ... | inj₁ S'∈can-r-θ←θ'-θ' = S'∈can-r-θ←θ'-θ' -- θ' and θ'' differ only by seq var Dom
 ... | inj₂ S'∈Domθ' = ⊥-elim (S'∉Domθ'' S'∈Domθ')
-canₛ-monotonic θ (ρ θ' · r) (ρ .θ' · r') cb
+canₛ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ .θ' , .A' ⟩· r') cb
   (rif-false {p = p} {q = q} {x = x} {E = E} x∈ θ'x≡zero r≐E⟦if⟧) S' S'∈can-ρθ'·r'-θ
     with set-subtract-merge{xs = (proj₁ (Canθ (Env.sig θ') 0 r' θ))} {ys = proj₁ (Dom θ')}{z = (Signal.unwrap S')} S'∈can-ρθ'·r'-θ
 ... | S'∈can-r'-θ←θ' , S'∉Domθ' rewrite sym (unplug r≐E⟦if⟧) =
   set-subtract-notin (canθₛ-if-false-lemma (Env.sig θ') 0 x p q θ E (Signal.unwrap S')  S'∈can-r'-θ←θ') S'∉Domθ'
-canₛ-monotonic θ (ρ θ' · r) (ρ .θ' · r') cb
+canₛ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ .θ' , .A' ⟩· r') cb
   (rif-true {p = p} {q = q} {x = x} {E = E} x∈ θ'x≡suc r≐E⟦if⟧) S' S'∈can-ρθ'·r'-θ
     with set-subtract-merge{xs = (proj₁ (Canθ (Env.sig θ') 0 r' θ))} {ys = proj₁ (Dom θ')}{z = (Signal.unwrap S')} S'∈can-ρθ'·r'-θ
 ... | S'∈can-r'-θ←θ' , S'∉Domθ' rewrite sym (unplug r≐E⟦if⟧) =
   set-subtract-notin (canθₛ-if-true-lemma (Env.sig θ') 0 x p q θ E (Signal.unwrap S')  S'∈can-r'-θ←θ') S'∉Domθ'
-canₛ-monotonic θ (ρ θ' · r) (ρ θ'' · .r) cb
+canₛ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ θ'' , A'' ⟩· .r) cb
   (rabsence {S = S} S∈ θ'S≡unknown S∉can-r-θ') S' S'∈can-ρθ''·r-θ
   rewrite Env.sig-switch-right S Signal.absent θ θ' S∈ (Env.sig-←-monoʳ S θ' θ S∈)
   with set-subtract-merge{xs = Canθₛ (Env.sig θ'') 0 r θ } {ys = proj₁ (Dom θ'')} S'∈can-ρθ''·r-θ
@@ -487,10 +487,10 @@ canₛ-monotonic θ (ρ θ' · r) (ρ θ'' · .r) cb
     (S'∉Domθ''
       (Env.sig-set-mono' {S'} {S} {θ'} {Signal.absent} {S∈}
         S'∈Domθ'))
-canₛ-monotonic θ (ρ θ' · r) r' cb
+canₛ-monotonic θ (ρ⟨ θ' , A' ⟩· r) r' cb
   (rreadyness {s = s} s∈ θ's≡old⊎θ's≡new s∉can-r-θ') S' S'∈can-r'-θ
   = S'∈can-r'-θ
-canₛ-monotonic θ (ρ θ' · r) (ρ .(θ' ← θ'') · r') cb@(CBρ cb')
+canₛ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ .(θ' ← θ'') , .(A-max A' _) ⟩· r') cb@(CBρ cb')
   (rmerge {θ₁ = .θ'} {θ₂ = θ''} {p = rin} {E = E} r≐E⟦ρθ''·rin⟧) S' S'∈can-ρθ'←θ''·r'-θ
   with set-subtract-merge
          {xs = Canθₛ (Env.sig (θ' ← θ'')) 0 r' θ}
@@ -513,15 +513,15 @@ canₛₕ-monotonic θ (p ∥ q) _ cb
   rewrite canₛₕ-done θ (value-max-done p/done (dhalted q/halted) (inj₂ q/halted))
   with s'∈can-r'-θ
 ... | ()
-canₛₕ-monotonic θ (ρ θ' · r) r' cb
+canₛₕ-monotonic θ (ρ⟨ θ' , A' ⟩· r) r' cb
   (ris-present {S = S} S∈ θ'S≡present r≐E⟦present⟧) s' s'∈can-r'-θ
   rewrite canθ-is-present (Env.sig θ') S∈ θ r≐E⟦present⟧ θ'S≡present
   =  s'∈can-r'-θ 
-canₛₕ-monotonic θ (ρ θ' · r) r' cb
+canₛₕ-monotonic θ (ρ⟨ θ' , A' ⟩· r) r' cb
   (ris-absent {S = S} S∈ θ'S≡absent r≐E⟦present⟧) s' s'∈can-r'-θ
   rewrite canθ-is-absent (Env.sig θ') S∈ θ r≐E⟦present⟧ θ'S≡absent
   =  s'∈can-r'-θ 
-canₛₕ-monotonic θ (ρ θ' · r) (ρ θ'' · r') cb
+canₛₕ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ θ'' , A'' ⟩· r') cb
   (remit {S = S} {E = E} S∈ θ'S≢absent r≐E⟦emit⟧) s' s'∈can-ρθ''·r'-θ
   with set-subtract-merge
          {xs = Canθₛₕ (Env.sig (Env.set-sig {S} θ' S∈ Signal.present)) 0 r' θ}
@@ -554,20 +554,20 @@ canₛₕ-monotonic θ (signl S r) r' cb
   rraise-signal s' s'∈can-r'-θ
   rewrite set-subtract-[] (Canθₛₕ (Env.sig ([S]-env S)) 0 r θ)
   =  s'∈can-r'-θ 
-canₛₕ-monotonic θ (ρ θ' · r) (ρ .θ' · r') cb
+canₛₕ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ .θ' , .A' ⟩· r') cb
   (rraise-shared {s = s} {e = e} {p = p} {E = E} e' r≐E⟦shared⟧) s' s'∈can-ρθ'·r'-θ
   with set-subtract-merge {ys = proj₁ (proj₂ (Dom θ'))} s'∈can-ρθ'·r'-θ
 ... | s'∈can-r'-θ←θ' , s'∉Domθ' =
   
   set-subtract-notin
-    (canθₛₕ-subset (Env.sig θ') 0 (E ⟦ ρ [s,δe]-env s (δ e') · p ⟧e) r
+    (canθₛₕ-subset (Env.sig θ') 0 (E ⟦ ρ⟨ [s,δe]-env s (δ e') , WAIT ⟩· p ⟧e) r
        θ (λ θ* S* → canₛ-raise θ* (tshared (δ e') s e p) r≐E⟦shared⟧ S*)
        (λ θ* s* → canₛₕ-raise θ* (tshared (δ e') s e p) r≐E⟦shared⟧ s*) s'
        s'∈can-r'-θ←θ')
     s'∉Domθ'
 
 
-canₛₕ-monotonic θ (ρ θ' · r) (ρ θ'' · r') cb
+canₛₕ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ θ'' , A'' ⟩· r') cb
   (rset-shared-value-old {s = s} {e = e} {E = E} e' s∈ θ's≡old r≐E⟦s⇐e⟧) s' s'∈can-ρθ''·r'-θ
   with set-subtract-merge {ys = proj₁ (proj₂ (Dom θ''))} s'∈can-ρθ''·r'-θ
 ... | s'∈can-r'-θ←θ'' , s'∉Domθ''
@@ -582,7 +582,7 @@ canₛₕ-monotonic θ (ρ θ' · r) (ρ θ'' · r') cb
     (s'∉Domθ''
       (Env.shr-set-mono' {s'} {s} {θ'} {SharedVar.new} {δ e'} {s∈}
         s'∈Domθ'))
-canₛₕ-monotonic θ (ρ θ' · r) (ρ θ'' · r') cb
+canₛₕ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ θ'' , A'' ⟩· r') cb
   (rset-shared-value-new {s = s} {e = e} {E = E} e' s∈ θ's≡new r≐E⟦s⇐e⟧) s' s'∈can-ρθ''·r'-θ
   with set-subtract-merge {ys = proj₁ (proj₂ (Dom θ''))} s'∈can-ρθ''·r'-θ
 ... | s'∈can-r'-θ←θ'' , s'∉Domθ''
@@ -598,17 +598,17 @@ canₛₕ-monotonic θ (ρ θ' · r) (ρ θ'' · r') cb
       (Env.shr-set-mono' {s'} {s} {θ'} {SharedVar.new}
         {Env.shr-vals {s} θ' s∈ + δ e'} {s∈}
         s'∈Domθ'))
-canₛₕ-monotonic θ (ρ θ' · r) (ρ .θ' · r') cb
+canₛₕ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ .θ' , .A' ⟩· r') cb
   (rraise-var {x = x} {p = p} {e = e} {E = E} e' r≐E⟦var⟧) s' s'∈can-ρθ'·r'-θ
   with set-subtract-merge {ys = proj₁ (proj₂ (Dom θ'))} s'∈can-ρθ'·r'-θ
 ... | s'∈can-r'-θ←θ' , s'∉Domθ' =
   set-subtract-notin
-    (canθₛₕ-subset (Env.sig θ') 0 (E ⟦ ρ [x,δe]-env x (δ e') · p ⟧e) r θ
+    (canθₛₕ-subset (Env.sig θ') 0 (E ⟦ ρ⟨ [x,δe]-env x (δ e') , WAIT ⟩· p ⟧e) r θ
       (λ θ* S* → canₛ-raise θ* (tvar (δ e') x e p) r≐E⟦var⟧ S*)
       (λ θ* s* → canₛₕ-raise θ* (tvar (δ e') x e p) r≐E⟦var⟧ s*)
       s' s'∈can-r'-θ←θ')
     s'∉Domθ'
-canₛₕ-monotonic θ (ρ θ' · r) (ρ θ'' · r') cb
+canₛₕ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ θ'' , A'' ⟩· r') cb
   (rset-var {x = x} {e = e} {E = E} x∈ e' r≐E⟦x≔e⟧) s' s'∈can-ρθ''·r'-θ
   with set-subtract-merge {ys = proj₁ (proj₂ (Dom θ''))} s'∈can-ρθ''·r'-θ
 ... | s'∈can-r'-θ←θ'' , s'∉Domθ''
@@ -619,7 +619,7 @@ canₛₕ-monotonic θ (ρ θ' · r) (ρ θ'' · r') cb
            s' s'∈can-r'-θ←θ'')
 ... | inj₁ s'∈can-r-θ←θ'-θ' = s'∈can-r-θ←θ'-θ' -- θ' and θ'' differ only by seq var Dom
 ... | inj₂ s'∈Domθ' = ⊥-elim (s'∉Domθ'' s'∈Domθ')
-canₛₕ-monotonic θ (ρ θ' · r) (ρ .θ' · r') cb
+canₛₕ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ .θ' , .A' ⟩· r') cb
   (rif-false {p = p} {q = q} {x = x} {E = E} x∈ θ'x≡zero r≐E⟦if⟧) s' s'∈can-ρθ'·r'-θ
   with set-subtract-merge{xs = (thd (Canθ (Env.sig θ') 0 r' θ))} {ys = snd (Dom θ')}{z = (SharedVar.unwrap s')} s'∈can-ρθ'·r'-θ
 ... |  s'∈can-r'-θ←θ' , s'∉Domθ'
@@ -627,7 +627,7 @@ canₛₕ-monotonic θ (ρ θ' · r) (ρ .θ' · r') cb
   = set-subtract-notin
       (canθₛₕ-if-false-lemma (Env.sig θ' ) 0 x p q θ E (SharedVar.unwrap s')   s'∈can-r'-θ←θ' )
       s'∉Domθ'
-canₛₕ-monotonic θ (ρ θ' · r) (ρ .θ' · r') cb
+canₛₕ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ .θ' , .A' ⟩· r') cb
   (rif-true {p = p} {q = q} {x = x} {E = E} x∈ θ'x≡suc r≐E⟦if⟧) s' s'∈can-ρθ'·r'-θ
     with set-subtract-merge{xs = (thd (Canθ (Env.sig θ') 0 r' θ))} {ys = snd (Dom θ')}{z = (SharedVar.unwrap s')} s'∈can-ρθ'·r'-θ
 ... |  s'∈can-r'-θ←θ' , s'∉Domθ'
@@ -635,7 +635,7 @@ canₛₕ-monotonic θ (ρ θ' · r) (ρ .θ' · r') cb
   = set-subtract-notin
       (canθₛₕ-if-true-lemma (Env.sig θ' ) 0 x p q θ E (SharedVar.unwrap s')   s'∈can-r'-θ←θ' )
       s'∉Domθ'
-canₛₕ-monotonic θ (ρ θ' · r) (ρ θ'' · .r) cb
+canₛₕ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ θ'' , A'' ⟩· .r) cb
   (rabsence {S = S} S∈ θ'S≡unknown S∉can-r-θ') s' s'∈can-ρθ''·r-θ
   rewrite Env.sig-switch-right S Signal.absent θ θ' S∈ (Env.sig-←-monoʳ S θ' θ S∈)
  with set-subtract-merge {xs = Canθₛₕ (Env.sig θ'') 0 r θ }{ys = proj₁ (proj₂ (Dom θ''))} s'∈can-ρθ''·r-θ
@@ -649,14 +649,14 @@ canₛₕ-monotonic θ (ρ θ' · r) (ρ θ'' · .r) cb
     ⟨θ←θ'⟩S≡θ'S = Env.sig-stats-←-right-irr' S θ θ' S∈ S∈Domθ←θ'
 ... | inj₁ s'∈can-r-θ←θ'-θ' = s'∈can-r-θ←θ'-θ'
 ... | inj₂ s'∈Domθ' = ⊥-elim (s'∉Domθ'' s'∈Domθ') -- θ' and θ'' differ only by sig 
-canₛₕ-monotonic θ (ρ θ' · r) r' cb
+canₛₕ-monotonic θ (ρ⟨ θ' , A' ⟩· r) r' cb
   (rreadyness {s = s} s∈ θ's≡old⊎θ's≡new s∉can-r-θ') s' s'∈can-r'-θ
   rewrite cong (proj₁ ∘ proj₂)
             (Env.shr-set-dom-eq s SharedVar.ready (Env.shr-vals {s} θ' s∈) θ' s∈)
         | can-shr-var-irr r (θ ← θ')
             (θ ← Env.set-shr {s} θ' s∈ SharedVar.ready (Env.shr-vals {s} θ' s∈)) refl
   = s'∈can-r'-θ
-canₛₕ-monotonic θ (ρ θ' · r) (ρ .(θ' ← θ'') · r') cb@(CBρ cb')
+canₛₕ-monotonic θ (ρ⟨ θ' , A' ⟩· r) (ρ⟨ .(θ' ← θ'') , .(A-max A' _) ⟩· r') cb@(CBρ cb')
   (rmerge {θ₁ = .θ'} {θ₂ = θ''} {p = rin} {E = E} r≐E⟦ρθ''·rin⟧) s' s'∈can-ρθ'←θ''·r'-θ
   with set-subtract-merge
          {xs = Canθₛₕ (Env.sig (θ' ← θ'')) 0 r' θ}

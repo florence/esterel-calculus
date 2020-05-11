@@ -209,7 +209,7 @@ canₖ-plug (cshared s e ∷ C) p q Canₖq⊆Canₖp ⊂s = (canₖ-plug C p q 
 canₖ-plug (cvar x e ∷ C) p q Canₖq⊆Canₖp ⊂s = (canₖ-plug C p q Canₖq⊆Canₖp ⊂s)
 canₖ-plug (cif₁ x q ∷ C) p q₁ Canₖq⊆Canₖp ⊂s θ = codesub++both (canₖ-plug C p q₁ Canₖq⊆Canₖp ⊂s θ) (λ x y → y)
 canₖ-plug (cif₂ x p ∷ C) p₁ q Canₖq⊆Canₖp ⊂s θ = codesub++both{a = Canₖ p θ} (λ x y → y) (canₖ-plug C p₁ q Canₖq⊆Canₖp ⊂s θ)
-canₖ-plug (cenv θ₁ ∷ C) p q Canₖq⊆Canₖp ⊂s θ = canθₖ-plug 0 (sig θ₁) C p q Canₖq⊆Canₖp ⊂s θ
+canₖ-plug (cenv θ₁ A ∷ C) p q Canₖq⊆Canₖp ⊂s θ = canθₖ-plug 0 (sig θ₁) C p q Canₖq⊆Canₖp ⊂s θ
 
 canₛ-plug [] p q Canₛq⊆Canₛp Canₖq⊆Canₖp = Canₛq⊆Canₛp
 canₛ-plug (ceval (epar₁ q) ∷ C) p q₁ Canₛq⊆Canₛp Canₖq⊆Canₖp θ = ∪¹-respect-⊆¹-left (canₛ-plug C p q₁ Canₛq⊆Canₛp Canₖq⊆Canₖp θ)
@@ -253,7 +253,7 @@ canₛ-plug (cshared s e ∷ C) p q Canₛq⊆Canₛp Canₖq⊆Canₖp = (can�
 canₛ-plug (cvar x e ∷ C) p q Canₛq⊆Canₛp Canₖq⊆Canₖp = (canₛ-plug C p q Canₛq⊆Canₛp Canₖq⊆Canₖp)
 canₛ-plug (cif₁ x q ∷ C) p q₁ Canₛq⊆Canₛp Canₖq⊆Canₖp θ = ∪¹-respect-⊆¹-left (canₛ-plug C p q₁ Canₛq⊆Canₛp Canₖq⊆Canₖp θ)
 canₛ-plug (cif₂ x p ∷ C) p₁ q Canₛq⊆Canₛp Canₖq⊆Canₖp θ = ∪¹-respect-⊆¹-right (Canₛ p θ) (canₛ-plug C p₁ q Canₛq⊆Canₛp Canₖq⊆Canₖp θ)
-canₛ-plug (cenv θ₁ ∷ C) p q Canₛq⊆Canₛp Canₖq⊆Canₖp θ =   ⊆¹-respect-|¹ (fst $ Dom θ₁) (canθₛ-plug 0 (sig θ₁) C p q Canₛq⊆Canₛp Canₖq⊆Canₖp θ)
+canₛ-plug (cenv θ₁ A ∷ C) p q Canₛq⊆Canₛp Canₖq⊆Canₖp θ =   ⊆¹-respect-|¹ (fst $ Dom θ₁) (canθₛ-plug 0 (sig θ₁) C p q Canₛq⊆Canₛp Canₖq⊆Canₖp θ)
 
 canₛₕ-plug [] p q Canₛₕq⊆Canₛₕp Canₖₕq⊆Canₖₕp ⊂S = Canₛₕq⊆Canₛₕp
 canₛₕ-plug (ceval (epar₁ q) ∷ C) p q₁ Canₛₕq⊆Canₛₕp Canₖq⊆Canₖp ⊂S θ = ∪¹-respect-⊆¹-left (canₛₕ-plug C p q₁ Canₛₕq⊆Canₛₕp Canₖq⊆Canₖp ⊂S θ)
@@ -292,7 +292,7 @@ canₛₕ-plug (cshared (s ₛₕ) e ∷ C) p q Canₛₕq⊆Canₛₕp Canₖq�
 canₛₕ-plug (cvar x e ∷ C) p q Canₛₕq⊆Canₛₕp Canₖq⊆Canₖp ⊂S = (canₛₕ-plug C p q Canₛₕq⊆Canₛₕp Canₖq⊆Canₖp ⊂S)
 canₛₕ-plug (cif₁ x q ∷ C) p q₁ Canₛₕq⊆Canₛₕp Canₖq⊆Canₖp ⊂S θ = ∪¹-respect-⊆¹-left (canₛₕ-plug C p q₁ Canₛₕq⊆Canₛₕp Canₖq⊆Canₖp ⊂S θ)
 canₛₕ-plug (cif₂ x p ∷ C) p₁ q Canₛₕq⊆Canₛₕp Canₖq⊆Canₖp ⊂S θ = ∪¹-respect-⊆¹-right (Canₛₕ p θ) (canₛₕ-plug C p₁ q Canₛₕq⊆Canₛₕp Canₖq⊆Canₖp ⊂S θ)
-canₛₕ-plug (cenv θ₁ ∷ C) p q Canₛₕq⊆Canₛₕp Canₖq⊆Canₖp ⊂S θ =  ⊆¹-respect-|¹ (snd $ Dom θ₁) (canθₛₕ-plug 0 (sig θ₁) C p q Canₛₕq⊆Canₛₕp Canₖq⊆Canₖp ⊂S θ)
+canₛₕ-plug (cenv θ₁ A ∷ C) p q Canₛₕq⊆Canₛₕp Canₖq⊆Canₖp ⊂S θ =  ⊆¹-respect-|¹ (snd $ Dom θ₁) (canθₛₕ-plug 0 (sig θ₁) C p q Canₛₕq⊆Canₛₕp Canₖq⊆Canₖp ⊂S θ)
 
 canθₖ-plugE : ∀ S' sigs → ∀ E p q
               → (Canₖq⊆Canₖp : ∀ θ k → k ∈ (Canₖ q θ) → k ∈ (Canₖ p θ))

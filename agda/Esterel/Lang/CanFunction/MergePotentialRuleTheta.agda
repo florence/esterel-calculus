@@ -94,17 +94,17 @@ open import Data.OrderedListMap SeqVar SeqVar.unwrap ℕ as SeqM
 open ≡-Reasoning
 
 
-canθₖ-mergeˡ : ∀ {E θ' r p BV FV} sigs θ →
+canθₖ-mergeˡ : ∀ {E θ' r p BV FV A} sigs θ →
   CorrectBinding p BV FV →
-  p ≐ E ⟦ ρ θ' · r ⟧e →
+  p ≐ E ⟦ ρ⟨ θ' , A ⟩· r ⟧e →
   ∀ k →
     k ∈ Canθₖ (SigMap.union sigs (Env.sig θ')) 0 (E ⟦ r ⟧e) θ →
     k ∈ Canθₖ sigs 0 p θ
-canθₖ-mergeˡ {E} {θ'} {r} sigs θ cb p≐E⟦ρθ'r⟧ k k∈canθ-sigs←θ'-E⟦r⟧-θ
+canθₖ-mergeˡ {E} {θ'} {r} {A = A} sigs θ cb p≐E⟦ρθ'r⟧ k k∈canθ-sigs←θ'-E⟦r⟧-θ
   rewrite sym (unplug p≐E⟦ρθ'r⟧)
-  with binding-extract cb (((E ⟦ ρ θ' · r ⟧e) ≐ E ⟦ ρ θ' · r ⟧e) ∋ plug refl)
+  with binding-extract cb (((E ⟦ ρ⟨ θ' , A ⟩· r ⟧e) ≐ E ⟦ ρ⟨ θ' , A ⟩· r ⟧e) ∋ plug refl)
 ... | (BVp , FVp) , (BVp⊆BV , FVp⊆FV) , cbρθ'r@(CBρ cbp)
-  with binding-subst cb (((E ⟦ ρ θ' · r ⟧e) ≐ E ⟦ ρ θ' · r ⟧e) ∋ plug refl) cbρθ'r
+  with binding-subst cb (((E ⟦ ρ⟨ θ' , A ⟩· r ⟧e) ≐ E ⟦ ρ⟨ θ' , A ⟩· r ⟧e) ∋ plug refl) cbρθ'r
                      ((λ _ ()) ,′ (λ _ ()) ,′ (λ _ ()))
                      ((λ _ ()) ,′ (λ _ ()) ,′ (λ _ ()))
                      CBnothing
@@ -116,22 +116,22 @@ canθₖ-mergeˡ {E} {θ'} {r} sigs θ cb p≐E⟦ρθ'r⟧ k k∈canθ-sigs←�
       (dist'++ˡ
         (distinct'-sym
           (proj₁
-            (distinct-term-context-help (ρ θ' · r) E cb cbρθ'r BVp⊆BV cbnothin)))))
+            (distinct-term-context-help (ρ⟨ θ' , A ⟩· r) E cb cbρθ'r BVp⊆BV cbnothin)))))
     k k∈canθ-sigs←θ'-E⟦r⟧-θ
 
 
-canθₛ-mergeˡ : ∀ {E θ' r p BV FV} sigs θ →
+canθₛ-mergeˡ : ∀ {E θ' r p BV FV A} sigs θ →
   CorrectBinding p BV FV →
-  p ≐ E ⟦ ρ θ' · r ⟧e →
+  p ≐ E ⟦ ρ⟨ θ' , A ⟩· r ⟧e →
   ∀ S' →
     Signal.unwrap S' ∉ SigMap.keys (Env.sig θ') →
     Signal.unwrap S' ∈ Canθₛ (SigMap.union sigs (Env.sig θ')) 0 (E ⟦ r ⟧e) θ →
     Signal.unwrap S' ∈ Canθₛ sigs 0 p θ
-canθₛ-mergeˡ {E} {θ'} {r} sigs θ cb p≐E⟦ρθ'r⟧ S' S'∉Domθ' S'∈canθ-sigs←θ'-E⟦r⟧-θ
+canθₛ-mergeˡ {E} {θ'} {r} {A = A} sigs θ cb p≐E⟦ρθ'r⟧ S' S'∉Domθ' S'∈canθ-sigs←θ'-E⟦r⟧-θ
   rewrite sym (unplug p≐E⟦ρθ'r⟧)
-  with binding-extract cb (((E ⟦ ρ θ' · r ⟧e) ≐ E ⟦ ρ θ' · r ⟧e) ∋ plug refl)
+  with binding-extract cb (((E ⟦ ρ⟨ θ' , A ⟩· r ⟧e) ≐ E ⟦ ρ⟨ θ' , A ⟩· r ⟧e) ∋ plug refl)
 ... | (BVp , FVp) , (BVp⊆BV , FVp⊆FV) , cbρθ'r@(CBρ cbp)
-  with binding-subst cb (((E ⟦ ρ θ' · r ⟧e) ≐ E ⟦ ρ θ' · r ⟧e) ∋ plug refl) cbρθ'r
+  with binding-subst cb (((E ⟦ ρ⟨ θ' , A ⟩· r ⟧e) ≐ E ⟦ ρ⟨ θ' , A ⟩· r ⟧e) ∋ plug refl) cbρθ'r
                      ((λ _ ()) ,′ (λ _ ()) ,′ (λ _ ()))
                      ((λ _ ()) ,′ (λ _ ()) ,′ (λ _ ()))
                      CBnothing
@@ -143,23 +143,23 @@ canθₛ-mergeˡ {E} {θ'} {r} sigs θ cb p≐E⟦ρθ'r⟧ S' S'∉Domθ' S'∈
       (dist'++ˡ
         (distinct'-sym
           (proj₁
-            (distinct-term-context-help (ρ θ' · r) E cb cbρθ'r BVp⊆BV cbnothin)))))
+            (distinct-term-context-help (ρ⟨ θ' , A ⟩· r) E cb cbρθ'r BVp⊆BV cbnothin)))))
     (Signal.unwrap S')
     S'∉Domθ' S'∈canθ-sigs←θ'-E⟦r⟧-θ
 
 
-canθₛₕ-mergeˡ : ∀ {E θ' r p BV FV} sigs θ →
+canθₛₕ-mergeˡ : ∀ {E θ' r p BV FV A} sigs θ →
   CorrectBinding p BV FV →
-  p ≐ E ⟦ ρ θ' · r ⟧e →
+  p ≐ E ⟦ ρ⟨ θ' , A ⟩· r ⟧e →
   ∀ s' →
     SharedVar.unwrap s' ∉ ShrMap.keys (Env.shr θ') →
     SharedVar.unwrap s' ∈ Canθₛₕ (SigMap.union sigs (Env.sig θ')) 0 (E ⟦ r ⟧e) θ →
     SharedVar.unwrap s' ∈ Canθₛₕ sigs 0 p θ
-canθₛₕ-mergeˡ {E} {θ'} {r} sigs θ cb p≐E⟦ρθ'r⟧ s' s'∉Domθ' s'∈canθ-sigs←θ'-E⟦r⟧-θ
+canθₛₕ-mergeˡ {E} {θ'} {r} {A = A} sigs θ cb p≐E⟦ρθ'r⟧ s' s'∉Domθ' s'∈canθ-sigs←θ'-E⟦r⟧-θ
   rewrite sym (unplug p≐E⟦ρθ'r⟧)
-  with binding-extract cb (((E ⟦ ρ θ' · r ⟧e) ≐ E ⟦ ρ θ' · r ⟧e) ∋ plug refl)
+  with binding-extract cb (((E ⟦ ρ⟨ θ' , A ⟩· r ⟧e) ≐ E ⟦ ρ⟨ θ' , A ⟩· r ⟧e) ∋ plug refl)
 ... | (BVp , FVp) , (BVp⊆BV , FVp⊆FV) , cbρθ'r@(CBρ cbp)
-  with binding-subst cb (((E ⟦ ρ θ' · r ⟧e) ≐ E ⟦ ρ θ' · r ⟧e) ∋ plug refl) cbρθ'r
+  with binding-subst cb (((E ⟦ ρ⟨ θ' , A ⟩· r ⟧e) ≐ E ⟦ ρ⟨ θ' , A ⟩· r ⟧e) ∋ plug refl) cbρθ'r
                      ((λ _ ()) ,′ (λ _ ()) ,′ (λ _ ()))
                      ((λ _ ()) ,′ (λ _ ()) ,′ (λ _ ()))
                      CBnothing
@@ -171,7 +171,7 @@ canθₛₕ-mergeˡ {E} {θ'} {r} sigs θ cb p≐E⟦ρθ'r⟧ s' s'∉Domθ' s'
       (dist'++ˡ
         (distinct'-sym
           (proj₁
-            (distinct-term-context-help (ρ θ' · r) E cb cbρθ'r BVp⊆BV cbnothin)))))
+            (distinct-term-context-help (ρ⟨ θ' , A ⟩· r) E cb cbρθ'r BVp⊆BV cbnothin)))))
     (SharedVar.unwrap s')
     s'∉Domθ' s'∈canθ-sigs←θ'-E⟦r⟧-θ
 

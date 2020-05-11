@@ -17,7 +17,7 @@
                   italic centered)
          (only-in plot/utils treeof)
          racket/runtime-path
-         (only-in scribble/base bold italic)
+         (only-in scribble/base bold italic para)
          syntax/location
          (for-syntax syntax/parse
                      racket/list
@@ -299,7 +299,7 @@
            (flatten read-as)
            (list nopagebreak noindent))
           empty)
-      [(if center? centered values) [italic def]]
+      [(if center? centered values) [apply italic def]]
       (pagebreak 3))))
   (when key (hash-set! def-table key (x)))
   (x))

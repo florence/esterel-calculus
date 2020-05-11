@@ -16,9 +16,9 @@
   (match-define `(S-code-s ,Ss ,codes ,ss) (term (Can ,p ,θ)))
   (define (exit-code->agda-exit-code k)
     (match k
-      ['nothin "Code.nothin"]
-      ['paus "Code.pause"]
-      [(? integer? k) (~a "(Code.exit " k ")")]))
+      ['0 "Code.nothin"]
+      ['1 "Code.pause"]
+      [(? integer? k) (~a "(Code.exit " (- k 2) ")")]))
   (define θ-var (send-θ θ))
   (add-to-top-level-comment (format "(~a) ~s" θ-var θ))
   (send-thing p "cantest"

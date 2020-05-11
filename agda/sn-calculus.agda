@@ -102,11 +102,6 @@ data all-ready : Expr → Env → Set where
 
 
 {-
-  Except for signl S p , shared_≔_in:_ and var_≔_in:_ , other rules should
-  not use _←_ to update the environment, but should instead use a different
-  'update' function on finite maps. Otherwise, the _←_ function will extend
-  the domain to (s ∷ _) (though when viewed as a set, the domain doesn't change).
-
   In the current formalization, for reduction rules involving evaluation
   contexts, we will write them in the following form to enable pattern
   matching on p:
@@ -129,24 +124,24 @@ data _sn⟶₁_ : Term → Term → Set where
     (q' : halted q) →
     (p ∥ q) sn⟶₁ (value-max p' (dhalted q') (inj₂ q'))
 
-  ris-present : ∀{θ S r p q E} →
+  ris-present : ∀{θ S r p q E A} →
     (S∈ : (Env.isSig∈ S θ)) →
     Env.sig-stats{S} θ S∈ ≡ Signal.present →
     r ≐ E ⟦ present S ∣⇒ p ∣⇒ q ⟧e →
-    (ρ θ · r) sn⟶₁ (ρ θ · E ⟦ p ⟧e)
+    (ρ⟨ θ , A ⟩· r) sn⟶₁ (ρ⟨ θ , A ⟩· E ⟦ p ⟧e)
 
-  ris-absent : ∀{θ S r p q E} →
+  ris-absent : ∀{θ S r p q E A} →
     (S∈ : (Env.isSig∈ S θ)) →
     Env.sig-stats{S} θ S∈ ≡ Signal.absent →
     r ≐ E ⟦ present S ∣⇒ p ∣⇒ q ⟧e →
-    (ρ θ · r) sn⟶₁ (ρ θ · E ⟦ q ⟧e)
+    (ρ⟨ θ , A ⟩· r) sn⟶₁ (ρ⟨ θ , A ⟩· E ⟦ q ⟧e)
 
   remit : ∀{θ r S E} →
     (S∈ : (Env.isSig∈ S θ)) →
     (¬S≡a : ¬ (Env.sig-stats{S} θ S∈) ≡ Signal.absent) →
     r ≐ E ⟦ emit S ⟧e →
-    (ρ θ · r) sn⟶₁
-    (ρ (Env.set-sig{S} θ S∈ Signal.present) ·
+    (ρ⟨ θ , GO ⟩· r) sn⟶₁
+    (ρ⟨ (Env.set-sig{S} θ S∈ Signal.present) , GO ⟩·
       E ⟦ nothin ⟧e)
 
   rloop-unroll : ∀{p} →
@@ -175,24 +170,24 @@ data _sn⟶₁_ : Term → Term → Set where
   -- lifting signals
   rraise-signal : ∀{p S} →
     (signl S p) sn⟶₁
-    (ρ (Θ SigMap.[ S ↦ Signal.unknown ] ShrMap.empty VarMap.empty) ·
+    (ρ⟨ (Θ SigMap.[ S ↦ Signal.unknown ] ShrMap.empty VarMap.empty) , WAIT ⟩·
       p)
 
   -- shared state
-  rraise-shared : ∀{θ r s e p E} →
+  rraise-shared : ∀{θ r s e p E A} →
     (e' : all-ready e θ) →
     r ≐ E ⟦ shared s ≔ e in: p ⟧e →
-    (ρ θ · r) sn⟶₁
-    (ρ θ ·
-      E ⟦ (ρ [s,δe]-env s (δ e') · p) ⟧e)
+    (ρ⟨ θ , A ⟩· r) sn⟶₁
+    (ρ⟨ θ , A ⟩·
+      E ⟦ (ρ⟨ [s,δe]-env s (δ e') , WAIT ⟩· p) ⟧e)
 
   rset-shared-value-old : ∀{θ r s e E} →
     (e' : all-ready e θ) →
     (s∈ : (Env.isShr∈ s θ)) →
     Env.shr-stats{s} θ s∈ ≡ SharedVar.old →
     r ≐ E ⟦ s ⇐ e ⟧e →
-    (ρ θ · r) sn⟶₁
-    (ρ (Env.set-shr{s} θ s∈ (SharedVar.new) (δ e')) ·
+    (ρ⟨ θ , GO ⟩· r) sn⟶₁
+    (ρ⟨ (Env.set-shr{s} θ s∈ (SharedVar.new) (δ e')) , GO ⟩·
       E ⟦ nothin ⟧e)
 
   rset-shared-value-new : ∀{θ r s e E} →
@@ -200,38 +195,38 @@ data _sn⟶₁_ : Term → Term → Set where
     (s∈ : (Env.isShr∈ s θ)) →
     Env.shr-stats{s} θ s∈ ≡ SharedVar.new →
     r ≐ E ⟦ s ⇐ e ⟧e →
-    (ρ θ · r) sn⟶₁
-    (ρ (Env.set-shr{s} θ s∈ (SharedVar.new) (Env.shr-vals{s} θ s∈ + δ e')) ·
+    (ρ⟨ θ , GO ⟩· r) sn⟶₁
+    (ρ⟨ (Env.set-shr{s} θ s∈ (SharedVar.new) (Env.shr-vals{s} θ s∈ + δ e')) , GO ⟩·
       E ⟦ nothin ⟧e)
 
   -- unshared state
-  rraise-var : ∀{θ r x p e E} →
+  rraise-var : ∀{θ r x p e E A} →
     (e' : all-ready e θ) →
     r ≐ E ⟦ var x ≔ e in: p ⟧e →
-    (ρ θ · r) sn⟶₁
-    (ρ θ ·
-      E ⟦ (ρ [x,δe]-env x (δ e') · p) ⟧e)
+    (ρ⟨ θ , A ⟩· r) sn⟶₁
+    (ρ⟨ θ , A ⟩·
+      E ⟦ (ρ⟨ [x,δe]-env x (δ e') , WAIT ⟩· p) ⟧e)
 
-  rset-var : ∀{θ r x e E} →
+  rset-var : ∀{θ r x e E A} →
     (x∈ : (Env.isVar∈ x θ)) →
     (e' : all-ready e θ) →
     r ≐ E ⟦ x ≔ e ⟧e →
-    (ρ θ · r) sn⟶₁
-    (ρ (Env.set-var{x} θ x∈ (δ e')) ·
+    (ρ⟨ θ , A ⟩· r) sn⟶₁
+    (ρ⟨ (Env.set-var{x} θ x∈ (δ e')) , A ⟩·
       E ⟦ nothin ⟧e)
 
   -- if
-  rif-false : ∀{θ r p q x E} →
+  rif-false : ∀{θ r p q x E A} →
     (x∈ : (Env.isVar∈ x θ)) →
     Env.var-vals{x} θ x∈ ≡ zero →
     r ≐ E ⟦ if x ∣⇒ p ∣⇒ q ⟧e →
-    (ρ θ · r) sn⟶₁ (ρ θ · E ⟦ q ⟧e)
+    (ρ⟨ θ , A ⟩· r) sn⟶₁ (ρ⟨ θ , A ⟩· E ⟦ q ⟧e)
 
-  rif-true : ∀{θ r p q x E n} →
+  rif-true : ∀{θ r p q x E n A} →
     (x∈ : (Env.isVar∈ x θ)) →
     Env.var-vals{x} θ x∈ ≡ suc n →
     r ≐ E ⟦ if x ∣⇒ p ∣⇒ q ⟧e →
-    (ρ θ · r) sn⟶₁ (ρ θ · E ⟦ p ⟧e)
+    (ρ⟨ θ , A ⟩· r) sn⟶₁ (ρ⟨ θ , A ⟩· E ⟦ p ⟧e)
 
   -- progression
   {-
@@ -240,30 +235,26 @@ data _sn⟶₁_ : Term → Term → Set where
       for simplicity. Instead of being more 'computative', the definition here is
       more 'declarative'. Keep an eye on the original definition to make sure that
       they are equivalent.
-    * The readyness rule is splited into two constructors, one for old and one for new.
-      Since SharedVar.Status is decidable, we can as well just have the rule
-      ¬ (Env.shr-stats θ s∈ ≡ SharedVar.ready). Using which one depends on later uses
-      of the reduction rules (like which one can save us one extra function call).
   -}
-  rabsence : ∀{θ p S} →
+  rabsence : ∀{θ p S A} →
     (S∈ : (Env.isSig∈ S θ)) →
     Env.sig-stats{S} θ S∈ ≡ Signal.unknown →
     (Signal.unwrap S) ∉ Canθₛ (sig θ) 0 p []env →
-    (ρ θ · p) sn⟶₁
-    (ρ (Env.set-sig{S} θ S∈ (Signal.absent)) ·
+    (ρ⟨ θ , A ⟩· p) sn⟶₁
+    (ρ⟨ (Env.set-sig{S} θ S∈ (Signal.absent)) , A ⟩·
       p)
 
-  rreadyness : ∀{θ p s} →
+  rreadyness : ∀{θ p s A} →
     (s∈ : (Env.isShr∈ s θ)) →
     (Env.shr-stats{s} θ s∈ ≡ SharedVar.old) ⊎ (Env.shr-stats{s} θ s∈ ≡ SharedVar.new) →
     (SharedVar.unwrap s) ∉ Canθₛₕ (sig θ) 0 p []env →
-    (ρ θ · p) sn⟶₁
-    (ρ (Env.set-shr{s} θ s∈ (SharedVar.ready) (Env.shr-vals{s} θ s∈)) ·
+    (ρ⟨ θ , A ⟩· p) sn⟶₁
+    (ρ⟨ (Env.set-shr{s} θ s∈ (SharedVar.ready) (Env.shr-vals{s} θ s∈)) , A ⟩·
       p)
 
-  rmerge : ∀{θ₁ θ₂ r p E} →
-    r ≐ E ⟦ ρ θ₂ · p ⟧e →
-    (ρ θ₁ · r) sn⟶₁ (ρ (θ₁ ← θ₂) · E ⟦ p ⟧e)
+  rmerge : ∀{θ₁ θ₂ r p E A₁ A₂} →
+    r ≐ E ⟦ ρ⟨ θ₂ , A₂ ⟩· p ⟧e →
+    (ρ⟨ θ₁ , A₁ ⟩· r) sn⟶₁ (ρ⟨ (θ₁ ← θ₂) , (A-max A₁ A₂) ⟩· E ⟦ p ⟧e)
 
 -- The compatible closure of _sn⟶₁_.
 data _sn⟶_ : Term → Term → Set where
@@ -403,8 +394,8 @@ Context1-sn⟶ (cif₁ x q) (rcontext C dc psn⟶₁p') =
   rcontext (cif₁ x q ∷ C) (dcif₁ dc) psn⟶₁p'
 Context1-sn⟶ (cif₂ x p') (rcontext C dc psn⟶₁p') =
   rcontext (cif₂ x p' ∷ C) (dcif₂ dc) psn⟶₁p'
-Context1-sn⟶ (cenv θ) (rcontext C dc psn⟶₁p') =
-  rcontext (cenv θ ∷ C) (dcenv dc) psn⟶₁p'
+Context1-sn⟶ (cenv θ A) (rcontext C dc psn⟶₁p') =
+  rcontext (cenv θ A ∷ C) (dcenv dc) psn⟶₁p'
 
 Context1-sn⟶* : ∀{p p'} → (C1 : Context1) → p sn⟶* p' → (C1 ∷ []) ⟦ p ⟧c sn⟶* (C1 ∷ []) ⟦ p' ⟧c
 Context1-sn⟶* C1 rrefl                 = rrefl
@@ -481,25 +472,25 @@ sn⟶*+ : ∀{p q r} → p sn⟶* r → r sn⟶* q → p sn⟶* q
 sn⟶*+ rrefl rsn⟶*q = rsn⟶*q
 sn⟶*+ (rstep x psn⟶*r) rsn⟶*q = rstep x (sn⟶*+ psn⟶*r rsn⟶*q)
 
-ρ-stays-ρ-sn⟶₁ : ∀{θ p q} → (ρ θ · p) sn⟶₁ q → Σ[ θ' ∈ Env.Env ] Σ[ qin ∈ Term ] q ≡ (ρ θ' · qin)
-ρ-stays-ρ-sn⟶₁ {θ} (ris-present{p = p}{E = E} S∈ x x₁) = θ , E ⟦ p ⟧e , refl
-ρ-stays-ρ-sn⟶₁ {θ} (ris-absent{q = q}{E = E} S∈ x x₁) = θ , E ⟦ q ⟧e , refl
-ρ-stays-ρ-sn⟶₁ {θ} (remit{S = S}{E = E} S∈ _ x) = (Env.set-sig{S} θ S∈ Signal.present) , E ⟦ nothin ⟧e , refl
-ρ-stays-ρ-sn⟶₁ {θ} (rraise-shared{s = s}{p = p}{E = E} e' x) = θ , (E ⟦ (ρ (Θ SigMap.empty ShrMap.[ s ↦ (SharedVar.old ,′ (δ e'))] VarMap.empty) · p) ⟧e) , refl
-ρ-stays-ρ-sn⟶₁ {θ} (rset-shared-value-old{s = s}{E = E} e' s∈ x x₁) = (Env.set-shr{s} θ s∈ (SharedVar.new) (δ e')) , E ⟦ nothin ⟧e , refl
-ρ-stays-ρ-sn⟶₁ {θ} (rset-shared-value-new{s = s}{E = E} e' s∈ x x₁) = (Env.set-shr{s} θ s∈ (SharedVar.new) (Env.shr-vals{s} θ s∈ + δ e')) , E ⟦ nothin ⟧e , refl
-ρ-stays-ρ-sn⟶₁ {θ} (rraise-var{x = x}{p = p}{E = E} e' x₁) = θ , (E ⟦ (ρ (Θ SigMap.empty ShrMap.empty VarMap.[ x ↦ δ e' ]) · p) ⟧e) , refl
-ρ-stays-ρ-sn⟶₁ {θ} (rset-var{x = x}{E = E} x∈ e' x₁) = (Env.set-var{x} θ x∈ (δ e')) , E ⟦ nothin ⟧e , refl
-ρ-stays-ρ-sn⟶₁ {θ} (rif-false{q = q}{E = E} x∈ x₁ x₂) = θ , E ⟦ q ⟧e , refl
-ρ-stays-ρ-sn⟶₁ {θ} (rif-true{p = p}{E = E} x∈ x₁ x₂) = θ , E ⟦ p ⟧e , refl
-ρ-stays-ρ-sn⟶₁ {θ} (rabsence{.θ}{p}{S} S∈ x x₁) = (Env.set-sig{S} θ S∈ (Signal.absent)) , p , refl
-ρ-stays-ρ-sn⟶₁ {θ} (rreadyness{.θ}{p}{s} s∈ x x₁) = (Env.set-shr{s} θ s∈ (SharedVar.ready) (Env.shr-vals{s} θ s∈)) , p , refl
-ρ-stays-ρ-sn⟶₁ {θ} (rmerge{θ₁}{θ₂}{r}{p}{E} x) =  (θ₁ ← θ₂) , E ⟦ p ⟧e , refl
+ρ-stays-ρ-sn⟶₁ : ∀{θ p q A} → (ρ⟨ θ , A ⟩· p) sn⟶₁ q → Σ[ θ' ∈ Env.Env ] Σ[ qin ∈ Term ] Σ[ A' ∈ Ctrl ] q ≡ (ρ⟨ θ' , A' ⟩· qin)
+ρ-stays-ρ-sn⟶₁ {θ} {A = A} (ris-present{p = p}{E = E} S∈ x x₁) = θ , E ⟦ p ⟧e , A , refl
+ρ-stays-ρ-sn⟶₁ {θ} {A = A} (ris-absent{q = q}{E = E} S∈ x x₁) = θ , E ⟦ q ⟧e , A , refl
+ρ-stays-ρ-sn⟶₁ {θ} {A = A} (remit{S = S}{E = E} S∈ _ x) = (Env.set-sig{S} θ S∈ Signal.present) , E ⟦ nothin ⟧e , A , refl
+ρ-stays-ρ-sn⟶₁ {θ} {A = A} (rraise-shared{s = s}{p = p}{E = E} e' x) = θ , (E ⟦ (ρ⟨ (Θ SigMap.empty ShrMap.[ s ↦ (SharedVar.old ,′ (δ e'))] VarMap.empty) , WAIT ⟩· p) ⟧e) , A , refl
+ρ-stays-ρ-sn⟶₁ {θ} {A = A} (rset-shared-value-old{s = s}{E = E} e' s∈ x x₁) = (Env.set-shr{s} θ s∈ (SharedVar.new) (δ e')) , E ⟦ nothin ⟧e , A , refl
+ρ-stays-ρ-sn⟶₁ {θ} {A = A} (rset-shared-value-new{s = s}{E = E} e' s∈ x x₁) = (Env.set-shr{s} θ s∈ (SharedVar.new) (Env.shr-vals{s} θ s∈ + δ e')) , E ⟦ nothin ⟧e , A , refl
+ρ-stays-ρ-sn⟶₁ {θ} {A = A} (rraise-var{x = x}{p = p}{E = E} e' x₁) = θ , (E ⟦ (ρ⟨ (Θ SigMap.empty ShrMap.empty VarMap.[ x ↦ δ e' ]) , WAIT ⟩· p) ⟧e) , A , refl
+ρ-stays-ρ-sn⟶₁ {θ} {A = A} (rset-var{x = x}{E = E} x∈ e' x₁) = (Env.set-var{x} θ x∈ (δ e')) , E ⟦ nothin ⟧e , A , refl
+ρ-stays-ρ-sn⟶₁ {θ} {A = A} (rif-false{q = q}{E = E} x∈ x₁ x₂) = θ , E ⟦ q ⟧e , A , refl
+ρ-stays-ρ-sn⟶₁ {θ} {A = A} (rif-true{p = p}{E = E} x∈ x₁ x₂) = θ , E ⟦ p ⟧e , A , refl
+ρ-stays-ρ-sn⟶₁ {θ} {A = A} (rabsence{.θ}{p}{S} S∈ x x₁) = (Env.set-sig{S} θ S∈ (Signal.absent)) , p , A , refl
+ρ-stays-ρ-sn⟶₁ {θ} {A = A} (rreadyness{.θ}{p}{s} s∈ x x₁) = (Env.set-shr{s} θ s∈ (SharedVar.ready) (Env.shr-vals{s} θ s∈)) , p , A , refl
+ρ-stays-ρ-sn⟶₁ {θ} (rmerge{θ₁}{θ₂}{r}{p}{E}{A₁}{A₂} x) =  (θ₁ ← θ₂) , E ⟦ p ⟧e , (A-max A₁ A₂) , refl
 
-ρ-stays-ρ-sn⟶ : ∀{θ p q} → (ρ θ · p) sn⟶ q → Σ[ θ' ∈ Env.Env ] Σ[ qin ∈ Term ] q ≡ (ρ θ' · qin)
+ρ-stays-ρ-sn⟶ : ∀{θ p q A} → (ρ⟨ θ , A ⟩· p) sn⟶ q → Σ[ θ' ∈ Env.Env ] Σ[ qin ∈ Term ] Σ[ A' ∈ Ctrl ] q ≡ (ρ⟨ θ' , A' ⟩· qin)
 ρ-stays-ρ-sn⟶ (rcontext .[] dchole psn⟶₁p') = ρ-stays-ρ-sn⟶₁ psn⟶₁p'
-ρ-stays-ρ-sn⟶ (rcontext .(cenv _ ∷ _) (dcenv dc) psn⟶₁p') = _ , _ , refl
+ρ-stays-ρ-sn⟶ (rcontext .(cenv _ _ ∷ _) (dcenv dc) psn⟶₁p') = _ , _ , _ , refl
 
-ρ-stays-ρ-sn⟶* : ∀{θ p q} → (ρ θ · p) sn⟶* q → Σ[ θ' ∈ Env.Env ] Σ[ qin ∈ Term ] q ≡ (ρ θ' · qin)
-ρ-stays-ρ-sn⟶* rrefl = _ , _ , refl
-ρ-stays-ρ-sn⟶* (rstep x psn⟶*q) rewrite proj₂ (proj₂ (ρ-stays-ρ-sn⟶ x)) = ρ-stays-ρ-sn⟶* psn⟶*q
+ρ-stays-ρ-sn⟶* : ∀{θ p q A} → (ρ⟨ θ , A ⟩· p) sn⟶* q → Σ[ θ' ∈ Env.Env ] Σ[ qin ∈ Term ] Σ[ A ∈ Ctrl ] q ≡ (ρ⟨ θ' , A ⟩· qin)
+ρ-stays-ρ-sn⟶* rrefl = _ , _ , _ , refl
+ρ-stays-ρ-sn⟶* (rstep x psn⟶*q) rewrite proj₂ (proj₂ (proj₂ (ρ-stays-ρ-sn⟶ x))) = ρ-stays-ρ-sn⟶* psn⟶*q

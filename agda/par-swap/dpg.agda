@@ -364,16 +364,16 @@ DPG (∥Rstep (dcif₂ dc∥R)) (rcontext (c ∷ C) (dcif₂ dcsn⟶) psn⟶₁p
 
 DPG (∥Rstep (dcenv dc∥R)) (rcontext{p' = p'} .[] dchole psn⟶₁p')
   with ρ-stays-ρ-sn⟶₁ psn⟶₁p'
-... | θ' , q , refl
+... | θ' , q , A' , refl
   with get-view psn⟶₁p'
-... | inj₂ (eq , pot-view) = DPG-pot-view dc∥R psn⟶₁p' eq pot-view  
+... | inj₂ (eq , eq2 , pot-view) = DPG-pot-view dc∥R psn⟶₁p' eq eq2 pot-view  
 ... | inj₁ (E , pin , qin , peq , qeq , E-view) with
    DPG-E-view peq qeq dc∥R psn⟶₁p' E-view
 ... | (d , sn⟶step , ∥R*-step , _ )
   = _ ,
     rcontext [] dchole sn⟶step ,
     rrefl ,
-    Context1-∥R* (cenv θ') ∥R*-step
+    Context1-∥R* (cenv θ' _) ∥R*-step
 
 DPG (∥Rstep (dcenv dc∥R)) (rcontext (c ∷ C) (dcenv dcsn⟶) psn⟶₁p')
  with DPG (∥Rstep dc∥R) (rcontext C dcsn⟶ psn⟶₁p')

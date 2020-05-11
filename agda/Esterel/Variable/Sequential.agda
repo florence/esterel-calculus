@@ -28,6 +28,14 @@ unwrap-injective s'≡t' = trans (sym unwrap-inverse) (trans (cong _ᵥ s'≡t')
 unwrap-neq : ∀{k1 : SeqVar} → ∀{k2 : SeqVar} → ¬ k1 ≡ k2 → ¬ (unwrap k1) ≡ (unwrap k2)
 unwrap-neq = (_∘ unwrap-injective)
 
+wrap : ℕ → SeqVar
+wrap = _ᵥ
+
+bijective : ∀{x} → unwrap (wrap x) ≡ x
+bijective = refl
+
+
+
 _≟_ : Decidable {A = SeqVar} _≡_
 (s ᵥ) ≟ (t ᵥ) with s ≟ℕ t
 ... | yes p = yes (cong _ᵥ p)

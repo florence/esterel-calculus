@@ -138,7 +138,7 @@ Can (x ≔ e) θ =
   [] ,′ [ Code.nothin ] ,′ []
 Can (if x ∣⇒ p ∣⇒ q) θ =
   Canₛ p θ ++ Canₛ q θ ,′ Canₖ p θ ++ Canₖ q θ ,′ Canₛₕ p θ ++ Canₛₕ q θ
-Can (ρ (Θ sig' shr' var') · p) θ =
+Can (ρ⟨ (Θ sig' shr' var') , A ⟩· p) θ =
   SigSet.set-subtract (Canθₛ sig' 0 p θ)  (SigMap.keys sig') ,′
                        Canθₖ sig' 0 p θ ,′
   ShrSet.set-subtract (Canθₛₕ sig' 0 p θ) (ShrMap.keys shr')

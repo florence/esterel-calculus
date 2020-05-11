@@ -206,12 +206,16 @@
  corresponding to the subterm @es[q-pure].
  
 }
+
 @(element "newpage" '())
 @definition[#:notation @es[(all-bot-rec p-pure θ cs)]
             #:index @es[all-bot-rec]
             #:tag "nc-r"]{
  @all-bot-rec-pict
 }
+
+@definition[#:notation @es[(CB p)]
+            CB-pict]
 
 @section[#:tag "eval-and-testing" "Reduction Strategy"]
 
@@ -226,6 +230,3 @@
 @definition[#:notation @es[(leftmost* θr A p E_1 E_2)]]{
  @leftmost*-pict
 }
-@(element "newpage" '())
-@definition[#:notation @es[(CB p)]
-            CB-pict]
