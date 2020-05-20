@@ -58,6 +58,7 @@
      (list/c 'nothing)
      (list/c 'pause)
      (list/c 'present symbol? e/c e/c)
+     (list/c 'if symbol? e/c e/c)
      (list/c 'signal symbol? e/c)
      (cons/c 'seq (listof e/c))
      (cons/c 'par (listof e/c))
@@ -76,8 +77,8 @@
                   [hash #'(hasheq)]
                   [defs null])
          (syntax-parse x
-           #:datum-literals (present emit nothing pause)
-           [((~and P present) S p q)
+           #:datum-literals (present ifemit nothing pause)
+           [((~and P (~or if present)) S p q)
             #:with tag (generate-temporary)
             #:with term (generate-temporary)
             #:with x (syntax/loc #'P (tag-pict (code P) tag))
@@ -91,7 +92,7 @@
                     #`(hash-set #,qhash term tag)
                     (list*
                      #'(define tag (gensym))
-                     #`(define term `(present #,(syntax-e #'S) #,pterm #,qterm))
+                     #`(define term `(P #,(syntax-e #'S) #,pterm #,qterm))
                      qdefs))]
            [((~and E emit) S)
             #:with tag (generate-temporary)
@@ -250,7 +251,7 @@
          (values term (hasheq term (list (K-flow 'exit 1))) (list (K-flow 'start 0)))]
         [`(exit ,n)
          (values term (hasheq) (list (K-flow term (+ n 2))))]
-        [`(present ,S ,p ,q)
+        [`(,(or `if `present) ,S ,p ,q)
          (define-values (p-head p-graph p-tails)
            (loop p))
          (define-values (q-head q-graph q-tails)
@@ -407,7 +408,7 @@ between an par an its future children based on its return codes
 
 (define (get-presents e)
   (match e
-    [`(present ,S ,p ,q)
+    [`(,(or `if `present) ,S ,p ,q)
      (hash-union/append
       (hasheq S (list e))
       (hash-union/append (get-presents p)
@@ -731,7 +732,7 @@ between an par an its future children based on its return codes
                               (string=? (symbol->string x) "pause")
                               (string=? (symbol->string x) "nothing"))))))
      ""]
-    [`(present ,S ,p ,q) (~a `(? ,S))]
+    [`(,(or `if `present) ,S ,p ,q) (~a `(? ,S))]
     ['(join) "join"]
     [`(par ,p ...) "par"]
     ['exit "exit"]

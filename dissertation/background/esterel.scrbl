@@ -51,7 +51,7 @@ The first three lines of the grammar give the subset of
 Esterel called Pure Esterel. Pure Esterel defines a
 ``core'' to the language which we can use to introduce
 and examine the important concepts in the language. Pure
-here refers just this fragment of Esterel only contain
+here refers to just the fragment of Esterel which contains only
 Esterel terms, without reference to a host language, not
 to a fragment of Esterel without state.
 
@@ -66,7 +66,7 @@ running in zero time. That is to say: to maintain
 deterministic concurrency Esterel does not allow for the
 program to observe the order in which expressions are run.
 Without such a total ordering being visible, there isn't
-really an internal sense of "time" to an instant in Esterel.
+really an internal sense of ``time'' to an instant in Esterel.
 
 The lack of an internal sense of time combined with the fact that the program doesn't run at
 all outside of instants means that the full execution of an
@@ -85,7 +85,7 @@ give local broadcast communication channels which carry one
 bit of information: if the signal is present or absent. A signal
 may only have one value in a single instant. 
 
-The conditional form @es[(present S p q)] conditions on if a signal is present or
+The conditional form @es[(if S p q)] conditions on if a signal is present or
 absent, running @es[p] or @es[q] respectively.
 
 The form @es[(emit S)] sets a signal to present. There is no
@@ -196,7 +196,7 @@ notion of truth---which for purposes of this model
 will be akin to C's Booleans, with @es[0] begin false. To maintain deterministic concurrency
 these variables must be used in a way where
 concurrent updates are not observable: for example
-by never using them in multiple branches of an @es[par].
+by never using them in multiple branches of a @es[par].
 How exactly (and if) this is guaranteed depends on the Esterel
 implementation.
 
@@ -224,7 +224,7 @@ uses the same mechanism as determining absence for a signal.@note{In fact,
  signal paired with a shared variable.}
 
 For simplicity's sake, the Constructive Calculus assumes a host language
-which always use the combination function @es[+], and that
+which always uses the combination function @es[+], and that
 the host language only contains numerical literals, and the operations
 @es[+] and @es[-].
 
@@ -244,9 +244,9 @@ For a first example, consider the program:
 @centered[(code
            (signal S1
              (par
-              (present S1
-                       pause
-                       nothing)
+              (if S1
+                  pause
+                  nothing)
               (emit S1))))]
 
 In this example, we can say that the signal @es[S1] is emitted, because we can establish the following
@@ -255,9 +255,9 @@ chain of cause and effect:
 @centered[(deps
            (signal S1
              (par
-              (present S1
-                       pause
-                       nothing)
+              (if S1
+                  pause
+                  nothing)
               (emit S1))))]
 
 We can read this graph as ``emitting the signal @es[S1] on the last line
@@ -291,9 +291,9 @@ causality graph:
 
 @centered[(deps
            (signal S1
-             (present S1
-                      pause
-                      nothing)))]
+             (if S1
+                 pause
+                 nothing)))]
 
 When we walk this causality graph from its entry points as
 before, we immediately run into the conditional without
@@ -329,9 +329,9 @@ if they pass control on in the next instant (e.g. a
         "A program with a separate causality graph"
         (code+graph
          (signal S1
-           (present S1
-                    (emit S1)
-                    nothing)))]
+           (if S1
+               (emit S1)
+               nothing)))]
 
 As before, we
 cannot set @es[S1] to present, as there is no emit that must
@@ -344,7 +344,7 @@ based on the assumption that it was absent. Such self
 justification doesn't leave a clear chain of cause and effect which
 result in showing the signal is absent: one of the
 reasoning steps is just a guess. Esterel considers programs like this one,
-where some signals cannot be set to either absent or present, to be illegal. Such a programs are either rejected statically or raise a runtime
+where some signals cannot be set to either absent or present, to be illegal. Such programs are either rejected statically or raise a runtime
 error, depending on the Esterel implementation. Programs like this are called non-constructive.@note{
  This comes from the analogous lack of self-justified reasoning
  in a constructive logic---that is we may not use the law of
@@ -367,11 +367,11 @@ reasoning may allow the cycle to be broken. Consider the program in @figure-ref[
         (code+graph
          (signal S1
            (signal S2
-             (present S1
-                      (present S2
-                               (emit S1)
-                               nothing)
-                      nothing))))]
+             (if S1
+                 (if S2
+                     (emit S1)
+                     nothing)
+                 nothing))))]
 
 This program has a causality cycle, because the condition
 @es[S1] might cause @es[S1] to be emitted. However, we can
@@ -409,7 +409,7 @@ the right hand branch and emit @es[S2].
                        (emit S2))))))]
 
 
-We can us this to see how pause can break what might
+We can use this to see how pause can break what might
 otherwise be causality cycles. Look at the differences in
 the programs and graphs in @figure-ref["unpause2"] and
 @figure-ref["pause2"]. In the first example when we walk the
@@ -428,7 +428,7 @@ constructive, and its graph is acyclic.
         (code+graph
          #:ignore-start? #f
          (signal S2
-           (seq (present S1 nothing nothing)
+           (seq (if S1 nothing nothing)
                 (seq nothing
                      (emit S1)))))]
 
@@ -437,7 +437,7 @@ constructive, and its graph is acyclic.
         (code+graph
          #:ignore-start? #f
          (signal S2
-           (seq (present S1 nothing nothing)
+           (seq (if S1 nothing nothing)
                 (seq pause
                      (emit S1)))))]
 
@@ -575,7 +575,7 @@ Cannot corner however can be reached without a connection to
 the top of the program, as any signal with no @es[emit] can
 automatically get a @es[0]. This leads to an odd fact: Must
 is non-local, but Cannot is local. Any program can be put
-into a context where is wont be executed, therefor Must
+into a context where is wont be executed, therefore Must
 requires knowledge about where the top of the program is.
 However if something Cannot happen, then no context can make
 it happen. This asymmetry will show up several times in the design

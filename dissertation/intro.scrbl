@@ -127,11 +127,10 @@ allow contradictions to be derived: for example, by not
 allowing two programs to be proven equal if they evaluate to
 different values.
 
-The Consistency of the calculus given by proof, as a
-corollary of Adequacy, and by testing. Details may be found in
+The Consistency of the calculus given by proof and by testing. Details may be found in
 @secref["just:consistent"] and @secref["just:sound:testing"].
 
-@bold{Sound.} Soundness is necessary for an semantics which describes an
+@bold{Sound.} Soundness is necessary for a semantics which describes an
 already established language. A sound semantics is one which
 agrees with an existing, ground truth semantics. In other
 words, a semantics which is not sound describes a @italic{
@@ -190,7 +189,7 @@ gives existing work related to my calculus. Finally, @secref["final"]
 gives some final thoughts and future directions.
 
 Appendix A lists definitions for all of the notation
-I use here. Appendix B gives the proofs of the my
+I use here. Appendix B gives the proofs of the
 theorems. Appendix C gives an overview of the
 implementation of a circuit solver I implemented for my proofs.
 Appendix D gives examples of using the calculus to prove equalities.

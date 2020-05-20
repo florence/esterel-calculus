@@ -340,7 +340,7 @@ the law of the excluded middle. That is, the circuit
 @es[(or X (not X))] may not always produce @es[1], but can
 also produce @es[⊥].
   
-Any circuit, even ones with a cycle, and be computed in finite time.
+Any circuit, even ones with a cycle, can be computed in finite time.
 On the electrical side of things, this is because, for constructive circuits,
 for any delay time in the computation of a gate there exists some clock time
 for which the circuit will always stabilize. On the logic side, the

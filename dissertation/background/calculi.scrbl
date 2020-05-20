@@ -42,7 +42,7 @@ This equivalence relation will let us reason about programs
 like we reasoned about arithmetic in grade school: if we can
 show two terms are equal, then we can safely replace of
 those terms for another in some larger program without
-changing its meaning. I refer to this as a calculus (taking
+changing its meaning. I refer to kind of equality relation as a calculus (taking
 the name from Church's @lam[λ]-calculus).
 
 
@@ -64,7 +64,7 @@ represent fully evaluated terms.
 
 To build a calculus we first build a small@note{Well, okay, @italic{technically}
  the relation is infinite in size, but it has a small number of rules.}
-relation called the notions of reduction. This represents
+relation called the @as-index{notions of reduction}. This represents
 the core notions of computation in this language. I will write this
 relation as @|hookup|. In general I will add a superscript relations
 to show which language they refer to. For example the notions
@@ -133,7 +133,7 @@ which can step to each other via only the @rule['α] rule are said to be alpha e
 Using the notions of reduction, a calculus is built as an
 equality relation which says, essentially, if some part of
 two programs could be run forwards or backwards to new
-terms, such that the two program are become textually equal, then
+terms, such that the two programs are become textually equal, then
 they two programs must be equivalent.
 
 To start with, we must describe what ``some part of the programs'' means. To do this we use the notion
@@ -169,7 +169,7 @@ anywhere in the program:
 The @rule["step"] rule says that two terms are equal if they
 are related by the notions of reduction. The @rule["ctx"]
 rule says that our reasoning applies in any program context.
-This is gives us locality, as we know that we can apply our
+This gives us locality, as we know that we can apply our
 reasoning anywhere. From here we turn this into an equality relation: that is we make it transitive, reflexive,
 and symmetric:
 @[centered
@@ -195,12 +195,12 @@ This closure under program contexts is also called the @as-index["compatible clo
 @section["Reasoning with a calculus"]
 
 Now that we have a calculus, what can we do with it? The
-core idea of how to reasoning with a calculus is the same as
+core idea of how to reason with a calculus is the same as
 how we reason in our algebra classes from grade school: we
-"run" our core equalities backwards and forwards until we
-massage the term in to the form we want.
+``run'' our core equalities backwards and forwards until we
+massage the term into the form we want.
 
-For example, lets say we want perform something like common
+For example, let us say we want to perform something like common
 subexpression elimination, and prove that:
 @centered[@lam/unchecked[(≡λ (+ (+ 1 1) (+ 1 1)) ((λ x (+ x x)) (+ 1 1)))]]
 The reasoning process might go something like this:
@@ -217,7 +217,7 @@ The reasoning process might go something like this:
   program forward again.}
  @item{By @rule["sym"] and (3),
   @lam/unchecked[(≡λ (+ 2 2) ((λ x (+ x x)) 2))]. @rule["sym"] lets us take
-  our previous "run forwards" example and use it to actually
+  our previous ``run forwards'' example and use it to actually
   run backwards. Now we are working with
   @lam/unchecked[((λ x (+ x x)) 2)].}
  @item{By @rule["sym"], @rule["ctx"], (1), and @rule["trans"],
@@ -233,7 +233,7 @@ The reasoning process might go something like this:
 For a calculus to be adequate, it must be able to define
 an evaluator for its language. I don't, by this,
 mean it gives an effective means to compute a program, but rather that it
-gives a mathmatical definition of what the results of such a function should be. For example,
+gives a mathematical definition of what the results of such a function should be. For example,
 the @lam[λ_v] evaluator might be:
 
 @definition[#:notation @lam/unchecked[(evalλ e)]]{
@@ -245,8 +245,8 @@ the @lam[λ_v] evaluator might be:
 Which says that if a program is equivalent to a constant,
 then that program must evaluate to that constant. If the program is
 equivalent to an anonymous function, then the result is the special symbol
-@lam[procedure]. Note that it is not a given then @lam[evalλ] is a function:
-its entirely possible it could map one expression to two different results. This gives us the
+@lam[procedure]. Note that it is not a given that @lam[evalλ] is a function:
+it is entirely possible it could map one expression to two different results. This gives us the
 definition of consistency for a calculus: the evaluator it defines is a function.
 
 
@@ -257,11 +257,11 @@ One more important piece of background is how one can handle state in calculi.
 State is tricky because it is inherently non-local. The two key pieces for handling state
 are evaluation contexts@~cite[felleisen-friedman] and local environments@~cite[felleisen-hieb].
 The description I give here is adapted from the state calculus in @citet[felleisen-hieb].
-In this section we extend @lam[λ_v] with to support state, and call the extension
+In this section we extend @lam[λ_v] to support state, and call the extension
 @lam[λ_σ].
 To start with, we must be able to control the order of evaluation of terms, as state is order
 sensitive. To do this we need a new kind of context, which only allows holes in specific places
-depending on how far along the program is in evaluating. For @lam[λ_σ] they are:
+depending on how far along the program is in its evaluation. For @lam[λ_σ] they are:
 @[centered
   [with-paper-rewriters
    [render-language λ_v #:nts '(E)]]]
@@ -298,7 +298,8 @@ environment for that term. The next two rules handle setting and dereferencing v
 If a @lam[set!] is within an evaluation context of an environment which contains its variable,
 that means that the @lam[set!] is the next term to run with respect to that environment.
 Therefore it can be run, changing the mapping in the environment to the new value. An arbitrary
-value is left in place of the @lam[set!]. Dereferencing works in a similar way:
+value is left in place of the @lam[set!].@note{In the grand tradition of
+ The Hitchhikers Guide to the Galaxy, the best arbitrary value is @es[42].} Dereferencing works in a similar way:
 if a variable is within an evaluation context of its environment, then dereferencing
 that variable is the next step than can be taken with respect to that environment.
 Environments can be shifted around via the @rule["lift"] rule, exposing new redexs.
