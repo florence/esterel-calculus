@@ -68,9 +68,9 @@
           (loop next (rest l))]))]))
        
 (define (rule name)
-  (define (t s) (text s Linux-Liberterine-name))
-  (define (b s) (text s (cons 'bold Linux-Liberterine-name)))
-  (define (sub s) (text s (list* 'bold 'subscript Linux-Liberterine-name)))
+  (define (t s) (text s Linux-Liberterine-name (default-font-size)))
+  (define (b s) (text s (cons 'bold Linux-Liberterine-name) (default-font-size)))
+  (define (sub s) (text s (list* 'bold 'subscript Linux-Liberterine-name) (default-font-size)))
   (define-values (head tail)
     (match (string-split (~a name) "_")
       [(list head tail)

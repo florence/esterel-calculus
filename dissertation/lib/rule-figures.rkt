@@ -14,12 +14,14 @@
          render-rules
          render-specific-rules
          render-specific-rules2
-         circuit-red-pict)
+         circuit-red-pict
+         vertical?
+         page-width)
 
 ;; approximate, determined by experimentation via `frame`
 ;; and running latex and eyeballing the output,
 ;; and then some random twiddling
-(define page-width 600)
+(define page-width (make-parameter 600))
 
 (define (render-rules name-for-error reduction-relation rule-groups side-condition-beside-rules
                       #:only-one-rule? [only-one-rule? #f]
@@ -66,7 +68,7 @@
            6
            (for/list ([info (in-list group-infos)])
              (render-a-rule info
-                            (- page-width
+                            (- (page-width)
                                (pict-width (sideways-text "Xy"))
                                sideways-gap)
                             side-condition-beside-rules
@@ -77,7 +79,7 @@
     (panorama
      (apply
       vl-append
-      (add-between rules (inset (frame (blank page-width 0)) 0 4))))))
+      (add-between rules (inset (frame (blank (page-width) 0)) 0 4))))))
 
 (define (maybe-cons x l) (if x (cons x l) l))
 
@@ -97,13 +99,20 @@
       rule-name))
   (select rule-names infos))
 
-
+(define vertical? (make-parameter #f))
 (define (render-a-rule info full-width side-condition-beside-rules max-rule-name-width)
   (define main-part
-    (htl-append 4
-                (rule-pict-info-lhs info)
-                (arrow->pict (rule-pict-info-arrow info))
-                (rule-pict-info-rhs info)))
+    (if (vertical?)
+        
+        (vl-append 4
+                   (rule-pict-info-lhs info)
+                   (htl-append 4
+                               (arrow->pict (rule-pict-info-arrow info))
+                               (rule-pict-info-rhs info)))
+        (htl-append 4
+                    (rule-pict-info-lhs info)
+                    (arrow->pict (rule-pict-info-arrow info))
+                    (rule-pict-info-rhs info))))
   (define rule-label (rule (rule-pict-info-label info)))
   (define rule+sc
     (cond
@@ -124,7 +133,7 @@
        (vl-append main-part
                   (hbl-append #;(blank 20 0) sc-pict))]))
   (inset
-   (ht-append
+   ((if (vertical?) vl-append ht-append)
     3
     (ltl-superimpose rule-label (blank max-rule-name-width 0))
     rule+sc)
@@ -178,13 +187,13 @@
                                    standard-side-condition-beside-rules)])
        (render-reduction-relation S:R)))))
 
-(define (render-specific-rules r)
+(define (render-specific-rules r [beside calculus-side-condition-beside-rules])
   (with-paper-rewriters
    (parameterize* ([render-reduction-relation-rules r]
                    [rule-pict-style (render-rules 'strat
                                                   R*
                                                   `(("" ,@r))
-                                                  calculus-side-condition-beside-rules)])
+                                                  beside)])
      (render-reduction-relation R*))))
 
 (define (render-specific-rules2 r)

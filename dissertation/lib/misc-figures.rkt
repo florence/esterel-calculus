@@ -25,7 +25,8 @@
          circuit-lang
          environments1
          environments1
-         nt-∈-line)
+         nt-∈-line
+         esterel+env)
 
 (define (nt-∈-line lhs rhs lhs-spacer)
   (hbl-append (rbl-superimpose
@@ -89,7 +90,7 @@
        (text "O" (non-terminal-style) (default-font-size))
        (text " ::=" (default-style) (default-font-size)))))
    (vl-append
-    (render-language esterel/typeset #:nts '(wire-value c I O EQ B))
+    (render-language esterel/typeset #:nts '(wire-value c I O EQ B⊥))
     (htl-append 50
                 (nt-∈-line "w" "wire names" lhs-spacer)))))
   

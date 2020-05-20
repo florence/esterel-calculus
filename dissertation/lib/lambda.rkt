@@ -50,9 +50,21 @@
   (λ x e #:refers-to x))
 (define-extended-language λ_σ λ_v
   
-  (e ::= .... (ρ1 θ e)
+  (e ::= ....
+     (ρ1 θ e)
      (set! x e))
   (E ::= .... (set! x E))
+  (θ ::= · ((x v) θ)))
+
+(define-extended-language λ_σ2 λ_v
+  
+  (e ::= ....
+     (ρ1 θ e)
+     (set! x e))
+  (E ::=
+     hole
+     (v ... E e ...)
+     (set! x E))
   (θ ::= · ((x v) θ)))
 
 (define-judgment-form λ_v

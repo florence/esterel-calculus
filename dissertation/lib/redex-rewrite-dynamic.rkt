@@ -43,21 +43,21 @@
              #:result (reverse (cons (stringify current) all)))
             ([c (in-string t)])
     (match (hash-ref adjustment-table c c)
-      [(or (? pict-convertible? x) (? pict? x))
-       (values empty (list* x (stringify current) all))]
+      [(? procedure? x)
+       (values empty (list* (x) (stringify current) all))]
       [(? char? c) (values (cons c current) all)])))
 
 
 
-(define hookup
+(define (hookup)
   (drop-below-ascent
    (text "⇀" Linux-Liberterine-name (default-font-size) #:kern? #f)
    2))
-(define hookdown
+(define (hookdown)
   (drop-below-ascent
    (text "⇁" Linux-Liberterine-name (default-font-size)  #:kern? #f)
    2))
-(define right
+(define (right)
   (text "⟶" Linux-Liberterine-name (default-font-size)  #:kern? #f))
 
 (define adjustment-table
@@ -70,23 +70,23 @@
   (match (continuation-mark-set-first (current-continuation-marks) 'current-reduction-arrow)
     [(or #f 'calculus)
      (render-op/instructions
-      hookup
+      (hookup)
       `((superscript E)))]
     ['standard-reduction
      (render-op/instructions
-      hookdown
+      (hookdown)
       `((superscript E)))]
     ['circuit
      (render-op/instructions
-      hookup
+      (hookup)
       `((superscript C)))]
     ['lambda
      (render-op/instructions
-      hookup
+      (hookup)
       `((superscript λ)))]
     ['state
      (render-op/instructions
-      hookup
+      (hookup)
       `((superscript σ)))]))
 
 (set-arrow-pict! '--> reduction-arrow)
@@ -1242,6 +1242,8 @@
 
    (with-atomic-rewriters
     (['Must (lambda () (mf-t "Must"))]
+     ['≡^R (lambda () (render-op "≡^R"))]
+     ['B⊥ (lambda () (render-op/instructions (nt-t "B") '((subscript ⊥))))]
      ;; for postercircuit-red-pict
      ['C^esterel (lambda () (render-op/instructions (nt-t "C") `((superscript E))))]
      ['C^js (lambda () (render-op/instructions (nt-t "C") `((superscript JS))))]

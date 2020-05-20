@@ -469,76 +469,7 @@ state. The lower left is never realized.
 @figure["back:lattice"
         "Must/Can Lattice"
         (let ()
-  (define width 150)
-  (define height 150)
-  (define (debase x)
-    (inset x 0 (* -.2 (- (pict-height x) (pict-descent x)))))
-  (define (scl x)
-    (debase
-     (scale-to-fit
-      x
-      (* .4 width)
-      (* .4 height))))
-  (define v-line (vline 0 height))
-  (define h-line (hline width 0))
-  
-  (define chart
-    (ppict-do
-     (blank width height)
-     #:go (coord 0 .5)
-     v-line
-     #:go (coord .5 .5)
-     v-line
-     #:go (coord 1 .5)
-     v-line
-     #:go (coord .5 0)
-     h-line
-     #:go (coord .5 .5)
-     h-line
-     #:go (coord .5 1)
-     h-line
-     #:go (grid 2 2 1 1)
-     (tag-pict (scl @es[1]) 'one)
-     #:go (grid 2 2 1 2)
-     (strike-for (* .5 width) (* .5 height))
-     #:go (grid 2 2 1 2)
-     (strike-for (* .5 width) (* .5 height) 3 'other)
-     #:go (grid 2 2 2 1)
-     (tag-pict (scl @es[⊥]) 'bot)
-     #:go (grid 2 2 2 2)
-     (tag-pict (scl @es[0]) 'zero)))
-  (define w/labels
-    (panorama
-     (hc-append
-      10
-      (vc-append
-       (cc-superimpose
-        (blank 0 (/ height 2))
-        (text "Can"))
-       (cc-superimpose
-        (blank 0 (/ height 2))
-        (text "Cannot")))
-      (refocus
-       (vc-append
-        10
-        (hbl-append
-         (cc-superimpose
-          (blank (/ width 2) 0)
-          (text "Must"))
-         (cc-superimpose
-          (blank (/ width 2) 0)
-          (text "Might Not")))
-        chart)
-       chart))))
-  (app
-   w/labels
-   (arrow/tag
-    10
-    #:line-width 3 'bot lc-find 'one rc-find)
-   (arrow/tag
-    10
-    #:line-width 3 'bot cb-find 'zero ct-find)
-   ))]
+  )]
 
 Every edge in the program graph begins in the corner of the
 chart labeled @es[⊥], representing that it could be
