@@ -85,7 +85,7 @@ give local broadcast communication channels which carry one
 bit of information: if the signal is present or absent. A signal
 may only have one value in a single instant. 
 
-The conditional form @es[(if S p q)] conditions on if a signal is present or
+The conditional form @es[(present S p q)] conditions on if a signal is present or
 absent, running @es[p] or @es[q] respectively.
 
 The form @es[(emit S)] sets a signal to present. There is no
@@ -329,7 +329,7 @@ if they pass control on in the next instant (e.g. a
         "A program with a separate causality graph"
         (code+graph
          (signal S1
-           (if S1
+           (present S1
                (emit S1)
                nothing)))]
 
@@ -367,11 +367,11 @@ reasoning may allow the cycle to be broken. Consider the program in @figure-ref[
         (code+graph
          (signal S1
            (signal S2
-             (if S1
-                 (if S2
-                     (emit S1)
-                     nothing)
-                 nothing))))]
+             (present S1
+                      (present S2
+                               (emit S1)
+                               nothing)
+                      nothing))))]
 
 This program has a causality cycle, because the condition
 @es[S1] might cause @es[S1] to be emitted. However, we can
@@ -428,7 +428,7 @@ constructive, and its graph is acyclic.
         (code+graph
          #:ignore-start? #f
          (signal S2
-           (seq (if S1 nothing nothing)
+           (seq (present S1 nothing nothing)
                 (seq nothing
                      (emit S1)))))]
 
@@ -437,7 +437,7 @@ constructive, and its graph is acyclic.
         (code+graph
          #:ignore-start? #f
          (signal S2
-           (seq (if S1 nothing nothing)
+           (seq (present S1 nothing nothing)
                 (seq pause
                      (emit S1)))))]
 

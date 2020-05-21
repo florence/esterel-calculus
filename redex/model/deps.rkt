@@ -77,7 +77,7 @@
                   [hash #'(hasheq)]
                   [defs null])
          (syntax-parse x
-           #:datum-literals (present ifemit nothing pause)
+           #:datum-literals (present if emit nothing pause)
            [((~and P (~or if present)) S p q)
             #:with tag (generate-temporary)
             #:with term (generate-temporary)
