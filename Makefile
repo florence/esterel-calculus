@@ -14,7 +14,7 @@ front-end: redex
 
 cross: redex agda
 	$(RACO) test cross-tests/*rkt
-	racket cross-tests/redex-model-implies-agda-model.rkt
+	$(RACO) test cross-tests/redex-model-implies-agda-model.rkt
 
 circuits: always racket-build
 	$(RACO) test circuits
