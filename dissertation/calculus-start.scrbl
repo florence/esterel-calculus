@@ -142,8 +142,8 @@ Local environments @es[ρ] contain two parts: a map @es[θr], and a control vari
 The information contained in these environments is scoped to the program fragment @es[p].
 The map @es[θr] maps signals
 that are in scope of the term @es[p] to their status.
-The maps that use for local stores are restricted maps, which only
-map to a subset of signal statuses.f Other parts of the calculus will use full maps
+The maps used for local stores are restricted maps @es[θr], which only
+map to a subset of signal statuses. Other parts of the calculus will use full maps
 @es[θ].@note{You
  may notice that these three statuses correspond to wire
  values in Circuits. This is because signals correspond
@@ -241,7 +241,7 @@ it makes proofs about the calculus simpler to exclude such programs from
 the grammar altogether.
 @Secref["calc:can"] explains how @es[absent] is recorded in the calculus.
 
-Note that a term that swapping things around, recording that
+Note that a term which swaps things around, recording that
 something @italic{must} be emitted in a program that
 @italic{ cannot} emit it (e.g.
 @es[(ρ (mtθ+S S1 present) GO nothing)]) does not contain a
@@ -310,7 +310,7 @@ The first set
 @S is a set
 of the signals that might be emitted during execution. The
 second set @K is a set of return codes (@es[κ]), which
-describe in what ways the in which the program might
+describe in what ways the program might
 terminate. The code @es[0] means the program may reduce to
 @es[nothing]. The code @es[1] means the program might pause
 (reduce to @es[paused]). A code of @es[(= κ 2)] or greater
@@ -325,7 +325,7 @@ superscript: @es/unchecked[(->S Can)] for the @S set,
 @es/unchecked[(->K Can)] for the @K set, and
 @es/unchecked[(->sh Can)] for the @sh set.
 
-Note that @es[Can] takes in an map @es[θ] not a
+Note that @es[Can] takes in a map @es[θ] not a
 restricted map @es[θr]. While @es[Can] will record
 @es[0]s into this map, it cannot arrive at a
 contraction. This is because it only records a signal @es[S] as @es[0] in the map
@@ -432,13 +432,13 @@ It takes
 a set of output signals and a program, and gives back a pair
 containing a map with the status of each of those signals
 and a Boolean which tells us if the program is constructive
-or not. The evaluator itself is has two clauses, the first clause
+or not. The evaluator itself has two clauses, the first clause
 handling constructive programs, and the second clause handling
 non-constructive programs:
 @centered[(with-paper-rewriters (render-metafunction eval^esterel))]
 If a program is @es[≡] to another program which is done (@es[done]),
 and that program has an environment which is @italic{complete} with respect to that program,
-them, the program is constructive. The @es[complete-with-respect-to] relation holds if
+then, the program is constructive. The @es[complete-with-respect-to] relation holds if
 every signal is either set to @es[1], or is set to @es[⊥] and that signal is not in the
 result of @es/unchecked[(->S Can-θ)]:
 @extract-definition["complete-wrt"]
@@ -464,7 +464,7 @@ may, however, contain @es[⊥] in this case.
 The @es[(blocked-pure θr A E p)] judgment traverses the
 program and checks that at the leaf of each evaluation
 context there is either an @es[if] which is blocked on an
-signal or an @es[emit] which is awaiting an @es[GO].
+signal or an @es[emit] which is awaiting a @es[GO].
 
 The relation is in @figure-ref["calc:eval:blocked:pure"]. The first
 case, @rule["if"], checks that, for a conditional, the status
@@ -514,7 +514,7 @@ this particular program is stuck. Therefore
 someone familiar with the lambda calculus might be ``is
 there an @rule["α"] rule?''. Instead of using the variable
 convention @~cite[barendregt] and working up to α-equivalence, as is common in the
-lambda calculus world, I take a different tact inspired by
+lambda calculus world, I take a different approach inspired by
 Esterel, circuits, and schizophrenia and work up
 to what I have called correct binding. The judgment for a program
 with correct binding is given in @figure-ref["CBfig"].
@@ -539,7 +539,7 @@ distinct bound variables from any possible adjacent free variables.
 The full proof is given in
 @proof-ref["cbpreserved"]. This follows by case analysis
 over the rules of @es[⇀]. Note that any
-program can any be renamed into a program with correct binding
+program can be renamed into a program with correct binding
 by making all variable names unique. Therefore,
 I assume that any program used in
 the calculus or in my proofs has correct binding.
