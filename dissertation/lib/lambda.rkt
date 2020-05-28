@@ -23,9 +23,9 @@
 
 (define-syntax lam/unchecked
   (syntax-parser
-    [(_ e)
+    [(_ e (~optional (~seq #:rewriters rewriters) #:defaults ([rewriters #'with-paper-rewriters])))
      #`(retag
-        (with-paper-rewriters
+        (rewriters
         #,(quasisyntax/loc this-syntax
             (term->pict λ_σ e))))]))
 
