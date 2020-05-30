@@ -44,7 +44,7 @@
 
 (define hookup
   (drop-below-ascent
-   (text "⇀" Linux-Liberterine-name (default-font-size) #:kern? #f)
+   (text "⇀" font-name (default-font-size) #:kern? #f)
    2))
   
 
@@ -68,9 +68,9 @@
           (loop next (rest l))]))]))
        
 (define (rule name)
-  (define (t s) (text s Linux-Liberterine-name (default-font-size)))
-  (define (b s) (text s (cons 'bold Linux-Liberterine-name) (default-font-size)))
-  (define (sub s) (text s (list* 'bold 'subscript Linux-Liberterine-name) (default-font-size)))
+  (define (t s) (text s font-name (default-font-size)))
+  (define (b s) (text (lookup-bold s) (cons 'bold font-name) (default-font-size)))
+  (define (sub s) (text (lookup-bold s) (list* 'bold 'subscript font-name) (default-font-size)))
   (define-values (head tail)
     (match (string-split (~a name) "_")
       [(list head tail)
@@ -82,15 +82,6 @@
               (sub tail)
               (t "]")))
 
-(define is-rule-label?
-  (let ([rule-names (apply set
-                           (append (reduction-relation->rule-names calculus:R)
-                                   (reduction-relation->rule-names standard:R)))])
-    (λ (x)
-      (cond
-        [(symbol? x) (set-member? rule-names x)]
-        [(string? x) (set-member? rule-names (string->symbol x))]
-        [else #f]))))
 
 (define-syntax es
   (syntax-parser

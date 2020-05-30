@@ -26,16 +26,15 @@
                      redex/private/term-fn)
          
          pict/convert
-         file/convertible)
+         file/convertible
+         (only-in xml xml->xexpr read-xml permissive-xexprs document-element))
 (module+ test (require rackunit))
 
 
 
 (provide (rename-out [-note note])
          in-footnote?
-         Linux-Liberterine-name
-         Inconsolata-name
-         LatinModernMath-Regular-name
+         font-name
          subtitle-font-adjust
          paper-title-style
          get-the-font-size
@@ -56,7 +55,8 @@
          proof-splice
          extract-definition
          
-
+         lookup-bold
+         lookup-italic
          lemma lemma-ref Lemma-ref
          render-case-body
          proof
@@ -71,6 +71,31 @@
          log-diss-fatal
          (struct-out pict+tag))
 
+(define-runtime-path unicode.xml "unicode.xml")
+(define unicode-table
+  (parameterize ([permissive-xexprs #t])
+    (call-with-input-file unicode.xml
+      (lambda (x)
+        (xml->xexpr (document-element (read-xml x)))))))
+(define (get-table type)
+  (for/first ([x (in-list unicode-table)]
+              #:when (match x [`(font ((name ,(== type))) ,body ...) #t] [_ #f]))
+    (rest (rest x))))
+(define (get-char x table)
+  (for/first ([body (in-list table)]
+              #:when (match body [`(letter ((source ,(== x)) ,_)) #t] [_ #f]))
+    (second (second (second body)))))
+(define ((make-lookup type) x)
+  (define (get x)
+    (cond
+      [(get-char x (get-table type)) => values]
+      [else x]))
+  (apply string-append
+         (map (compose get string) (string->list x))))
+
+(define lookup-bold (make-lookup "sans-bold"))
+(define lookup-italic (make-lookup "sans-italic"))
+         
 
 
 (struct pict+tag (pict tag)
@@ -126,12 +151,18 @@
 (define Linux-Liberterine-name "Linux Libertine O")
 (define Inconsolata-name "Inconsolata")
 (define LatinModernMath-Regular-name "Latin Modern Math")
+(define gyre-name "Tex Gyre Bonum")
+(define neohellenic-name "GFS Neohellenic")
+(define fm-name "Fira Math")
+(define pagella-name "TeX Gyre Pagella")
+(define fira-name "Fira Sans")
+(define asana-name "Asana Math")
 (define (check-font name)
   (unless (member name (get-face-list))
     (printf "expected the font ~a to be installed\n" name)))
-(check-font Inconsolata-name)
-(check-font Linux-Liberterine-name)
-(check-font LatinModernMath-Regular-name)
+
+(define font-name asana-name)
+(check-font font-name)
 
 (define right-figure-sizes '(4 5 6 7 8 9 10 11 15 17 18))
 

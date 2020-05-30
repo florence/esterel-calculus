@@ -72,7 +72,7 @@ the Esterel v7 compiler. I will describe them more later.
         (esterel-interface @es[(compile p-pure)])]
 
 The circuit compilation function, in essence, expresses the causality graphs described
-in @secref["back:esterel:cannot"] as a circuits. The circuits
+in @secref["back:esterel:cannot"] as circuits. The circuits
 are more complex, as they handle more of Esterel than the causality diagrams do,
 but at their core they have the same execution model.
 The four input wires on the left of the diagram in @figure-ref["circ-shape"] (@es[GO], @es[RES], @es[SUSP], @es[KILL])
@@ -96,9 +96,9 @@ corresponding wire in @es[E_o].
 
 The bottom output wires on the right (@es[K0] et al.) encode the return codes.
 The wire @es[K0] is @es[1] when the term completes, @es[K1] is @es[1] when
-the term would @es[pause], @es[K2] is @es[1] when the term would exit to the first
+the term would @es[pause], @es[K2] is @es[1] when the term would @es[exit] to the first
 @es[trap], etc. Only one of the @es[Kn] wires may be @es[1] at a given time. In circuit speak,
-the @es[Kn] wires are a one-hot encoding of the return code.
+the @es[Kn] wires are a one-hot encoding of the set of return codes from @es/unchecked[(->K Can)].
 
 The final output wire @es[SEL] is @es[1] if there is any register in the circuit which holds a @es[1].
 Such a circuit is said to be selected.

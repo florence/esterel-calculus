@@ -13,7 +13,8 @@
          syntax/parse/define
          (for-syntax syntax/parse)
          "redex-rewrite.rkt"
-         pict/convert)
+         pict/convert
+         (only-in racket/draw make-font))
 
 (define (lift-to-taggable pict tag)
   (if (pict+tag? pict)
@@ -51,14 +52,14 @@
 
 (define (hookup)
   (drop-below-ascent
-   (text "⇀" Linux-Liberterine-name (default-font-size) #:kern? #f)
+   (text "⇀" font-name (default-font-size) #:kern? #f)
    2))
 (define (hookdown)
   (drop-below-ascent
-   (text "⇁" Linux-Liberterine-name (default-font-size)  #:kern? #f)
+   (text "⇁" font-name (default-font-size)  #:kern? #f)
    2))
 (define (right)
-  (text "⟶" Linux-Liberterine-name (default-font-size)  #:kern? #f))
+  (text "⟶" font-name (default-font-size)  #:kern? #f))
 
 (define adjustment-table
   (hash
@@ -103,7 +104,11 @@
   (define tails (regexp-match* #rx"(_|\\^)[^^_]*" s))
   (render-op/instructions head tails))
 
-(define (render-op/instructions base ss)
+(define (render-op/instructions base* [ss empty] #:overslant? [overslant? #f])
+  (define base
+    (if overslant?
+        (hc-append base* (blank 3 0))
+        base*))
   (define-values (supers subs seq)
     (for/fold ([super empty]
                [sub empty]
@@ -117,7 +122,7 @@
         [(or (regexp #rx"_(.*)" (list _ r))
              (list 'subscript r))
          (values super (cons r sub) (cons r seq))])))
-  (define the-super (typeset-supers supers))
+  (define the-super (typeset-supers supers #:overslant? overslant?))
   (define the-sub (typeset-subs subs))
   (lift-to-taggable
    (inset
@@ -168,8 +173,8 @@
               [else (or x v)]))
           (loop next (rest l))]))]))
     
-(define (typeset-supers s)
-  (render-word-sequence (blank) s +2/5))
+(define (typeset-supers s #:overslant? [overslant? #f])
+  (render-word-sequence (blank) s (if overslant? +1/5 +2/5)))
 (define (typeset-subs s)
   (render-word-sequence (blank) s -2/5))
 (define (render-word-sequence base s l)
@@ -237,11 +242,11 @@
   (let loop ([x (param)])
     (cond
       [(cons? x) (cons (car x) (loop (cdr x)))]
-      [else Linux-Liberterine-name])))
+      [else font-name])))
 (define (def-t str) (text str (default-style) (default-font-size)))
-(define (mf-t str) (text str (metafunction-style) (metafunction-font-size)))
-(define (nt-t str) (text str (non-terminal-style) (default-font-size)))
-(define (nt-sub-t str) (text str (cons 'subscript (non-terminal-style)) (default-font-size)))
+(define (mf-t str) (text (lookup-italic str) (metafunction-style) (metafunction-font-size)))
+(define (nt-t str) (text (lookup-bold str) (non-terminal-style) (default-font-size)))
+(define (nt-sub-t str) (text str (list* 'large-script  'subscript (non-terminal-style)) (default-font-size)))
 (define (literal-t str) (text str (literal-style) (default-font-size)))
 (define (par-⊓-pict) (hbl-append (def-t "⊓") (inset (def-t "∥") 0 0 0 -6)))
 (define (index-notation lws field)
@@ -296,7 +301,7 @@
        (not (regexp-match #rx"_" (symbol->string s)))))
 
 (define (θ/c-pict)
-  (hbl-append (text "θ" (non-terminal-style) (default-font-size))
+  (hbl-append (text "𝛉" (non-terminal-style) (default-font-size))
               (text "c"
                     (cons 'superscript (default-style))
                     (round (* #e1.2 (default-font-size))))))
@@ -399,8 +404,9 @@
      
 (define (eval-pict x)
   (render-op/instructions
-   (text "eval" (metafunction-style) (default-font-size))
-   `((superscript ,x))))
+   (text (lookup-italic "eval") (metafunction-style) (default-font-size))
+   `((superscript ,x))
+   #:overslant? #t))
 
 (define (eval-e-pict)
   (eval-pict "E"))
@@ -424,8 +430,9 @@
 (define (Can-θ-name-pict [super #f])
   (Can-name-pict #t super))
 
-(define (Can-name-pict do-rho? [super #f])
+(define (Can-name-pict do-rho? [super #f] #:extend? [extend? #f])
   (render-op/instructions
+   #:overslant? extend?
    (mf-t "Can")
    (append
     (if do-rho? `((subscript ,alt-ρ-text)) `())
@@ -558,12 +565,12 @@
     
     ['Lpresentin
      (λ (lws)
-       (in-dom-st-signals-are "Lpresentin" "θc" "present" lws))]
+       (in-dom-st-signals-are "Lpresentin" "𝛉c" "present" lws))]
     ['Lget-unknown-signals
      (λ (lws)
-       (in-dom-st-signals-are "Lget-unknown-signals" "θ" "unknown" lws))]
+       (in-dom-st-signals-are "Lget-unknown-signals" "𝛉" "unknown" lws))]
     ['Lget-unready-shared
-     (λ (lws) (in-dom-st-shrd-are-unready "Lget-unready-shared" "θ" lws))]
+     (λ (lws) (in-dom-st-shrd-are-unready "Lget-unready-shared" "𝛉" lws))]
     ['⇀
      (λ (lws)
        (list ""
@@ -855,6 +862,18 @@
              ((white-square-bracket) #t)
              (list-ref lws 2)
              ((white-square-bracket) #f)))]
+    ['BV
+     (λ (lws)
+       (list (mf-t "BV")
+             ((white-square-bracket) #t)
+             (list-ref lws 2)
+             ((white-square-bracket) #f)))]
+    ['FV
+     (λ (lws)
+       (list (mf-t "FV")
+             ((white-square-bracket) #t)
+             (list-ref lws 2)
+             ((white-square-bracket) #f)))]
     #;
     ['closed
      (lambda (lws)
@@ -927,6 +946,8 @@
                 (list "" K " \\ { " n " }"))]
     ['Can-θ (λ (lws)
               (render-can lws))]
+    ['Can (λ (lws)
+            (render-can lws))]
     ['θ-ref (λ (lws)
               (define θ (list-ref lws 2))
               (define arg (list-ref lws 3))
@@ -1241,9 +1262,11 @@
    ;                                                              
 
    (with-atomic-rewriters
-    (['Must (lambda () (mf-t "Must"))]
+    (['Must (lambda () (render-op/instructions (mf-t "Must") #:overslant? #t))]
      ['≡^R (lambda () (render-op "≡^R"))]
      ['B⊥ (lambda () (render-op/instructions (nt-t "B") '((subscript ⊥))))]
+     ['B (lambda () (render-op/instructions (nt-t "B") '()))]
+     ['bool (lambda () (render-op/instructions (nt-t "bool") '()))]
      ;; for postercircuit-red-pict
      ['C^esterel (lambda () (render-op/instructions (nt-t "C") `((superscript E))))]
      ['C^js (lambda () (render-op/instructions (nt-t "C") `((superscript JS))))]
@@ -1253,6 +1276,9 @@
      ['all-bot-rec (lambda () (mf-t "nc-r"))]
      ['all-bot-S (lambda () (mf-t "nc-S"))]
      ['all-bot-n (lambda () (mf-t "nc-κ"))]
+
+     ['BV (lambda () (mf-t "BV"))]
+     ['FV (lambda () (mf-t "FV"))]
      
      ['ρ (λ () (alt-ρ))]
 
@@ -1264,18 +1290,21 @@
      ;; to include external values in Racket. When presenting
      ;; the calculus, we really want `ev` to be just `n`.
      ;['n (λ () (text "n" (default-style) (default-font-size)))]
-     ['ev (λ () (text "n" (non-terminal-style) (default-font-size)))]
+     ['ev (λ () (text (lookup-bold "n") (non-terminal-style) (default-font-size)))]
      ;; just for tagging
-     ['p (λ () (text "p" (non-terminal-style) (default-font-size)))]
-     ['q (λ () (text "q" (non-terminal-style) (default-font-size)))]
+     ['p (λ () (text (lookup-bold "p") (non-terminal-style) (default-font-size)))]
+     ['q (λ () (text (lookup-bold "q") (non-terminal-style) (default-font-size)))]
 
      ;; because · renders as {} for environment sets.
      ['dot (λ () (text "·" (default-style) (default-font-size)))]
      
      ;; render nat and mat as n and m for the proofs
-     ['nat (λ () (text "n" (non-terminal-style) (default-font-size)))]
-     ['mat (λ () (text "m" (non-terminal-style) (default-font-size)))]
+     ['nat (λ () (text (lookup-bold "n") (non-terminal-style) (default-font-size)))]
+     ['mat (λ () (text (lookup-bold "m") (non-terminal-style) (default-font-size)))]
+     ['n (λ () (text (lookup-bold "n") (non-terminal-style) (default-font-size)))]
 
+     ['v (λ () (text (lookup-bold "v") (non-terminal-style) (default-font-size)))]
+     
      ;; hack to have two ρ forms
      ['ρ1 (λ () (text "ρ" (non-terminal-style) (default-font-size)))]
      
@@ -1283,90 +1312,105 @@
 
      ;; D is used as a convention to mean a deterministic `E` but
      ;; we forgo this for the typesetting
-     ['D (λ () (text "E" (non-terminal-style) (default-font-size)))]
+     ['D (λ () (text (lookup-bold "E") (non-terminal-style) (default-font-size)))]
+
+     ['κ (λ () (text (lookup-bold "𝞳") (non-terminal-style) (default-font-size)))]
+     ['A (λ () (text (lookup-bold "A") (non-terminal-style) (default-font-size)))]
+     ['O (λ () (text (lookup-bold "O") (non-terminal-style) (default-font-size)))]
+     ['I (λ () (text (lookup-bold "I") (non-terminal-style) (default-font-size)))]
+     ['EQ (λ () (text (lookup-bold "EQ") (non-terminal-style) (default-font-size)))]
+     ['w (λ () (text (lookup-bold "w") (non-terminal-style) (default-font-size)))]
 
      ;; same with the pure variants
      ['p-pure+GO
       (λ ()
         (render-op/instructions
-         (text "p" (non-terminal-style) (default-font-size))
+         (text (lookup-bold "p") (non-terminal-style) (default-font-size))
          `((superscript p) (subscript GO))))]
      ['q-pure+GO
       (λ ()
         (render-op/instructions
-         (text "q" (non-terminal-style) (default-font-size))
+         (text (lookup-bold "q") (non-terminal-style) (default-font-size))
          `((superscript p) (subscript GO))))]
      ['r-pure+GO
       (λ ()
         (render-op/instructions
-         (text "r" (non-terminal-style) (default-font-size))
+         (text (lookup-bold "r") (non-terminal-style) (default-font-size))
          `((superscript p) (subscript GO))))]
      ['p-pure+GO-loop
       (λ ()
         (render-op/instructions
-         (text "p" (non-terminal-style) (default-font-size))
+         (text (lookup-bold "p") (non-terminal-style) (default-font-size))
          `((superscript p) (subscript GO))))]
      ['q-pure+GO-loop
       (λ ()
         (render-op/instructions
-         (text "q" (non-terminal-style) (default-font-size))
+         (text (lookup-bold "q") (non-terminal-style) (default-font-size))
          `((superscript p) (subscript GO))))]
      ['r-pure+GO-loop
       (λ ()
         (render-op/instructions
-         (text "r" (non-terminal-style) (default-font-size))
+         (text (lookup-bold "r") (non-terminal-style) (default-font-size))
          `((superscript p) (subscript GO))))]
      ['p-pure (λ ()
                 (render-op/instructions
-                 (text "p" (non-terminal-style) (default-font-size))
+                 (text (lookup-bold "p") (non-terminal-style) (default-font-size))
                  `((superscript p))))]
      ['q-pure (λ ()
                 (render-op/instructions
-                 (text "q" (non-terminal-style) (default-font-size))
+                 (text (lookup-bold "q") (non-terminal-style) (default-font-size))
                  `((superscript p))))]
      ['r-pure (λ ()
                 (render-op/instructions
-                 (text "r" (non-terminal-style) (default-font-size))
+                 (text (lookup-bold "r") (non-terminal-style) (default-font-size))
                  `((superscript p))))]
      ['p-pure-loop (λ ()
                 (render-op/instructions
-                 (text "p" (non-terminal-style) (default-font-size))
+                 (text (lookup-bold "p") (non-terminal-style) (default-font-size))
                  `((superscript p))))]
      ['q-pure-loop (λ ()
                 (render-op/instructions
-                 (text "q" (non-terminal-style) (default-font-size))
+                 (text (lookup-bold "q") (non-terminal-style) (default-font-size))
                  `((superscript p))))]
      ['r-pure-loop (λ ()
-                (render-op/instructions
-                 (text "r" (non-terminal-style) (default-font-size))
-                 `((superscript p))))]
+                     (render-op/instructions
+                      (text (lookup-bold "r") (non-terminal-style) (default-font-size))
+                      `((superscript p))))]
+     ['C (λ ()
+           (render-op/instructions
+            (text (lookup-bold "C") (non-terminal-style) (default-font-size))
+            `()))]
      ['C-pure (λ ()
                 (render-op/instructions
-                 (text "C" (non-terminal-style) (default-font-size))
+                 (text (lookup-bold "C") (non-terminal-style) (default-font-size))
                  `((superscript p))))]
      ['C-pure+GO (λ ()
                    (render-op/instructions
-                    (text "C" (non-terminal-style) (default-font-size))
+                    (text (lookup-bold "C") (non-terminal-style) (default-font-size))
                     `((superscript p) (subscript GO))))]
+     ['E (λ ()
+                (render-op/instructions
+                 (text (lookup-bold "E") (non-terminal-style) (default-font-size))
+                 `()))]
      ['E-pure (λ ()
                 (render-op/instructions
-                 (text "E" (non-terminal-style) (default-font-size))
+                 (text (lookup-bold "E") (non-terminal-style) (default-font-size))
                  `((superscript p))))]
      ['E-pure+GO (λ ()
                 (render-op/instructions
-                 (text "E" (non-terminal-style) (default-font-size))
+                 (text (lookup-bold "E") (non-terminal-style) (default-font-size))
                  `((superscript p) (subscript GO))))]
      ['E-pure-loop (λ ()
                 (render-op/instructions
-                 (text "E" (non-terminal-style) (default-font-size))
+                 (text (lookup-bold "E") (non-terminal-style) (default-font-size))
                  `((superscript p))))]
      ['E1-pure (λ ()
                 (render-op/instructions
-                 (text "E1" (non-terminal-style) (default-font-size))
+                 (text (lookup-bold "E1") (non-terminal-style) (default-font-size))
                  `((superscript p))))]
-     ['p-unex (λ () (text "p" (non-terminal-style) (default-font-size)))]
-     ['q-unex (λ () (text "q" (non-terminal-style) (default-font-size)))]
-     ['wire-value (λ () (text "e" (non-terminal-style) (default-font-size)))]
+     ['p-unex (λ () (text (lookup-bold "p") (non-terminal-style) (default-font-size)))]
+     ['q-unex (λ () (text (lookup-bold "q") (non-terminal-style) (default-font-size)))]
+     ['wire-value (λ () (text (lookup-bold "e") (non-terminal-style) (default-font-size)))]
 
      ['max-mf (λ () (def-t "max"))]
      ['→ (λ () (def-t "→"))]
@@ -1383,13 +1427,13 @@
      ['stopped (λ () (render-op/instructions (nt-t "p") `((superscript S))))]
      ['complete* (λ () (render-op/instructions (nt-t "p") `((superscript C))))]
      ['paused
-      (lambda () (text "p̂" (cons 'no-combine (non-terminal-style)) (default-font-size)))]
+      (lambda () (text (lookup-bold "p̂") (cons 'no-combine (non-terminal-style)) (default-font-size)))]
 
      ['hole (lambda () (text "○" (default-style) (default-font-size)))]
      ['Cc1
       (λ ()
         (render-op/instructions
-         (text "C" (non-terminal-style) (default-font-size))
+         (text (lookup-bold "C") (non-terminal-style) (default-font-size))
          `((superscript c) (subscript 1))))]
       
                     
@@ -1406,7 +1450,7 @@
      ['next-instant (λ () (mf-t "Ɛ"))]
      ['par-⊓ (λ () (par-⊓-pict))]
      ['Can-θ (λ () (Can-θ-name-pict))]
-     ['Can (λ () (Can-name-pict #f))]
+     ['Can (λ () (Can-name-pict #f #:extend? #t))]
      ['CB (λ () (CB-judgment-pict))]
      ['· (λ () (def-t "{}"))]
      ['L-S (λ () (L-S-pict))]
@@ -1417,14 +1461,14 @@
      ['θ/c (λ () (θ/c-pict))]
      ['c
       (lambda ()
-        (text "ɕ" (non-terminal-style) (default-font-size)))]
+        (text "𝖈" (non-terminal-style) (default-font-size)))]
      ['circuit
       (lambda ()
-        (text "ɕ" (non-terminal-style) (default-font-size)))]
+        (text "𝖈" (non-terminal-style) (default-font-size)))]
      ['cs
       (lambda ()
         (render-op/instructions
-         (text "θ" (non-terminal-style) (default-font-size))
+         (text "𝛉" (non-terminal-style) (default-font-size))
          `((superscript ,(nt-t "ɕ")))))]
      ['present (λ () (text "1" (default-style) (default-font-size)))]
      ['absent (λ () (text "0" (default-style) (default-font-size)))]
@@ -1464,34 +1508,60 @@
      ['not-blocked not-blocked-pict]
      ['restrict (lambda () (mf-t "restrict"))]
      ['complete-with-respect-to (lambda () (mf-t "complete-wrt"))]
+     ['θ
+      (lambda ()
+        (render-op/instructions
+         (text "𝛉" (non-terminal-style) (default-font-size))
+         `()))]
      ['θr
       (lambda ()
         (render-op/instructions
-         (text "θ" (non-terminal-style) (default-font-size))
+         (text "𝛉" (non-terminal-style) (default-font-size))
          `((superscript ,(text "r" (non-terminal-style) (default-font-size))))))]
 
      ['tt (lambda () (text "tt" (list* 'italic 'combine (literal-style)) (default-font-size)))]
      ['ff (lambda () (text "ff" (list* 'italic 'combine (literal-style)) (default-font-size)))]
      ;; results
      ['R (lambda ()
-           (text "R" (non-terminal-style) (default-font-size)))]
+           (text (lookup-bold "R") (non-terminal-style) (default-font-size)))]
      ['count (lambda () (words "𝒮"))]
      ['compile
       (λ () (text "⟦·⟧" (default-style) (default-font-size)))]
+     ['status
+      (lambda ()
+        (render-op/instructions
+         (text (lookup-bold "status") (non-terminal-style) (default-font-size))
+         `()))]
      ['statusr
       (lambda ()
         (render-op/instructions
-         (text "status" (non-terminal-style) (default-font-size))
+         (text (lookup-bold "status") (non-terminal-style) (default-font-size))
          `((superscript r))))]
+     ['S (λ ()
+           (render-op/instructions
+            (text (lookup-bold "S") (non-terminal-style) (default-font-size))
+            `()))]
+     ['s (λ ()
+           (render-op/instructions
+            (text (lookup-bold "s") (non-terminal-style) (default-font-size))
+            `()))]
+     ['x (λ ()
+           (render-op/instructions
+            (text (lookup-bold "x") (non-terminal-style) (default-font-size))
+            `()))]
+     ['e (λ ()
+           (render-op/instructions
+            (text (lookup-bold "e") (non-terminal-style) (default-font-size))
+            `()))]
      ['So (λ ()
             (render-op/instructions
-             (text "S" (non-terminal-style) (default-font-size))
+             (text (lookup-bold "S") (non-terminal-style) (default-font-size))
              `((superscript o))))]
      ['sub (lambda () (mf-t "sub"))]
      ['Si
       (lambda ()
         (render-op/instructions
-         (text "S" (non-terminal-style) (default-font-size))
+         (text (lookup-bold "S") (non-terminal-style) (default-font-size))
          `((superscript i))))]
      ['δ (λ () (eval-h-pict))]
      ['δ* (λ () (mf-t "δ"))]
@@ -1499,19 +1569,27 @@
      ['≃λ (lambda () (≃-pict "λ"))]
      ['evalλ
      (lambda () (eval-pict "λ"))]
+     ['eval
+      (lambda () (eval-pict ""))]
      ['set! (lambda () (def-t "σ"))])
     (define owsb (white-square-bracket))
+    (define f (make-font #:size (get-the-font-size)
+                         #:face font-name
+                         #:family 'symbol
+                         #:weight 'book))
     (parameterize* ([default-font-size (get-the-font-size)]
                     [metafunction-font-size (get-the-font-size)]
-                    [label-style Linux-Liberterine-name]
-                    [grammar-style Linux-Liberterine-name]
-                    [paren-style Linux-Liberterine-name]
-                    [literal-style Linux-Liberterine-name]
-                    [metafunction-style (cons 'italic Linux-Liberterine-name)]
-                    [non-terminal-style (cons 'bold Linux-Liberterine-name)]
-                    [non-terminal-subscript-style (replace-font non-terminal-subscript-style)]
-                    [non-terminal-superscript-style (replace-font non-terminal-superscript-style)]
-                    [default-style Linux-Liberterine-name]
+                    [label-style f]
+                    [grammar-style f]
+                    [paren-style f]
+                    [literal-style f]
+                    [metafunction-style (cons 'italic font-name)]
+                    [non-terminal-style (cons 'bold font-name)]
+                    [non-terminal-subscript-style
+                     (cons 'large-script (replace-font non-terminal-subscript-style))]
+                    [non-terminal-superscript-style
+                     (cons 'large-script (replace-font non-terminal-superscript-style))]
+                    [default-style font-name]
                     [where-make-prefix-pict
                      (lambda ()
                        (def-t " if "))]
@@ -1523,10 +1601,12 @@
                           (refocus
                            (lbl-superimpose
                             (scale
-                             (text (if open? "⟬" "⟭")
+                             (text #;(if open? "〘" "〙")
+                                   (if open? "⦗" "⦘")
                                    (default-style)
                                    (default-font-size))
-                             1.05)
+                             1
+                             #;1.05)
                             s)
                            s)
                           (if open? 2 0)

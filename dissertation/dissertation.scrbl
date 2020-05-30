@@ -57,7 +57,8 @@
  this project possible. Thank you, Matthias, for setting me
  on this path and for suggesting this project. That you,
  Steve and Bill, for all of the conversations and advise
- during the start of my PhD.
+ during the start of my PhD. Thank you, Christos,
+ for all your help in guiding the math part of this project.
 
  Thank you, Wendy, Ryan, Jonathan, Teresa, Pranav, for being
  such steadfast friends through all of this, and for giving
