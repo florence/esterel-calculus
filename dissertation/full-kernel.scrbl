@@ -24,14 +24,15 @@
 @title[#:style paper-title-style
        #:tag "sec:the-rest"]{Adding in the rest of Esterel}
 
-The tripod of evidence that the calculus stands on includes
+The evidence that the calculus stands on includes
 prior work and testing, alongside the proofs. So far I have
 only given one of those legs, the proofs, and only for the
 pure, loop free, single instant, fragment of Esterel. This
 chapter fills in the parts of the calculus which handle
 loops, host language expressions, and multi-instant
-execution. It will also give the other two legs of the
-tripod: testing and prior work. While the parts of the
+execution. It will also give the other kinds of
+evidence I have for the correctness
+of the calculus: testing and prior work. While the parts of the
 calculus given so far stand on all three legs, these new
 parts are supported only by testing and prior work.
 

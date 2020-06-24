@@ -69,9 +69,9 @@ theory for Esterel which is consistent, sound, and adequate.
 I have shown that this equational theory
 is consistent, sound, and adequate. I show this
 using three pieces of evidence: proofs, testing, and prior
-work. This evidence, this tripod the calculus stands upon,
-is necessary because not all parts of the calculus stand
-equally upon all three legs. The proofs apply only to loop
+work. These flavors of evidence
+is necessary because not all parts of the calculus
+have proofs for them. The proofs apply only to loop
 free, pure Esterel programs, and are proven with respect
 to the circuit semantics
 for Esterel@~cite[esterel02]. The full calculus, on the

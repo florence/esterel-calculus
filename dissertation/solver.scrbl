@@ -62,9 +62,15 @@ core of the circuit solving library Circuitous. Specifically
 it describes the interpreter implementation at commit
 @tt[commit] of https://github.com/florence/circuitous/,
 which is the version used while building this document. Note
-that the explanation of this section assumes more
+that the explanation of this section assumes
 familiarity with @citet[malik-circuit], @citet[shiple-constructive-circuit], and
-Racket@~cite[plt-tr1], Rosette@~cite[rosette] than the rest of this dissertation.
+Racket@~cite[plt-tr1], Rosette@~cite[rosette].
+I would strongly recommend that any reader familiarize themselves with the
+the above papers, the Rosette guide@note{https://docs.racket-lang.org/rosette-guide/index.html?q=rosette}.
+the (current incomplete) documentation for Circuitious@note{https://github.com/florence/circuitous/tree/master/circuitous-doc},
+and the Circuitious test cases@note{https://github.com/florence/circuitous/tree/master/circuitous-test/circuitous/tests},
+as these are not covered in enough detail in this dissertation for
+this section to make sense.
 
 The purpose of this appendix is help make this work more
 reproducible and to help increase the readers confidence
