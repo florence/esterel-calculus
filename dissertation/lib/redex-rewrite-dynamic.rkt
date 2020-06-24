@@ -126,16 +126,24 @@
   (define the-sub (typeset-subs subs))
   (lift-to-taggable
    (inset
-    (refocus
-     (hbl-append
-      (refocus (hbl-append base the-sub) base)
-      the-super)
-     base)
+    (collapse-ascent
+     (refocus
+      (hbl-append
+       (refocus (hbl-append base the-sub) base)
+       the-super)
+      base))
     0
     0
     (max (pict-width the-sub) (pict-width the-super))
     0)
    (compute-tag base seq)))
+
+(define (collapse-ascent x)
+  (struct-copy pict
+               x
+               [ascent
+                (- (pict-height x) (pict-descent x))]))
+  
 
 (define (compute-tag base ss)
   (define (to-string x)
@@ -1597,8 +1605,7 @@
                      (lambda (open?)
                        (let ([text (current-text)])
                          (define s (ghost (owsb open?)))
-                         (inset
-                          (refocus
+                         (refocus
                            (lbl-superimpose
                             (scale
                              (text #;(if open? "〘" "〙")
@@ -1608,9 +1615,7 @@
                              1
                              #;1.05)
                             s)
-                           s)
-                          (if open? 2 0)
-                          0 0 0)))])
+                           s)))])
       (thunk)))))
 
 (define (words str)

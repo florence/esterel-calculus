@@ -33,11 +33,12 @@ giving a formal semantics to Esterel a subtle and tricky
 business, and has lead to a plethora of different semantics
 suited to different purposes.
 
-Some of these semantics are adequate to give an
+Some of these semantics are computationally adequate, giving an
 evaluator for programs, giving meaning to full programs by
 running them---such as the Constructive Operational
 Semantics (COS)@~cite[optimizations-for-esterel-programs-thesis],
-and the State Behavioral Semantics (SBS)@~cite[esterel02]. Others give us local reasoning, allowing for
+and the State Behavioral Semantics (SBS)@~cite[esterel02].
+Others are allow for compositional, 
 modular reasoning about fragments of full programs (i.e.
 constant propagation or modular compilation)---such as
 the Circuit Semantics@~cite[esterel02] or the Axiomatic Semantics (AS)@~cite[tini-axiomatic].
@@ -49,21 +50,24 @@ is useful, for example, when giving good crash reports,
 explaining program refactorings, or for optimization
 coaching@~cite[optimization-coaching], which helps explain
 to programmers why some optimization were not applied and
-how to fix it. All of the existing semantics are (and must
-be)  consistent and sound, in that they all describe the exact same
+how to fix it. Only one prior
+semantics is an equational theory, the AS, which
+allows one to reason about program fragments
+like one does terms in algrabra.
+All of the existing semantics are (and must
+be) consistent and sound, in that they all describe the exact same
 language, as opposed to subtly different variations on that
 language.
 
 Each of Esterel's many semantics do some of these jobs very
-well. However there are no semantics for Esterel which are
-simultaneously, local, syntactic, consistent, sound, and adequate enough
-to give an evaluator for the language. This is the
-contribution of this dissertation: a
-syntactic, local, consistent, sound, and adequate semantics
-for Esterel.
+well. However there are no equational theories for Esterel which are
+simultaneously consistent, sound, and
+computationally adequate. This
+is the contribution of this dissertation: an equational
+theory for Esterel which is consistent, sound, and adequate.
 
-I have shown that this syntactic, local semantics---this
-calculus---is consistent, sound, and adequate. I show this
+I have shown that this equational theory
+is consistent, sound, and adequate. I show this
 using three pieces of evidence: proofs, testing, and prior
 work. This evidence, this tripod the calculus stands upon,
 is necessary because not all parts of the calculus stand
@@ -76,8 +80,14 @@ semantics and implementations. Many parts of the calculus are
 also borrowed from the prior semantics, helping increase
 confidence in their correctness.
 
-@bold{Syntactic.} The benefits of a syntactic semantics is primarily human:
-They allow reasoning about a programming language to be
+@bold{Equational.} Equational theories
+allow for algebra-like reasoning about programs:
+that is they can explain why fragments of
+programs are equal using only the syntax of those program
+fragments.
+
+The benefits of using only the syntax of the program fragments is primarily human:
+It allows reasoning about a programming language to be
 expressed directly in terms of that language, rather than in
 terms of some external domain.
 Often developing a semantics which uses @italic{only} the
@@ -106,20 +116,11 @@ two new forms to the syntax of Kernel Esterel: a variant of
 @es[loop^stop]. They are discussed in more detail in
 @secref["sec:free-and-pure"] and @secref["sec:the-rest"] respectively.
 
-@bold{Local.} A local semantics is useful
+Reasoning about program fragments is useful
 for both human and machine reasoning. Reasoning about full
 programs is difficult, impractical, and in often impossible
 in the case of libraries. Modular reasoning is essential for
-working with large programs, thus we want a local semantics.
-
-Calculi are local @italic{by construction.}
-A calculus allows it's equations
-of the calculus to be using under any program context. In
-practice this means that most equations apply anywhere in a
-program, while some work as long as entire scope of a signal
-is visible. Detains my be found in @secref["calc:eql"].
-
-@;@section[#:tag "intro:consistent"]{Consistent}
+working with large programs.
 
 @bold{Consistent.} Consistency is one of the most essential
 of these facets. A consistent semantics is one that does not

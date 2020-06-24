@@ -14,6 +14,7 @@
          render-rules
          render-specific-rules
          render-specific-rules2
+         render-specific-rules3
          circuit-red-pict
          vertical?
          page-width)
@@ -187,7 +188,7 @@
                                    standard-side-condition-beside-rules)])
        (render-reduction-relation S:R)))))
 
-(define (render-specific-rules r [beside calculus-side-condition-beside-rules])
+(define (render-specific-rules r #:R [R* R*] [beside calculus-side-condition-beside-rules])
   (with-paper-rewriters
    (parameterize* ([render-reduction-relation-rules r]
                    [rule-pict-style (render-rules 'strat
@@ -195,6 +196,15 @@
                                                   `(("" ,@r))
                                                   beside)])
      (render-reduction-relation R*))))
+
+(define (render-specific-rules3 r #:R [R* R*] [beside calculus-side-condition-beside-rules])
+ 
+  (parameterize* ([render-reduction-relation-rules r]
+                  [rule-pict-style (render-rules 'strat
+                                                 R*
+                                                 `(("" ,@r))
+                                                 beside)])
+    (render-reduction-relation R*)))
 
 (define (render-specific-rules2 r)
   (with-paper-rewriters

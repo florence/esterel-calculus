@@ -134,9 +134,10 @@ These Notebooks may be found in the repository for this Dissertation.
 @proof[#:title "Consistency of Eval"
        #:label "consistent"
        #:type 'theorem
-       #:statement @list{For all @es[p-pure+GO] and  @es[O],
-        if @es/unchecked[(= (eval^esterel O p-pure+GO) (tup θ_1 bool_1))]
-        and @es/unchecked[(= (eval^esterel O p-pure+GO) (tup θ_2 bool_2))],
+       #:statement @list{For all @es[p-pure+GO] and @es[O],
+        if @es[(closed p-pure+GO)],
+        @es/unchecked[(= (eval^esterel O p-pure+GO) (tup θ_1 bool_1))],@(linebreak)
+        and @es/unchecked[(= (eval^esterel O p-pure+GO) (tup θ_2 bool_2))],@(linebreak)
         then @es[(= (tup θ_1 bool_1) (tup θ_2 bool_2))].}
        #:interpretation @list{This theorem states that @es[eval^esterel] is
         a function.}]{
