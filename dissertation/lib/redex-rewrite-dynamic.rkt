@@ -1469,10 +1469,10 @@
      ['θ/c (λ () (θ/c-pict))]
      ['c
       (lambda ()
-        (text "𝖈" (non-terminal-style) (default-font-size)))]
+        (text "ɕ" (non-terminal-style) (default-font-size)))]
      ['circuit
       (lambda ()
-        (text "𝖈" (non-terminal-style) (default-font-size)))]
+        (text "ɕ" (non-terminal-style) (default-font-size)))]
      ['cs
       (lambda ()
         (render-op/instructions

@@ -538,7 +538,7 @@ state. The lower left is never realized.
    (arrow/tag
     10
     #:line-width 3 'bot cb-find 'zero ct-find)
-   ))])]
+   ))]
 
 Every edge in the program graph begins in the corner of the
 chart labeled @es[⊥], representing that it could be
@@ -574,11 +574,14 @@ control node that has zero incoming edges is @es[start]. The
 Cannot corner however can be reached without a connection to
 the top of the program, as any signal with no @es[emit] can
 automatically get a @es[0]. This leads to an odd fact: Must
-is non-local, but Cannot is local. Any program can be put
+is less compositional than Cannot. Any program can be put
 into a context where is wont be executed, therefore Must
 requires knowledge about where the top of the program is.
 However if something Cannot happen, then no context can make
-it happen. This asymmetry will show up several times in the design
+it happen. This means
+that given no information about its context, Cannot still
+gives may give us useful information, whereas Must cannot.
+This asymmetry will show up several times in the design
 of the Calculus.
 
 @section{Summary of Notation}

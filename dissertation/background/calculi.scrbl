@@ -169,8 +169,7 @@ anywhere in the program:
 The @rule["step"] rule says that two terms are equal if they
 are related by the notions of reduction. The @rule["ctx"]
 rule says that our reasoning applies in any program context.
-This gives us locality, as we know that we can apply our
-reasoning anywhere. From here we turn this into an equality relation: that is we make it transitive, reflexive,
+From here we turn this into an equality relation: that is we make it transitive, reflexive,
 and symmetric:
 @[centered
   [with-layout

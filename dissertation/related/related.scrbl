@@ -60,9 +60,8 @@ from @es[Must] and @es[Can].
 
 These semantics both give a syntactic evaluator for Esterel:
 that is they give a function that gives the final result of
-several instants of execution. They do not provide
-for local reasoning about equality between program fragments,
-however.
+several instants of execution. They are not equational
+theories.
 These semantics, as given in @citet[esterel02], only handle Pure Esterel.
 
 @subsection["Constructive Operational Semantics"]
@@ -84,8 +83,8 @@ being conditioned on is unknown and cannot be set to absent.
 This approach inspired how the Constructive Calculus handles constructiveness.
 
 Like the CBS and CSS, the COS gives defines a syntactic
-evaluator for Esterel and does not afford for local reasoning about
-equality between programs. The COS is defined on all of Kernel Esterel.
+evaluator for Esterel, and is
+not an equational theory. The COS is defined on all of Kernel Esterel.
 
 @subsection["Circuit Semantics"]
 
@@ -126,12 +125,16 @@ depends on the state of the cycle.
 The circuit semantics allow for local reasoning about
 equality between programs.
 It also provides an evaluator, through circuit
-simulation. However its reasoning is non-syntactic: the
+simulation. In addition circuit semantics
+can be used to prove equivalences between programs,
+as we have a computable equality relation between circuits.
+However its reasoning is non-syntactic: the
 transformations done to a circuit may not result in a new
 circuit that can be transformed back into an Esterel
 program, and even when they can be, the reasoning used to
 explain why the circuit can be transformed in that way might
-not map cleanly back to Esterel. The circuit semantics
+not map cleanly back to Esterel. Therefor,
+it is not an equational theory. The circuit semantics
 in @citet[esterel02] is defined on only pure Esterel. The circuit semantics in
 @citet[optimizations-for-esterel-programs-thesis] is extended to handle
 a host language.
@@ -143,8 +146,8 @@ is a labeled transition system that gives an evaluator for Esterel programs,
 and the second is a series of logical axioms
 which give an equality relation for Esterel programs, which they call
 the Axiomatic Semantics. Of all the semantics presented so
-far, these axioms are the closest to the goal that I have. As a set of
-axioms over programs it is local and syntactic. However it
+far, these axioms are the closest to the goal that I have,
+as it is an equational theory. However it
 is built from fundamentally different techniques,@note{For instance, their
  notion of equality is based on bisimulation, whereas mine is based on
  contextual equivalence.} and it is not adequate to define an evaluator for Esterel.
@@ -165,8 +168,8 @@ It replaces both Must and Can
 with colors that propagate throughout the program, mimicking how @es[1] and @es[0]
 propagate through circuits. The control variables of the constructive
 calculus are based off this.
-The Color semantics is syntactic and adequate, but does
-not allow for local transformations. The Color Semantics handles only  Pure Esterel.
+The Color semantics is computationally adequate, and is not
+an equational theory. The Color Semantics handles only  Pure Esterel.
 
 @subsection["Quartz"]
 
@@ -179,9 +182,10 @@ allows properties of Quartz programs to be verified by both
 model checking and theorem proving using HOL. The generation
 of the guarded commands used for defining dataflow requires
 knowledge of the precondition for that command, which
-requires knowledge about the context. This limits the amount
-of local reasoning in the semantics. It is also not a
-syntactic semantics. It is adequate, and in fact can be used
+requires knowledge about the context. Like the circuit semantics,
+this means it is not an equational theory, but it still can
+prove equivalences between program using the underlying
+model it maps programs to. It is adequate, and in fact can be used
 for verified code generation.
 Quartz handles host language data, and
 also extends Kernel Esterel with forms such as
