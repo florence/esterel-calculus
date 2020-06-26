@@ -60,13 +60,13 @@ language, as opposed to subtly different variations on that
 language.
 
 Each of Esterel's many semantics do some of these jobs very
-well. However there are no equational theories for Esterel which are
+well. However there is a
+gap in the these semantics: there are no equational theories for Esterel which are
 simultaneously consistent, sound, and
-computationally adequate. This
-is the contribution of this dissertation: an equational
-theory for Esterel which is consistent, sound, and adequate.
+computationally adequate. Such a semantics
+is the contribution of this dissertation.
 
-I have shown that this equational theory
+I have shown that my equational theory
 is consistent, sound, and adequate. I show this
 using three pieces of evidence: proofs, testing, and prior
 work. These flavors of evidence
