@@ -21,7 +21,7 @@
                "scribble-lib"
                "pict-snip-lib"
                "html-parsing"
-	       "rosette"
+	       "https://github.com/emina/rosette.git#c092b65b8831726487edd1e63b4390508db483d2"
                "https://github.com/florence/diagrama.git?path=diagrama-lib"))
 
 (define collection "esterel-calculus")
